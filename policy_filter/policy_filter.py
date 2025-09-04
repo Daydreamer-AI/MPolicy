@@ -129,3 +129,54 @@ def daily_ma24_filter(df_daily_data, df_weekly_data):
         return True
     
     return False
+
+
+def daily_ma10_filter(df_daily_data):
+    if df_daily_data.empty:
+        return False
+    
+    if columns_check(df_daily_data, ('收盘', 'DEA', 'MA10', 'MA24', 'MA52', '换手率', '量比5日')):
+        last_day_row = df_daily_data.tail(1)
+        day_close = last_day_row['收盘'].item()
+        day_dea = last_day_row['DEA'].item()
+        day_ma10 = last_day_row['MA10'].item()
+        day_ma24 = last_day_row['MA24'].item()
+        day_ma52 = last_day_row['MA52'].item()
+        day_turn = last_day_row['换手率'].item()
+        day_lb = last_day_row['量比5日'].item()
+
+    b_ret = (day_turn > 3) and (day_lb > 1)
+    b_ret_2 = day_dea > 0
+    b_ret_3 = day_ma24 > day_ma52 and day_ma10 > day_ma24
+    b_ret_4 = abs(day_close - day_ma10) < day_ma10 * 0.05
+
+    if b_ret and b_ret_2 and b_ret_3 and b_ret_4:
+        print("符合日线MA10筛选")
+        return True
+    
+    return False
+
+def daily_ma20_filter(df_daily_data):
+    if df_daily_data.empty:
+        return False
+    
+    if columns_check(df_daily_data, ('收盘', 'DEA', 'MA20', 'MA24', 'MA52', '换手率', '量比5日')):
+        last_day_row = df_daily_data.tail(1)
+        day_close = last_day_row['收盘'].item()
+        day_dea = last_day_row['DEA'].item()
+        day_ma20 = last_day_row['MA20'].item()
+        day_ma24 = last_day_row['MA24'].item()
+        day_ma52 = last_day_row['MA52'].item()
+        day_turn = last_day_row['换手率'].item()
+        day_lb = last_day_row['量比5日'].item()
+
+    b_ret = (day_turn > 3) and (day_lb > 1)
+    b_ret_2 = day_dea > 0
+    b_ret_3 = day_ma24 > day_ma52
+    b_ret_4 = abs(day_close - day_ma20) < day_ma20 * 0.05
+
+    if b_ret and b_ret_2 and b_ret_3 and b_ret_4:
+        print("符合日线MA20筛选")
+        return True
+    
+    return False

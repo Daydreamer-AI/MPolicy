@@ -58,7 +58,7 @@ class BaoStockProcessor:
 
         if start_date == None or end_date == None:
             # 默认计算近一年的日期范围
-            end_date = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+            end_date = datetime.datetime.now().strftime("%Y-%m-%d")
             start_date = (datetime.datetime.now() - datetime.timedelta(days=365)).strftime("%Y-%m-%d")
             # print(f"获取股票 {stock_code} 数据，时间范围：{start_date} 至 {end_date}")
         
@@ -461,6 +461,60 @@ class BaoStockProcessor:
         df_daily_data = self.process_daily_stock_data(code)
         return pf.daily_ma52_filter(df_daily_data)
         
+
+    # 策略筛选
+    def daily_ma52_filter(self):
+        filter_result = []
+        for code, df_data in self.dict_daily_stock_data:
+            if pf.daily_ma52_filter(df_data):
+                filter_result.append(code)
+        
+        return filter_result
+    
+    def daily_and_weekly_ma52_filter(self):
+        filter_result = []
+
+        for code, df_data in self.dict_daily_stock_data:
+            if pf.daily_and_weekly_ma52_filter(df_data, self.dict_weekly_stock_data[code]):
+                filter_result.append(code)
+
+        return filter_result
+    
+    def daily_ma24_filter(self):
+        filter_result = []
+
+        for code, df_data in self.dict_daily_stock_data:
+            if pf.daily_ma24_filter(df_data, self.dict_weekly_stock_data[code]):
+                filter_result.append(code)
+
+        return filter_result
+
+    def daily_ma52_ma24_filter(self, isUp=False):
+        filter_result = []
+
+        for code, df_data in self.dict_daily_stock_data:
+            if pf.daily_ma52_ma24_filter(df_data, self.dict_weekly_stock_data[code]):
+                filter_result.append(code)
+
+        return filter_result
+    
+    def daily_ma10_filter(self):
+        filter_result = []
+
+        for code, df_data in self.dict_daily_stock_data:
+            if pf.daily_ma10_filter(df_data):
+                filter_result.append(code)
+
+        return filter_result
+    
+    def daily_ma20_filter(self):
+        filter_result = []
+
+        for code, df_data in self.dict_daily_stock_data:
+            if pf.daily_ma20_filter(df_data):
+                filter_result.append(code)
+
+        return filter_result
 
 if __name__ == "__main__":
     bao_stock_processor = BaoStockProcessor()

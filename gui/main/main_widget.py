@@ -13,7 +13,17 @@ class MainWidget(QWidget):
 
         # 连接信号槽 (示例：假设UI文件中有一个名为 pushButton 的按钮)
         self.btn_get_all_stocks.clicked.connect(self.slot_btn_get_all_stocks_clicked)
+        self.btn_query_sh_main.clicked.connect(self.slot_btn_query_sh_main_clicked)
+        self.btn_query_sz_main.clicked.connect(self.slot_btn_query_sz_main_clicked)
         self.btn_query_gem.clicked.connect(self.slot_btn_query_gem_clicked)
+        self.btn_query_star.clicked.connect(self.slot_btn_query_star_clicked)
+
+        # 策略筛选
+        self.btn_daily_ma52_filter.clicked.connect(self.slot_btn_daily_ma52_filter_clicked)
+        self.btn_daily_ma24_filter.clicked.connect(self.slot_btn_daily_ma24_filter_clicked)
+        self.btn_daily_ma10_filter.clicked.connect(self.slot_btn_daily_ma10_filter_clicked)
+        self.btn_daily_ma20_filter.clicked.connect(self.slot_btn_daily_ma20_filter_clicked)
+        self.btn_daily_down_filter.clicked.connect(self.slot_btn_daily_down_filter_clicked)
 
     @pyqtSlot()
     def slot_btn_get_all_stocks_clicked(self):
@@ -21,5 +31,43 @@ class MainWidget(QWidget):
         processor_controller_instance.test()
 
     @pyqtSlot()
+    def slot_btn_query_sh_main_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_query_sh_main_clicked...")
+        processor_controller_instance.process_sh_main_stock_data()
+
+    @pyqtSlot()
+    def slot_btn_query_sz_main_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_query_sz_main_clicked...")
+        processor_controller_instance.process_sz_main_stock_data()
+
+    @pyqtSlot()
     def slot_btn_query_gem_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_query_gem_clicked...")
         processor_controller_instance.process_gem_stock_data()
+
+    @pyqtSlot()
+    def slot_btn_query_star_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_query_star_clicked...")
+        processor_controller_instance.process_star_stock_data()
+
+
+    # 策略筛选
+    def slot_btn_daily_ma52_filter_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_daily_ma52_filter_clicked...")
+        processor_controller_instance.process_ma52_filter()
+
+    def slot_btn_daily_ma24_filter_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_daily_ma24_filter_clicked...")
+        processor_controller_instance.process_ma24_filter()
+
+    def slot_btn_daily_ma10_filter_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_daily_ma10_filter_clicked...")
+        processor_controller_instance.process_ma10_filter()
+
+    def slot_btn_daily_ma20_filter_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_daily_ma20_filter_clicked...")
+        processor_controller_instance.process_ma20_filter()
+
+    def slot_btn_daily_down_filter_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_daily_down_filter_clicked...")
+        processor_controller_instance.process_ma52_ma24_filter()
