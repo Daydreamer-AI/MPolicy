@@ -15,10 +15,14 @@ class ProcessorController:
         self.bao_stock_processor.process_sh_main_stock_daily_data()
         self.bao_stock_processor.process_sh_main_stock_weekly_data()
 
+        # 接口测试
+        # friday_count = self.bao_stock_processor.count_fridays_since("2025-08-30")
+        # print("周五个数：", friday_count)
+
     def process_sz_main_stock_data(self):
         print("process_sz_main_stock_data")
         self.bao_stock_processor.process_sz_main_stock_daily_data()
-        # self.bao_stock_processor.process_sz_main_stock_weekly_data()
+        self.bao_stock_processor.process_sz_main_stock_weekly_data()
 
     def process_gem_stock_data(self):
         print("process_gem_stock_data")

@@ -8,6 +8,7 @@ import time
 import datetime
 from policy_filter import policy_filter as pf
 import threading
+from datetime import date, timedelta
 
 class BaoStockProcessor:
     def __init__(self):
@@ -27,11 +28,11 @@ class BaoStockProcessor:
         self.b_stop_process = False
         self.lock = threading.Lock()  # 创建一把锁
 
-        # print("登录Baostock系统")
-        # lg = bs.login()
+        print("登录Baostock系统")
+        lg = bs.login()
         # 显示登陆返回信息
-        # print('login respond error_code:'+lg.error_code)
-        # print('login respond  error_msg:'+lg.error_msg)
+        print('login respond error_code:'+lg.error_code)
+        print('login respond  error_msg:'+lg.error_msg)
 
         self.df_trade_dates = self.get_current_trade_dates()
         if self.is_trading_day_today():
@@ -42,8 +43,8 @@ class BaoStockProcessor:
 
     
     def __del__(self):
-        # print("登出Baostock系统")
-        # bs.logout()
+        print("登出Baostock系统")
+        bs.logout()
         pass
 
     def data_type_conversion(self, result):
@@ -70,15 +71,15 @@ class BaoStockProcessor:
             result['是否ST'] = result['是否ST'].map({'是': True, '否': False, '1': True, '0': False, 'True': True, 'False': False})
         # 或者如果原本是字符串形式的 'True'/'False'
         # result['是否ST'] = result['是否ST'].astype(bool)
-        else:
-            print("result中没有 是否ST 列")
+        # else:
+            # print("result中没有 是否ST 列")
 
         # 打印转换后的数据类型检查
         # print(result.dtypes)
 
     # 获取当年交易日信息
     def get_current_trade_dates(self):
-        bs.login()
+        # bs.login()
         #### 获取交易日信息 ####
         rs = bs.query_trade_dates(start_date="2025-01-01", end_date="2025-12-31")
         print('query_trade_dates respond error_code:'+rs.error_code)
@@ -94,7 +95,7 @@ class BaoStockProcessor:
         #### 结果集输出到csv文件 ####   
         # result.to_csv("D:\\trade_datas.csv", encoding="gbk", index=False)
         # print("2025年交易日：", result)
-        bs.login()
+        # bs.login()
         return result
 
     def is_trading_day(self, day_str=''):
@@ -119,11 +120,47 @@ class BaoStockProcessor:
 
         # 直接比较
         if now > target_datetime:
-            print("当前时间在17:30之后")
+            # print("当前时间在17:30之后")
             return True
         else:
-            print("当前时间在17:30之前或等于20:30")
+            # print("当前时间在17:30之前或等于20:30")
             return False
+
+    def count_fridays_since(self, specific_date_str):
+        """
+        计算从指定日期到今天之间有多少个星期五。
+
+        参数:
+        specific_date_str (str): 字符串格式的日期，期望格式为 "YYYY-MM-DD"，例如 "2025-08-29"。
+
+        返回:
+        int: 星期五的数量。
+        """
+        try:
+            # 1. 将字符串转换为日期对象
+            specific_date = datetime.datetime.strptime(specific_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            raise ValueError("日期格式错误，请使用 'YYYY-MM-DD' 格式。")
+
+        # 2. 获取今天的日期
+        today = date.today()
+
+        # 确保输入的日期不晚于今天
+        if specific_date > today:
+            return 0
+
+        # 3. 初始化计数器
+        friday_count = 0
+        # 4. 循环遍历从指定日期到今天的每一天
+        current_date = specific_date
+        while current_date <= today:
+            # 5. 判断当前日期是否为星期五 (Monday=0, Sunday=6)
+            if current_date.weekday() == 4:
+                friday_count += 1
+            # 6. 移动到下一天
+            current_date += timedelta(days=1)
+
+        return friday_count
 
     # 全量更新
     def process_daily_stock_data(self, code, start_date=None, end_date=None):
@@ -136,7 +173,7 @@ class BaoStockProcessor:
         sleep_time = random.uniform(0, 1)
         # time.sleep(sleep_time)
 
-        lg = bs.login()
+        # lg = bs.login()
         rs = bs.query_history_k_data_plus(code,
             "date,code,open,high,low,close,volume,amount,pctChg,turn,adjustflag,isST",
             start_date=start_date, end_date=end_date,
@@ -158,7 +195,7 @@ class BaoStockProcessor:
         self.data_type_conversion(result)
 
         # 登出系统
-        bs.logout()
+        # bs.logout()
         return result
 
     def process_and_save_daily_stock_data(self, code):
@@ -205,12 +242,12 @@ class BaoStockProcessor:
             return day_stock_data
         
         if self.is_trading_day_today():
-            # 交易日18:00后才能更新当天数据
+            # 交易日17:30后才能更新当天数据
             if not self.can_update_today_data():
                 return day_stock_data
 
         last_date = day_stock_data['日期'].iloc[-1]
-        print("最后日期（方法2）:", last_date) 
+        # print("最后日期（方法2）:", last_date) 
 
         parsed_date = datetime.datetime.strptime(last_date, "%Y-%m-%d")  # 解析为日期对象
         last_date = parsed_date + datetime.timedelta(days=1)
@@ -218,19 +255,20 @@ class BaoStockProcessor:
         # 步骤二：获取数据库中最后日期至今的股票数据
         start_date = last_date.strftime("%Y-%m-%d")               # Baostock要求的日期格式
         end_date = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
-        print(f"获取股票 {code} 数据，时间范围：{start_date} 至 {end_date}")
+        # print(f"获取股票 {code} 数据，时间范围：{start_date} 至 {end_date}")
         df_new_stock_data = self.process_daily_stock_data(code, start_date, end_date)
         # if df_new_stock_data.empty:
         #     print("process_daily_stock_data执行结果为空！")
         #     return False
         
-        print("获取到的新数据：", df_new_stock_data)
+        # print("获取到的新数据：")
+        # print(df_new_stock_data)
 
         if not df_new_stock_data.empty:
             # 合并计算指标
             combined_df = pd.concat([day_stock_data, df_new_stock_data], axis=0, ignore_index=True)
-            print("合并后的combined_df:")
-            print(combined_df.tail(6))
+            # print("合并后的combined_df:")
+            # print(combined_df.tail(6))
 
             sdi.macd(combined_df)
             sdi.ma(combined_df, 'MA5', 5)
@@ -242,14 +280,14 @@ class BaoStockProcessor:
             sdi.ma(combined_df, 'MA60', 60)
             sdi.quantity_ratio(combined_df)
         
-            print("新数据指标计算结果：")
+            # print("新数据指标计算结果：")
             data_to_save = combined_df.tail(len(df_new_stock_data))
-            print(data_to_save)
-            # self.day_stock_db.save_bao_stock_data_to_db(code, data_to_save, "append")
+            # print(data_to_save)
+            self.day_stock_db.save_bao_stock_data_to_db(code, data_to_save, "append")
             self.dict_daily_stock_data[code] = combined_df
             return combined_df
         
-        print("未获取到新数据")
+        # print("未获取到新数据")
         self.dict_daily_stock_data[code] = day_stock_data
         return day_stock_data
 
@@ -266,7 +304,7 @@ class BaoStockProcessor:
         sleep_time = random.uniform(0, 1) # 等待时间可以设得稍长一些
         # time.sleep(sleep_time)
 
-        lg = bs.login()
+        # lg = bs.login()
         rs = bs.query_history_k_data_plus(code,
             "date,code,open,high,low,close,volume,amount,pctChg,turn,adjustflag",
             start_date=start_date, end_date=end_date,
@@ -288,7 +326,7 @@ class BaoStockProcessor:
         self.data_type_conversion(result)
 
         # 登出系统
-        bs.logout()
+        # bs.logout()
         return result
 
     def process_and_save_weekly_stock_data(self, code):
@@ -326,22 +364,30 @@ class BaoStockProcessor:
         # 步骤一：得到当前数据库中的股票数据
         week_stock_data = self.week_stock_db.get_bao_stock_data(code)
         
-        now_date = datetime.datetime.now().strftime("%Y-%m-%d")
-        if now_date in week_stock_data['日期'].values:
+        # 最后一行数据日期 + 1，至今有几个周五？一个也没有说明是最新数据，无需更新。
+        # now_date = datetime.datetime.now().strftime("%Y-%m-%d")
+        # if now_date in week_stock_data['日期'].values:
+        #     print("已是最新数据")
+        #     return week_stock_data
+        last_date = week_stock_data['日期'].iloc[-1]
+        parsed_date = datetime.datetime.strptime(last_date, "%Y-%m-%d")  # 解析为日期对象
+        last_date = parsed_date + datetime.timedelta(days=1)
+        num_fridays = self.count_fridays_since(last_date.strftime("%Y-%m-%d"))
+        if not num_fridays > 0:
             print("已是最新数据")
             return week_stock_data
         
         if self.is_trading_day_today():
-            # 交易日18:00后才能更新当天数据
+            # 交易日17:30后才能更新当天数据
             if not self.can_update_today_data():
                 return week_stock_data
         
         last_date = week_stock_data['日期'].iloc[-1]
-        print("最后周线日期:", last_date) 
+        # print("最后周线日期:", last_date) 
 
         parsed_date = datetime.datetime.strptime(last_date, "%Y-%m-%d")  # 解析为日期对象
         last_date = parsed_date + datetime.timedelta(days=1)
-        print(last_date.strftime("%Y-%m-%d"))
+        # print(last_date.strftime("%Y-%m-%d"))
 
         # 步骤二：获取数据库中最后日期至今的股票数据
         start_date = last_date.strftime("%Y-%m-%d")               # Baostock要求的日期格式
@@ -352,7 +398,7 @@ class BaoStockProcessor:
         #     print("process_weekly_stock_data执行结果为空！")
         #     return False
         
-        print("获取到的新周线数据：", df_new_weekly_stock_data)
+        # print("获取到的新周线数据：", df_new_weekly_stock_data)
 
         # if not df_new_weekly_stock_data.empty:
         #     self.day_stock_db.save_bao_stock_data_to_db(code, df_new_weekly_stock_data, "append")
@@ -360,22 +406,22 @@ class BaoStockProcessor:
         if not df_new_weekly_stock_data.empty:
             # 合并计算指标
             combined_df = pd.concat([week_stock_data, df_new_weekly_stock_data], axis=0, ignore_index=True)
-            print("合并后的combined_df:")
-            print(combined_df.tail(3))
+            # print("合并后的combined_df:")
+            # print(combined_df.tail(3))
 
             sdi.macd(combined_df)
             sdi.ma(combined_df, 'MA24', 24)
             sdi.ma(combined_df, 'MA52', 52)
             sdi.quantity_ratio(combined_df)
         
-            print("新周线数据指标计算结果：")
+            # print("新周线数据指标计算结果：")
             data_to_save = combined_df.tail(len(df_new_weekly_stock_data))
-            print(data_to_save)
+            # print(data_to_save)
             self.day_stock_db.save_bao_stock_data_to_db(code, data_to_save, "append")
             self.dict_weekly_stock_data[code] = combined_df
             return combined_df
         
-        print("未获取到新数据")
+        # print("未获取到新数据")
         self.dict_weekly_stock_data[code] = week_stock_data
         return week_stock_data
 
@@ -411,7 +457,7 @@ class BaoStockProcessor:
         self.day_stock_db.set_db_dir("./stocks/db/baostock/day/sz_main")
         i = 1
         for value in self.dict_all_stocks['sz_main']['证券代码']:
-            print(f"获取第 {i} 只深市主板股票 {value} 日线数据")
+            print(f"获取第 {i} 只深市主板股票 {value} 【日线】数据")
             i += 1
             self.process_and_save_daily_stock_data(value)
 
@@ -419,7 +465,7 @@ class BaoStockProcessor:
         self.week_stock_db.set_db_dir("./stocks/db/baostock/week/sz_main")
         i = 1
         for value in self.dict_all_stocks['sz_main']['证券代码']:
-            print(f"获取第 {i} 只深市主板股票 {value} 日线数据")
+            print(f"获取第 {i} 只深市主板股票 {value} 【周线】数据")
             i += 1
             self.process_and_save_weekly_stock_data(value)
 
@@ -428,7 +474,7 @@ class BaoStockProcessor:
         self.day_stock_db.set_db_dir("./stocks/db/baostock/day/gem")
         i = 1
         for value in self.dict_all_stocks['gem']['证券代码']:
-            print(f"获取第 {i} 只创业板股票 {value} 日线数据")
+            print(f"获取第 {i} 只创业板股票 {value} 【日线】数据")
             i += 1
             self.process_and_save_daily_stock_data(value)
 
@@ -436,7 +482,7 @@ class BaoStockProcessor:
         self.week_stock_db.set_db_dir("./stocks/db/baostock/week/gem")
         i = 1
         for value in self.dict_all_stocks['gem']['证券代码']:
-            print(f"获取第 {i} 只创业板股票 {value} 日线数据")
+            print(f"获取第 {i} 只创业板股票 {value} 【周线】数据")
             i += 1
             self.process_and_save_weekly_stock_data(value)
 
@@ -444,7 +490,7 @@ class BaoStockProcessor:
         self.day_stock_db.set_db_dir("./stocks/db/baostock/day/star")
         i = 1
         for value in self.dict_all_stocks['star']['证券代码']:
-            print(f"获取第 {i} 只科创板股票 {value} 日线数据")
+            print(f"获取第 {i} 只科创板股票 {value} 【日线】数据")
             i += 1
             self.process_and_save_daily_stock_data(value)
 
@@ -452,14 +498,14 @@ class BaoStockProcessor:
         self.week_stock_db.set_db_dir("./stocks/db/baostock/week/star")
         i = 1
         for value in self.dict_all_stocks['star']['证券代码']:
-            print(f"获取第 {i} 只科创板股票 {value} 日线数据")
+            print(f"获取第 {i} 只科创板股票 {value} 【周线】数据")
             i += 1
             self.process_and_save_weekly_stock_data(value)
 
 
     def get_and_save_all_stocks_from_bao(self):
         #### 登陆系统 ####
-        lg = bs.login()
+        # lg = bs.login()
         # 显示登陆返回信息
         # print('login respond error_code:'+lg.error_code)
         # print('login respond  error_msg:'+lg.error_msg)
@@ -506,7 +552,7 @@ class BaoStockProcessor:
         # self.stocks_db.save_tao_stocks_to_db(result)
 
         #### 登出系统 ####
-        bs.logout()
+        # bs.logout()
 
     def get_all_stocks_from_db(self):
         self.dict_all_stocks['sh_main'] = self.stocks_db.get_sh_main_stocks()
