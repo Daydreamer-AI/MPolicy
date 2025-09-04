@@ -12,11 +12,15 @@ class MainWidget(QWidget):
         uic.loadUi('./gui/main/MainWidget.ui', self)  # 确保路径正确
 
         # 连接信号槽 (示例：假设UI文件中有一个名为 pushButton 的按钮)
+        # 全量获取
         self.btn_get_all_stocks.clicked.connect(self.slot_btn_get_all_stocks_clicked)
         self.btn_query_sh_main.clicked.connect(self.slot_btn_query_sh_main_clicked)
         self.btn_query_sz_main.clicked.connect(self.slot_btn_query_sz_main_clicked)
         self.btn_query_gem.clicked.connect(self.slot_btn_query_gem_clicked)
         self.btn_query_star.clicked.connect(self.slot_btn_query_star_clicked)
+
+        # 增量更新
+        self.btn_update_sh_main_data.clicked.connect(self.slot_btn_update_sh_main_data_clicked)
 
         # 策略筛选
         self.btn_daily_ma52_filter.clicked.connect(self.slot_btn_daily_ma52_filter_clicked)
@@ -25,6 +29,10 @@ class MainWidget(QWidget):
         self.btn_daily_ma20_filter.clicked.connect(self.slot_btn_daily_ma20_filter_clicked)
         self.btn_daily_down_filter.clicked.connect(self.slot_btn_daily_down_filter_clicked)
 
+        self.btn_stop.clicked.connect(self.slot_btn_stop_clicked)
+
+    # 槽函数
+    # 全量获取
     @pyqtSlot()
     def slot_btn_get_all_stocks_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_get_all_stocks_clicked")
@@ -50,24 +58,39 @@ class MainWidget(QWidget):
         self.plainTextEdit_log.appendPlainText("slot_btn_query_star_clicked...")
         processor_controller_instance.process_star_stock_data()
 
+    # 增量更新
+    @pyqtSlot()
+    def slot_btn_update_sh_main_data_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_update_sh_main_data_clicked...")
+        processor_controller_instance.update_sh_main_daily_data()
 
     # 策略筛选
+    @pyqtSlot()
     def slot_btn_daily_ma52_filter_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_daily_ma52_filter_clicked...")
         processor_controller_instance.process_ma52_filter()
 
+    @pyqtSlot()
     def slot_btn_daily_ma24_filter_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_daily_ma24_filter_clicked...")
         processor_controller_instance.process_ma24_filter()
 
+    @pyqtSlot()
     def slot_btn_daily_ma10_filter_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_daily_ma10_filter_clicked...")
         processor_controller_instance.process_ma10_filter()
 
+    @pyqtSlot()
     def slot_btn_daily_ma20_filter_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_daily_ma20_filter_clicked...")
         processor_controller_instance.process_ma20_filter()
 
+    @pyqtSlot()
     def slot_btn_daily_down_filter_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_daily_down_filter_clicked...")
         processor_controller_instance.process_ma52_ma24_filter()
+
+    @pyqtSlot()
+    def slot_btn_stop_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_stop_clicked...")
+        processor_controller_instance.stop_process()

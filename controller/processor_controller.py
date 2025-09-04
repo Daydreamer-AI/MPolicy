@@ -9,6 +9,7 @@ class ProcessorController:
     def test(self):
         print("ProcessorController test")
 
+    # 全量获取
     def process_sh_main_stock_data(self):
         print("process_sh_main_stock_data")
         self.bao_stock_processor.process_sh_main_stock_daily_data()
@@ -17,7 +18,7 @@ class ProcessorController:
     def process_sz_main_stock_data(self):
         print("process_sz_main_stock_data")
         self.bao_stock_processor.process_sz_main_stock_daily_data()
-        self.bao_stock_processor.process_sz_main_stock_weekly_data()
+        # self.bao_stock_processor.process_sz_main_stock_weekly_data()
 
     def process_gem_stock_data(self):
         print("process_gem_stock_data")
@@ -28,6 +29,11 @@ class ProcessorController:
         print("process_star_stock_data")
         self.bao_stock_processor.process_star_stock_daily_data()
         self.bao_stock_processor.process_star_stock_weekly_data()
+
+    # 增量更新
+    def update_sh_main_daily_data(self):
+        print("update_sh_main_daily_data")
+        self.bao_stock_processor.update_sh_main_daily_data()
 
     # 策略筛选
     def process_ma52_filter(self):
@@ -59,6 +65,10 @@ class ProcessorController:
         result = self.bao_stock_processor.daily_ma52_ma24_filter()
         print("process_ma52_ma24_filter done.")
         print(result)
+
+    def stop_process(self):
+        print("stop_process")
+        self.bao_stock_processor.stop_process()
     
 
 processor_controller_instance = ProcessorController()

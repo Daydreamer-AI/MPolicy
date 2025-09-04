@@ -7,6 +7,7 @@ import random
 import time
 import datetime
 from policy_filter import policy_filter as pf
+import threading
 
 class BaoStockProcessor:
     def __init__(self):
@@ -23,10 +24,32 @@ class BaoStockProcessor:
 
         self.get_all_stocks_from_db()
 
+        self.b_stop_process = False
+        self.lock = threading.Lock()  # 创建一把锁
+
+        # print("登录Baostock系统")
+        # lg = bs.login()
+        # 显示登陆返回信息
+        # print('login respond error_code:'+lg.error_code)
+        # print('login respond  error_msg:'+lg.error_msg)
+
+        self.df_trade_dates = self.get_current_trade_dates()
+        if self.is_trading_day_today():
+            print("今天是交易日")
+            self.can_update_today_data()
+        else:
+            print("今天不是交易日")
+
+    
+    def __del__(self):
+        # print("登出Baostock系统")
+        # bs.logout()
+        pass
+
     def data_type_conversion(self, result):
         # 1. 转换日期列
         if '日期' in result.columns:
-            result['日期'] = pd.to_datetime(result['日期']).dt.date  # 转换为 datetime.date 类型，或者用 .dt.normalize() 取日期部分
+            result['日期'] = pd.to_datetime(result['日期'], format='%Y-%m-%d').dt.date  # 转换为 datetime.date 类型，或者用 .dt.normalize() 取日期部分
 
         # 2. 转换数值列 (开盘, 最高, 最低, 收盘, 成交额, 涨跌幅, 换手率)
         numeric_columns = ['开盘', '最高', '最低', '收盘', '成交额', '涨跌幅', '换手率']
@@ -53,17 +76,65 @@ class BaoStockProcessor:
         # 打印转换后的数据类型检查
         # print(result.dtypes)
 
+    # 获取当年交易日信息
+    def get_current_trade_dates(self):
+        bs.login()
+        #### 获取交易日信息 ####
+        rs = bs.query_trade_dates(start_date="2025-01-01", end_date="2025-12-31")
+        print('query_trade_dates respond error_code:'+rs.error_code)
+        print('query_trade_dates respond  error_msg:'+rs.error_msg)
+
+        #### 打印结果集 ####
+        data_list = []
+        while (rs.error_code == '0') & rs.next():
+            # 获取一条记录，将记录合并在一起
+            data_list.append(rs.get_row_data())
+        result = pd.DataFrame(data_list, columns=rs.fields)
+
+        #### 结果集输出到csv文件 ####   
+        # result.to_csv("D:\\trade_datas.csv", encoding="gbk", index=False)
+        # print("2025年交易日：", result)
+        bs.login()
+        return result
+
+    def is_trading_day(self, day_str=''):
+        if day_str in self.df_trade_dates['calendar_date'].values:
+            trading_status = self.df_trade_dates.loc[self.df_trade_dates['calendar_date'] == day_str, 'is_trading_day'].iloc[0]
+            return trading_status == '1'
+        else:
+            return False # 或者根据你的需求返回 None 或抛出异常
+
+    # 判断当天是否是交易日
+    def is_trading_day_today(self):
+        today_str = datetime.datetime.now().strftime('%Y-%m-%d')
+        return self.is_trading_day(today_str)
+
+    # 判断能否更新当天交易数据
+    def can_update_today_data(self):
+        # 获取当前日期和时间
+        now = datetime.datetime.now()
+
+        # 创建今天17:30的datetime对象
+        target_datetime = datetime.datetime(now.year, now.month, now.day, 17, 30)
+
+        # 直接比较
+        if now > target_datetime:
+            print("当前时间在17:30之后")
+            return True
+        else:
+            print("当前时间在17:30之前或等于20:30")
+            return False
+
     # 全量更新
     def process_daily_stock_data(self, code, start_date=None, end_date=None):
-
         if start_date == None or end_date == None:
             # 默认计算近一年的日期范围
-            end_date = datetime.datetime.now().strftime("%Y-%m-%d")
+            end_date = (datetime.datetime.now()).strftime("%Y-%m-%d")
             start_date = (datetime.datetime.now() - datetime.timedelta(days=365)).strftime("%Y-%m-%d")
             # print(f"获取股票 {stock_code} 数据，时间范围：{start_date} 至 {end_date}")
         
-        sleep_time = random.uniform(1, 3)
-        time.sleep(sleep_time)
+        sleep_time = random.uniform(0, 1)
+        # time.sleep(sleep_time)
 
         lg = bs.login()
         rs = bs.query_history_k_data_plus(code,
@@ -91,24 +162,32 @@ class BaoStockProcessor:
         return result
 
     def process_and_save_daily_stock_data(self, code):
-        result = self.process_daily_stock_data(code)
+        result = pd.DataFrame()
+
+        if not self.day_stock_db.check_stock_db_exists(code):
+            print(f"{code}.db 不存在，即将从Baostock获取")
+            result = self.process_daily_stock_data(code)
+
+            if not result.empty:
+                sdi.macd(result)
+                sdi.ma(result, 'MA5', 5)
+                sdi.ma(result, 'MA10', 10)
+                sdi.ma(result, 'MA20', 20)
+                sdi.ma(result, 'MA24', 24)
+                sdi.ma(result, 'MA30', 30)
+                sdi.ma(result, 'MA52', 52)
+                sdi.ma(result, 'MA60', 60)
+                sdi.quantity_ratio(result)
+                self.day_stock_db.save_bao_stock_data_to_db(code, result)
+        else:
+            print(f"{code}.db 存在，即将从本地数据库更新")
+            result = self.update_daily_stock_data(code)
+        
         # if result.empty:
         #     print("process_daily_stock_data执行结果为空！")
         #     return False
-        
-        if not result.empty:
-            sdi.macd(result)
-            sdi.ma(result, 'MA5', 5)
-            sdi.ma(result, 'MA10', 10)
-            sdi.ma(result, 'MA20', 20)
-            sdi.ma(result, 'MA24', 24)
-            sdi.ma(result, 'MA30', 30)
-            sdi.ma(result, 'MA52', 52)
-            sdi.ma(result, 'MA60', 60)
-            sdi.quantity_ratio(result)
-            self.day_stock_db.save_bao_stock_data_to_db(code, result)
-            self.dict_daily_stock_data[code] = result
-        
+            
+        self.dict_daily_stock_data[code] = result
         return result
        
     # 增量维护，收盘后调用
@@ -118,30 +197,34 @@ class BaoStockProcessor:
             return pd.DataFrame()
 
         # 步骤一：得到当前数据库中的股票数据
-        day_stock_data = self.day_stock_db.get_tao_stock_data(code)
+        day_stock_data = self.day_stock_db.get_bao_stock_data(code)
         
         now_date = datetime.datetime.now().strftime("%Y-%m-%d")
         if now_date in day_stock_data['日期'].values:
             print("已是最新数据")
             return day_stock_data
+        
+        if self.is_trading_day_today():
+            # 交易日18:00后才能更新当天数据
+            if not self.can_update_today_data():
+                return day_stock_data
 
         last_date = day_stock_data['日期'].iloc[-1]
         print("最后日期（方法2）:", last_date) 
 
         parsed_date = datetime.datetime.strptime(last_date, "%Y-%m-%d")  # 解析为日期对象
         last_date = parsed_date + datetime.timedelta(days=1)
-        print(last_date.strftime("%Y-%m-%d"))
 
         # 步骤二：获取数据库中最后日期至今的股票数据
         start_date = last_date.strftime("%Y-%m-%d")               # Baostock要求的日期格式
-        end_date = datetime.datetime.now().strftime("%Y-%m-%d")
-
+        end_date = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+        print(f"获取股票 {code} 数据，时间范围：{start_date} 至 {end_date}")
         df_new_stock_data = self.process_daily_stock_data(code, start_date, end_date)
         # if df_new_stock_data.empty:
         #     print("process_daily_stock_data执行结果为空！")
         #     return False
         
-        print(df_new_stock_data)
+        print("获取到的新数据：", df_new_stock_data)
 
         if not df_new_stock_data.empty:
             # 合并计算指标
@@ -162,10 +245,12 @@ class BaoStockProcessor:
             print("新数据指标计算结果：")
             data_to_save = combined_df.tail(len(df_new_stock_data))
             print(data_to_save)
-            self.day_stock_db.save_bao_stock_data_to_db(code, data_to_save, "append")
+            # self.day_stock_db.save_bao_stock_data_to_db(code, data_to_save, "append")
             self.dict_daily_stock_data[code] = combined_df
             return combined_df
         
+        print("未获取到新数据")
+        self.dict_daily_stock_data[code] = day_stock_data
         return day_stock_data
 
 
@@ -178,16 +263,16 @@ class BaoStockProcessor:
 
         print(f"获取股票 {code} 周线数据，时间范围：{start_date} 至 {end_date}")
         
-        sleep_time = random.uniform(1, 3) # 等待时间可以设得稍长一些
-        time.sleep(sleep_time)
+        sleep_time = random.uniform(0, 1) # 等待时间可以设得稍长一些
+        # time.sleep(sleep_time)
 
         lg = bs.login()
         rs = bs.query_history_k_data_plus(code,
             "date,code,open,high,low,close,volume,amount,pctChg,turn,adjustflag",
             start_date=start_date, end_date=end_date,
             frequency="w", adjustflag="2")
-        print(rs.error_code)      # 0
-        print(rs.error_msg)       # success
+        # print(rs.error_code)      # 0
+        # print(rs.error_msg)       # success
         # print("rs的类型：", type(rs))       # <class 'baostock.data.resultset.ResultData'>
 
         # 获取具体的信息
@@ -207,18 +292,26 @@ class BaoStockProcessor:
         return result
 
     def process_and_save_weekly_stock_data(self, code):
-        result = self.process_weekly_stock_data(code)
+        result = pd.DataFrame()
+        if not self.week_stock_db.check_stock_db_exists(code):
+            print(f"周线 {code}.db 不存在，即将从Baostock获取")
+            result = self.process_weekly_stock_data(code)
+
+            if not result.empty:
+                sdi.macd(result)
+                sdi.ma(result, 'MA24', 24)
+                sdi.ma(result, 'MA52', 52)
+                sdi.quantity_ratio(result)
+                self.week_stock_db.save_bao_stock_data_to_db(code, result)
+        else:
+            print(f"周线 {code}.db 存在，即将从本地数据库更新")
+            result = self.update_weekly_stock_data(code)
+
         # if result.empty:
         #     print("process_weekly_stock_data执行结果为空！")
         #     return False
         
-        if not result.empty:
-            sdi.macd(result)
-            sdi.ma(result, 'MA24', 24)
-            sdi.ma(result, 'MA52', 52)
-            sdi.quantity_ratio(result)
-            self.week_stock_db.save_bao_stock_data_to_db(code, result)
-            self.dict_weekly_stock_data[code] = result
+        self.dict_weekly_stock_data[code] = result
 
         return result
 
@@ -226,17 +319,22 @@ class BaoStockProcessor:
     # 例如：周二第一次update，表中会存在周二时的周线数据，当周线再update时，周二数据（已过时）依旧会在表中。
     # 补充：周线接口只能每周最后一个交易日才可以获取，月线每月最后一个交易日才可以获取。
     def update_weekly_stock_data(self, code):
-        if not self.week__stock_db.check_stock_db_exists(code):
+        if not self.week_stock_db.check_stock_db_exists(code):
             print("{stock_code}.db 不存在", code)
             return pd.DataFrame()
 
         # 步骤一：得到当前数据库中的股票数据
-        week_stock_data = self.week_stock_db.get_tao_stock_data(code)
+        week_stock_data = self.week_stock_db.get_bao_stock_data(code)
         
         now_date = datetime.datetime.now().strftime("%Y-%m-%d")
         if now_date in week_stock_data['日期'].values:
             print("已是最新数据")
             return week_stock_data
+        
+        if self.is_trading_day_today():
+            # 交易日18:00后才能更新当天数据
+            if not self.can_update_today_data():
+                return week_stock_data
         
         last_date = week_stock_data['日期'].iloc[-1]
         print("最后周线日期:", last_date) 
@@ -254,7 +352,7 @@ class BaoStockProcessor:
         #     print("process_weekly_stock_data执行结果为空！")
         #     return False
         
-        print(df_new_weekly_stock_data)
+        print("获取到的新周线数据：", df_new_weekly_stock_data)
 
         # if not df_new_weekly_stock_data.empty:
         #     self.day_stock_db.save_bao_stock_data_to_db(code, df_new_weekly_stock_data, "append")
@@ -277,23 +375,37 @@ class BaoStockProcessor:
             self.dict_weekly_stock_data[code] = combined_df
             return combined_df
         
+        print("未获取到新数据")
+        self.dict_weekly_stock_data[code] = week_stock_data
         return week_stock_data
 
+
+    # 全量获取
     def process_sh_main_stock_daily_data(self):
         self.day_stock_db.set_db_dir("./stocks/db/baostock/day/sh_main")
         i = 1
         for value in self.dict_all_stocks['sh_main']['证券代码']:
-            print(f"获取第 {i} 只沪市主板股票 {value} 日线数据")
+            print(f"获取第 {i} 只沪市主板股票 {value} 【日线】数据")
             i += 1
+
+            # 判断是否已加载到内存
+            if value in self.dict_daily_stock_data.keys():
+                print(f"股票 {value} 数据已存在")
+                continue
+
             self.process_and_save_daily_stock_data(value)
+        
+        print("process_sh_main_stock_daily_data done")
 
     def process_sh_main_stock_weekly_data(self):
-        self.day_stock_db.set_db_dir("./stocks/db/baostock/week/sh_main")
+        self.week_stock_db.set_db_dir("./stocks/db/baostock/week/sh_main")
         i = 1
         for value in self.dict_all_stocks['sh_main']['证券代码']:
-            print(f"获取第 {i} 只沪市主板股票 {value} 日线数据")
+            print(f"获取第 {i} 只沪市主板股票 {value} 【周线】数据")
             i += 1
             self.process_and_save_weekly_stock_data(value)
+
+        print("process_sh_main_stock_weekly_data done")
 
     def process_sz_main_stock_daily_data(self):
         self.day_stock_db.set_db_dir("./stocks/db/baostock/day/sz_main")
@@ -304,7 +416,7 @@ class BaoStockProcessor:
             self.process_and_save_daily_stock_data(value)
 
     def process_sz_main_stock_weekly_data(self):
-        self.day_stock_db.set_db_dir("./stocks/db/baostock/week/sz_main")
+        self.week_stock_db.set_db_dir("./stocks/db/baostock/week/sz_main")
         i = 1
         for value in self.dict_all_stocks['sz_main']['证券代码']:
             print(f"获取第 {i} 只深市主板股票 {value} 日线数据")
@@ -321,7 +433,7 @@ class BaoStockProcessor:
             self.process_and_save_daily_stock_data(value)
 
     def process_gem_stock_weekly_data(self):
-        self.day_stock_db.set_db_dir("./stocks/db/baostock/week/gem")
+        self.week_stock_db.set_db_dir("./stocks/db/baostock/week/gem")
         i = 1
         for value in self.dict_all_stocks['gem']['证券代码']:
             print(f"获取第 {i} 只创业板股票 {value} 日线数据")
@@ -337,7 +449,7 @@ class BaoStockProcessor:
             self.process_and_save_daily_stock_data(value)
 
     def process_star_stock_weekly_data(self):
-        self.day_stock_db.set_db_dir("./stocks/db/baostock/week/star")
+        self.week_stock_db.set_db_dir("./stocks/db/baostock/week/star")
         i = 1
         for value in self.dict_all_stocks['star']['证券代码']:
             print(f"获取第 {i} 只科创板股票 {value} 日线数据")
@@ -349,8 +461,8 @@ class BaoStockProcessor:
         #### 登陆系统 ####
         lg = bs.login()
         # 显示登陆返回信息
-        print('login respond error_code:'+lg.error_code)
-        print('login respond  error_msg:'+lg.error_msg)
+        # print('login respond error_code:'+lg.error_code)
+        # print('login respond  error_msg:'+lg.error_msg)
 
         #### 获取证券信息 ####
         query_date = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -457,15 +569,27 @@ class BaoStockProcessor:
 
         return filter_result
 
+    # 增量更新
+    def update_sh_main_daily_data(self):
+        self.day_stock_db.set_db_dir("./stocks/db/baostock/day/sh_main")
+        # i = 1
+        # for value in self.dict_all_stocks['sh_main']['证券代码']:
+        #     print(f"获取第 {i} 只沪市主板股票 {value} 日线数据")
+        #     i += 1
+        self.update_daily_stock_data('sh.600000')
+
+    # 策略筛选
     def auto_process_daily_data(self, code):
         df_daily_data = self.process_daily_stock_data(code)
         return pf.daily_ma52_filter(df_daily_data)
         
 
-    # 策略筛选
+     # 策略筛选
     def daily_ma52_filter(self):
         filter_result = []
-        for code, df_data in self.dict_daily_stock_data:
+        for code, df_data in self.dict_daily_stock_data.items():
+            print(f"即将筛选股票 {code}")
+            print(df_data.tail(1))
             if pf.daily_ma52_filter(df_data):
                 filter_result.append(code)
         
@@ -474,7 +598,13 @@ class BaoStockProcessor:
     def daily_and_weekly_ma52_filter(self):
         filter_result = []
 
-        for code, df_data in self.dict_daily_stock_data:
+        for code, df_data in self.dict_daily_stock_data.items():
+            if code not in self.dict_weekly_stock_data.keys():
+                print(f"{code} 未在周线数据中")
+                continue
+
+            # print(f"即将筛选股票 {code}")
+            # print(df_data.tail(1))
             if pf.daily_and_weekly_ma52_filter(df_data, self.dict_weekly_stock_data[code]):
                 filter_result.append(code)
 
@@ -483,7 +613,13 @@ class BaoStockProcessor:
     def daily_ma24_filter(self):
         filter_result = []
 
-        for code, df_data in self.dict_daily_stock_data:
+        for code, df_data in self.dict_daily_stock_data.items():
+            if code not in self.dict_weekly_stock_data.keys():
+                print(f"{code} 未在周线数据中")
+                continue
+
+            # print(f"即将筛选股票 {code}")
+            # print(df_data.tail(1))
             if pf.daily_ma24_filter(df_data, self.dict_weekly_stock_data[code]):
                 filter_result.append(code)
 
@@ -492,7 +628,13 @@ class BaoStockProcessor:
     def daily_ma52_ma24_filter(self, isUp=False):
         filter_result = []
 
-        for code, df_data in self.dict_daily_stock_data:
+        for code, df_data in self.dict_daily_stock_data.items():
+            if code not in self.dict_weekly_stock_data.keys():
+                print(f"{code} 未在周线数据中")
+                continue
+
+            # print(f"即将筛选股票 {code}")
+            # print(df_data.tail(1))
             if pf.daily_ma52_ma24_filter(df_data, self.dict_weekly_stock_data[code]):
                 filter_result.append(code)
 
@@ -501,7 +643,9 @@ class BaoStockProcessor:
     def daily_ma10_filter(self):
         filter_result = []
 
-        for code, df_data in self.dict_daily_stock_data:
+        for code, df_data in self.dict_daily_stock_data.items():
+            # print(f"即将筛选股票 {code}")
+            # print(df_data.tail(1))
             if pf.daily_ma10_filter(df_data):
                 filter_result.append(code)
 
@@ -510,11 +654,16 @@ class BaoStockProcessor:
     def daily_ma20_filter(self):
         filter_result = []
 
-        for code, df_data in self.dict_daily_stock_data:
+        for code, df_data in self.dict_daily_stock_data.items():
+            # print(f"即将筛选股票 {code}")
+            # print(df_data.tail(1))
             if pf.daily_ma20_filter(df_data):
                 filter_result.append(code)
 
         return filter_result
+    
+    def stop_process(self):
+        self.b_stop_process = True
 
 if __name__ == "__main__":
     bao_stock_processor = BaoStockProcessor()

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>816</width>
     <height>600</height>
    </rect>
   </property>
@@ -126,30 +126,30 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
-         <widget class="QPushButton" name="btn_get_daily_data">
+         <widget class="QPushButton" name="btn_update_sh_main_data">
           <property name="text">
-           <string>获取日线数据</string>
+           <string>更新沪市主板数据</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="btn_update_daily_data">
+         <widget class="QPushButton" name="btn_update_sz_main_data">
           <property name="text">
-           <string>更新日线数据</string>
+           <string>更新深市主板数据</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="btn_query_daily_data">
+         <widget class="QPushButton" name="btn_update_gem_data">
           <property name="text">
-           <string>查询日线数据</string>
+           <string>更新创业板数据</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="btn_get_weekly_data">
+         <widget class="QPushButton" name="btn_update_star_data">
           <property name="text">
-           <string>获取周线数据</string>
+           <string>更新科创板数据</string>
           </property>
          </widget>
         </item>
@@ -210,6 +210,13 @@
          <widget class="QPushButton" name="btn_daily_down_filter">
           <property name="text">
            <string>日线零轴下方</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btn_stop">
+          <property name="text">
+           <string>停止执行</string>
           </property>
          </widget>
         </item>

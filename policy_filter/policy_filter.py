@@ -15,7 +15,11 @@ def daily_ma52_filter(df_daily_data):
     if df_daily_data.empty:
         return False
 
-    
+    day_close = 0.0
+    day_ma52 = 0.0
+    day_turn = 0.0
+    day_lb = 0.0
+
     # 检查列是否存在
     if columns_check(df_daily_data, ('收盘', 'MA52', '换手率', '量比5日')):
     # if '收盘' in df_daily_data.columns and 'MA52' in df_daily_data.columns and '换手率' in df_daily_data.columns and '量比5日' in df_daily_data.columns:
@@ -43,6 +47,11 @@ def daily_and_weekly_ma52_filter(df_daily_data, df_weekly_data):
     if df_daily_data.empty or df_weekly_data.empty:
         return False
     
+    day_close = 0.0
+    day_ma52 = 0.0
+    day_turn = 0.0
+    day_lb = 0.0
+
     if columns_check(df_daily_data, ('收盘', 'MA52', '换手率', '量比5日')):
         last_day_row = df_daily_data.tail(1)
         day_close = last_day_row['收盘'].item()
@@ -51,6 +60,8 @@ def daily_and_weekly_ma52_filter(df_daily_data, df_weekly_data):
         day_lb = last_day_row['量比5日'].item()
 
 
+    week_close = 0.0
+    week_ma52 = 0.0
     if columns_check(df_weekly_data, ('收盘', 'MA52')):
         last_week_row = df_weekly_data.tail(1)
         week_close = last_week_row['收盘'].item()
@@ -67,6 +78,12 @@ def daily_ma52_ma24_filter(df_daily_data, df_weekly_data, isUp=False):
     if df_daily_data.empty or df_weekly_data.empty:
         return False
     
+    day_close = 0.0
+    day_dea = 0.0
+    day_ma24 = 0.0
+    day_ma52 = 0.0
+    day_turn = 0.0
+    day_lb = 0.0
     if columns_check(df_daily_data, ('收盘', 'DEA', 'MA24', 'MA52', '换手率', '量比5日')):
         last_day_row = df_daily_data.tail(1)
         day_close = last_day_row['收盘'].item()
@@ -76,7 +93,8 @@ def daily_ma52_ma24_filter(df_daily_data, df_weekly_data, isUp=False):
         day_turn = last_day_row['换手率'].item()
         day_lb = last_day_row['量比5日'].item()
 
-
+    week_close = 0.0
+    week_ma52 = 0.0
     if columns_check(df_weekly_data, ('收盘', 'MA52')):
         last_week_row = df_weekly_data.tail(1)
         week_close = last_week_row['收盘'].item()
@@ -103,6 +121,14 @@ def daily_ma24_filter(df_daily_data, df_weekly_data):
     if df_daily_data.empty or df_weekly_data.empty:
         return False
     
+    day_close = 0.0
+    day_dea = 0.0
+    day_ma24 = 0.0
+    day_ma52 = 0.0
+    day_turn = 0.0
+    day_lb = 0.0
+    week_close = 0.0
+    week_ma52 = 0.0
     if columns_check(df_daily_data, ('收盘', 'DEA', 'MA24', 'MA52', '换手率', '量比5日')):
         last_day_row = df_daily_data.tail(1)
         day_close = last_day_row['收盘'].item()
@@ -134,7 +160,13 @@ def daily_ma24_filter(df_daily_data, df_weekly_data):
 def daily_ma10_filter(df_daily_data):
     if df_daily_data.empty:
         return False
-    
+    day_close = 0.0
+    day_dea = 0.0
+    day_ma10 = 0.0
+    day_ma24 = 0.0
+    day_ma52 = 0.0
+    day_turn = 0.0
+    day_lb = 0.0
     if columns_check(df_daily_data, ('收盘', 'DEA', 'MA10', 'MA24', 'MA52', '换手率', '量比5日')):
         last_day_row = df_daily_data.tail(1)
         day_close = last_day_row['收盘'].item()
@@ -160,6 +192,13 @@ def daily_ma20_filter(df_daily_data):
     if df_daily_data.empty:
         return False
     
+    day_close = 0.0
+    day_dea = 0.0
+    day_ma20 = 0.0
+    day_ma24 = 0.0
+    day_ma52 = 0.0
+    day_turn = 0.0
+    day_lb = 0.0
     if columns_check(df_daily_data, ('收盘', 'DEA', 'MA20', 'MA24', 'MA52', '换手率', '量比5日')):
         last_day_row = df_daily_data.tail(1)
         day_close = last_day_row['收盘'].item()
