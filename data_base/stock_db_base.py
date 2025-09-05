@@ -619,6 +619,91 @@ class StockDbBase:
         stock_data.to_sql(table_name, conn, if_exists=writeWay, index=False)
         conn.close()
         return True
+    
+    def delete_last_row(self, stock_code, table_name="stock_data"):
+        """
+        删除SQLite3数据库中指定表的最后一行数据（通过自增ID定位）
+
+        参数:
+            stock_code (str): 股票代码，数据库文件名
+            table_name (str): 要操作的表名
+        """
+        # 连接到数据库
+        conn = sqlite3.connect(self.get_db_path(stock_code))
+        cursor = conn.cursor()
+
+        try:
+            # 开始一个事务
+            conn.execute("BEGIN")
+
+            # 1. 查询表中最大的ID值，即最后一行的ID
+            cursor.execute(f"SELECT MAX(id) FROM {table_name}")
+            last_id = cursor.fetchone()[0]  # 获取查询结果的第一行第一列
+
+            # 如果表不为空，则执行删除操作
+            if last_id is not None:
+                # 2. 构建DELETE语句，使用参数化查询以防止SQL注入
+                delete_sql = f"DELETE FROM {table_name} WHERE id = ?"
+                cursor.execute(delete_sql, (last_id,))
+                print(f"已删除 {table_name} 表中ID为 {last_id} 的最后一行数据。")
+            else:
+                print(f"表 {table_name} 为空，无数据可删除。")
+
+            # 提交事务，使删除操作生效
+            conn.commit()
+
+        except sqlite3.Error as e:
+            # 如果发生任何错误，回滚事务
+            conn.rollback()
+            print(f"操作过程中发生数据库错误: {e}")
+        except Exception as e:
+            conn.rollback()
+            print(f"发生未知错误: {e}")
+        finally:
+            # 最后，确保关闭游标和数据库连接以释放资源
+            cursor.close()
+            conn.close()
+
+    def delete_last_row_directly(self, stock_code, table_name="stock_data"):
+        """
+        直接删除SQLite3数据库中指定表的最后一行数据（通过rowid定位）
+
+        参数:
+            db_path (str): 数据库文件的路径
+            table_name (str): 要操作的表名
+        """
+        conn = sqlite3.connect(self.get_db_path(stock_code))
+        cursor = conn.cursor()
+
+        try:
+            conn.execute("BEGIN") # 开始事务
+            # 使用子查询直接定位并删除rowid最大的那一行
+            delete_sql = f"""
+                DELETE FROM {table_name} 
+                WHERE rowid = (
+                    SELECT rowid FROM {table_name} 
+                    ORDER BY rowid DESC 
+                    LIMIT 1
+                )
+            """
+            cursor.execute(delete_sql)
+            # 获取受影响的行数
+            rows_affected = cursor.rowcount
+            if rows_affected > 0:
+                print(f"已直接删除 {table_name} 表的最后一行数据。")
+            else:
+                print(f"表 {table_name} 可能为空，无数据被删除。")
+            conn.commit() # 提交事务
+
+        except sqlite3.Error as e:
+            conn.rollback() # 回滚事务
+            print(f"操作过程中发生数据库错误: {e}")
+        except Exception as e:
+            conn.rollback()
+            print(f"发生未知错误: {e}")
+        finally:
+            cursor.close()
+            conn.close()
 
     # 测试代码
 if __name__ == "__main__":

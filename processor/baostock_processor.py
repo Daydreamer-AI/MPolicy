@@ -245,6 +245,8 @@ class BaoStockProcessor:
             # 交易日17:30后才能更新当天数据
             if not self.can_update_today_data():
                 return day_stock_data
+        else:
+            return day_stock_data
 
         last_date = day_stock_data['日期'].iloc[-1]
         # print("最后日期（方法2）:", last_date) 
@@ -417,7 +419,7 @@ class BaoStockProcessor:
             # print("新周线数据指标计算结果：")
             data_to_save = combined_df.tail(len(df_new_weekly_stock_data))
             # print(data_to_save)
-            self.day_stock_db.save_bao_stock_data_to_db(code, data_to_save, "append")
+            self.week_stock_db.save_bao_stock_data_to_db(code, data_to_save, "append")
             self.dict_weekly_stock_data[code] = combined_df
             return combined_df
         
