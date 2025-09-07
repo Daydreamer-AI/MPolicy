@@ -179,37 +179,37 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="btn_daily_ma52_filter">
+         <widget class="QPushButton" name="btn_daily_up_ma52_filter">
           <property name="text">
-           <string>日线MA52</string>
+           <string>日线零轴上方MA52</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="btn_daily_ma24_filter">
+         <widget class="QPushButton" name="btn_daily_up_ma24_filter">
           <property name="text">
-           <string>日线MA24</string>
+           <string>日线零轴上方MA24</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="btn_daily_ma10_filter">
+         <widget class="QPushButton" name="btn_daily_up_ma10_filter">
           <property name="text">
-           <string>日线MA10</string>
+           <string>日线零轴上方MA10</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="btn_daily_ma20_filter">
+         <widget class="QPushButton" name="btn_daily_down_ma52_filter">
           <property name="text">
-           <string>日线MA20</string>
+           <string>日线零轴下方MA52</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="btn_daily_down_filter">
+         <widget class="QPushButton" name="btn_daily_down_ma5_filter">
           <property name="text">
-           <string>日线零轴下方</string>
+           <string>日线零轴下方MA5</string>
           </property>
          </widget>
         </item>

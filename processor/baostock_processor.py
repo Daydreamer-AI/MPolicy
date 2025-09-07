@@ -241,11 +241,13 @@ class BaoStockProcessor:
             print("已是最新数据")
             return day_stock_data
         
+        # 判断数据库最后日期至今有无交易日数据需更新
         if self.is_trading_day_today():
             # 交易日17:30后才能更新当天数据
             if not self.can_update_today_data():
                 return day_stock_data
         else:
+            print("今天不是交易日，直接返回最新数据")
             return day_stock_data
 
         last_date = day_stock_data['日期'].iloc[-1]
@@ -626,24 +628,8 @@ class BaoStockProcessor:
         #     i += 1
         self.update_daily_stock_data('sh.600000')
 
-    # 策略筛选
-    def auto_process_daily_data(self, code):
-        df_daily_data = self.process_daily_stock_data(code)
-        return pf.daily_ma52_filter(df_daily_data)
-        
-
      # 策略筛选
-    def daily_ma52_filter(self):
-        filter_result = []
-        for code, df_data in self.dict_daily_stock_data.items():
-            print(f"即将筛选股票 {code}")
-            print(df_data.tail(1))
-            if pf.daily_ma52_filter(df_data):
-                filter_result.append(code)
-        
-        return filter_result
-    
-    def daily_and_weekly_ma52_filter(self):
+    def daily_up_ma52_filter(self):
         filter_result = []
 
         for code, df_data in self.dict_daily_stock_data.items():
@@ -653,12 +639,12 @@ class BaoStockProcessor:
 
             # print(f"即将筛选股票 {code}")
             # print(df_data.tail(1))
-            if pf.daily_and_weekly_ma52_filter(df_data, self.dict_weekly_stock_data[code]):
+            if pf.daily_up_ma52_filter(df_data, self.dict_weekly_stock_data[code]):
                 filter_result.append(code)
 
         return filter_result
     
-    def daily_ma24_filter(self):
+    def daily_up_ma24_filter(self):
         filter_result = []
 
         for code, df_data in self.dict_daily_stock_data.items():
@@ -668,44 +654,52 @@ class BaoStockProcessor:
 
             # print(f"即将筛选股票 {code}")
             # print(df_data.tail(1))
-            if pf.daily_ma24_filter(df_data, self.dict_weekly_stock_data[code]):
+            if pf.daily_up_ma24_filter(df_data, self.dict_weekly_stock_data[code]):
                 filter_result.append(code)
 
         return filter_result
 
-    def daily_ma52_ma24_filter(self, isUp=False):
+    def daily_up_ma10_filter(self, isUp=False):
         filter_result = []
 
         for code, df_data in self.dict_daily_stock_data.items():
+            # if code not in self.dict_weekly_stock_data.keys():
+            #     print(f"{code} 未在周线数据中")
+            #     continue
+
+            # print(f"即将筛选股票 {code}")
+            # print(df_data.tail(1))
+            if pf.daily_up_ma10_filter(df_data):
+                filter_result.append(code)
+
+        return filter_result
+    
+    def daily_down_between_ma24_ma52_filter(self):
+        filter_result = []
+
+        for code, df_data in self.dict_daily_stock_data.items():
+            # print(f"即将筛选股票 {code}")
+            # print(df_data.tail(1))
             if code not in self.dict_weekly_stock_data.keys():
                 print(f"{code} 未在周线数据中")
                 continue
 
-            # print(f"即将筛选股票 {code}")
-            # print(df_data.tail(1))
-            if pf.daily_ma52_ma24_filter(df_data, self.dict_weekly_stock_data[code]):
+            if pf.daily_down_between_ma24_ma52_filter(df_data, self.dict_weekly_stock_data[code]):
                 filter_result.append(code)
 
         return filter_result
     
-    def daily_ma10_filter(self):
+    def daily_down_between_ma5_ma52_filter(self):
         filter_result = []
 
         for code, df_data in self.dict_daily_stock_data.items():
             # print(f"即将筛选股票 {code}")
             # print(df_data.tail(1))
-            if pf.daily_ma10_filter(df_data):
-                filter_result.append(code)
+            if code not in self.dict_weekly_stock_data.keys():
+                print(f"{code} 未在周线数据中")
+                continue
 
-        return filter_result
-    
-    def daily_ma20_filter(self):
-        filter_result = []
-
-        for code, df_data in self.dict_daily_stock_data.items():
-            # print(f"即将筛选股票 {code}")
-            # print(df_data.tail(1))
-            if pf.daily_ma20_filter(df_data):
+            if pf.daily_down_between_ma5_ma52_filter(df_data, self.dict_weekly_stock_data[code]):
                 filter_result.append(code)
 
         return filter_result

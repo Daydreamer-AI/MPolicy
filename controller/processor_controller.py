@@ -40,34 +40,34 @@ class ProcessorController:
         self.bao_stock_processor.update_sh_main_daily_data()
 
     # 策略筛选
-    def process_ma52_filter(self):
-        print("process_ma52_filter")
-        result = self.bao_stock_processor.daily_and_weekly_ma52_filter()
-        print("process_ma52_filter done.")
+    def process_daily_up_ma52_filter(self):
+        print("process_daily_up_ma52_filter")
+        result = self.bao_stock_processor.daily_up_ma52_filter()
+        print("process_daily_up_ma52_filter done.")
         print(result)
 
-    def process_ma24_filter(self):
-        print("process_ma24_filter")
-        result = self.bao_stock_processor.daily_ma24_filter()
-        print("process_ma24_filter done.")
+    def process_daily_up_ma24_filter(self):
+        print("process_daily_up_ma24_filter")
+        result = self.bao_stock_processor.daily_up_ma24_filter()
+        print("process_daily_up_ma24_filter done.")
         print(result)
 
-    def process_ma10_filter(self):
-        print("process_ma10_filter")
-        result = self.bao_stock_processor.daily_ma10_filter()
-        print("process_ma10_filter done.")
+    def process_daily_up_ma10_filter(self):
+        print("process_daily_up_ma10_filter")
+        result = self.bao_stock_processor.daily_up_ma10_filter()
+        print("process_daily_up_ma10_filter done.")
         print(result)
 
-    def process_ma20_filter(self):
-        print("process_ma20_filter")
-        result = self.bao_stock_processor.daily_ma20_filter()
-        print("process_ma20_filter done.")
+    def process_daily_down_between_ma24_ma52_filter(self):
+        print("process_daily_down_between_ma24_ma52_filter")
+        result = self.bao_stock_processor.daily_down_between_ma24_ma52_filter()
+        print("process_daily_down_between_ma24_ma52_filter done.")
         print(result)
 
-    def process_ma52_ma24_filter(self):
-        print("process_ma52_ma24_filter")
-        result = self.bao_stock_processor.daily_ma52_ma24_filter()
-        print("process_ma52_ma24_filter done.")
+    def process_daily_down_between_ma5_ma52_filter(self):
+        print("process_daily_down_between_ma5_ma52_filter")
+        result = self.bao_stock_processor.daily_down_between_ma5_ma52_filter()
+        print("process_daily_down_between_ma5_ma52_filter done.")
         print(result)
 
     def stop_process(self):

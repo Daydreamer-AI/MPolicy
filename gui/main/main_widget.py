@@ -23,11 +23,11 @@ class MainWidget(QWidget):
         self.btn_update_sh_main_data.clicked.connect(self.slot_btn_update_sh_main_data_clicked)
 
         # 策略筛选
-        self.btn_daily_ma52_filter.clicked.connect(self.slot_btn_daily_ma52_filter_clicked)
-        self.btn_daily_ma24_filter.clicked.connect(self.slot_btn_daily_ma24_filter_clicked)
-        self.btn_daily_ma10_filter.clicked.connect(self.slot_btn_daily_ma10_filter_clicked)
-        self.btn_daily_ma20_filter.clicked.connect(self.slot_btn_daily_ma20_filter_clicked)
-        self.btn_daily_down_filter.clicked.connect(self.slot_btn_daily_down_filter_clicked)
+        self.btn_daily_up_ma52_filter.clicked.connect(self.slot_btn_daily_up_ma52_filter_clicked)
+        self.btn_daily_up_ma24_filter.clicked.connect(self.slot_btn_daily_up_ma24_filter_clicked)
+        self.btn_daily_up_ma10_filter.clicked.connect(self.slot_btn_daily_up_ma10_filter_clicked)
+        self.btn_daily_down_ma52_filter.clicked.connect(self.slot_btn_daily_down_ma52_filter_clicked)
+        self.btn_daily_down_ma5_filter.clicked.connect(self.slot_btn_daily_down_ma5_filter_clicked)
 
         self.btn_stop.clicked.connect(self.slot_btn_stop_clicked)
 
@@ -66,29 +66,29 @@ class MainWidget(QWidget):
 
     # 策略筛选
     @pyqtSlot()
-    def slot_btn_daily_ma52_filter_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_daily_ma52_filter_clicked...")
-        processor_controller_instance.process_ma52_filter()
+    def slot_btn_daily_up_ma52_filter_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_daily_up_ma52_filter_clicked...")
+        processor_controller_instance.process_daily_up_ma52_filter()
 
     @pyqtSlot()
-    def slot_btn_daily_ma24_filter_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_daily_ma24_filter_clicked...")
-        processor_controller_instance.process_ma24_filter()
+    def slot_btn_daily_up_ma24_filter_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_daily_up_ma24_filter_clicked...")
+        processor_controller_instance.process_daily_up_ma24_filter()
 
     @pyqtSlot()
-    def slot_btn_daily_ma10_filter_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_daily_ma10_filter_clicked...")
-        processor_controller_instance.process_ma10_filter()
+    def slot_btn_daily_up_ma10_filter_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_daily_up_ma10_filter_clicked...")
+        processor_controller_instance.process_daily_up_ma10_filter()
 
     @pyqtSlot()
-    def slot_btn_daily_ma20_filter_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_daily_ma20_filter_clicked...")
-        processor_controller_instance.process_ma20_filter()
+    def slot_btn_daily_down_ma52_filter_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_daily_down_ma52_filter_clicked...")
+        processor_controller_instance.process_daily_down_between_ma24_ma52_filter()
 
     @pyqtSlot()
-    def slot_btn_daily_down_filter_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_daily_down_filter_clicked...")
-        processor_controller_instance.process_ma52_ma24_filter()
+    def slot_btn_daily_down_ma5_filter_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_daily_down_ma5_filter_clicked...")
+        processor_controller_instance.process_daily_down_between_ma5_ma52_filter()
 
     @pyqtSlot()
     def slot_btn_stop_clicked(self):
