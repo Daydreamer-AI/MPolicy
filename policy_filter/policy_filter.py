@@ -485,14 +485,14 @@ def daily_down_between_ma5_ma52_filter(df_daily_data, df_weekly_data):
     if df_daily_data.empty or df_weekly_data.empty:
         return False
     
-    if not columns_check(df_daily_data, ('收盘', 'DEA', 'MA5', 'MA52', 'MA60', '换手率', '量比5日')):
+    if not columns_check(df_daily_data, ('收盘', 'DEA', 'MA5', 'MA10', 'MA52', 'MA60', '换手率', '量比5日')):
         return False
 
     last_day_row = df_daily_data.tail(1)
     day_close = last_day_row['收盘'].item()
     day_dea = last_day_row['DEA'].item()
     day_ma5 = last_day_row['MA5'].item()
-    # day_ma10 = last_day_row['MA10'].item()
+    day_ma10 = last_day_row['MA10'].item()
     # day_ma20 = last_day_row['MA20'].item()
     # day_ma24 = last_day_row['MA24'].item()
     # day_ma30 = last_day_row['MA30'].item()
@@ -518,7 +518,7 @@ def daily_down_between_ma5_ma52_filter(df_daily_data, df_weekly_data):
     b_ret_2 = week_close > week_ma52 and week_dea > 0
 
     b_ret_3 = day_dea < 0
-    b_ret_4 = (day_close <= day_ma52 or day_close <= day_ma60) and (day_close >= day_ma5)
+    b_ret_4 = (day_close <= day_ma52 or day_close <= day_ma60) and (day_close >= day_ma5 or day_close >= day_ma10)
     b_ret_5 = (day_ma5 < day_ma52 or day_ma5 < day_ma60) and day_ma52 <= day_ma60
 
     if b_ret and b_ret_2 and b_ret_3 and b_ret_4 and b_ret_5:
