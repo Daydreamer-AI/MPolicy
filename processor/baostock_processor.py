@@ -24,6 +24,8 @@ class BaoStockProcessor:
         self.dict_weekly_stock_data = {}
 
         self.get_all_stocks_from_db()
+        print("沪A主板股票数量：", len(self.dict_all_stocks['sh_main']))
+        print("深A主板股票数量：", len(self.dict_all_stocks['sz_main']))
 
         self.b_stop_process = False
         self.lock = threading.Lock()  # 创建一把锁

@@ -665,7 +665,7 @@ class StockDbBase:
             conn.close()
 
     def delete_last_row_directly(self, stock_code, table_name="stock_data"):
-        """
+        """·
         直接删除SQLite3数据库中指定表的最后一行数据（通过rowid定位）
 
         参数:
