@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>app.svg</file>
+        <file>icon/general/setting_disabled.svg</file>
+        <file>icon/general/setting_hover.svg</file>
+        <file>icon/general/setting_normal.svg</file>
+        <file>icon/general/setting_pressed.svg</file>
+        <file>icon/general/close_disabled.svg</file>
+        <file>icon/general/close_hover.svg</file>
+        <file>icon/general/close_normal.svg</file>
+        <file>icon/general/close_pressed.svg</file>
+        <file>icon/general/close_released.svg</file>
+    </qresource>
+</RCC>
