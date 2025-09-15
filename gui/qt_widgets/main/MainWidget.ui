@@ -221,6 +221,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="btn_policy_filter_setting">
+          <property name="text">
+           <string>筛选设置</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>

@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout
 from PyQt5.QtCore import pyqtSlot
 from controller.processor_controller import processor_controller_instance
+from gui.qt_widgets.setting.policy_filter_setting_dialog import PolicyFilterSettingDialog
 
 class MainWidget(QWidget):
     def __init__(self):
@@ -30,6 +31,8 @@ class MainWidget(QWidget):
         self.btn_daily_down_ma5_filter.clicked.connect(self.slot_btn_daily_down_ma5_filter_clicked)
 
         self.btn_stop.clicked.connect(self.slot_btn_stop_clicked)
+
+        self.btn_policy_filter_setting.clicked.connect(self.slot_btn_policy_filter_setting_clicked)
 
     # 槽函数
     # 全量获取
@@ -94,3 +97,8 @@ class MainWidget(QWidget):
     def slot_btn_stop_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_stop_clicked...")
         processor_controller_instance.stop_process()
+
+    @pyqtSlot()
+    def slot_btn_policy_filter_setting_clicked(self):
+        dlg = PolicyFilterSettingDialog()
+        dlg.exec()
