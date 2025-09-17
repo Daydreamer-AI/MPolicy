@@ -29,25 +29,51 @@ class BaoStockProcessor:
 
         self.b_stop_process = False
         self.lock = threading.Lock()  # 创建一把锁
-
-        print("登录Baostock系统")
-        lg = bs.login()
-        # 显示登陆返回信息
-        print('login respond error_code:'+lg.error_code)
-        print('login respond  error_msg:'+lg.error_msg)
-
-        self.df_trade_dates = self.get_current_trade_dates()
-        if self.is_trading_day_today():
-            print("今天是交易日")
-            self.can_update_today_data()
-        else:
-            print("今天不是交易日")
+        self._is_initialized = False # 状态标志
 
     
-    def __del__(self):
-        print("登出Baostock系统")
-        bs.logout()
-        pass
+    # def __del__(self):
+    #     print("登出Baostock系统")
+    #     bs.logout()
+    def initialize(self) -> bool:
+        """显式登录Baostock系统。应在程序开始时调用。"""
+        try:
+            print("登录Baostock系统")
+            lg = bs.login()
+            # 显示登陆返回信息
+            print('login respond error_code:'+lg.error_code)
+            print('login respond  error_msg:'+lg.error_msg)
+
+            if lg.error_code == '0':
+                self._is_initialized = True
+                print("Baostock login successful.")
+
+                self.df_trade_dates = self.get_current_trade_dates()
+                if self.is_trading_day_today():
+                    print("今天是交易日")
+                    # self.can_update_today_data()
+                else:
+                    print("今天不是交易日")
+                
+                return True
+            else:
+                print(f"Baostock login failed: {lg.error_msg}")
+                return False
+        except Exception as e:
+            print("An error occurred during Baostock login.")
+            return False
+
+    def cleanup(self) -> None:
+        """显式登出Baostock系统。应在程序结束时调用。"""
+        if self._is_initialized:
+            try:
+                bs.logout()
+                print("Baostock logged out successfully.")
+            except Exception as e:
+                # 此时发生异常可能由于解释器正在关闭，记录警告即可
+                print(f"Baostock logout encountered an error (may be during shutdown): {e}")
+            finally:
+                self._is_initialized = False
 
     def data_type_conversion(self, result):
         # 1. 转换日期列

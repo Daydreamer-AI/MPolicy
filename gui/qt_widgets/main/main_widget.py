@@ -33,6 +33,34 @@ class MainWidget(QWidget):
         self.btn_stop.clicked.connect(self.slot_btn_stop_clicked)
 
         self.btn_policy_filter_setting.clicked.connect(self.slot_btn_policy_filter_setting_clicked)
+        self.init_processors()
+    
+    def init_processors(self):
+        """初始化所有处理器（如Baostock）"""
+        try:
+            success = processor_controller_instance.initialize_all()
+            if success:
+                print("所有处理器初始化成功")
+            else:
+                print("处理器初始化失败")
+                # 可以进行一些UI提示，例如设置label的文本为红色警告
+        except Exception as e:
+            print(f"初始化过程中发生错误: {e}")
+
+    def closeEvent(self, event):
+        """
+        重写 closeEvent，当窗口请求关闭时调用。
+        这是执行清理操作的理想位置。
+        """
+        print("开始执行清理操作...")
+        try:
+            processor_controller_instance.cleanup_all() # 清理所有处理器
+        except Exception as e:
+            print(f"清理过程中发生错误: {e}")
+        finally:
+            # 确保事件继续传递，允许窗口关闭
+            event.accept()
+            print("清理完成，窗口关闭。")
 
     # 槽函数
     # 全量获取

@@ -68,13 +68,13 @@
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>120</height>
+       <height>160</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>120</height>
+       <height>160</height>
       </size>
      </property>
      <property name="frameShape">
@@ -88,6 +88,18 @@
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="QPushButton" name="btn_get_all_stocks">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
           <property name="text">
            <string>获取所有证券数据</string>
           </property>
@@ -95,6 +107,18 @@
         </item>
         <item>
          <widget class="QPushButton" name="btn_query_sh_main">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
           <property name="text">
            <string>查询沪市主板股票</string>
           </property>
@@ -102,6 +126,18 @@
         </item>
         <item>
          <widget class="QPushButton" name="btn_query_sz_main">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
           <property name="text">
            <string>查询深市主板股票</string>
           </property>
@@ -109,6 +145,18 @@
         </item>
         <item>
          <widget class="QPushButton" name="btn_query_gem">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
           <property name="text">
            <string>查询创业板股票</string>
           </property>
@@ -116,6 +164,18 @@
         </item>
         <item>
          <widget class="QPushButton" name="btn_query_star">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
           <property name="text">
            <string>查询科创板股票</string>
           </property>
@@ -127,6 +187,18 @@
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="QPushButton" name="btn_update_sh_main_data">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
           <property name="text">
            <string>更新沪市主板数据</string>
           </property>
@@ -134,6 +206,18 @@
         </item>
         <item>
          <widget class="QPushButton" name="btn_update_sz_main_data">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
           <property name="text">
            <string>更新深市主板数据</string>
           </property>
@@ -141,6 +225,18 @@
         </item>
         <item>
          <widget class="QPushButton" name="btn_update_gem_data">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
           <property name="text">
            <string>更新创业板数据</string>
           </property>
@@ -148,6 +244,18 @@
         </item>
         <item>
          <widget class="QPushButton" name="btn_update_star_data">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
           <property name="text">
            <string>更新科创板数据</string>
           </property>
@@ -155,6 +263,18 @@
         </item>
         <item>
          <widget class="QPushButton" name="btn_update_weekly_data">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
           <property name="text">
            <string>更新周线数据</string>
           </property>
@@ -162,6 +282,18 @@
         </item>
         <item>
          <widget class="QPushButton" name="btn_query_weekly_data">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
           <property name="text">
            <string>查询周线数据</string>
           </property>
@@ -180,6 +312,18 @@
         </item>
         <item>
          <widget class="QPushButton" name="btn_daily_up_ma52_filter">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
           <property name="text">
            <string>日线零轴上方MA52</string>
           </property>
@@ -187,6 +331,18 @@
         </item>
         <item>
          <widget class="QPushButton" name="btn_daily_up_ma24_filter">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
           <property name="text">
            <string>日线零轴上方MA24</string>
           </property>
@@ -194,6 +350,18 @@
         </item>
         <item>
          <widget class="QPushButton" name="btn_daily_up_ma10_filter">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
           <property name="text">
            <string>日线零轴上方MA10</string>
           </property>
@@ -201,6 +369,18 @@
         </item>
         <item>
          <widget class="QPushButton" name="btn_daily_down_ma52_filter">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
           <property name="text">
            <string>日线零轴下方MA52</string>
           </property>
@@ -208,6 +388,18 @@
         </item>
         <item>
          <widget class="QPushButton" name="btn_daily_down_ma5_filter">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
           <property name="text">
            <string>日线零轴下方MA5</string>
           </property>
@@ -215,6 +407,18 @@
         </item>
         <item>
          <widget class="QPushButton" name="btn_stop">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
           <property name="text">
            <string>停止执行</string>
           </property>
@@ -222,6 +426,18 @@
         </item>
         <item>
          <widget class="QPushButton" name="btn_policy_filter_setting">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
           <property name="text">
            <string>筛选设置</string>
           </property>
