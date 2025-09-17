@@ -9,7 +9,30 @@ import datetime
 from policy_filter import policy_filter as pf
 import threading
 from datetime import date, timedelta
+from common.config_manager import ConfigManager
+import threading
 
+def singleton(cls):
+    """
+    一个线程安全的单例装饰器。
+    使用双重检查锁模式确保在多线程环境下也只创建一个实例。
+    """
+    instances = {}  # 用于存储被装饰类的唯一实例
+    lock = threading.Lock()  # 创建一个锁对象，用于同步
+
+    def get_instance(*args, **kwargs):
+        # 第一次检查（无锁）：如果实例已存在，直接返回，避免绝大多数不必要的锁开销
+        if cls not in instances:
+            with lock:  # 加锁，确保同一时间只有一个线程能进入下面的代码块
+                # 第二次检查（有锁）：防止在等待锁的过程中，已有其他线程创建了实例
+                if cls not in instances:
+                    instances[cls] = cls(*args, **kwargs)  # 创建唯一的实例
+        return instances[cls]
+
+    return get_instance
+
+# 使用装饰器
+@singleton
 class BaoStockProcessor:
     def __init__(self):
         # self.chinese_columns = ['日期', '股票代码', '开盘', '最高', '最低', '收盘', '成交量', '成交额', '涨跌幅', '换手率', '复权方式', '是否ST']
@@ -23,10 +46,6 @@ class BaoStockProcessor:
         self.dict_daily_stock_data = {}
         self.dict_weekly_stock_data = {}
 
-        self.get_all_stocks_from_db()
-        print("沪A主板股票数量：", len(self.dict_all_stocks['sh_main']))
-        print("深A主板股票数量：", len(self.dict_all_stocks['sz_main']))
-
         self.b_stop_process = False
         self.lock = threading.Lock()  # 创建一把锁
         self._is_initialized = False # 状态标志
@@ -38,6 +57,18 @@ class BaoStockProcessor:
     def initialize(self) -> bool:
         """显式登录Baostock系统。应在程序开始时调用。"""
         try:
+            self.get_all_stocks_from_db()
+            print("沪A主板股票数量：", len(self.dict_all_stocks['sh_main']))
+            print("深A主板股票数量：", len(self.dict_all_stocks['sz_main']))
+
+            config_manager = ConfigManager()
+            config_manager.set_config_path("./resources/config/config.ini")
+            policy_filter_turn_config = config_manager.get('PolicyFilter', 'turn')
+            policy_filter_lb_config = config_manager.get('PolicyFilter', 'lb')
+            print(f"Config from config.ini: {policy_filter_turn_config}, {policy_filter_lb_config}")
+            self.set_policy_filter_turn(float(policy_filter_turn_config))
+            self.set_policy_filter_lb(float(policy_filter_lb_config))
+
             print("登录Baostock系统")
             lg = bs.login()
             # 显示登陆返回信息
@@ -657,9 +688,26 @@ class BaoStockProcessor:
         self.update_daily_stock_data('sh.600000')
 
      # 策略筛选
+    
+    
+    # 策略筛选
+    def get_policy_filter_turn(self):
+        return pf.get_policy_filter_turn()
+    
+    def get_policy_filter_lb(self):
+        return pf.get_policy_filter_lb()
+
+    def set_policy_filter_turn(self, turn=3.0):
+        print("set_policy_filter_turn--换手率：", turn)
+        pf.set_policy_filter_turn(turn)
+
+    def set_policy_filter_lb(self, lb=1.0):
+        print("set_policy_filter_lb--量比：", lb)
+        pf.set_policy_filter_lb(lb)
+
     def daily_up_ma52_filter(self):
         filter_result = []
-
+        print("开始执行日线零轴上方MA52筛选，换手率：", pf.get_policy_filter_turn(), ", 量比：", pf.get_policy_filter_lb())
         for code, df_data in self.dict_daily_stock_data.items():
             if code not in self.dict_weekly_stock_data.keys():
                 print(f"{code} 未在周线数据中")
@@ -674,7 +722,7 @@ class BaoStockProcessor:
     
     def daily_up_ma24_filter(self):
         filter_result = []
-
+        print("开始执行日线零轴上方MA24筛选，换手率：", pf.get_policy_filter_turn(), ", 量比：", pf.get_policy_filter_lb())
         for code, df_data in self.dict_daily_stock_data.items():
             if code not in self.dict_weekly_stock_data.keys():
                 print(f"{code} 未在周线数据中")
@@ -689,7 +737,7 @@ class BaoStockProcessor:
 
     def daily_up_ma10_filter(self, isUp=False):
         filter_result = []
-
+        print("开始执行日线零轴上方MA10筛选，换手率：", pf.get_policy_filter_turn(), ", 量比：", pf.get_policy_filter_lb())
         for code, df_data in self.dict_daily_stock_data.items():
             # if code not in self.dict_weekly_stock_data.keys():
             #     print(f"{code} 未在周线数据中")
@@ -704,7 +752,7 @@ class BaoStockProcessor:
     
     def daily_down_between_ma24_ma52_filter(self):
         filter_result = []
-
+        print("开始执行日线零轴下方方MA24-MA52筛选，换手率：", pf.get_policy_filter_turn(), ", 量比：", pf.get_policy_filter_lb())
         for code, df_data in self.dict_daily_stock_data.items():
             # print(f"即将筛选股票 {code}")
             # print(df_data.tail(1))
@@ -719,7 +767,7 @@ class BaoStockProcessor:
     
     def daily_down_between_ma5_ma52_filter(self):
         filter_result = []
-
+        print("开始执行日线零轴下方方MA5-MA52筛选，换手率：", pf.get_policy_filter_turn(), ", 量比：", pf.get_policy_filter_lb())
         for code, df_data in self.dict_daily_stock_data.items():
             # print(f"即将筛选股票 {code}")
             # print(df_data.tail(1))

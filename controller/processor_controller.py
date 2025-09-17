@@ -79,6 +79,8 @@ class ProcessorController:
         self.bao_stock_processor.update_sh_main_daily_data()
 
     # 策略筛选
+    
+
     def process_daily_up_ma52_filter(self):
         print("process_daily_up_ma52_filter")
         result = self.bao_stock_processor.daily_up_ma52_filter()

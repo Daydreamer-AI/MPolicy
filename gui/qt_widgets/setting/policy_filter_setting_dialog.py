@@ -4,17 +4,27 @@ from PyQt5.QtWidgets import QDialog, QPushButton, QLabel, QLineEdit, QVBoxLayout
 from PyQt5.QtQuickWidgets import QQuickWidget
 from PyQt5.QtCore import QUrl, QObject, pyqtSignal, pyqtSlot
 from gui.qml.setting.policy_filter_setting_bridge import PolicyFilterSettingBridge
+from processor.baostock_processor import BaoStockProcessor
+from common.config_manager import ConfigManager
 
 class PolicyFilterSettingDialog(QDialog):
     def __init__(self):
         super().__init__()
         uic.loadUi('./gui/qt_widgets/setting/policy_filter_setting_dialog.ui', self)
 
+        # qt_widget控件初始化
+        self.ui_init()
+
         # 初始化qml控件
         self.qml_init()
 
         self.connect_init()
 
+    def ui_init(self):
+        policy_filter_turn_config = BaoStockProcessor().get_policy_filter_turn()
+        policy_filter_lb_config = BaoStockProcessor().get_policy_filter_lb()
+        self.lineEdit_turn.setText(str(policy_filter_turn_config))
+        self.lineEdit_lb.setText(str(policy_filter_lb_config))
 
     def connect_init(self):
         self.btn_cancel.clicked.connect(self.solt_btn_cancel_clicked)
@@ -46,4 +56,16 @@ class PolicyFilterSettingDialog(QDialog):
             self.qml_root.setMessage("Message from Qt Widgets Button!")
 
     def solt_btn_ok_clicked(self):
+        turn_str = self.lineEdit_turn.text()
+        lb_str = self.lineEdit_lb.text()
+        print("策略筛选配置--换手率：", float(turn_str))
+        print("策略筛选配置--量比：", float(lb_str))
+        BaoStockProcessor().set_policy_filter_turn(float(turn_str))
+        BaoStockProcessor().set_policy_filter_lb(float(lb_str))
+        config_manager = ConfigManager()
+        config_manager.set_config_path("./resources/config/config.ini")
+        config_manager.set('PolicyFilter', 'turn', turn_str)
+        config_manager.set('PolicyFilter', 'lb', lb_str)
+        config_manager.save()
+        
         self.accept()

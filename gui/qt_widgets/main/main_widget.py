@@ -1,8 +1,9 @@
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout
 from PyQt5.QtCore import pyqtSlot
-from controller.processor_controller import processor_controller_instance
+# from controller.processor_controller import processor_controller_instance
 from gui.qt_widgets.setting.policy_filter_setting_dialog import PolicyFilterSettingDialog
+from processor.baostock_processor import BaoStockProcessor
 
 class MainWidget(QWidget):
     def __init__(self):
@@ -38,12 +39,13 @@ class MainWidget(QWidget):
     def init_processors(self):
         """初始化所有处理器（如Baostock）"""
         try:
-            success = processor_controller_instance.initialize_all()
+            success = BaoStockProcessor().initialize()
             if success:
                 print("所有处理器初始化成功")
             else:
                 print("处理器初始化失败")
                 # 可以进行一些UI提示，例如设置label的文本为红色警告
+                quit()
         except Exception as e:
             print(f"初始化过程中发生错误: {e}")
 
@@ -54,7 +56,7 @@ class MainWidget(QWidget):
         """
         print("开始执行清理操作...")
         try:
-            processor_controller_instance.cleanup_all() # 清理所有处理器
+            BaoStockProcessor().cleanup() # 清理所有处理器
         except Exception as e:
             print(f"清理过程中发生错误: {e}")
         finally:
@@ -67,64 +69,83 @@ class MainWidget(QWidget):
     @pyqtSlot()
     def slot_btn_get_all_stocks_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_get_all_stocks_clicked")
-        processor_controller_instance.test()
+        BaoStockProcessor().get_and_save_all_stocks_from_bao()
+        BaoStockProcessor().get_all_stocks_from_db()
 
     @pyqtSlot()
     def slot_btn_query_sh_main_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_query_sh_main_clicked...")
-        processor_controller_instance.process_sh_main_stock_data()
+        BaoStockProcessor().process_sh_main_stock_daily_data()
+        BaoStockProcessor().process_sh_main_stock_weekly_data()
+        print("done")
 
     @pyqtSlot()
     def slot_btn_query_sz_main_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_query_sz_main_clicked...")
-        processor_controller_instance.process_sz_main_stock_data()
+        BaoStockProcessor().process_sz_main_stock_daily_data()
+        BaoStockProcessor().process_sz_main_stock_weekly_data()
+        print("done")
 
     @pyqtSlot()
     def slot_btn_query_gem_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_query_gem_clicked...")
-        processor_controller_instance.process_gem_stock_data()
+        BaoStockProcessor().process_gem_stock_daily_data()
+        BaoStockProcessor().process_gem_stock_weekly_data()
+        print("done")
 
     @pyqtSlot()
     def slot_btn_query_star_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_query_star_clicked...")
-        processor_controller_instance.process_star_stock_data()
+        BaoStockProcessor().process_star_stock_daily_data()
+        BaoStockProcessor().process_star_stock_weekly_data()
+        print("done")
 
     # 增量更新
     @pyqtSlot()
     def slot_btn_update_sh_main_data_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_update_sh_main_data_clicked...")
-        processor_controller_instance.update_sh_main_daily_data()
+        # BaoStockProcessor().update_sh_main_daily_data()
 
     # 策略筛选
     @pyqtSlot()
     def slot_btn_daily_up_ma52_filter_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_daily_up_ma52_filter_clicked...")
-        processor_controller_instance.process_daily_up_ma52_filter()
+        result = BaoStockProcessor().daily_up_ma52_filter()
+        print("daily_up_ma52_filter done.")
+        print(result)
 
     @pyqtSlot()
     def slot_btn_daily_up_ma24_filter_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_daily_up_ma24_filter_clicked...")
-        processor_controller_instance.process_daily_up_ma24_filter()
+        result = BaoStockProcessor().daily_up_ma24_filter()
+        print("daily_up_ma24_filter done.")
+        print(result)
 
     @pyqtSlot()
     def slot_btn_daily_up_ma10_filter_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_daily_up_ma10_filter_clicked...")
-        processor_controller_instance.process_daily_up_ma10_filter()
+        result = BaoStockProcessor().daily_up_ma10_filter()
+        print("daily_up_ma10_filter done.")
+        print(result)
 
     @pyqtSlot()
     def slot_btn_daily_down_ma52_filter_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_daily_down_ma52_filter_clicked...")
-        processor_controller_instance.process_daily_down_between_ma24_ma52_filter()
+        result = BaoStockProcessor().daily_down_between_ma24_ma52_filter()
+        print("daily_down_between_ma24_ma52_filter done.")
+        print(result)
 
     @pyqtSlot()
     def slot_btn_daily_down_ma5_filter_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_daily_down_ma5_filter_clicked...")
-        processor_controller_instance.process_daily_down_between_ma5_ma52_filter()
+        result = BaoStockProcessor().daily_down_between_ma5_ma52_filter()
+        print("daily_down_between_ma5_ma52_filter done.")
+        print(result)
 
     @pyqtSlot()
     def slot_btn_stop_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_stop_clicked...")
-        processor_controller_instance.stop_process()
+        BaoStockProcessor().stop_process()
 
     @pyqtSlot()
     def slot_btn_policy_filter_setting_clicked(self):

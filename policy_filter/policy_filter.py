@@ -9,8 +9,8 @@ policy_filter_ma30_diff = 0.03
 policy_filter_ma52_diff = 0.03
 policy_filter_ma60_diff = 0.03
 
-policy_filter_turn = 3
-policy_filter_lb = 1
+policy_filter_turn = 3.0
+policy_filter_lb = 1.0
 
 def set_ma5_diff(ma5_diff):
     policy_filter_ma5_diff = ma5_diff
@@ -36,6 +36,18 @@ def set_ma60_diff(ma60_diff):
 def get_ma5_diff():
     return policy_filter_ma5_diff
 
+def set_policy_filter_turn(turn=3.0):
+    global policy_filter_turn
+    # print("设置前换手率：", policy_filter_turn, ", 目标值：", turn)
+    policy_filter_turn = turn
+    # print("设置后换手率：", policy_filter_turn)
+
+def set_policy_filter_lb(lb=1.0):
+    global policy_filter_lb
+    # print("设置前量比：", policy_filter_lb, ", 目标值：", lb)
+    policy_filter_lb = lb
+    # print("设置后量比：", policy_filter_lb)
+
 def get_ma10_diff():
     return policy_filter_ma10_diff
 
@@ -53,6 +65,12 @@ def get_ma52_diff():
 
 def get_ma60_diff():
     return policy_filter_ma60_diff
+
+def get_policy_filter_turn():
+    return policy_filter_turn
+
+def get_policy_filter_lb():
+    return policy_filter_lb
 
 def columns_check(df_data, col_names: Sequence[str]) -> bool:
     # print("df_data.columns:")
