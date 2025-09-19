@@ -5,6 +5,8 @@ from PyQt5.QtCore import pyqtSlot
 from gui.qt_widgets.setting.policy_filter_setting_dialog import PolicyFilterSettingDialog
 from processor.baostock_processor import BaoStockProcessor
 from processor.ak_stock_data_processor import AKStockDataProcessor
+from common.common_api import *
+import datetime
 
 class MainWidget(QWidget):
     def __init__(self):
@@ -113,6 +115,8 @@ class MainWidget(QWidget):
     def slot_btn_daily_up_ma52_filter_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_daily_up_ma52_filter_clicked...")
         result = BaoStockProcessor().daily_up_ma52_filter()
+        today_str = datetime.datetime.now().strftime('%m%d')
+        save_list_to_txt(result, f"./policy_filter/filter_result/daily_up_ma52/{today_str}.txt", ', ', "零轴上方MA52筛选结果：\n")
         print("daily_up_ma52_filter done.")
         print(result)
 
@@ -120,6 +124,8 @@ class MainWidget(QWidget):
     def slot_btn_daily_up_ma24_filter_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_daily_up_ma24_filter_clicked...")
         result = BaoStockProcessor().daily_up_ma24_filter()
+        today_str = datetime.datetime.now().strftime('%m%d')
+        save_list_to_txt(result, f"./policy_filter/filter_result/daily_up_ma24/{today_str}.txt", ', ', "零轴上方MA24筛选结果：\n")
         print("daily_up_ma24_filter done.")
         print(result)
 
@@ -127,6 +133,8 @@ class MainWidget(QWidget):
     def slot_btn_daily_up_ma10_filter_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_daily_up_ma10_filter_clicked...")
         result = BaoStockProcessor().daily_up_ma10_filter()
+        today_str = datetime.datetime.now().strftime('%m%d')
+        save_list_to_txt(result, f"./policy_filter/filter_result/daily_up_ma10/{today_str}.txt", ', ', "零轴上方MA10筛选结果：\n")
         print("daily_up_ma10_filter done.")
         print(result)
 
@@ -134,6 +142,8 @@ class MainWidget(QWidget):
     def slot_btn_daily_down_ma52_filter_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_daily_down_ma52_filter_clicked...")
         result = BaoStockProcessor().daily_down_between_ma24_ma52_filter()
+        today_str = datetime.datetime.now().strftime('%m%d')
+        save_list_to_txt(result, f"./policy_filter/filter_result/daily_down_ma52/{today_str}.txt", ', ', "零轴下方MA52筛选结果：\n")
         print("daily_down_between_ma24_ma52_filter done.")
         print(result)
 
@@ -141,6 +151,8 @@ class MainWidget(QWidget):
     def slot_btn_daily_down_ma5_filter_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_daily_down_ma5_filter_clicked...")
         result = BaoStockProcessor().daily_down_between_ma5_ma52_filter()
+        today_str = datetime.datetime.now().strftime('%m%d')
+        save_list_to_txt(result, f"./policy_filter/filter_result/daily_down_ma5/{today_str}.txt", ', ', "零轴下方MA5筛选结果：\n")
         print("daily_down_between_ma5_ma52_filter done.")
         print(result)
 

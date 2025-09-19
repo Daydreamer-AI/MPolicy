@@ -380,3 +380,270 @@ def normalize_code_to_baostock_code(code):
         return "bj." + code
     else:
         return code
+    
+
+def save_dataframe_to_txt(df_data, file_path, sep='\t', encoding='utf-8', index=False, header=True):
+    """
+    将pandas.DataFrame数据保存为txt文件
+    
+    :param df_data: 要保存的pandas.DataFrame数据
+    :param file_path: 保存文件的路径（包含文件名）
+    :param sep: 分隔符，默认为制表符'\t'
+    :param encoding: 文件编码，默认为'utf-8'
+    :param index: 是否保存行索引，默认为False
+    :param header: 是否保存列标题，默认为True
+    :return: 保存成功返回True，失败返回False
+    """
+    # 参数验证
+    if df_data is None:
+        raise ValueError("数据不能为空")
+    
+    if not isinstance(df_data, pd.DataFrame):
+        raise ValueError("数据必须是pandas.DataFrame类型")
+    
+    if not file_path:
+        raise ValueError("文件路径不能为空")
+    
+    try:
+        # 确保文件路径的目录存在
+        import os
+        directory = os.path.dirname(file_path)
+        if directory and not os.path.exists(directory):
+            os.makedirs(directory, exist_ok=True)
+        
+        # 保存DataFrame到txt文件
+        df_data.to_csv(file_path, sep=sep, encoding=encoding, index=index, header=header)
+        print(f"数据已成功保存到: {file_path}")
+        return True
+        
+    except Exception as e:
+        print(f"保存数据到 {file_path} 时发生错误: {str(e)}")
+        return False
+
+def save_dataframe_to_csv(df_data, file_path, sep=',', encoding='utf-8', index=False, header=True):
+    """
+    将pandas.DataFrame数据保存为csv文件（逗号分隔）
+    
+    :param df_data: 要保存的pandas.DataFrame数据
+    :param file_path: 保存文件的路径（包含文件名）
+    :param sep: 分隔符，默认为逗号','
+    :param encoding: 文件编码，默认为'utf-8'
+    :param index: 是否保存行索引，默认为False
+    :param header: 是否保存列标题，默认为True
+    :return: 保存成功返回True，失败返回False
+    """
+    # 参数验证
+    if df_data is None:
+        raise ValueError("数据不能为空")
+    
+    if not isinstance(df_data, pd.DataFrame):
+        raise ValueError("数据必须是pandas.DataFrame类型")
+    
+    if not file_path:
+        raise ValueError("文件路径不能为空")
+    
+    try:
+        # 确保文件路径的目录存在
+        import os
+        directory = os.path.dirname(file_path)
+        if directory and not os.path.exists(directory):
+            os.makedirs(directory, exist_ok=True)
+        
+        # 保存DataFrame到csv文件
+        df_data.to_csv(file_path, sep=sep, encoding=encoding, index=index, header=header)
+        print(f"数据已成功保存到: {file_path}")
+        return True
+        
+    except Exception as e:
+        print(f"保存数据到 {file_path} 时发生错误: {str(e)}")
+        return False
+
+def save_classified_stocks_to_txt(classified_stocks_dict, base_path="./output/stocks"):
+    """
+    将按板块分类的股票数据保存为多个txt文件
+    
+    :param classified_stocks_dict: 按板块分类的股票数据字典
+    :param base_path: 保存文件的基础路径
+    :return: 保存成功返回True，失败返回False
+    """
+    # 参数验证
+    if classified_stocks_dict is None:
+        raise ValueError("分类股票数据不能为空")
+    
+    if not isinstance(classified_stocks_dict, dict):
+        raise ValueError("分类股票数据必须是字典类型")
+    
+    try:
+        import os
+        # 确保基础路径存在
+        os.makedirs(base_path, exist_ok=True)
+        
+        # 板块名称映射
+        board_names = {
+            'sh_main': '上海主板',
+            'sz_main': '深圳主板',
+            'gem': '创业板',
+            'star': '科创板',
+            'bse': '北交所'
+        }
+        
+        # 保存各板块数据
+        for board_key, df_data in classified_stocks_dict.items():
+            if not df_data.empty:
+                # 构造文件路径
+                board_chinese_name = board_names.get(board_key, board_key)
+                file_name = f"{board_chinese_name}_{board_key}.txt"
+                file_path = os.path.join(base_path, file_name)
+                
+                # 保存数据
+                success = save_dataframe_to_txt(df_data, file_path)
+                if success:
+                    print(f"{board_chinese_name}数据已保存到: {file_path}")
+                else:
+                    print(f"保存{board_chinese_name}数据失败")
+            else:
+                print(f"{board_names.get(board_key, board_key)}没有数据需要保存")
+        
+        return True
+        
+    except Exception as e:
+        print(f"保存分类股票数据时发生错误: {str(e)}")
+        return False
+    
+
+def save_list_to_txt(data_list, file_path, separator='\n', str_header=None, encoding='utf-8'):
+    """
+    将列表数据保存为txt文件
+    
+    :param data_list: 要保存的列表数据
+    :param file_path: 保存文件的路径（包含文件名）
+    :param encoding: 文件编码，默认为'utf-8'
+    :param separator: 列表元素之间的分隔符，默认为换行符
+    :return: 保存成功返回True，失败返回False
+    """
+    # 参数验证
+    if data_list is None:
+        raise ValueError("数据不能为空")
+    
+    if not isinstance(data_list, list):
+        raise ValueError("数据必须是列表类型")
+    
+    if not file_path:
+        raise ValueError("文件路径不能为空")
+    
+    try:
+        # 确保文件路径的目录存在
+        import os
+        directory = os.path.dirname(file_path)
+        if directory and not os.path.exists(directory):
+            os.makedirs(directory, exist_ok=True)
+        
+        # 将列表数据转换为字符串
+        if separator == '\n':
+            # 如果分隔符是换行符，直接将每个元素转换为字符串并写入
+            content = separator.join(str(item) for item in data_list)
+        else:
+            # 如果是其他分隔符，同样处理
+            content = separator.join(str(item) for item in data_list)
+        
+        # 写入文件
+        with open(file_path, 'w', encoding=encoding) as f:
+            f.write(str_header)
+            f.write(content)
+        
+        print(f"列表数据已成功保存到: {file_path}")
+        return True
+        
+    except Exception as e:
+        print(f"保存列表数据到 {file_path} 时发生错误: {str(e)}")
+        return False
+
+def save_stock_codes_to_txt(stock_codes, file_path, encoding='utf-8'):
+    """
+    专门用于保存股票代码列表到txt文件的接口
+    
+    :param stock_codes: 股票代码列表
+    :param file_path: 保存文件的路径（包含文件名）
+    :param encoding: 文件编码，默认为'utf-8'
+    :return: 保存成功返回True，失败返回False
+    """
+    # 参数验证
+    if stock_codes is None:
+        raise ValueError("股票代码列表不能为空")
+    
+    if not isinstance(stock_codes, list):
+        raise ValueError("股票代码必须是列表类型")
+    
+    if not file_path:
+        raise ValueError("文件路径不能为空")
+    
+    try:
+        # 确保文件路径的目录存在
+        import os
+        directory = os.path.dirname(file_path)
+        if directory and not os.path.exists(directory):
+            os.makedirs(directory, exist_ok=True)
+        
+        # 写入股票代码，每个代码占一行
+        with open(file_path, 'w', encoding=encoding) as f:
+            for code in stock_codes:
+                f.write(str(code) + '\n')
+        
+        print(f"股票代码列表已成功保存到: {file_path}")
+        return True
+        
+    except Exception as e:
+        print(f"保存股票代码列表到 {file_path} 时发生错误: {str(e)}")
+        return False
+
+def save_classified_stock_codes_to_txt(classified_stock_codes_dict, base_path="./output/stock_codes"):
+    """
+    将按板块分类的股票代码列表保存为多个txt文件
+    
+    :param classified_stock_codes_dict: 按板块分类的股票代码字典
+    :param base_path: 保存文件的基础路径
+    :return: 保存成功返回True，失败返回False
+    """
+    # 参数验证
+    if classified_stock_codes_dict is None:
+        raise ValueError("分类股票代码数据不能为空")
+    
+    if not isinstance(classified_stock_codes_dict, dict):
+        raise ValueError("分类股票代码数据必须是字典类型")
+    
+    try:
+        import os
+        # 确保基础路径存在
+        os.makedirs(base_path, exist_ok=True)
+        
+        # 板块名称映射
+        board_names = {
+            'sh_main': '上海主板',
+            'sz_main': '深圳主板',
+            'gem': '创业板',
+            'star': '科创板',
+            'bse': '北交所'
+        }
+        
+        # 保存各板块股票代码
+        for board_key, stock_codes in classified_stock_codes_dict.items():
+            if stock_codes and isinstance(stock_codes, list) and len(stock_codes) > 0:
+                # 构造文件路径
+                board_chinese_name = board_names.get(board_key, board_key)
+                file_name = f"{board_chinese_name}_{board_key}_codes.txt"
+                file_path = os.path.join(base_path, file_name)
+                
+                # 保存数据
+                success = save_stock_codes_to_txt(stock_codes, file_path)
+                if success:
+                    print(f"{board_chinese_name}股票代码已保存到: {file_path}")
+                else:
+                    print(f"保存{board_chinese_name}股票代码失败")
+            else:
+                print(f"{board_names.get(board_key, board_key)}没有股票代码需要保存")
+        
+        return True
+        
+    except Exception as e:
+        print(f"保存分类股票代码时发生错误: {str(e)}")
+        return False
