@@ -4,6 +4,7 @@ from PyQt5.QtCore import pyqtSlot
 # from controller.processor_controller import processor_controller_instance
 from gui.qt_widgets.setting.policy_filter_setting_dialog import PolicyFilterSettingDialog
 from processor.baostock_processor import BaoStockProcessor
+from processor.ak_stock_data_processor import AKStockDataProcessor
 
 class MainWidget(QWidget):
     def __init__(self):
@@ -14,15 +15,15 @@ class MainWidget(QWidget):
         uic.loadUi('./gui/qt_widgets/main/MainWidget.ui', self)  # 确保路径正确
 
         # 连接信号槽 (示例：假设UI文件中有一个名为 pushButton 的按钮)
-        # 全量获取
+        # Baostock
         self.btn_get_all_stocks.clicked.connect(self.slot_btn_get_all_stocks_clicked)
         self.btn_query_sh_main.clicked.connect(self.slot_btn_query_sh_main_clicked)
         self.btn_query_sz_main.clicked.connect(self.slot_btn_query_sz_main_clicked)
         self.btn_query_gem.clicked.connect(self.slot_btn_query_gem_clicked)
         self.btn_query_star.clicked.connect(self.slot_btn_query_star_clicked)
 
-        # 增量更新
-        self.btn_update_sh_main_data.clicked.connect(self.slot_btn_update_sh_main_data_clicked)
+        # AKShare
+        self.btn_get_akshare_stocks_info.clicked.connect(self.slot_btn_get_akshare_stocks_info_clicked)
 
         # 策略筛选
         self.btn_daily_up_ma52_filter.clicked.connect(self.slot_btn_daily_up_ma52_filter_clicked)
@@ -39,8 +40,9 @@ class MainWidget(QWidget):
     def init_processors(self):
         """初始化所有处理器（如Baostock）"""
         try:
+            ak_success = AKStockDataProcessor().initialize()
             success = BaoStockProcessor().initialize()
-            if success:
+            if ak_success and success:
                 print("所有处理器初始化成功")
             else:
                 print("处理器初始化失败")
@@ -65,7 +67,7 @@ class MainWidget(QWidget):
             print("清理完成，窗口关闭。")
 
     # 槽函数
-    # 全量获取
+    # Baostock
     @pyqtSlot()
     def slot_btn_get_all_stocks_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_get_all_stocks_clicked")
@@ -100,11 +102,11 @@ class MainWidget(QWidget):
         BaoStockProcessor().process_star_stock_weekly_data()
         print("done")
 
-    # 增量更新
+    # AKShare
     @pyqtSlot()
-    def slot_btn_update_sh_main_data_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_update_sh_main_data_clicked...")
-        # BaoStockProcessor().update_sh_main_daily_data()
+    def slot_btn_get_akshare_stocks_info_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_get_akshare_stocks_info_clicked...")
+        AKStockDataProcessor().get_stocks_info_and_save_to_db()
 
     # 策略筛选
     @pyqtSlot()

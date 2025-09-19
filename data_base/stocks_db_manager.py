@@ -5,7 +5,7 @@ from datetime import datetime
 import pandas as pd
 import threading
 import time
-
+import numpy as np
 
 
 class DBManagerPool:
@@ -142,11 +142,8 @@ class StockDBManager:
             if self.db_type == 0:
                 self.create_table('stock_basic_info', '''
                     CREATE TABLE IF NOT EXISTS stock_basic_info (
-                        stock_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        stock_code VARCHAR(10) NOT NULL UNIQUE,
-                        stock_name VARCHAR(50) NOT NULL,
-                        board_type TEXT CHECK(board_type IN ('MAIN','GEM','STAR','BSE')),
-                        is_st BOOLEAN DEFAULT 0,
+                        证券代码 TEXT PRIMARY KEY NOT NULL,
+                        证券名称 TEXT NOT NULL,
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )
                 ''')
@@ -285,26 +282,110 @@ class StockDBManager:
                 print(f"创建表 {table_name} 失败: {str(e)}")
                 raise
 
-    # AKShare
-    def insert_stock(self, stock_data):
-        """插入单条股票数据
-        :param stock_data: 字典格式 {
-            'stock_code': '600000', 
-            'stock_name': '浦发银行',
-            'listing_date': '1999-11-10',
-            'board_type': 'MAIN',
-            'is_st': 0
-        }
+    def insert_dataframe_to_table(self, table_name, df_data, if_exists="replace"):
         """
-        columns = ', '.join(stock_data.keys())
-        placeholders = ', '.join('?' * len(stock_data))
+        将pandas.DataFrame数据插入到指定表中
         
-        with self._get_connection() as cur:
-            cur.execute(
-                f"INSERT INTO stock_basic_info ({columns}) VALUES ({placeholders})",
-                tuple(stock_data.values())
-            )
-            return cur.lastrowid
+        :param table_name: 表名
+        :param df_data: pandas.DataFrame格式的数据
+        :param if_exists: 如果表已存在数据时的处理方式
+                        "replace" - 替换原有数据（默认）
+                        "append" - 追加数据
+                        "fail" - 如果表中有数据则抛出异常
+                        "ignore" - 忽略重复数据
+        :return: 插入的行数
+        """
+        # 参数验证
+        if not table_name:
+            raise ValueError("表名不能为空")
+        
+        if df_data is None or df_data.empty:
+            print(f"警告: 要插入的数据为空，未执行插入操作")
+            return 0
+        
+        if not isinstance(df_data, pd.DataFrame):
+            raise ValueError("df_data必须是pandas.DataFrame类型")
+            
+        if if_exists not in ["replace", "append", "fail", "ignore"]:
+            raise ValueError("if_exists参数必须是'replace', 'append', 'fail', 'ignore'之一")
+
+        try:
+            # 检查表是否存在数据
+            with self._get_connection() as cur:
+                cur.execute(f"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?", (table_name,))
+                table_exists = cur.fetchone()[0] > 0
+                
+                if table_exists:
+                    cur.execute(f"SELECT COUNT(*) FROM {table_name}")
+                    row_count = cur.fetchone()[0]
+                    
+                    if row_count > 0:
+                        if if_exists == "fail":
+                            raise ValueError(f"表 {table_name} 中已存在数据，根据if_exists='fail'参数，操作被终止")
+                        elif if_exists == "replace":
+                            cur.execute(f"DELETE FROM {table_name}")
+                            print(f"已清空表 {table_name} 中的 {row_count} 行数据")
+                        elif if_exists == "ignore":
+                            # 对于ignore模式，我们检查主键冲突，只插入不重复的数据
+                            print(f"表 {table_name} 中已存在数据，将忽略重复数据进行插入")
+                else:
+                    print(f"表 {table_name} 不存在，将创建新表")
+
+            # 获取DataFrame的列名
+            columns = list(df_data.columns)
+            if not columns:
+                raise ValueError("DataFrame没有有效的列")
+            
+            # 准备插入语句
+            placeholders = ', '.join('?' * len(columns))
+            columns_str = ', '.join([f'"{col}"' for col in columns])  # 用引号包围列名防止关键字冲突
+            
+            # 根据if_exists参数选择不同的插入策略
+            if if_exists == "ignore":
+                insert_sql = f'INSERT OR IGNORE INTO "{table_name}" ({columns_str}) VALUES ({placeholders})'
+            else:
+                insert_sql = f'INSERT OR REPLACE INTO "{table_name}" ({columns_str}) VALUES ({placeholders})'
+            
+            # 将DataFrame转换为记录列表
+            records = df_data.to_dict('records')
+            
+            # 处理缺失值，将NaN替换为None
+            processed_records = []
+            for record in records:
+                processed_record = {}
+                for key, value in record.items():
+                    # 处理NaN值
+                    if pd.isna(value):
+                        processed_record[key] = None
+                    # 处理numpy数据类型
+                    elif isinstance(value, (np.integer, np.floating)):
+                        processed_record[key] = value.item()  # 转换为Python原生类型
+                    elif isinstance(value, np.bool_):
+                        processed_record[key] = bool(value)
+                    else:
+                        processed_record[key] = value
+                processed_records.append(tuple(processed_record.values()))
+            
+            # 执行批量插入
+            with self._get_connection() as cur:
+                cur.executemany(insert_sql, processed_records)
+                row_count = cur.rowcount
+                print(f"成功向表 {table_name} {if_exists} {row_count} 行数据")
+                return row_count
+                
+        except sqlite3.Error as e:
+            error_msg = f"向表 {table_name} 插入数据时发生数据库错误: {str(e)}"
+            print(error_msg)
+            raise
+        except Exception as e:
+            error_msg = f"向表 {table_name} 插入数据时发生错误: {str(e)}"
+            print(error_msg)
+            raise
+
+
+    # AKShare
+    def insert_stocks_to_db(self, df_stock_info):
+        self.insert_dataframe_to_table("stock_basic_info", df_stock_info, "append")
 
     def batch_insert_stocks(self, stocks_data, max_retries=3):
         """批量插入股票数据

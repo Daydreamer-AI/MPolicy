@@ -4,12 +4,36 @@ import sqlite3
 import os
 import datetime
 from pathlib import Path
-from data_base import StockDBManager, StockDbBase
+from data_base.stocks_db_manager import DBManagerPool
+from data_base import StockDbBase
 import datetime
 from indicators import stock_data_indicators as sdi
 import random
 import time
+from common.common_api import *
+import threading
 
+def singleton(cls):
+    """
+    一个线程安全的单例装饰器。
+    使用双重检查锁模式确保在多线程环境下也只创建一个实例。
+    """
+    instances = {}  # 用于存储被装饰类的唯一实例
+    lock = threading.Lock()  # 创建一个锁对象，用于同步
+
+    def get_instance(*args, **kwargs):
+        # 第一次检查（无锁）：如果实例已存在，直接返回，避免绝大多数不必要的锁开销
+        if cls not in instances:
+            with lock:  # 加锁，确保同一时间只有一个线程能进入下面的代码块
+                # 第二次检查（有锁）：防止在等待锁的过程中，已有其他线程创建了实例
+                if cls not in instances:
+                    instances[cls] = cls(*args, **kwargs)  # 创建唯一的实例
+        return instances[cls]
+
+    return get_instance
+
+# 使用装饰器
+@singleton
 class AKStockDataProcessor:
     '''
     
@@ -18,12 +42,144 @@ class AKStockDataProcessor:
     2. 不维护股票数据，随用随删。
     '''
     def __init__(self):
-        self.stocks_db = StockDBManager(0)
+        self.stocks_db = DBManagerPool().get_manager(0)
         self.day_stock_db = StockDbBase("./stocks/db/akshare/day")
         self.week_stock_db = StockDbBase("./stocks/db/akshare/week")
 
+        self.dict_stocks = {}
+
+    def initialize(self) -> bool:
+        self.dict_stocks = self.get_stock_info_from_db()
+        return True
     
+    def cleanup(self) -> None:
+        pass
+
     # 股票数据接口
+    def get_stocks_info_and_save_to_db(self):
+        # 初始化数据库  ./stocks/db/stocks.db
+        # db_manager = StockDBManager("./stocks/db/stocks.db")
+
+        # 获取股票代码和名称
+        # 获取A股所有股票代码和名称
+        df = ak.stock_info_a_code_name()
+        # print("原始数据验证:\n", df.tail(3))
+
+        df.columns = ['证券代码', '证券名称']
+        # print("验证:\n", df.tail(3))
+
+        # 建表。self.stocks_db初始化时已创建
+        # self.stocks_db.create_table("stock_basic_info", "CREATE TABLE IF NOT EXISTS stock_basic_info (证券代码 TEXT PRIMARY KEY, 证券名称 TEXT)")
+
+
+        # 保存到数据库
+        self.stocks_db.insert_dataframe_to_table("stock_basic_info", df, "replace")
+
+        # 剔除ST、*ST股票
+        # df = df[~df["name"].str.contains("ST")]
+
+        # 主板（沪深主板，包括60、00、002开头）
+        # main_board = df[df["code"].str.startswith(("60", "00", "002"))]
+        # print("主板股票数量：", main_board.shape[0])
+        # print("main_board: ")
+        # print(main_board.tail(3))
+        # print("\n")
+
+        # main_board_stocks_data = []
+        # for _, row in main_board.iterrows():
+        #     stock = {
+        #         "stock_code": row["code"],
+        #         "stock_name": row["name"],
+        #         "board_type": "MAIN",  # 主板标识
+        #         "is_st": 0             # 非ST股票
+        #     }
+        #     main_board_stocks_data.append(stock)
+        
+        # # 批量插入数据库
+        # inserted_count = self.stocks_db.batch_insert_stocks(main_board_stocks_data)
+        # print(f"成功插入 {inserted_count} 条主板股票记录")
+
+        # # 创业板
+        # cyb = df[df["code"].str.startswith("300")]
+        # print("创业板股票数量：", cyb.shape[0])
+        # print("cyb: ")
+        # print(cyb.tail(3))
+        # print("\n")
+        # cyb_stocks_data = []
+        # for _, row in cyb.iterrows():
+        #     stock = {
+        #         "stock_code": row["code"],
+        #         "stock_name": row["name"],
+        #         "board_type": "GEM",
+        #         "is_st": 0             # 非ST股票
+        #     }
+        #     cyb_stocks_data.append(stock)
+        
+        # # 批量插入数据库
+        # inserted_count = self.stocks_db.batch_insert_stocks(cyb_stocks_data)
+        # print(f"成功插入 {inserted_count} 条创业板股票记录")
+
+
+        # # 科创板
+        # kcb = df[df["code"].str.startswith("688")]
+        # print("科创板股票数量：", kcb.shape[0])
+        # print("kcb: ")
+        # print(kcb.tail(3))
+        # print("\n")
+        # kcb_stocks_data = []
+        # for _, row in kcb.iterrows():
+        #     stock = {
+        #         "stock_code": row["code"],
+        #         "stock_name": row["name"],
+        #         "board_type": "STAR",
+        #         "is_st": 0             # 非ST股票
+        #     }
+        #     kcb_stocks_data.append(stock)
+        
+        # # 批量插入数据库
+        # inserted_count = self.stocks_db.batch_insert_stocks(kcb_stocks_data)
+        # print(f"成功插入 {inserted_count} 条科创版股票记录")
+
+        # # 北交所
+        # bjs = df[df["code"].str.startswith("8")]
+        # print("北交所股票数量：", bjs.shape[0])
+        # print("bjs: ")
+        # print(bjs.tail(3))
+        # print("\n")
+
+        # bjs_stocks_data = []
+        # for _, row in bjs.iterrows():
+        #     stock = {
+        #         "stock_code": row["code"],
+        #         "stock_name": row["name"],
+        #         "board_type": "BSE",
+        #         "is_st": 0             # 非ST股票
+        #     }
+        #     bjs_stocks_data.append(stock)
+        
+        # # 批量插入数据库
+        # inserted_count = self.stocks_db.batch_insert_stocks(bjs_stocks_data)
+        # print(f"成功插入 {inserted_count} 条北交所股票记录")
+    
+    def get_stock_info_from_db(self):
+        df_stocks_info = self.stocks_db.get_table_data("stock_basic_info")
+        dick_stocks = classify_a_stocks_by_board(df_stocks_info)
+        # print("上海主板股票：", dick_stocks['sh_main'].tail(3))
+        # print("\n")
+        # print("深圳主板股票：", dick_stocks['sz_main'].tail(3))
+        # print("\n")
+        # print("创业板股票：", dick_stocks['gem'].tail(3))
+        # print("\n")
+        # print("科创板股票：", dick_stocks['star'].tail(3))
+        # print("\n")
+        # print("北交所股票：", dick_stocks['bse'].tail(3))
+
+        statistics = get_board_stock_statistics(df_stocks_info)
+        for board, count in statistics.items():
+            print(f"{board}: {count} 只股票")
+        
+        return dick_stocks
+
     def process_day_stock_data(self, stock_code):
         '''
         获取股票数据并计算技术指标，保存到数据库
@@ -657,130 +813,36 @@ class AKStockDataProcessor:
         pass
 
     # 股票信息接口
-    def get_main_stocks(self):
+    def get_main_stocks_from_db(self):
         # 获取主板股票信息
         return self.stocks_db.query_stocks(None, 'MAIN')
     
-    def get_gem_stocks(self):
+    def get_gem_stocks_from_db(self):
         # 获取创业板股票信息
         return self.stocks_db.query_stocks(None, 'GEM')
     
-    def get_star_stocks(self):
+    def get_star_stocks_from_db(self):
         # 获取科创版股票信息
         return self.stocks_db.query_stocks(None, 'STAR')
     
-    def get_bse_stocks(self):
+    def get_bse_stocks_from_db(self):
         # 获取北交所股票信息
         return self.stocks_db.query_stocks(None, 'BSE')
     
     def print_stocks_info(self):
-        main_stocks = self.get_main_stocks()
+        main_stocks = self.get_main_stocks_from_db()
         print("main--main_stocks的类型：", type(main_stocks))
         print("主板股票数量：", len(main_stocks))
 
-        gem_stocks = self.get_gem_stocks()
+        gem_stocks = self.get_gem_stocks_from_db()
         print("创业板股票数量：", len(gem_stocks))
 
-        star_stocks = self.get_star_stocks()
+        star_stocks = self.get_star_stocks_from_db()
         print("科创版股票数量：", len(star_stocks))
 
-        bse_stocks = self.get_bse_stocks()
+        bse_stocks = self.get_bse_stocks_from_db()
         print("北交所股票数量：", len(bse_stocks))
 
-    def update_all_stocks_info(self):
-        # 初始化数据库  ./stocks/db/stocks.db
-        # db_manager = StockDBManager("./stocks/db/stocks.db")
-
-        # 获取股票代码和名称
-        # 获取A股所有股票代码和名称
-        df = ak.stock_info_a_code_name()
-
-        # 剔除ST、*ST股票
-        df = df[~df["name"].str.contains("ST")]
-
-        # 主板（沪深主板，包括60、00、002开头）
-        main_board = df[df["code"].str.startswith(("60", "00", "002"))]
-        print("主板股票数量：", main_board.shape[0])
-        print("main_board: ")
-        print(main_board.tail(3))
-        print("\n")
-
-        main_board_stocks_data = []
-        for _, row in main_board.iterrows():
-            stock = {
-                "stock_code": row["code"],
-                "stock_name": row["name"],
-                "board_type": "MAIN",  # 主板标识
-                "is_st": 0             # 非ST股票
-            }
-            main_board_stocks_data.append(stock)
-        
-        # 批量插入数据库
-        inserted_count = self.stocks_db.batch_insert_stocks(main_board_stocks_data)
-        print(f"成功插入 {inserted_count} 条主板股票记录")
-
-        # 创业板
-        cyb = df[df["code"].str.startswith("300")]
-        print("创业板股票数量：", cyb.shape[0])
-        print("cyb: ")
-        print(cyb.tail(3))
-        print("\n")
-        cyb_stocks_data = []
-        for _, row in cyb.iterrows():
-            stock = {
-                "stock_code": row["code"],
-                "stock_name": row["name"],
-                "board_type": "GEM",
-                "is_st": 0             # 非ST股票
-            }
-            cyb_stocks_data.append(stock)
-        
-        # 批量插入数据库
-        inserted_count = self.stocks_db.batch_insert_stocks(cyb_stocks_data)
-        print(f"成功插入 {inserted_count} 条创业板股票记录")
-
-
-        # 科创板
-        kcb = df[df["code"].str.startswith("688")]
-        print("科创板股票数量：", kcb.shape[0])
-        print("kcb: ")
-        print(kcb.tail(3))
-        print("\n")
-        kcb_stocks_data = []
-        for _, row in kcb.iterrows():
-            stock = {
-                "stock_code": row["code"],
-                "stock_name": row["name"],
-                "board_type": "STAR",
-                "is_st": 0             # 非ST股票
-            }
-            kcb_stocks_data.append(stock)
-        
-        # 批量插入数据库
-        inserted_count = self.stocks_db.batch_insert_stocks(kcb_stocks_data)
-        print(f"成功插入 {inserted_count} 条科创版股票记录")
-
-        # 北交所
-        bjs = df[df["code"].str.startswith("8")]
-        print("北交所股票数量：", bjs.shape[0])
-        print("bjs: ")
-        print(bjs.tail(3))
-        print("\n")
-
-        bjs_stocks_data = []
-        for _, row in bjs.iterrows():
-            stock = {
-                "stock_code": row["code"],
-                "stock_name": row["name"],
-                "board_type": "BSE",
-                "is_st": 0             # 非ST股票
-            }
-            bjs_stocks_data.append(stock)
-        
-        # 批量插入数据库
-        inserted_count = self.stocks_db.batch_insert_stocks(bjs_stocks_data)
-        print(f"成功插入 {inserted_count} 条北交所股票记录")
-    
     def update_main_stocks_info(self):
         df = ak.stock_info_a_code_name()
 
