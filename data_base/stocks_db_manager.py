@@ -3,6 +3,57 @@ import os
 from contextlib import contextmanager
 from datetime import datetime
 import pandas as pd
+import threading
+import time
+
+
+
+class DBManagerPool:
+    """管理多个 StockDBManager 实例的池（单例模式）"""
+    
+    # 使用类变量存储唯一实例，并添加volatile语义（通过线程锁保证可见性）
+    _instance = None
+    _lock = threading.RLock()  # 使用可重入锁
+    
+    def __new__(cls):
+        """重写 __new__ 方法控制实例创建"""
+        with cls._lock:
+            if cls._instance is None:
+                cls._instance = super().__new__(cls)
+                # 初始化实例变量
+                cls._instance._managers = {}
+                cls._instance._init_lock = threading.RLock()
+        return cls._instance
+    
+    def __init__(self):
+        """初始化方法（由于__new__已控制创建，这里可避免重复初始化）"""
+        # 确保只初始化一次
+        if not hasattr(self, '_initialized'):
+            with self._init_lock:
+                if not hasattr(self, '_initialized'):
+                    self._managers = {}
+                    self._initialized = True
+    
+    def get_manager(self, db_type, key=None):
+        """获取指定类型的数据库管理器实例"""
+        if key is None:
+            key = f"default_{db_type}"
+            
+        with self._init_lock:  # 使用实例级别的锁
+            if key not in self._managers:
+                self._managers[key] = StockDBManager(db_type)
+            return self._managers[key]
+            
+    def close_all(self):
+        """关闭所有数据库管理器"""
+        with self._init_lock:
+            for key, manager in list(self._managers.items()):
+                manager.close_connection()
+                del self._managers[key]
+                
+    def __del__(self):
+        """析构时自动关闭所有连接"""
+        self.close_all()
 
 class StockDBManager:
     """
@@ -16,16 +67,20 @@ class StockDBManager:
     
     def __init__(self, db_type = 0):
         self.db_type = db_type
-        db_path = ""
+        db_path_tmp = ""
         if db_type == 1:
-            db_path = "./stocks/db/baostock/stocks.db"
+            db_path_tmp = "./stocks/db/baostock/stocks.db"
         elif db_type == 2:
-            db_path = "./stocks/db/efinance/stocks.db"
+            db_path_tmp = "./stocks/db/efinance/stocks.db"
         else:
-            db_path = "./stocks/db/akshare/stocks.db"
+            db_path_tmp = "./stocks/db/akshare/stocks.db"
 
-        self.db_path = os.path.abspath(db_path)  # 转为绝对路径
+        self.db_path = os.path.abspath(db_path_tmp)  # 转为绝对路径
         self._ensure_db_directory()  # 确保目录存在
+
+        self._local = threading.local()     # 多线程隔离
+        self._lock = threading.Lock()       # 保护​​共享资源​​
+
         self._init_db()
 
     def _ensure_db_directory(self):
@@ -44,21 +99,32 @@ class StockDBManager:
         
     @contextmanager
     def _get_connection(self):
-        """上下文管理器处理数据库连接"""
-        conn = sqlite3.connect(self.db_path)
+        """线程安全的数据库连接获取"""
+        if not hasattr(self._local, 'conn'):
+            self._local.conn = sqlite3.connect(
+                self.db_path, 
+                check_same_thread=False,
+                timeout=30
+            )
+            self._local.conn.execute('PRAGMA journal_mode=WAL')
+        
         try:
-            cursor = conn.cursor()
+            cursor = self._local.conn.cursor()
             yield cursor
-            conn.commit()
+            self._local.conn.commit()
         except sqlite3.Error as e:
-            conn.rollback()
+            self._local.conn.rollback()
             raise e
-        finally:
-            conn.close()
+
+    def close_connection(self):
+        """关闭当前线程的数据库连接"""
+        if hasattr(self._local, 'conn'):
+            self._local.conn.close()
+            del self._local.conn
 
     def _init_db(self):
         """初始化数据库表结构"""
-        with self._get_connection() as cur:
+        with self._lock:
             # 创建股票基本信息表
             #MAIN    ​主板    上交所 + 深交所
             #GEM     ​创业板   深交所
@@ -74,7 +140,7 @@ class StockDBManager:
                 'BSE'对应北京证券交易所，英文全称是Beijing Stock Exchange
             '''
             if self.db_type == 0:
-                cur.execute('''
+                self.create_table('stock_basic_info', '''
                     CREATE TABLE IF NOT EXISTS stock_basic_info (
                         stock_id INTEGER PRIMARY KEY AUTOINCREMENT,
                         stock_code VARCHAR(10) NOT NULL UNIQUE,
@@ -85,7 +151,7 @@ class StockDBManager:
                     )
                 ''')
             elif self.db_type == 1:
-                cur.execute('''
+                self.create_table('stock_basic_info', '''
                     CREATE TABLE IF NOT EXISTS stock_basic_info (
                         证券代码 TEXT PRIMARY KEY NOT NULL,
                         交易状态 TEXT NOT NULL UNIQUE,
@@ -94,7 +160,7 @@ class StockDBManager:
                     )
                 ''')
             elif self.db_type == 2:
-                cur.execute('''
+                self.create_table('stock_basic_info', '''
                     CREATE TABLE IF NOT EXISTS stock_basic_info (
                         stock_id INTEGER PRIMARY KEY AUTOINCREMENT,
                         stock_code VARCHAR(10) NOT NULL UNIQUE,
@@ -132,13 +198,92 @@ class StockDBManager:
         db_path = self.get_db_path(stock_code)
         return db_path.exists()
 
-    def count_sqlite_tables(self, db_path):
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table';")
-        table_count = cursor.fetchone()[0]
-        conn.close()
-        return table_count
+    def count_sqlite_tables(self, db_path, max_retries: int = 3):
+        """
+        线程安全地统计SQLite数据库中的表数量
+        
+        参数:
+            db_path: 数据库文件路径
+            max_retries: 最大重试次数
+            
+        返回:
+            表数量，如果出错返回None
+        """
+        for attempt in range(max_retries):
+            try:
+                with self._get_external_connection(db_path) as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table';")
+                    table_count = cursor.fetchone()[0]
+                    return table_count
+            except sqlite3.OperationalError as e:
+                if "database is locked" in str(e) and attempt < max_retries - 1:
+                    # 数据库被锁定，等待后重试
+                    wait_time = 0.1 * (attempt + 1)
+                    print(f"数据库 {db_path} 被锁定，等待 {wait_time} 秒后重试...")
+                    threading.Event().wait(wait_time)
+                    continue
+                else:
+                    print(f"查询数据库 {db_path} 表数量失败: {e}")
+                    return None
+            except sqlite3.Error as e:
+                print(f"查询数据库 {db_path} 表数量时发生错误: {e}")
+                return None
+        
+        return None  # 所有重试尝试都失败
+
+    def get_table_data(self, table="stock_basic_info"):
+        """
+        线程安全地获取股票数据
+        
+        :param table: 表名
+        :return: pandas.DataFrame 格式的股票数据
+        """
+        try:
+            # 使用线程安全的连接方式执行查询
+            with self._get_connection() as cur:
+                query = f"SELECT * FROM {table}"
+                cur.execute(query)
+                # 获取列名
+                column_names = [description[0] for description in cur.description]
+                # 获取所有数据
+                rows = cur.fetchall()
+                
+                # 转换为 DataFrame
+                df = pd.DataFrame(rows, columns=column_names)
+                return df
+        except Exception as e:
+            print(f"获取股票数据时出错: {str(e)}")
+            return pd.DataFrame()
+
+    def create_table(self, table_name, create_table_sql):
+        """
+        根据自定义SQL语句创建数据表
+        
+        :param table_name: 表名
+        :param create_table_sql: 建表SQL语句
+        :return: True 表示成功
+        """
+        # 参数验证
+        if not table_name:
+            raise ValueError("表名不能为空")
+        
+        if not create_table_sql:
+            raise ValueError("建表SQL语句不能为空")
+        
+        # 确保SQL语句是创建表的语句
+        if not create_table_sql.strip().upper().startswith("CREATE TABLE"):
+            raise ValueError("SQL语句必须是CREATE TABLE语句")
+        
+        # 使用线程安全的连接方式创建表
+        with self._get_connection() as cur:
+            try:
+                cur.execute(create_table_sql)
+                print(f"表 {table_name} 创建成功或已存在")
+                return True
+            except sqlite3.Error as e:
+                print(f"创建表 {table_name} 失败: {str(e)}")
+                raise
 
     # AKShare
     def insert_stock(self, stock_data):
@@ -161,22 +306,43 @@ class StockDBManager:
             )
             return cur.lastrowid
 
-    def batch_insert_stocks(self, stocks_data):
+    def batch_insert_stocks(self, stocks_data, max_retries=3):
         """批量插入股票数据
         :param stocks_data: 字典列表格式
         """
+        # if not stocks_data:
+        #     return
+        
+        # columns = ', '.join(stocks_data[0].keys())
+        # placeholders = ', '.join('?' * len(stocks_data[0]))
+        
+        # with self._get_connection() as cur:
+        #     cur.executemany(
+        #         f"INSERT OR IGNORE INTO stock_basic_info ({columns}) VALUES ({placeholders})",
+        #         [tuple(stock.values()) for stock in stocks_data]
+        #     )
+        #     return cur.rowcount
+
+        """批量插入股票数据 - 带重试机制"""
         if not stocks_data:
             return
         
-        columns = ', '.join(stocks_data[0].keys())
-        placeholders = ', '.join('?' * len(stocks_data[0]))
-        
-        with self._get_connection() as cur:
-            cur.executemany(
-                f"INSERT OR IGNORE INTO stock_basic_info ({columns}) VALUES ({placeholders})",
-                [tuple(stock.values()) for stock in stocks_data]
-            )
-            return cur.rowcount
+        for attempt in range(max_retries):
+            try:
+                with self._get_connection() as cur:
+                    columns = ', '.join(stocks_data[0].keys())
+                    placeholders = ', '.join('?' * len(stocks_data[0]))
+                    
+                    cur.executemany(
+                        f"INSERT OR IGNORE INTO stock_basic_info ({columns}) VALUES ({placeholders})",
+                        [tuple(stock.values()) for stock in stocks_data]
+                    )
+                    return cur.rowcount
+            except sqlite3.OperationalError as e:
+                if "database is locked" in str(e) and attempt < max_retries - 1:
+                    time.sleep(0.1 * (attempt + 1))
+                    continue
+                raise
 
     def update_stock(self, stock_code, update_data):
         """更新股票信息
@@ -260,114 +426,68 @@ class StockDBManager:
 
     # Baostock
     def save_tao_stocks_to_db(self, stocks_data, writeWay="replace", table_name="stock_basic_info"):
-        allowed_table_names = ['stock_basic_info', 'sh_main', 'sz_main', 'gem', 'star', 'bse'] # 替换为你允许的表名列表
+        """
+        线程安全地保存股票数据到数据库
+        
+        :param stocks_data: 股票数据 (pandas.DataFrame)
+        :param writeWay: 写入方式 ("replace", "append", "fail")
+        :param table_name: 表名
+        :return: True 表示成功
+        """
+        allowed_table_names = ['stock_basic_info', 'sh_main', 'sz_main', 'gem', 'star', 'bse']
         if table_name not in allowed_table_names:
             raise ValueError(f"Invalid table name: {table_name}")
 
-        # print(f"股票 {stock_code} 的数据库不存在，自动创建")
+        # 确保表存在
         create_table_sql = f"""
         CREATE TABLE IF NOT EXISTS {table_name} (
             证券代码 TEXT PRIMARY KEY NOT NULL,
-            交易状态 TEXT NOT NULL UNIQUE,
+            交易状态 TEXT NOT NULL,
             证券名称 TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
         """
-        conn = sqlite3.connect(self.db_path)
-        if conn is not None:
-            try:
-                cursor = conn.cursor()
-                cursor.execute(create_table_sql)
-                conn.commit()
-                print("表创建成功或已存在")
-            except sqlite3.Error as e:
-                print(f"创建表失败: {e}")
-            finally:
-                conn.close()
-        else:
-            print("无法创建数据库连接")
-        # self.create_baostock_table(db_path)
-
-        conn = sqlite3.connect(str(self.db_path))
-        stocks_data.to_sql(table_name, conn, if_exists=writeWay, index=False)
-        conn.close()
+        
+        # 使用线程安全的连接方式创建表
+        with self._get_connection() as cur:
+            cur.execute(create_table_sql)
+            print("表创建成功或已存在")
+        
+        # 将 DataFrame 数据转换为列表形式以便使用线程安全的插入方式
+        if not stocks_data.empty:
+            # 为避免 UNIQUE 约束冲突，先删除原有数据（当 writeWay 为 replace 时）
+            if writeWay == "replace":
+                with self._get_connection() as cur:
+                    cur.execute(f"DELETE FROM {table_name}")
+            
+            # 转换 DataFrame 为记录列表
+            records = stocks_data.to_dict('records')
+            
+            # 准备插入语句
+            columns = ['证券代码', '交易状态', '证券名称']
+            placeholders = ', '.join('?' * len(columns))
+            insert_sql = f"INSERT OR REPLACE INTO {table_name} ({', '.join(columns)}) VALUES ({placeholders})"
+            
+            # 批量插入数据
+            with self._get_connection() as cur:
+                cur.executemany(insert_sql, [
+                    (record.get('证券代码', ''), record.get('交易状态', ''), record.get('证券名称', '')) 
+                    for record in records
+                ])
+        
         return True
 
-    def get_stocks(self, table="stock_basic_info"):
-        try:
-            conn = sqlite3.connect(self.db_path)
-            query = f"SELECT * FROM {table}"
-            
-            df = pd.read_sql_query(query, conn)
-            conn.close() 
-            return df
-        except Exception as e:
-            print(f"获取股票数据时出错: {str(e)}")
-            return pd.DataFrame()
-
     def get_sh_main_stocks(self):
-        return self.get_stocks('sh_main')
+        return self.get_table_data('sh_main')
         
     def get_sz_main_stocks(self):
-        return self.get_stocks('sz_main')
+        return self.get_table_data('sz_main')
 
     def get_gem_stocks(self):
-        return self.get_stocks('gem')
+        return self.get_table_data('gem')
     
     def get_star_stocks(self):
-        return self.get_stocks('star')
-
-
-# 调用方式
-# db_manager.import_from_dataframe(main_board, "MAIN")
-'''
-# 查询主板股票数量
-def verify_main_board_count():
-    db_manager = StockDBManager("stocks.db")
-    main_stocks = db_manager.query_stocks(board_type="MAIN")
-    print(f"数据库中的主板股票数量: {len(main_stocks)}")
-    print("示例数据:")
-    for stock in main_stocks[:3]:
-        print(stock)
-
-        -----------------------------------
-
-# 初始化数据库
-db = StockDBManager("stocks.db")
-
-# 插入单条数据
-new_stock = {
-    'stock_code': '600000',
-    'stock_name': '浦发银行',
-    'listing_date': '1999-11-10',
-    'board_type': 'MAIN',
-    'is_st': 0
-}
-db.insert_stock(new_stock)
-
-# 批量插入数据
-stocks_batch = [
-    {'stock_code': '000001', 'stock_name': '平安银行', ...},
-    {'stock_code': '300750', 'stock_name': '宁德时代', ...}
-]
-db.batch_insert_stocks(stocks_batch)
-
-# 更新数据
-db.update_stock('600000', {'stock_name': '浦发银行(更新)'})
-
-# 查询数据
-# 查询单个股票
-print(db.get_stock_by_code('600000'))
-
-# 查询主板非ST股票
-main_stocks = db.query_stocks(board_type='MAIN', is_st=False)
-
-# 自定义条件查询
-custom_query = db.query_stocks(condition="listing_date > '2020-01-01'")
-
-# 删除数据
-db.delete_stock('000001')
-'''
+        return self.get_table_data('star')
 
 
 # 测试代码

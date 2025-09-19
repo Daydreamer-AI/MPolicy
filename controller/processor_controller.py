@@ -1,11 +1,11 @@
-from processor.stock_data_processor import StockDataProcessor
+from processor.ak_stock_data_processor import AKStockDataProcessor
 from processor.baostock_processor import BaoStockProcessor
 from common.config_manager import ConfigManager
 
 class ProcessorController:
     _instance = None
     # def __init__(self):
-        # self.stock_processor = StockDataProcessor()
+        # self.stock_processor = AKStockDataProcessor()
         # self.bao_stock_processor = BaoStockProcessor()
 
         # ConfigManager接口测试
@@ -21,7 +21,7 @@ class ProcessorController:
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             # 初始化成员变量
-            cls._instance.stock_processor = StockDataProcessor()
+            cls._instance.stock_processor = AKStockDataProcessor()
             cls._instance.bao_stock_processor = BaoStockProcessor() # 创建实例
             cls._instance._is_initialized = False # 控制器自身状态
         return cls._instance

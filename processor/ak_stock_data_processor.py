@@ -10,7 +10,7 @@ from indicators import stock_data_indicators as sdi
 import random
 import time
 
-class StockDataProcessor:
+class AKStockDataProcessor:
     '''
     
     维护：

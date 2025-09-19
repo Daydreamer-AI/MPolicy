@@ -1,7 +1,8 @@
 import baostock as bs
 import pandas as pd
 import numpy as np
-from data_base import StockDBManager, StockDbBase
+from data_base.stocks_db_manager import DBManagerPool
+from data_base import StockDbBase
 from indicators import stock_data_indicators as sdi
 import random
 import time
@@ -37,7 +38,7 @@ class BaoStockProcessor:
     def __init__(self):
         # self.chinese_columns = ['日期', '股票代码', '开盘', '最高', '最低', '收盘', '成交量', '成交额', '涨跌幅', '换手率', '复权方式', '是否ST']
         # self.chinese_columns_add = ['日期', '股票代码', '开盘', '最高', '最低', '收盘', '成交量', '成交额', '涨跌幅', '换手率', '复权方式', '是否ST', 'DIF', 'DEA', 'MACD', 'MA24', 'MA52']
-        self.stocks_db = StockDBManager(1)
+        self.stocks_db = DBManagerPool().get_manager(1)
         self.day_stock_db = StockDbBase("./stocks/db/baostock/day")
         self.week_stock_db = StockDbBase("./stocks/db/baostock/week")
 
