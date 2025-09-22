@@ -26,6 +26,10 @@ class MainWidget(QWidget):
 
         # AKShare
         self.btn_get_akshare_stocks_info.clicked.connect(self.slot_btn_get_akshare_stocks_info_clicked)
+        self.btn_update_ths_board_industry_data.clicked.connect(self.slot_btn_update_ths_board_industry_data_clicked)
+        self.btn_update_sh_main_data.clicked.connect(self.slot_btn_update_sh_main_data_clicked)
+        self.btn_update_sz_main_data.clicked.connect(self.slot_btn_update_sz_main_data_clicked)
+        self.btn_update_gem_data.clicked.connect(self.slot_btn_update_gem_data_clicked)
 
         # 策略筛选
         self.btn_daily_up_ma52_filter.clicked.connect(self.slot_btn_daily_up_ma52_filter_clicked)
@@ -109,6 +113,30 @@ class MainWidget(QWidget):
     def slot_btn_get_akshare_stocks_info_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_get_akshare_stocks_info_clicked...")
         AKStockDataProcessor().get_stocks_info_and_save_to_db()
+    @pyqtSlot()
+    def slot_btn_update_ths_board_industry_data_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_update_ths_board_industry_data_clicked...")
+        AKStockDataProcessor().process_and_save_board_industry_ths()
+
+    @pyqtSlot()
+    def slot_btn_update_sh_main_data_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_update_sh_main_data_clicked...")
+        result = AKStockDataProcessor().query_board_industry_data()
+        print("slot_btn_update_sh_main_data_clicked done.")
+        print(result)
+
+    @pyqtSlot()
+    def slot_btn_update_sz_main_data_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_update_sz_main_data_clicked...")
+        result = AKStockDataProcessor().get_latest_board_industry_data()
+        print("slot_btn_update_sz_main_data_clicked done.")
+        print(result)
+
+    @pyqtSlot()
+    def slot_btn_update_gem_data_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_update_gem_data_clicked...")
+        AKStockDataProcessor().process_and_save_stock_fund_flow_industry()
+        print("slot_btn_update_gem_data_clicked done.")
 
     # 策略筛选
     @pyqtSlot()

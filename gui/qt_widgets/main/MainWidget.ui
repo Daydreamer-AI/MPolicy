@@ -232,6 +232,25 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="btn_update_ths_board_industry_data">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>更新行业板块数据</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="btn_update_sh_main_data">
           <property name="minimumSize">
            <size>
@@ -323,25 +342,6 @@
           </property>
           <property name="text">
            <string>更新周线数据</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="btn_query_weekly_data">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>查询周线数据</string>
           </property>
          </widget>
         </item>

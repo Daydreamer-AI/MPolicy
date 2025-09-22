@@ -647,3 +647,11 @@ def save_classified_stock_codes_to_txt(classified_stock_codes_dict, base_path=".
     except Exception as e:
         print(f"保存分类股票代码时发生错误: {str(e)}")
         return False
+    
+
+# 数据清洗和转换
+def convert_percentage(value):
+    """转换百分比字符串为浮点数"""
+    if isinstance(value, str):
+        return float(re.sub(r'%', '', value))
+    return float(value)

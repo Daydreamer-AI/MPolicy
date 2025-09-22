@@ -116,6 +116,24 @@ class StockDBManager:
             self._local.conn.rollback()
             raise e
 
+    @contextmanager
+    def _get_connection_object(self):
+        """线程安全的数据库连接获取（返回连接对象）"""
+        if not hasattr(self._local, 'conn'):
+            self._local.conn = sqlite3.connect(
+                self.db_path, 
+                check_same_thread=False,
+                timeout=30
+            )
+            self._local.conn.execute('PRAGMA journal_mode=WAL')
+        
+        try:
+            yield self._local.conn
+            self._local.conn.commit()
+        except sqlite3.Error as e:
+            self._local.conn.rollback()
+            raise e
+
     def close_connection(self):
         """关闭当前线程的数据库连接"""
         if hasattr(self._local, 'conn'):
@@ -140,13 +158,8 @@ class StockDBManager:
                 'BSE'对应北京证券交易所，英文全称是Beijing Stock Exchange
             '''
             if self.db_type == 0:
-                self.create_table('stock_basic_info', '''
-                    CREATE TABLE IF NOT EXISTS stock_basic_info (
-                        证券代码 TEXT PRIMARY KEY NOT NULL,
-                        证券名称 TEXT NOT NULL,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                    )
-                ''')
+                self.init_akshare_db()
+                
             elif self.db_type == 1:
                 self.create_table('stock_basic_info', '''
                     CREATE TABLE IF NOT EXISTS stock_basic_info (
@@ -170,30 +183,30 @@ class StockDBManager:
 
             print(f"数据库已初始化: {self.db_path}")
 
-    def get_db_path(self, stock_code):
-        """
-        获取指定股票代码的数据库路径
+    # def get_db_path(self, stock_code):
+    #     """
+    #     获取指定股票代码的数据库路径
         
-        参数:
-            stock_code (str): 股票代码
+    #     参数:
+    #         stock_code (str): 股票代码
             
-        返回:
-            Path: 数据库文件路径
-        """
-        return self.db_dir / f"{stock_code}.db"
+    #     返回:
+    #         Path: 数据库文件路径
+    #     """
+    #     return self.db_dir / f"{stock_code}.db"
 
-    def check_stock_db_exists(self, stock_code):
-        """
-        检查指定股票的数据库是否存在
+    # def check_stock_db_exists(self, stock_code):
+    #     """
+    #     检查指定股票的数据库是否存在
         
-        参数:
-            stock_code (str): 股票代码
+    #     参数:
+    #         stock_code (str): 股票代码
             
-        返回:
-            bool: 存在返回True，否则返回False
-        """
-        db_path = self.get_db_path(stock_code)
-        return db_path.exists()
+    #     返回:
+    #         bool: 存在返回True，否则返回False
+    #     """
+    #     db_path = self.get_db_path(stock_code)
+    #     return db_path.exists()
 
     def count_sqlite_tables(self, db_path, max_retries: int = 3):
         """
@@ -383,7 +396,55 @@ class StockDBManager:
             raise
 
 
+    # ========================================================================AKShare相关接口========================================================================
     # AKShare
+    def init_akshare_db(self):
+        # 创建A股所有股票表
+        self.create_table('stock_basic_info', '''
+            CREATE TABLE IF NOT EXISTS stock_basic_info (
+                证券代码 TEXT PRIMARY KEY NOT NULL,
+                证券名称 TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+
+        # 创建同花顺行业板块一览表
+        try:
+            # 使用线程安全的连接方式执行查询
+            with self._get_connection() as cur:
+                query = '''
+                        CREATE TABLE IF NOT EXISTS board_industry (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        serial_number INTEGER NOT NULL,
+                        industry_name TEXT NOT NULL,
+                        change_percent REAL NOT NULL,
+                        total_volume REAL NOT NULL,
+                        total_amount REAL NOT NULL,
+                        net_inflow REAL NOT NULL,
+                        rising_count INTEGER NOT NULL,
+                        falling_count INTEGER NOT NULL,
+                        avg_price REAL NOT NULL,
+                        leading_stock TEXT NOT NULL,
+                        leading_stock_price REAL NOT NULL,
+                        leading_stock_change_percent REAL NOT NULL,
+                        data_date TEXT NOT NULL,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        
+                        UNIQUE(industry_name, data_date)
+                    )
+                    '''
+                cur.execute(query)
+
+                 # 创建索引以提高查询性能
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_data_date ON board_industry(data_date)')
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_industry_name ON board_industry(industry_name)')
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_change_percent ON board_industry(change_percent)')
+
+                
+        except Exception as e:
+            print(f"创建同花顺行业板块一览表时出错: {str(e)}")
+
+    # ------------------------------------------------------------A股股票信息表接口----------------------------------------------
     def insert_stocks_to_db(self, df_stock_info):
         self.insert_dataframe_to_table("stock_basic_info", df_stock_info, "append")
 
@@ -491,6 +552,102 @@ class StockDBManager:
         """获取所有股票数据"""
         return self.query_stocks()
 
+
+    # ------------------------------------------------------------同花顺行业板块一览表接口-----------------------------------------
+    def insert_board_industry_data_to_db(self, df_industry_data):
+        # 插入数据
+        inserted_count = 0
+        try:
+            with self._get_connection() as cursor:
+                for _, row in df_industry_data.iterrows():
+                    cursor.execute('''
+                    INSERT OR REPLACE INTO board_industry (
+                        serial_number, industry_name, change_percent, total_volume, 
+                        total_amount, net_inflow, rising_count, falling_count, 
+                        avg_price, leading_stock, leading_stock_price, 
+                        leading_stock_change_percent, data_date
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ''', (
+                        int(row['序号']),
+                        str(row['板块']),
+                        float(row['涨跌幅']),
+                        float(row['总成交量']),
+                        float(row['总成交额']),
+                        float(row['净流入']),
+                        int(row['上涨家数']),
+                        int(row['下跌家数']),
+                        float(row['均价']),
+                        str(row['领涨股']),
+                        float(row['领涨股-最新价']),
+                        float(row['领涨股-涨跌幅']),
+                        row['日期']
+                    ))
+                    inserted_count += 1
+        except Exception as e:
+            print(f"插入数据失败: {e}, 行数据: {row}")
+        
+        
+        print(f"数据插入完成，成功插入/更新 {inserted_count} 条记录")
+        return True
+
+    def query_board_industry_data(self, date=None, industry_name=None):
+        """查询行业数据"""
+        # 构建查询条件
+        conditions = []
+        params = []
+        
+        if date:
+            conditions.append("data_date = ?")
+            params.append(date)
+        
+        if industry_name:
+            conditions.append("industry_name LIKE ?")
+            params.append(f"%{industry_name}%")
+
+        where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
+
+        try:
+            with self._get_connection_object() as conn:
+                query = f'''
+                    SELECT * FROM board_industry 
+                    {where_clause}
+                    ORDER BY data_date DESC, change_percent DESC
+                    '''
+                    
+            df = pd.read_sql_query(query, conn, params=params if params else None)
+            return df
+
+        except Exception as e:
+            print(f"查询同花顺行业板块一览表时出错: {str(e)}")
+            return pd.DataFrame()
+    def get_latest_board_industry_data(self):
+        """获取最新日期的所有行业数据"""
+        try:
+            with self._get_connection_object() as conn:
+                # 直接使用连接对象查询最大日期
+                latest_date = pd.read_sql_query(
+                    "SELECT MAX(data_date) as max_date FROM board_industry", 
+                    conn
+                ).iloc[0]['max_date']
+        
+                if not latest_date:
+                    return pd.DataFrame()
+                
+                # 获取该日期的所有数据
+                df = pd.read_sql_query('''
+                SELECT * FROM board_industry 
+                WHERE data_date = ?
+                ORDER BY change_percent DESC
+                ''', conn, params=[latest_date])
+                
+                return df
+        
+        except Exception as e:
+            print(f"查询同花顺行业板块一览表时出错: {str(e)}")
+            return pd.DataFrame()
+
+        
+    # ========================================================================BaoStock相关接口========================================================================
     # 添加以下方法到StockDBManager类
     def import_from_dataframe(self, df, board_type):
         """直接从DataFrame导入板块数据"""

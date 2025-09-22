@@ -74,93 +74,6 @@ class AKStockDataProcessor:
 
         # 保存到数据库
         self.stocks_db.insert_dataframe_to_table("stock_basic_info", df, "replace")
-
-        # 剔除ST、*ST股票
-        # df = df[~df["name"].str.contains("ST")]
-
-        # 主板（沪深主板，包括60、00、002开头）
-        # main_board = df[df["code"].str.startswith(("60", "00", "002"))]
-        # print("主板股票数量：", main_board.shape[0])
-        # print("main_board: ")
-        # print(main_board.tail(3))
-        # print("\n")
-
-        # main_board_stocks_data = []
-        # for _, row in main_board.iterrows():
-        #     stock = {
-        #         "stock_code": row["code"],
-        #         "stock_name": row["name"],
-        #         "board_type": "MAIN",  # 主板标识
-        #         "is_st": 0             # 非ST股票
-        #     }
-        #     main_board_stocks_data.append(stock)
-        
-        # # 批量插入数据库
-        # inserted_count = self.stocks_db.batch_insert_stocks(main_board_stocks_data)
-        # print(f"成功插入 {inserted_count} 条主板股票记录")
-
-        # # 创业板
-        # cyb = df[df["code"].str.startswith("300")]
-        # print("创业板股票数量：", cyb.shape[0])
-        # print("cyb: ")
-        # print(cyb.tail(3))
-        # print("\n")
-        # cyb_stocks_data = []
-        # for _, row in cyb.iterrows():
-        #     stock = {
-        #         "stock_code": row["code"],
-        #         "stock_name": row["name"],
-        #         "board_type": "GEM",
-        #         "is_st": 0             # 非ST股票
-        #     }
-        #     cyb_stocks_data.append(stock)
-        
-        # # 批量插入数据库
-        # inserted_count = self.stocks_db.batch_insert_stocks(cyb_stocks_data)
-        # print(f"成功插入 {inserted_count} 条创业板股票记录")
-
-
-        # # 科创板
-        # kcb = df[df["code"].str.startswith("688")]
-        # print("科创板股票数量：", kcb.shape[0])
-        # print("kcb: ")
-        # print(kcb.tail(3))
-        # print("\n")
-        # kcb_stocks_data = []
-        # for _, row in kcb.iterrows():
-        #     stock = {
-        #         "stock_code": row["code"],
-        #         "stock_name": row["name"],
-        #         "board_type": "STAR",
-        #         "is_st": 0             # 非ST股票
-        #     }
-        #     kcb_stocks_data.append(stock)
-        
-        # # 批量插入数据库
-        # inserted_count = self.stocks_db.batch_insert_stocks(kcb_stocks_data)
-        # print(f"成功插入 {inserted_count} 条科创版股票记录")
-
-        # # 北交所
-        # bjs = df[df["code"].str.startswith("8")]
-        # print("北交所股票数量：", bjs.shape[0])
-        # print("bjs: ")
-        # print(bjs.tail(3))
-        # print("\n")
-
-        # bjs_stocks_data = []
-        # for _, row in bjs.iterrows():
-        #     stock = {
-        #         "stock_code": row["code"],
-        #         "stock_name": row["name"],
-        #         "board_type": "BSE",
-        #         "is_st": 0             # 非ST股票
-        #     }
-        #     bjs_stocks_data.append(stock)
-        
-        # # 批量插入数据库
-        # inserted_count = self.stocks_db.batch_insert_stocks(bjs_stocks_data)
-        # print(f"成功插入 {inserted_count} 条北交所股票记录")
-    
     def get_stock_info_from_db(self):
         df_stocks_info = self.stocks_db.get_table_data("stock_basic_info")
         dick_stocks = classify_a_stocks_by_board(df_stocks_info)
@@ -179,6 +92,44 @@ class AKStockDataProcessor:
             print(f"{board}: {count} 只股票")
         
         return dick_stocks
+
+    def process_and_save_board_industry_ths(self):
+        '''
+            获取、处理并插入同花顺行业板块一览表，收盘后调用
+        '''
+        # 获取行业板块数据
+        try:
+            df = ak.stock_board_industry_summary_ths()
+        except Exception as e:
+            print(f"获取数据失败: {e}")
+            return False
+        
+        print(df.head(3))
+
+        # 处理百分比字段
+        df['涨跌幅'] = df['涨跌幅'].apply(convert_percentage)
+        df['领涨股-涨跌幅'] = df['领涨股-涨跌幅'].apply(convert_percentage)
+        
+        # 处理数值字段
+        df['上涨家数'] = df['上涨家数'].fillna(0).astype(int)
+        df['下跌家数'] = df['下跌家数'].fillna(0).astype(int)
+        df['领涨股'] = df['领涨股'].astype(str)  # 确保领涨股为字符串
+        
+        # 添加日期字段
+        today = datetime.datetime.now().strftime('%Y-%m-%d')
+        df['日期'] = today
+
+        return self.stocks_db.insert_board_industry_data_to_db(df)
+
+    def query_board_industry_data(self, date=None, industry_name=None):
+        return self.stocks_db.query_board_industry_data(date, industry_name)
+
+    def get_latest_board_industry_data(self):
+        return self.stocks_db.get_latest_board_industry_data()
+
+    def process_and_save_stock_fund_flow_industry(self):
+        stock_fund_flow_industry_df = ak.stock_fund_flow_industry(symbol="即时")
+        print(stock_fund_flow_industry_df.head(3))
 
     def process_day_stock_data(self, stock_code):
         '''
