@@ -135,7 +135,7 @@ class MainWidget(QWidget):
     @pyqtSlot()
     def slot_btn_update_gem_data_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_update_gem_data_clicked...")
-        AKStockDataProcessor().process_and_save_stock_fund_flow_industry()
+        AKStockDataProcessor().get_all_stocks_from_eastmoney()
         print("slot_btn_update_gem_data_clicked done.")
 
     # 策略筛选

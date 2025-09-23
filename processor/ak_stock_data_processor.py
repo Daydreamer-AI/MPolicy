@@ -47,6 +47,7 @@ class AKStockDataProcessor:
         self.week_stock_db = StockDbBase("./stocks/db/akshare/week")
 
         self.dict_stocks = {}
+        self.df_stocks_eastmoney = pd.DataFrame()
 
     def initialize(self) -> bool:
         self.dict_stocks = self.get_stock_info_from_db()
@@ -128,9 +129,11 @@ class AKStockDataProcessor:
         return self.stocks_db.get_latest_board_industry_data()
 
     def process_and_save_stock_fund_flow_industry(self):
-        stock_fund_flow_industry_df = ak.stock_fund_flow_industry(symbol="即时")
-        print(stock_fund_flow_industry_df.head(3))
+        stock_board_industry_name_em_df = ak.stock_board_industry_name_em()
+        print(stock_board_industry_name_em_df)
 
+
+    # --------------------------------------------------------暂无用----------------------------------------------------------
     def process_day_stock_data(self, stock_code):
         '''
         获取股票数据并计算技术指标，保存到数据库
@@ -821,157 +824,52 @@ class AKStockDataProcessor:
         inserted_count = self.stocks_db.batch_insert_stocks(main_board_stocks_data)
         print(f"成功插入 {inserted_count} 条主板股票记录")
         return main_board_stocks_data
+    
+    # ------------------------------------------------------------------------------------------------------------------
 
-    # 筛选接口
-    def daily_filter(self, stock_code):
-        # 1.更新最新日线、周线数据
-        # if not process_latest_daily_data(stock_code):
-        #     print("更新日线数据失败")
-        #     return False    
+    # --------------------------------------------------------东方财富接口----------------------------------------------------------
+    # 获取A股所有股票信息
+    def get_all_stocks_from_eastmoney(self):
 
-        # if not process_latest_weekly_data(stock_code):
-        #     print("更新周线数据失败")
-        #     return False    
+    
+        for key, value in self.dict_stocks.items():
+            # 检查 DataFrame 是否为空
+            if value.empty:
+                continue
+            
+            index = 0
+            for index, row in value.iterrows():
+                if index > 2:
+                    break
+                try:
+                    stock_code = row['证券代码']
+                    print("stock_code的类型：", type(stock_code))
+                    stock_individual_info_em_df = ak.stock_individual_info_em(symbol=stock_code)
+                    print("stock_individual_info_em_df的类型：", type(stock_individual_info_em_df))
+                    # add_stock_data(self.df_stocks_eastmoney, stock_individual_info_em_df)
+                    print("stock_individual_info_em_df:", stock_individual_info_em_df)
 
-        # 2.得到最新的日线、周线数据
-        end_date = datetime.datetime.now().strftime("%Y%m%d")
-        start_date = (datetime.datetime.now() - datetime.timedelta(days=30)).strftime("%Y%m%d")
-        print("end_date:", end_date)
-        print("start_date:", start_date)
+                    # 将键值对形式的DataFrame转换为一行数据
+                    # 方法1: 使用pivot或set_index + unstack
+                    stock_data = stock_individual_info_em_df.set_index('item')['value'].to_dict()
+                    
+                    # 转换为DataFrame的一行
+                    stock_row = pd.DataFrame([stock_data])
+                    print("转换后的数据:", stock_row)
+                    
+                    # 合并到总数据中
+                    self.df_stocks_eastmoney = pd.concat([self.df_stocks_eastmoney, stock_row], ignore_index=True)
+                    
 
-        db_manager = StockDBManager()
-        df_dayily = db_manager.get_akshare_stock_data("000001")
-        print("近30天日线数据：")
-        print(df_dayily.tail(3))
+                    sleep_time = random.uniform(0.5, 1)
+                    time.sleep(sleep_time)
 
-        df_week = db_manager.get_week_stock_data("000001")
-        print("近30天周线数据：")
-        print(df_dayily.tail(3))
-
-        print("最后一组数据：")
-        print("日线收盘：", df_dayily.tail(1)['收盘'])
-        print("日线MA24：", df_dayily.tail(1)['MA24'])
-        print("日线MA52：", df_dayily.tail(1)['MA52'])
-        print("日线MA52*1.1：", df_dayily.tail(1)['MA52']*1.1)
-
-        print("\n周线数据：")
-        print("周线收盘：", df_week.tail(1)['收盘'])
-        print("周线MA24：", df_week.tail(1)['MA24'])
-        print("周线MA52：", df_week.tail(1)['MA52'])
-
-        # 判断逻辑
-        # 1. 周线收盘价 > 周线MA52
-        # 2. 日线收盘价与日线MA52的差值 < 日线MA52 * 1.1
-        if (df_week.tail(1)['收盘'] > df_week.tail(1)['MA52']) and (abs(df_dayily.tail(1)['收盘'] - df_dayily.tail(1)['MA52']) < df_dayily.tail(1)['MA52'] * 1.1):
-            print("符合多空逻辑")
-            return True
-        else:
-            print("不符合多空逻辑")
-            return False
-
-    def daily_filter(self, day_stock_data, week_stock_data):
-        # 检查MA52列是否存在空值
-        if week_stock_data['MA52'].isnull().any() or day_stock_data['MA52'].isnull().any():
-            print("存在空值，跳过判断")
-            return False
-
-        # print("day_stock_data的类型：", type(day_stock_data))     # <class 'pandas.core.frame.DataFrame'>
-        # print("week_stock_data的类型：", type(week_stock_data))   # <class 'pandas.core.frame.DataFrame'>
-
-        # 提取单个值代替Series
-        last_week_row = week_stock_data.tail(1)
-        last_day_row = day_stock_data.tail(1)
-        # 检查列是否存在
-        if '收盘' in week_stock_data.columns and 'MA52' in week_stock_data.columns:
-            week_close = last_week_row['收盘'].item()
-            week_ma52 = last_week_row['MA52'].item()
-        else:
-            print("错误：周线数据必要的列不存在")
-            print("可用列：", week_stock_data.columns.tolist())
-            return False  # 或者处理错误情况
+                except Exception as e:
+                    print(f"处理股票 {stock_code} 时出错: {e}")
+                    continue
         
-        if '收盘' in day_stock_data.columns and 'MA52' in day_stock_data.columns:
-            day_close = last_day_row['收盘'].item()
-            day_ma52 = last_day_row['MA52'].item()
-        else:
-            print("错误：日线数据必要的列不存在")
-            print("可用列：", week_stock_data.columns.tolist())
-            return False  # 或者处理错误情况
-
-        # last_close = last_week_row['收盘'].item()
-        # last_ma52 = last_week_row['MA52'].item()
-        # day_close = last_day_row['收盘'].item()
-        # day_ma52 = last_day_row['MA52'].item()
-
-        # 修改后条件判断
-        if (week_close > week_ma52) and (abs(day_close - day_ma52) < day_ma52 * 0.1):
-        # 执行逻辑
-        # if (week_stock_data.tail(1)['收盘'] > week_stock_data.tail(1)['MA52']) and (abs(day_stock_data.tail(1)['收盘'] - day_stock_data.tail(1)['MA52']) < day_stock_data.tail(1)['MA52'] * 1.1):
-            print("符合多空逻辑")
-            return True
-        else:
-            # print("不符合多空逻辑")
-            return False
-
-    # 自动化流程接口
-    def auto_process_main_stock_filter(self) :
-        result_stock_data = []
-        # 步骤一：更新主板股票信息
-        # main_board_stocks_info = self.update_main_stocks_info()
-        # print("main_board_stocks_info的类型：", type(main_board_stocks_info)) # <class 'list'>
-        main_board_stocks_info = self.get_main_stocks()
-        # print("main_board_stocks_info的类型：", type(main_board_stocks_info))
-        # print(main_board_stocks_info[0][1])
-
-        # 步骤二：更新主板股票日线&周线数据
-        i = 1
-        for item in main_board_stocks_info:
-            stock_code = item[1]
-            if i > 1000:
-                break
-            print(f"正在处理第 {i} 只股票，代码：{stock_code},名称：{item[2]}")
-            i += 1
-
-            # if self.day_stock_db.check_stock_db_exists(stock_code):
-            #     day_stock_data = self.update_day_stock_data(stock_code)
-            #     # print("day_stock_data的类型：", type(day_stock_data)) #<class 'pandas.core.frame.DataFrame'>
-            #     if day_stock_data.empty:
-            #         print(f"更新股票 {stock_code} 日线数据失败") 
-            #         continue
-            # else:
-            #     day_stock_data = self.process_day_stock_data(stock_code)
-            #     if day_stock_data.empty:
-            #         print(f"处理股票 {stock_code} 日线数据失败")
-            #         continue
-
-            day_stock_data = self.process_day_stock_data(stock_code)
-
-            if day_stock_data.empty:
-                # print(f"处理股票 {stock_code} 【日线】数据失败")
-                continue
-            
-            # if day_stock_data.empty:
-            #     print(f"处理股票 {stock_code} 日线数据失败")
-            #     continue
-
-            # if self.week_stock_db.check_stock_db_exists(stock_code):
-            #     if not self.update_week_stock_data(stock_code):
-            #         print(f"更新股票 {stock_code} 周线数据失败")
-            # else:
-            #     if not self.process_week_stock_data(stock_code):
-            #         print(f"处理股票 {stock_code} 周线数据失败")
-
-            week_stock_data = self.process_week_stock_data(stock_code)
-            
-            if week_stock_data.empty:
-                # print(f"处理股票 {stock_code} 【周线】数据失败")
-                continue
-
-            # # 步骤三：执行主板股票筛选
-            if self.daily_filter(day_stock_data, week_stock_data):
-                result_stock_data.append(stock_code)
-
-        return result_stock_data
+        # 打印最后处理的股票数据
+        print(self.df_stocks_eastmoney)
 
 
 # 测试代码

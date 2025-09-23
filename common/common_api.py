@@ -655,3 +655,85 @@ def convert_percentage(value):
     if isinstance(value, str):
         return float(re.sub(r'%', '', value))
     return float(value)
+
+
+# 东方财富通用接口
+# 创建空的DataFrame，包含图片中的所有字段
+def create_stock_dataframe():
+    """创建包含自定义字段的股票DataFrame"""
+    columns = [
+        '最新',          # 最新股价
+        '股票代码',      # 股票代码
+        '股票简称',      # 股票名称
+        '总股本',        # 总股本（万股）
+        '流通股',        # 流通股（万股）
+        '总市值',        # 总市值（亿元）
+        '流通市值',      # 流通市值（亿元）
+        '行业',          # 所属行业
+        '上市时间'       # 上市日期
+    ]
+    
+    # 创建空的DataFrame，指定列的数据类型
+    df = pd.DataFrame(columns=columns)
+    
+    # 设置更合适的数据类型
+    dtypes = {
+        '最新': 'float64',
+        '股票代码': 'object',
+        '股票简称': 'object',
+        '总股本': 'float64',
+        '流通股': 'float64',
+        '总市值': 'float64',
+        '流通市值': 'float64',
+        '行业': 'object',
+        '上市时间': 'datetime64[ns]'
+    }
+    
+    # 为每列设置数据类型
+    for col, dtype in dtypes.items():
+        df[col] = df[col].astype(dtype)
+    
+    return df
+
+def add_stock_data(df, stock_data):
+    """添加单条股票数据"""
+    # 创建新行数据
+    new_row = pd.DataFrame([stock_data], columns=df.columns)
+    
+    # 合并到现有DataFrame
+    updated_df = pd.concat([df, new_row], ignore_index=True)
+    return updated_df
+
+def add_bulk_stock_data(df, stock_list):
+    """批量添加股票数据"""
+    new_data = pd.DataFrame(stock_list, columns=df.columns)
+    updated_df = pd.concat([df, new_data], ignore_index=True)
+    return updated_df
+
+def update_stock_data(df, stock_code, update_data):
+    """更新指定股票的数据"""
+    mask = df['股票代码'] == stock_code
+    if mask.any():
+        for key, value in update_data.items():
+            if key in df.columns:
+                df.loc[mask, key] = value
+        print(f"已更新股票 {stock_code} 的数据")
+    else:
+        print(f"未找到股票代码: {stock_code}")
+    return df
+
+def delete_stock_data(df, stock_code):
+    """删除指定股票的数据"""
+    original_length = len(df)
+    df = df[df['股票代码'] != stock_code]
+    if len(df) < original_length:
+        print(f"已删除股票 {stock_code}")
+    else:
+        print(f"未找到股票代码: {stock_code}")
+    return df
+
+def query_stock_data(df, condition=None):
+    """查询股票数据"""
+    if condition:
+        return df.query(condition)
+    return df
