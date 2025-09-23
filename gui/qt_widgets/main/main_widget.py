@@ -32,6 +32,7 @@ class MainWidget(QWidget):
         self.btn_update_gem_data.clicked.connect(self.slot_btn_update_gem_data_clicked)
         self.btn_update_star_data.clicked.connect(self.slot_btn_update_star_data_clicked)
         self.btn_update_weekly_data.clicked.connect(self.slot_btn_update_weekly_data_clicked)
+        self.btn_update_chip_distribution_data_eastmoney.clicked.connect(self.slot_btn_update_chip_distribution_data_eastmoney_clicked)
 
         # 策略筛选
         self.btn_daily_up_ma52_filter.clicked.connect(self.slot_btn_daily_up_ma52_filter_clicked)
@@ -110,7 +111,7 @@ class MainWidget(QWidget):
         BaoStockProcessor().process_star_stock_weekly_data()
         print("done")
 
-    # AKShare
+    # =================================================================================AKShare==========================================================================
     @pyqtSlot()
     def slot_btn_get_akshare_stocks_info_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_get_akshare_stocks_info_clicked...")
@@ -118,19 +119,19 @@ class MainWidget(QWidget):
     @pyqtSlot()
     def slot_btn_update_ths_board_industry_data_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_update_ths_board_industry_data_clicked...")
-        AKStockDataProcessor().process_and_save_board_industry_ths()
+        AKStockDataProcessor().process_and_save_ths_board_industry()
 
     @pyqtSlot()
     def slot_btn_update_sh_main_data_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_update_sh_main_data_clicked...")
-        result = AKStockDataProcessor().query_board_industry_data()
+        result = AKStockDataProcessor().query_ths_board_industry_data()
         print("slot_btn_update_sh_main_data_clicked done.")
         print(result)
 
     @pyqtSlot()
     def slot_btn_update_sz_main_data_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_update_sz_main_data_clicked...")
-        result = AKStockDataProcessor().get_latest_board_industry_data()
+        result = AKStockDataProcessor().get_latest_ths_board_industry_data()
         print("slot_btn_update_sz_main_data_clicked done.")
         print(result)
 
@@ -154,7 +155,13 @@ class MainWidget(QWidget):
         print("slot_btn_update_weekly_data_clicked done.")
         print(result)
 
-    # 策略筛选
+    @pyqtSlot()
+    def slot_btn_update_chip_distribution_data_eastmoney_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_update_chip_distribution_data_eastmoney_clicked...")
+        AKStockDataProcessor().process_and_insert_eastmoney_stock_chip_distribution_data_to_db()
+        print("slot_btn_update_chip_distribution_data_eastmoney_clicked done.")
+
+    # =================================================================================策略筛选=================================================================
     @pyqtSlot()
     def slot_btn_daily_up_ma52_filter_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_daily_up_ma52_filter_clicked...")

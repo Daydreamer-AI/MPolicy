@@ -580,7 +580,7 @@ class StockDBManager:
 
 
     # ------------------------------------------------------------同花顺行业板块一览表接口-----------------------------------------
-    def insert_board_industry_data_to_db(self, df_industry_data):
+    def insert_ths_board_industry_data_to_db(self, df_industry_data):
         # 插入数据
         inserted_count = 0
         try:
@@ -616,7 +616,7 @@ class StockDBManager:
         print(f"数据插入完成，成功插入/更新 {inserted_count} 条记录")
         return True
 
-    def query_board_industry_data(self, date=None, industry_name=None):
+    def query_ths_board_industry_data(self, date=None, industry_name=None):
         """查询行业数据"""
         # 构建查询条件
         conditions = []
@@ -646,7 +646,7 @@ class StockDBManager:
         except Exception as e:
             print(f"查询同花顺行业板块一览表时出错: {str(e)}")
             return pd.DataFrame()
-    def get_latest_board_industry_data(self):
+    def get_latest_ths_board_industry_data(self):
         """获取最新日期的所有行业数据"""
         try:
             with self._get_connection_object() as conn:
@@ -673,7 +673,7 @@ class StockDBManager:
             return pd.DataFrame()
 
     # ------------------------------------------------------------东方财富股票数据表stock_data_eastmoney接口-----------------------------------------
-    def insert_stock_data_from_eastmoney(self, df_stock_data):
+    def insert_eastmoney_stock_data_to_db(self, df_stock_data):
         inserted_count = 0
         try:
             with self._get_connection() as cursor:

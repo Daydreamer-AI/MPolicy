@@ -5,6 +5,7 @@ from pathlib import Path
 from contextlib import contextmanager
 from common.common_api import *
 import threading
+import numpy as np
 
 '''
     常规插入：executemany+ 分批提交
@@ -24,9 +25,11 @@ class StockDbBase:
             
         """
         if db_dir is None:
-            self.db_dir = Path("./stocks/akshare/db/day")
+            self.db_dir = Path("./stocks/db/akshare")
         else:
             self.db_dir = Path(db_dir)
+
+        self.src_db_dir = self.db_dir
         
         # 确保目录存在
         self.db_dir.mkdir(parents=True, exist_ok=True)
@@ -89,8 +92,8 @@ class StockDbBase:
             self._local.connections.clear()
     def create_table(self, db_path, table_name, create_table_sql):
         # 参数验证
-        if not file_exists(db_path):
-            raise ValueError("数据库文件不存在")
+        # if not file_exists(db_path):
+        #     raise ValueError("数据库文件不存在")
 
         if not table_name:
             raise ValueError("表名不能为空")
@@ -211,7 +214,7 @@ class StockDbBase:
                 processed_records.append(tuple(processed_record.values()))
             
             # 执行批量插入
-            with self._get_connection() as cur:
+            with self._get_connection(db_path) as cur:
                 cur.executemany(insert_sql, processed_records)
                 row_count = cur.rowcount
                 print(f"成功向表 {table_name} {if_exists} {row_count} 行数据")
@@ -240,9 +243,26 @@ class StockDbBase:
             stock_codes.append(stock_code)
         return stock_codes
 
+    def get_src_db_dir(self):
+        """
+        获取数据库源目录
+        
+        返回:
+            str: 数据库源目录
+        """
+        return self.src_db_dir
+
+    def reset_db_dir(self):
+        """
+        重置数据库目录
+        """
+        self.db_dir = self.src_db_dir
+    def get_db_dir(self):
+        return self.db_dir
+
     def set_db_dir(self, db_dir):
         if db_dir is None:
-            self.db_dir = Path("./stocks/akshare/db/day")
+            self.db_dir = Path("./stocks/db/akshare")
         else:
             self.db_dir = Path(db_dir)
 
@@ -685,7 +705,95 @@ class StockDbBase:
         conn.close()
 
 
-    # 东方财富筹码分布表接口
+    # ------------------------------------------------------------东方财富股票筹码分布表stock_chip_distribution_data_eastmoney接口-----------------------------------------
+    def insert_eastmoney_stock_chip_distribution_data_to_db(self, code, df_data, table_name="stock_chip_distribution_data_eastmoney"):
+        db_path = self.get_db_path(code)
+        print("insert_eastmoney_stock_chip_distribution_data_to_db--db_path:", db_path)
+
+        # 检查表是否已存在
+        with self._get_connection(db_path) as cur:
+            cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table_name,))
+            table_exists = cur.fetchone()
+            
+        if not table_exists:
+            create_table_sql = '''
+                CREATE TABLE IF NOT EXISTS stock_chip_distribution_data_eastmoney (
+                    日期 TEXT PRIMARY KEY,
+                    获利比例 REAL,
+                    平均成本 REAL,
+                    "90成本-低" REAL,
+                    "90成本-高" REAL,
+                    "90集中度" REAL,
+                    "70成本-低" REAL,
+                    "70成本-高" REAL,
+                    "70集中度" REAL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE(日期)
+                )
+                '''
+            self.create_table(db_path, table_name, create_table_sql)
+
+        self.insert_dataframe_to_table(db_path, table_name, df_data, if_exists="replace")
+
+        # create_table_sql = '''
+        #     CREATE TABLE IF NOT EXISTS stock_chip_distribution_data_eastmoney (
+        #         日期 TEXT PRIMARY KEY,
+        #         获利比例 REAL,
+        #         平均成本 REAL,
+        #         "90成本-低" REAL,
+        #         "90成本-高" REAL,
+        #         90集中度 REAL,
+        #         "70成本-低" REAL,
+        #         "70成本-高" REAL,
+        #         70集中度 REAL
+
+        #         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        
+        #         UNIQUE(日期)
+        #     )
+        #     '''
+        # self.create_table(db_path, table_name, create_table_sql)
+
+        # self.insert_dataframe_to_table(db_path, table_name, df_data, if_exists="replace")
+
+
+    def query_eastmoney_stock_chip_distribution_data(self, code):
+        if not self.check_stock_db_exists(code):
+            return pd.DataFrame()
+        
+        db_path = self.get_db_path(code)
+        return self.get_table_data(db_path, 'stock_chip_distribution_data_eastmoney')
+
+    def get_latest_eastmoney_stock_chip_distribution_data(self, code):
+        if not self.check_stock_db_exists(code):
+            return pd.DataFrame()
+        
+        db_path = self.get_db_path(code)
+
+        try:
+            with self._get_connection_object(db_path) as conn:
+                # 直接使用连接对象查询最大日期
+                latest_date = pd.read_sql_query(
+                    "SELECT MAX(日期) as max_date FROM stock_chip_distribution_data_eastmoney", 
+                    conn
+                ).iloc[0]['max_date']
+
+                # print("latest_date: ", latest_date)
+                if not latest_date:
+                    print(f"没有找到最后日期{latest_date}的股票数据", latest_date)
+                    return pd.DataFrame()
+                
+                # 获取该日期的所有数据
+                df = pd.read_sql_query('''
+                SELECT * FROM stock_chip_distribution_data_eastmoney 
+                WHERE 日期 = ?
+                ''', conn, params=[latest_date])
+                
+                return df
+        
+        except Exception as e:
+            print(f"查询东方财富股票数据表时出错: {str(e)}")
+            return pd.DataFrame()
 
 
     # ===================================================================Baostock表数据相关====================================================================

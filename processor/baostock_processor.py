@@ -284,8 +284,9 @@ class BaoStockProcessor:
         # if result.empty:
         #     print("process_daily_stock_data执行结果为空！")
         #     return False
-            
-        self.dict_daily_stock_data[code] = result
+        
+        # 优化：策略筛选只需要最后一行数据即可
+        self.dict_daily_stock_data[code] = result.tail(3)
         return result
        
     # 增量维护，收盘后调用
@@ -417,7 +418,8 @@ class BaoStockProcessor:
         #     print("process_weekly_stock_data执行结果为空！")
         #     return False
         
-        self.dict_weekly_stock_data[code] = result
+        # 优化：策略筛选只需要最后一行数据即可
+        self.dict_weekly_stock_data[code] = result.tail(3)
 
         return result
 
