@@ -30,6 +30,8 @@ class MainWidget(QWidget):
         self.btn_update_sh_main_data.clicked.connect(self.slot_btn_update_sh_main_data_clicked)
         self.btn_update_sz_main_data.clicked.connect(self.slot_btn_update_sz_main_data_clicked)
         self.btn_update_gem_data.clicked.connect(self.slot_btn_update_gem_data_clicked)
+        self.btn_update_star_data.clicked.connect(self.slot_btn_update_star_data_clicked)
+        self.btn_update_weekly_data.clicked.connect(self.slot_btn_update_weekly_data_clicked)
 
         # 策略筛选
         self.btn_daily_up_ma52_filter.clicked.connect(self.slot_btn_daily_up_ma52_filter_clicked)
@@ -138,11 +140,25 @@ class MainWidget(QWidget):
         AKStockDataProcessor().get_all_stocks_from_eastmoney()
         print("slot_btn_update_gem_data_clicked done.")
 
+    @pyqtSlot()
+    def slot_btn_update_star_data_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_update_star_data_clicked...")
+        result = AKStockDataProcessor().query_eastmoney_stock_data()
+        print("slot_btn_update_star_data_clicked done.")
+        print(result)
+
+    @pyqtSlot()
+    def slot_btn_update_weekly_data_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_update_weekly_data_clicked...")
+        result = AKStockDataProcessor().get_latest_eastmoney_stock_data()
+        print("slot_btn_update_weekly_data_clicked done.")
+        print(result)
+
     # 策略筛选
     @pyqtSlot()
     def slot_btn_daily_up_ma52_filter_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_daily_up_ma52_filter_clicked...")
-        result = BaoStockProcessor().daily_up_ma52_filter()
+        result = BaoStockProcessor().daily_up_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney())
         today_str = datetime.datetime.now().strftime('%m%d')
         save_list_to_txt(result, f"./policy_filter/filter_result/daily_up_ma52/{today_str}.txt", ', ', "零轴上方MA52筛选结果：\n")
         print("daily_up_ma52_filter done.")
@@ -151,7 +167,7 @@ class MainWidget(QWidget):
     @pyqtSlot()
     def slot_btn_daily_up_ma24_filter_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_daily_up_ma24_filter_clicked...")
-        result = BaoStockProcessor().daily_up_ma24_filter()
+        result = BaoStockProcessor().daily_up_ma24_filter(AKStockDataProcessor().get_stocks_eastmoney())
         today_str = datetime.datetime.now().strftime('%m%d')
         save_list_to_txt(result, f"./policy_filter/filter_result/daily_up_ma24/{today_str}.txt", ', ', "零轴上方MA24筛选结果：\n")
         print("daily_up_ma24_filter done.")
@@ -160,7 +176,7 @@ class MainWidget(QWidget):
     @pyqtSlot()
     def slot_btn_daily_up_ma10_filter_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_daily_up_ma10_filter_clicked...")
-        result = BaoStockProcessor().daily_up_ma10_filter()
+        result = BaoStockProcessor().daily_up_ma10_filter(AKStockDataProcessor().get_stocks_eastmoney())
         today_str = datetime.datetime.now().strftime('%m%d')
         save_list_to_txt(result, f"./policy_filter/filter_result/daily_up_ma10/{today_str}.txt", ', ', "零轴上方MA10筛选结果：\n")
         print("daily_up_ma10_filter done.")
@@ -169,7 +185,7 @@ class MainWidget(QWidget):
     @pyqtSlot()
     def slot_btn_daily_down_ma52_filter_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_daily_down_ma52_filter_clicked...")
-        result = BaoStockProcessor().daily_down_between_ma24_ma52_filter()
+        result = BaoStockProcessor().daily_down_between_ma24_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney())
         today_str = datetime.datetime.now().strftime('%m%d')
         save_list_to_txt(result, f"./policy_filter/filter_result/daily_down_ma52/{today_str}.txt", ', ', "零轴下方MA52筛选结果：\n")
         print("daily_down_between_ma24_ma52_filter done.")
@@ -178,7 +194,7 @@ class MainWidget(QWidget):
     @pyqtSlot()
     def slot_btn_daily_down_ma5_filter_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_daily_down_ma5_filter_clicked...")
-        result = BaoStockProcessor().daily_down_between_ma5_ma52_filter()
+        result = BaoStockProcessor().daily_down_between_ma5_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney())
         today_str = datetime.datetime.now().strftime('%m%d')
         save_list_to_txt(result, f"./policy_filter/filter_result/daily_down_ma5/{today_str}.txt", ', ', "零轴下方MA5筛选结果：\n")
         print("daily_down_between_ma5_ma52_filter done.")

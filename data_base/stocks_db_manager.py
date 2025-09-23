@@ -435,14 +435,40 @@ class StockDBManager:
                     '''
                 cur.execute(query)
 
-                 # 创建索引以提高查询性能
+                # 创建索引以提高查询性能
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_data_date ON board_industry(data_date)')
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_industry_name ON board_industry(industry_name)')
-                cur.execute('CREATE INDEX IF NOT EXISTS idx_change_percent ON board_industry(change_percent)')
-
-                
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_change_percent ON board_industry(change_percent)')      
         except Exception as e:
             print(f"创建同花顺行业板块一览表时出错: {str(e)}")
+
+        # 创建东方财富股票数据表
+        try:
+            with self._get_connection() as cur:
+                create_table_sql = '''
+                    CREATE TABLE IF NOT EXISTS stock_data_eastmoney (
+                        stock_code TEXT NOT NULL,
+                        date TEXT NOT NULL,
+                        latest_price REAL,
+                        stock_name TEXT,
+                        total_shares REAL,
+                        float_shares REAL,
+                        total_market_cap REAL,
+                        float_market_cap REAL,
+                        industry TEXT,
+                        list_date TEXT,
+                        PRIMARY KEY (stock_code, date)
+                    )
+                    '''
+                cur.execute(create_table_sql)
+
+                # 创建索引以提高查询性能
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_data_date ON stock_data_eastmoney(date)')
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_industry_name ON stock_data_eastmoney(industry)')  
+    
+        except Exception as e:
+            print(f"创建东方财富股票数据表时出错: {str(e)}")
+        
 
     # ------------------------------------------------------------A股股票信息表接口----------------------------------------------
     def insert_stocks_to_db(self, df_stock_info):
@@ -646,7 +672,97 @@ class StockDBManager:
             print(f"查询同花顺行业板块一览表时出错: {str(e)}")
             return pd.DataFrame()
 
+    # ------------------------------------------------------------东方财富股票数据表stock_data_eastmoney接口-----------------------------------------
+    def insert_stock_data_from_eastmoney(self, df_stock_data):
+        inserted_count = 0
+        try:
+            with self._get_connection() as cursor:
+                for _, row in df_stock_data.iterrows():
+                    # 处理可能为'-'的数据
+                    latest_price = row['最新']
+                    if latest_price == '-' or pd.isna(latest_price):
+                        latest_price = None  # 或者设置为0或其他默认值
+                    else:
+                        latest_price = float(latest_price)
+                    
+                    cursor.execute('''
+                    INSERT OR REPLACE INTO stock_data_eastmoney (
+                        stock_code, date, latest_price,  stock_name, 
+                        total_shares, float_shares, total_market_cap, float_market_cap, 
+                        industry, list_date
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ''', (
+                        str(row['股票代码']),
+                        row['日期'],
+                        latest_price,  # 使用处理后的值
+                        str(row['股票简称']),
+                        float(row['总股本']),
+                        float(row['流通股']),
+                        float(row['总市值']),
+                        float(row['流通市值']),
+                        str(row['行业']),
+                        str(row['上市时间'])
+                    ))
+                    inserted_count += 1
+        except Exception as e:
+            print(f"插入数据失败: {e}, 行数据: {row}")
         
+        print(f"数据插入完成，成功插入/更新 {inserted_count} 条记录")
+        return True
+    
+    def query_eastmoney_stock_data(self, date=None, industry_name=None):
+        conditions = []
+        params = []
+        
+        if date:
+            conditions.append("date = ?")
+            params.append(date)
+        
+        if industry_name:
+            conditions.append("industry LIKE ?")
+            params.append(f"%{industry_name}%")
+
+        where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
+
+        try:
+            with self._get_connection_object() as conn:
+                query = f'''
+                    SELECT * FROM stock_data_eastmoney 
+                    {where_clause}
+                    ORDER BY date DESC
+                    '''
+                    
+            df = pd.read_sql_query(query, conn, params=params if params else None)
+            return df
+
+        except Exception as e:
+            print(f"查询东方财富股票数据表时出错: {str(e)}")
+            return pd.DataFrame()
+
+    def get_latest_eastmoney_stock_data(self):
+        try:
+            with self._get_connection_object() as conn:
+                # 直接使用连接对象查询最大日期
+                latest_date = pd.read_sql_query(
+                    "SELECT MAX(date) as max_date FROM stock_data_eastmoney", 
+                    conn
+                ).iloc[0]['max_date']
+        
+                if not latest_date:
+                    return pd.DataFrame()
+                
+                # 获取该日期的所有数据
+                df = pd.read_sql_query('''
+                SELECT * FROM stock_data_eastmoney 
+                WHERE data_date = ?
+                ''', conn, params=[latest_date])
+                
+                return df
+        
+        except Exception as e:
+            print(f"查询东方财富股票数据表时出错: {str(e)}")
+            return pd.DataFrame()
+
     # ========================================================================BaoStock相关接口========================================================================
     # 添加以下方法到StockDBManager类
     def import_from_dataframe(self, df, board_type):

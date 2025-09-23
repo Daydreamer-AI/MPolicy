@@ -12,6 +12,7 @@ import threading
 from datetime import date, timedelta
 from common.config_manager import ConfigManager
 import threading
+from common.common_api import *
 
 def singleton(cls):
     """
@@ -706,13 +707,28 @@ class BaoStockProcessor:
         print("set_policy_filter_lb--量比：", lb)
         pf.set_policy_filter_lb(lb)
 
-    def daily_up_ma52_filter(self):
+    def daily_up_ma52_filter(self, condition=None):
+        print(condition.columns)  # 打印所有列名
+        print(condition.head())   # 打印前几行数据查看结构
         filter_result = []
         print("开始执行日线零轴上方MA52筛选，换手率：", pf.get_policy_filter_turn(), ", 量比：", pf.get_policy_filter_lb())
         for code, df_data in self.dict_daily_stock_data.items():
             if code not in self.dict_weekly_stock_data.keys():
                 print(f"{code} 未在周线数据中")
                 continue
+
+            if condition is None or condition.empty:
+                # print(f"筛选条件为空")
+                pass
+            else:
+                # 筛选市值大于50亿的股票
+                standard_code = extract_pure_stock_code(code)
+                exists = standard_code in condition['股票代码'].values
+                if exists:
+                    circulating_market_value = condition.loc[condition['股票代码'] == standard_code, '流通市值'].iloc[0]
+                    if circulating_market_value < 50 * 10000 * 10000:
+                        continue
+
 
             # print(f"即将筛选股票 {code}")
             # print(df_data.tail(1))
@@ -721,7 +737,7 @@ class BaoStockProcessor:
 
         return filter_result
     
-    def daily_up_ma24_filter(self):
+    def daily_up_ma24_filter(self, condition=None):
         filter_result = []
         print("开始执行日线零轴上方MA24筛选，换手率：", pf.get_policy_filter_turn(), ", 量比：", pf.get_policy_filter_lb())
         for code, df_data in self.dict_daily_stock_data.items():
@@ -736,7 +752,7 @@ class BaoStockProcessor:
 
         return filter_result
 
-    def daily_up_ma10_filter(self, isUp=False):
+    def daily_up_ma10_filter(self, condition=None):
         filter_result = []
         print("开始执行日线零轴上方MA10筛选，换手率：", pf.get_policy_filter_turn(), ", 量比：", pf.get_policy_filter_lb())
         for code, df_data in self.dict_daily_stock_data.items():
@@ -751,7 +767,7 @@ class BaoStockProcessor:
 
         return filter_result
     
-    def daily_down_between_ma24_ma52_filter(self):
+    def daily_down_between_ma24_ma52_filter(self, condition=None):
         filter_result = []
         print("开始执行日线零轴下方方MA24-MA52筛选，换手率：", pf.get_policy_filter_turn(), ", 量比：", pf.get_policy_filter_lb())
         for code, df_data in self.dict_daily_stock_data.items():
@@ -766,7 +782,7 @@ class BaoStockProcessor:
 
         return filter_result
     
-    def daily_down_between_ma5_ma52_filter(self):
+    def daily_down_between_ma5_ma52_filter(self, condition=None):
         filter_result = []
         print("开始执行日线零轴下方方MA5-MA52筛选，换手率：", pf.get_policy_filter_turn(), ", 量比：", pf.get_policy_filter_lb())
         for code, df_data in self.dict_daily_stock_data.items():

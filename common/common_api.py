@@ -2,6 +2,7 @@
 
 import pandas as pd
 import re
+from pathlib import Path
 
 class StockCodeAnalyzer:
     """
@@ -380,7 +381,49 @@ def normalize_code_to_baostock_code(code):
         return "bj." + code
     else:
         return code
+
+def extract_pure_stock_code(code):
+    """
+    从各种格式的股票代码中提取纯数字部分
     
+    :param code: 各种格式的股票代码 (如: 600000, sh.600000, SH600000, 60000.sh, 600000SH)
+    :return: 纯数字型股票代码 (如: 600000)
+    """
+    if not isinstance(code, str):
+        code = str(code)
+    
+    # 移除所有非数字字符，只保留数字
+    pure_code = re.sub(r'[^0-9]', '', code)
+    
+    # 验证是否为有效的6位股票代码
+    if len(pure_code) >= 6:
+        # 通常股票代码是6位数，取最后6位
+        pure_code = pure_code[-6:]
+    
+    return pure_code
+
+
+def file_exists(file_path):
+    file_path = Path(file_path)
+
+    # 检查路径是否存在（可以是文件或目录）
+    # if file_path.exists():
+    #     print(f"路径 '{file_path}' 存在")
+
+    # 检查是否为文件
+    return file_path.is_file()
+
+def dir_exists(dir_path):
+    dir_path = Path(dir_path)
+    # 检查路径是否存在（可以是文件或目录）
+    # if file_path.exists():
+    #     print(f"路径 '{file_path}' 存在")
+    # 检查是否为目录
+    return dir_path.is_dir()
+
+
+# ------------------------------------------------------------------------------------------------------------------------------
+
 
 def save_dataframe_to_txt(df_data, file_path, sep='\t', encoding='utf-8', index=False, header=True):
     """

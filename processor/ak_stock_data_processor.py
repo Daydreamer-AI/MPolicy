@@ -51,10 +51,19 @@ class AKStockDataProcessor:
 
     def initialize(self) -> bool:
         self.dict_stocks = self.get_stock_info_from_db()
+
+        if file_exists('./stocks/excel/stocks_eastmoney.xlsx'):
+            self.df_stocks_eastmoney = pd.read_excel('./stocks/excel/stocks_eastmoney.xlsx')
+        else:
+            print('未找到./stocks/excel/stocks_eastmoney.xlsx')
+        
         return True
     
     def cleanup(self) -> None:
         pass
+
+    def get_stocks_eastmoney(self):
+        return self.df_stocks_eastmoney
 
     # 股票数据接口
     def get_stocks_info_and_save_to_db(self):
@@ -830,6 +839,38 @@ class AKStockDataProcessor:
     # --------------------------------------------------------东方财富接口----------------------------------------------------------
     # 获取A股所有股票信息
     def get_all_stocks_from_eastmoney(self):
+        # 600561, 002283，300821
+        # df_tmp1 = ak.stock_individual_info_em(symbol='600561', timeout=30000)
+        # stock_data1 = df_tmp1.set_index('item')['value'].to_dict()        
+        # # 转换为DataFrame的一行
+        # stock_row1 = pd.DataFrame([stock_data1])
+        # print(stock_row1)
+
+        # df_tmp2 = ak.stock_individual_info_em(symbol='002283', timeout=30000)
+        # stock_data2 = df_tmp2.set_index('item')['value'].to_dict()        
+        # # 转换为DataFrame的一行
+        # stock_row2 = pd.DataFrame([stock_data2])
+        # print(stock_row2)
+
+        # df_tmp3 = ak.stock_individual_info_em(symbol='300821', timeout=30000)
+        # stock_data3 = df_tmp3.set_index('item')['value'].to_dict()        
+        # # 转换为DataFrame的一行
+        # stock_row3 = pd.DataFrame([stock_data3])
+        # print(stock_row3)
+
+        # self.df_stocks_eastmoney = pd.concat([self.df_stocks_eastmoney, stock_row1], ignore_index=True)
+        # self.df_stocks_eastmoney = pd.concat([self.df_stocks_eastmoney, stock_row2], ignore_index=True)
+        # self.df_stocks_eastmoney = pd.concat([self.df_stocks_eastmoney, stock_row3], ignore_index=True)
+
+        # print("保存数据到Excel中...")
+        # self.df_stocks_eastmoney.to_excel('./stocks/excel/stocks_eastmoney.xlsx', index=False)
+
+        # 添加日期字段
+        today = datetime.datetime.now().strftime('%Y-%m-%d')
+        self.df_stocks_eastmoney['日期'] = today
+        print(self.df_stocks_eastmoney.tail(3))
+        self.stocks_db.insert_stock_data_from_eastmoney(self.df_stocks_eastmoney)
+        return
 
     
         for key, value in self.dict_stocks.items():
@@ -837,17 +878,16 @@ class AKStockDataProcessor:
             if value.empty:
                 continue
             
-            index = 0
+            index = 1
             for index, row in value.iterrows():
-                if index > 2:
-                    break
                 try:
                     stock_code = row['证券代码']
-                    print("stock_code的类型：", type(stock_code))
-                    stock_individual_info_em_df = ak.stock_individual_info_em(symbol=stock_code)
-                    print("stock_individual_info_em_df的类型：", type(stock_individual_info_em_df))
+                    # print("stock_code的类型：", type(stock_code))
+                    print(f"正在获取第 {index} 只股票：{stock_code}")
+                    stock_individual_info_em_df = ak.stock_individual_info_em(symbol=stock_code, timeout=30000)
+                    # print("stock_individual_info_em_df的类型：", type(stock_individual_info_em_df))
                     # add_stock_data(self.df_stocks_eastmoney, stock_individual_info_em_df)
-                    print("stock_individual_info_em_df:", stock_individual_info_em_df)
+                    # print("stock_individual_info_em_df:", stock_individual_info_em_df)
 
                     # 将键值对形式的DataFrame转换为一行数据
                     # 方法1: 使用pivot或set_index + unstack
@@ -855,22 +895,30 @@ class AKStockDataProcessor:
                     
                     # 转换为DataFrame的一行
                     stock_row = pd.DataFrame([stock_data])
-                    print("转换后的数据:", stock_row)
+                    # print("转换后的数据:", stock_row)
                     
                     # 合并到总数据中
                     self.df_stocks_eastmoney = pd.concat([self.df_stocks_eastmoney, stock_row], ignore_index=True)
                     
 
                     sleep_time = random.uniform(0.5, 1)
-                    time.sleep(sleep_time)
+                    # time.sleep(sleep_time)
 
                 except Exception as e:
                     print(f"处理股票 {stock_code} 时出错: {e}")
                     continue
         
         # 打印最后处理的股票数据
-        print(self.df_stocks_eastmoney)
+        print("\n处理后的数据:\n")
+        print(self.df_stocks_eastmoney.tail(3))
+        # self.df_stocks_eastmoney.to_excel('./stocks/excel/stocks_eastmoney.xlsx', index=False)
+        self.stocks_db.insert_stock_data_from_eastmoney(self.df_stocks_eastmoney)
 
+    def query_eastmoney_stock_data(self):
+        return self.stocks_db.query_eastmoney_stock_data()
+
+    def get_latest_eastmoney_stock_data(self):
+        return self.stocks_db.get_latest_eastmoney_stock_data()
 
 # 测试代码
 if __name__ == "__main__":
