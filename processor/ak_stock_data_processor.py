@@ -259,6 +259,9 @@ class AKStockDataProcessor:
             # 检查 DataFrame 是否为空
             if board == "" or df_data.empty:
                 continue
+
+            if board == "bse" or board == "star":
+                continue
             
             db_dir = self.stock_db_manager.get_src_db_dir()
             db_dir = db_dir / board
