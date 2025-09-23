@@ -436,9 +436,9 @@ class StockDBManager:
                 cur.execute(query)
 
                 # 创建索引以提高查询性能
-                cur.execute('CREATE INDEX IF NOT EXISTS idx_data_date ON board_industry(data_date)')
-                cur.execute('CREATE INDEX IF NOT EXISTS idx_industry_name ON board_industry(industry_name)')
-                cur.execute('CREATE INDEX IF NOT EXISTS idx_change_percent ON board_industry(change_percent)')      
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_board_industry_data_date ON board_industry(data_date)')
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_board_industry_industry_name ON board_industry(industry_name)')
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_board_industry_change_percent ON board_industry(change_percent)')      
         except Exception as e:
             print(f"创建同花顺行业板块一览表时出错: {str(e)}")
 
@@ -463,8 +463,8 @@ class StockDBManager:
                 cur.execute(create_table_sql)
 
                 # 创建索引以提高查询性能
-                cur.execute('CREATE INDEX IF NOT EXISTS idx_data_date ON stock_data_eastmoney(date)')
-                cur.execute('CREATE INDEX IF NOT EXISTS idx_industry_name ON stock_data_eastmoney(industry)')  
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_stock_data_eastmoney_data_date ON stock_data_eastmoney(date)')
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_stock_data_eastmoney_industry_name ON stock_data_eastmoney(industry)')  
     
         except Exception as e:
             print(f"创建东方财富股票数据表时出错: {str(e)}")
@@ -747,14 +747,16 @@ class StockDBManager:
                     "SELECT MAX(date) as max_date FROM stock_data_eastmoney", 
                     conn
                 ).iloc[0]['max_date']
-        
+
+                # print("latest_date: ", latest_date)
                 if not latest_date:
+                    print(f"没有找到最后日期{latest_date}的股票数据", latest_date)
                     return pd.DataFrame()
                 
                 # 获取该日期的所有数据
                 df = pd.read_sql_query('''
                 SELECT * FROM stock_data_eastmoney 
-                WHERE data_date = ?
+                WHERE date = ?
                 ''', conn, params=[latest_date])
                 
                 return df

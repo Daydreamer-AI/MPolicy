@@ -51,11 +51,11 @@ class AKStockDataProcessor:
 
     def initialize(self) -> bool:
         self.dict_stocks = self.get_stock_info_from_db()
-
-        if file_exists('./stocks/excel/stocks_eastmoney.xlsx'):
-            self.df_stocks_eastmoney = pd.read_excel('./stocks/excel/stocks_eastmoney.xlsx')
-        else:
-            print('未找到./stocks/excel/stocks_eastmoney.xlsx')
+        self.df_stocks_eastmoney = self.stocks_db.get_latest_eastmoney_stock_data()
+        # if file_exists('./stocks/excel/stocks_eastmoney.xlsx'):
+        #     self.df_stocks_eastmoney = pd.read_excel('./stocks/excel/stocks_eastmoney.xlsx')
+        # else:
+        #     print('未找到./stocks/excel/stocks_eastmoney.xlsx')
         
         return True
     
@@ -866,13 +866,19 @@ class AKStockDataProcessor:
         # self.df_stocks_eastmoney.to_excel('./stocks/excel/stocks_eastmoney.xlsx', index=False)
 
         # 添加日期字段
-        today = datetime.datetime.now().strftime('%Y-%m-%d')
-        self.df_stocks_eastmoney['日期'] = today
-        print(self.df_stocks_eastmoney.tail(3))
-        self.stocks_db.insert_stock_data_from_eastmoney(self.df_stocks_eastmoney)
-        return
+        # today = datetime.datetime.now().strftime('%Y-%m-%d')
+        # self.df_stocks_eastmoney['日期'] = today
+        # print(self.df_stocks_eastmoney.tail(3))
+        # self.stocks_db.insert_stock_data_from_eastmoney(self.df_stocks_eastmoney)
+        # return
 
-    
+        print(self.df_stocks_eastmoney.tail(3))
+        today = datetime.datetime.now().strftime('%Y-%m-%d')
+        if self.df_stocks_eastmoney is not None and not self.df_stocks_eastmoney.empty and today in self.df_stocks_eastmoney['date'].values:
+            print("已是最新日期数据")
+            return
+
+        self.df_stocks_eastmoney = pd.DataFrame()
         for key, value in self.dict_stocks.items():
             # 检查 DataFrame 是否为空
             if value.empty:
@@ -909,6 +915,7 @@ class AKStockDataProcessor:
                     continue
         
         # 打印最后处理的股票数据
+        self.df_stocks_eastmoney['日期'] = today
         print("\n处理后的数据:\n")
         print(self.df_stocks_eastmoney.tail(3))
         # self.df_stocks_eastmoney.to_excel('./stocks/excel/stocks_eastmoney.xlsx', index=False)
