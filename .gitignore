@@ -60,6 +60,13 @@ cover/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+# 忽略 SQLite 的 WAL 模式临时文件
+*-wal
+*-shm
+*.db-wal
+*.db-shm
+# 也忽略可能的 journal 文件（回滚日志模式）
+*.db-journal
 
 # Flask stuff:
 instance/

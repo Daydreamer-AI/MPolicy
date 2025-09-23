@@ -232,6 +232,7 @@ def daily_up_ma52_filter(df_daily_data, df_weekly_data):
         止损位：有效跌破日线MA52或MA60清仓离场，等待日线零轴下方或大级别的零轴上方机会。
     '''
     if df_daily_data.empty or df_weekly_data.empty:
+        print("日线或周线数据为空！")
         return False
     
     day_close = 0.0
@@ -257,6 +258,7 @@ def daily_up_ma52_filter(df_daily_data, df_weekly_data):
         day_turn = last_day_row['换手率'].item()
         day_lb = last_day_row['量比5日'].item()
     else:
+        print("日线列名不存在！")
         return False
 
 
@@ -266,6 +268,7 @@ def daily_up_ma52_filter(df_daily_data, df_weekly_data):
         week_dea = last_week_row['DEA'].item()
         week_ma52 = last_week_row['MA52'].item()
     else:
+        print("周线列名不存在！")
         return False
 
     # day_diff = day_ma52 * policy_filter_ma52_diff
@@ -283,6 +286,11 @@ def daily_up_ma52_filter(df_daily_data, df_weekly_data):
         # print("符合【日线零轴上方MA52】筛选")
         return True
     
+    # print("不符合【日线零轴上方MA52】筛选")
+    # print(f"b_ret: {b_ret}, b_ret_2: {b_ret_2}, b_ret_3: {b_ret_3}, b_ret_4: {b_ret_4}, b_ret_5: {b_ret_5}")
+    # print(f"day_turn: {day_turn}, day_lb: {day_lb}")
+    # print(f"day_dea: {day_dea}, day_close: {day_close}, day_ma52: {day_ma52}, day_ma60: {day_ma60}, day_ma30: {day_ma30}")
+    # print(f"day_ma5: {day_ma5}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, day_ma60: {day_ma60}")
     return False
 
 # 零轴上方MA24选股法

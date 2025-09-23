@@ -100,6 +100,24 @@ class CommonDBManager:
         except sqlite3.Error as e:
             self._local.conn.rollback()
             raise e
+        
+    @contextmanager
+    def _get_connection_object(self):
+        """线程安全的数据库连接获取（返回连接对象）"""
+        if not hasattr(self._local, 'conn'):
+            self._local.conn = sqlite3.connect(
+                self.db_path, 
+                check_same_thread=False,
+                timeout=30
+            )
+            self._local.conn.execute('PRAGMA journal_mode=WAL')
+        
+        try:
+            yield self._local.conn
+            self._local.conn.commit()
+        except sqlite3.Error as e:
+            self._local.conn.rollback()
+            raise e
 
     def close_connection(self):
         """关闭当前线程的数据库连接"""

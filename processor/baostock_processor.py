@@ -263,7 +263,7 @@ class BaoStockProcessor:
         result = pd.DataFrame()
 
         if not self.day_stock_db.check_stock_db_exists(code):
-            print(f"{code}.db 不存在，即将从Baostock获取")
+            # print(f"{code}.db 不存在，即将从Baostock获取")
             result = self.process_daily_stock_data(code)
 
             if not result.empty:
@@ -278,7 +278,7 @@ class BaoStockProcessor:
                 sdi.quantity_ratio(result)
                 self.day_stock_db.save_bao_stock_data_to_db(code, result)
         else:
-            print(f"{code}.db 存在，即将从本地数据库更新")
+            # print(f"{code}.db 存在，即将从本地数据库更新")
             result = self.update_daily_stock_data(code)
         
         # if result.empty:
@@ -296,10 +296,13 @@ class BaoStockProcessor:
 
         # 步骤一：得到当前数据库中的股票数据
         day_stock_data = self.day_stock_db.get_bao_stock_data(code)
+        # print("code: ", code)
+        # print("day_stock_data的类型：", type(day_stock_data))
+        # print(day_stock_data.tail(1))
         
         now_date = datetime.datetime.now().strftime("%Y-%m-%d")
         if now_date in day_stock_data['日期'].values:
-            print("已是最新数据")
+            # print("已是最新数据")
             return day_stock_data
         
         # 判断数据库最后日期至今有无交易日数据需更新
@@ -397,7 +400,7 @@ class BaoStockProcessor:
     def process_and_save_weekly_stock_data(self, code):
         result = pd.DataFrame()
         if not self.week_stock_db.check_stock_db_exists(code):
-            print(f"周线 {code}.db 不存在，即将从Baostock获取")
+            # print(f"周线 {code}.db 不存在，即将从Baostock获取")
             result = self.process_weekly_stock_data(code)
 
             if not result.empty:
@@ -407,7 +410,7 @@ class BaoStockProcessor:
                 sdi.quantity_ratio(result)
                 self.week_stock_db.save_bao_stock_data_to_db(code, result)
         else:
-            print(f"周线 {code}.db 存在，即将从本地数据库更新")
+            # print(f"周线 {code}.db 存在，即将从本地数据库更新")
             result = self.update_weekly_stock_data(code)
 
         # if result.empty:
@@ -439,7 +442,7 @@ class BaoStockProcessor:
         last_date = parsed_date + datetime.timedelta(days=1)
         num_fridays = self.count_fridays_since(last_date.strftime("%Y-%m-%d"))
         if not num_fridays > 0:
-            print("已是最新数据")
+            # print("已是最新数据")
             return week_stock_data
         
         if self.is_trading_day_today():
@@ -708,8 +711,10 @@ class BaoStockProcessor:
         pf.set_policy_filter_lb(lb)
 
     def daily_up_ma52_filter(self, condition=None):
-        print(condition.columns)  # 打印所有列名
-        print(condition.head())   # 打印前几行数据查看结构
+        # print("dict_daily_stock_data长度：", len(self.dict_daily_stock_data))
+        # print("dict_weekly_stock_data长度：", len(self.dict_weekly_stock_data))
+        # print("condition长度：", len(condition))
+
         filter_result = []
         print("开始执行日线零轴上方MA52筛选，换手率：", pf.get_policy_filter_turn(), ", 量比：", pf.get_policy_filter_lb())
         for code, df_data in self.dict_daily_stock_data.items():
@@ -718,7 +723,7 @@ class BaoStockProcessor:
                 continue
 
             if condition is None or condition.empty:
-                # print(f"筛选条件为空")
+                print(f"筛选条件为空")
                 pass
             else:
                 # 筛选市值大于50亿的股票
@@ -727,6 +732,7 @@ class BaoStockProcessor:
                 if exists:
                     circulating_market_value = condition.loc[condition['股票代码'] == standard_code, '流通市值'].iloc[0]
                     if circulating_market_value < 50 * 10000 * 10000:
+                        print(f"流通市值小于50亿的股票被过滤掉: {code}")
                         continue
 
 

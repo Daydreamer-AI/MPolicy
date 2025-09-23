@@ -2,6 +2,9 @@ import os
 import sqlite3
 import pandas as pd
 from pathlib import Path
+from contextlib import contextmanager
+from common.common_api import *
+import threading
 
 '''
     常规插入：executemany+ 分批提交
@@ -28,62 +31,202 @@ class StockDbBase:
         # 确保目录存在
         self.db_dir.mkdir(parents=True, exist_ok=True)
 
-    def create_connection(self, db_path):
-        """创建数据库连接"""
-        try:
-            conn = sqlite3.connect(db_path)
-            return conn
-        except sqlite3.Error as e:
-            print(f"连接数据库失败: {e}")
-            return None
+        self._local = threading.local()     # 多线程隔离
+        self._lock = threading.Lock()       # 保护​​共享资源​​
+
+    @contextmanager
+    def _get_connection(self, db_path):
+        """线程安全的数据库连接获取"""
+        # 使用字典存储多个连接，以db_path为键
+        if not hasattr(self._local, 'connections'):
+            self._local.connections = {}
         
-    # def get_stock_data(self, stock_code, start_date=None, end_date=None):
-    #     """
-    #     获取股票数据
-    #     :param stock_code: 股票代码
-    #     :param start_date: 开始日期
-    #     :param end_date: 结束日期
-    #     :return: 查询结果
-    #     """
-    #     conn = self.create_connection()
-    #     if conn is not None:
-    #         try:
-    #             cursor = conn.cursor()
-                
-    #             if start_date and end_date:
-    #                 sql = "SELECT * FROM stock_data WHERE 股票代码 = ? AND 日期 BETWEEN ? AND ? ORDER BY 日期"
-    #                 cursor.execute(sql, (stock_code, start_date, end_date))
-    #             else:
-    #                 sql = "SELECT * FROM stock_data WHERE 股票代码 = ? ORDER BY 日期"
-    #                 cursor.execute(sql, (stock_code,))
-                
-    #             results = cursor.fetchall()
-    #             return results
-    #         except sqlite3.Error as e:
-    #             print(f"查询数据失败: {e}")
-    #             return []
-    #         finally:
-    #             conn.close()
-    #     else:
-    #         print("无法创建数据库连接")
-    #         return []
+        # 如果该db_path的连接不存在，则创建新连接
+        if db_path not in self._local.connections:
+            self._local.connections[db_path] = sqlite3.connect(
+                db_path, 
+                check_same_thread=False,
+                timeout=30
+            )
+            self._local.connections[db_path].execute('PRAGMA journal_mode=WAL')
+        
+        try:
+            cursor = self._local.connections[db_path].cursor()
+            yield cursor
+            self._local.connections[db_path].commit()
+        except sqlite3.Error as e:
+            self._local.connections[db_path].rollback()
+            raise e
 
-    def create_table(self, db_path, create_table_sql):
-        conn = self.create_connection(db_path)
-        if conn is not None:
-            try:
-                cursor = conn.cursor()
-                cursor.execute(create_table_sql)
-                conn.commit()
-                # print("表创建成功或已存在")
-            except sqlite3.Error as e:
-                print(f"创建表失败: {e}")
-            finally:
+    @contextmanager
+    def _get_connection_object(self, db_path):
+        """线程安全的数据库连接获取（返回连接对象）"""
+        # 使用字典存储多个连接，以db_path为键
+        if not hasattr(self._local, 'connections'):
+            self._local.connections = {}
+        
+        # 如果该db_path的连接不存在，则创建新连接
+        if db_path not in self._local.connections:
+            self._local.connections[db_path] = sqlite3.connect(
+                db_path, 
+                check_same_thread=False,
+                timeout=30
+            )
+            self._local.connections[db_path].execute('PRAGMA journal_mode=WAL')
+        
+        try:
+            yield self._local.connections[db_path]
+            self._local.connections[db_path].commit()
+        except sqlite3.Error as e:
+            self._local.connections[db_path].rollback()
+            raise e
+
+    def close_connection(self):
+        """关闭当前线程的所有数据库连接"""
+        if hasattr(self._local, 'connections'):
+            for conn in self._local.connections.values():
                 conn.close()
-        else:
-            print("无法创建数据库连接")
+            self._local.connections.clear()
+    def create_table(self, db_path, table_name, create_table_sql):
+        # 参数验证
+        if not file_exists(db_path):
+            raise ValueError("数据库文件不存在")
 
-    # 数据库文件相关
+        if not table_name:
+            raise ValueError("表名不能为空")
+        
+        if not create_table_sql:
+            raise ValueError("建表SQL语句不能为空")
+        
+        # 确保SQL语句是创建表的语句
+        if not create_table_sql.strip().upper().startswith("CREATE TABLE"):
+            raise ValueError("SQL语句必须是CREATE TABLE语句")
+        
+        # 使用线程安全的连接方式创建表
+        with self._get_connection(db_path) as cur:
+            try:
+                cur.execute(create_table_sql)
+                print(f"表 {table_name} 创建成功或已存在")
+                return True
+            except sqlite3.Error as e:
+                print(f"创建表 {table_name} 失败: {str(e)}")
+                raise
+
+    def get_table_data(self, db_path, table="stock_data"):
+        try:
+            # 使用线程安全的连接方式执行查询
+            with self._get_connection(db_path) as cur:
+                query = f"SELECT * FROM {table}"
+                cur.execute(query)
+                # 获取列名
+                column_names = [description[0] for description in cur.description]
+                # 获取所有数据
+                rows = cur.fetchall()
+                
+                # 转换为 DataFrame
+                df = pd.DataFrame(rows, columns=column_names)
+                return df
+        except Exception as e:
+            print(f"获取股票数据时出错: {str(e)}")
+            return pd.DataFrame()
+        
+    def insert_dataframe_to_table(self, db_path, table_name, df_data, if_exists="replace"):
+        """将 DataFrame 数据插入数据库表
+        :param table_name: 表名
+        :param df_data: DataFrame 数据
+        :param if_exists: 插入方式，默认为替换
+        """
+        # 参数验证
+        if not file_exists(db_path):
+            raise ValueError("数据库路径不存在")
+
+        if not table_name:
+            raise ValueError("表名不能为空")
+        
+        if df_data is None or df_data.empty:
+            print(f"警告: 要插入的数据为空，未执行插入操作")
+            return 0
+        
+        if not isinstance(df_data, pd.DataFrame):
+            raise ValueError("df_data必须是pandas.DataFrame类型")
+            
+        if if_exists not in ["replace", "append", "fail", "ignore"]:
+            raise ValueError("if_exists参数必须是'replace', 'append', 'fail', 'ignore'之一")
+
+        try:
+            # 检查表是否存在数据
+            with self._get_connection(db_path) as cur:
+                cur.execute(f"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?", (table_name,))
+                table_exists = cur.fetchone()[0] > 0
+                
+                if table_exists:
+                    cur.execute(f"SELECT COUNT(*) FROM {table_name}")
+                    row_count = cur.fetchone()[0]
+                    
+                    if row_count > 0:
+                        if if_exists == "fail":
+                            raise ValueError(f"表 {table_name} 中已存在数据，根据if_exists='fail'参数，操作被终止")
+                        elif if_exists == "replace":
+                            cur.execute(f"DELETE FROM {table_name}")
+                            print(f"已清空表 {table_name} 中的 {row_count} 行数据")
+                        elif if_exists == "ignore":
+                            # 对于ignore模式，我们检查主键冲突，只插入不重复的数据
+                            print(f"表 {table_name} 中已存在数据，将忽略重复数据进行插入")
+                else:
+                    print(f"表 {table_name} 不存在，将创建新表")
+
+            # 获取DataFrame的列名
+            columns = list(df_data.columns)
+            if not columns:
+                raise ValueError("DataFrame没有有效的列")
+            
+            # 准备插入语句
+            placeholders = ', '.join('?' * len(columns))
+            columns_str = ', '.join([f'"{col}"' for col in columns])  # 用引号包围列名防止关键字冲突
+            
+            # 根据if_exists参数选择不同的插入策略
+            if if_exists == "ignore":
+                insert_sql = f'INSERT OR IGNORE INTO "{table_name}" ({columns_str}) VALUES ({placeholders})'
+            else:
+                insert_sql = f'INSERT OR REPLACE INTO "{table_name}" ({columns_str}) VALUES ({placeholders})'
+            
+            # 将DataFrame转换为记录列表
+            records = df_data.to_dict('records')
+            
+            # 处理缺失值，将NaN替换为None
+            processed_records = []
+            for record in records:
+                processed_record = {}
+                for key, value in record.items():
+                    # 处理NaN值
+                    if pd.isna(value):
+                        processed_record[key] = None
+                    # 处理numpy数据类型
+                    elif isinstance(value, (np.integer, np.floating)):
+                        processed_record[key] = value.item()  # 转换为Python原生类型
+                    elif isinstance(value, np.bool_):
+                        processed_record[key] = bool(value)
+                    else:
+                        processed_record[key] = value
+                processed_records.append(tuple(processed_record.values()))
+            
+            # 执行批量插入
+            with self._get_connection() as cur:
+                cur.executemany(insert_sql, processed_records)
+                row_count = cur.rowcount
+                print(f"成功向表 {table_name} {if_exists} {row_count} 行数据")
+                return row_count
+                
+        except sqlite3.Error as e:
+            error_msg = f"向表 {table_name} 插入数据时发生数据库错误: {str(e)}"
+            print(error_msg)
+            raise
+        except Exception as e:
+            error_msg = f"向表 {table_name} 插入数据时发生错误: {str(e)}"
+            print(error_msg)
+            raise
+
+    # =====================================================================数据库文件相关接口======================================================
     def list_all_stocks(self):
         """
         列出所有已存在的股票数据库
@@ -161,7 +304,7 @@ class StockDbBase:
     def update_stock_db_info(self, stock_code, new_stock_code):
         pass
 
-    # 表结构相关接口
+    # =======================================================================表结构相关接口=======================================================
     # 一个日期只能有一条数据，因此主键为日期
     def get_table_info(self, stock_code, table_name="stock_data"):
         """
@@ -390,7 +533,7 @@ class StockDbBase:
             conn.close()
 
 
-    # AKShare表数据相关
+    # =================================================================AKShare表数据相关============================================
     def create_akshare_table(self, db_path):
         """
         创建股票数据表
@@ -542,7 +685,10 @@ class StockDbBase:
         conn.close()
 
 
-    # Baostock表数据相关
+    # 东方财富筹码分布表接口
+
+
+    # ===================================================================Baostock表数据相关====================================================================
     def create_baostock_table(self, db_path):
         create_table_sql = """
         CREATE TABLE IF NOT EXISTS stock_data (
@@ -571,9 +717,11 @@ class StockDbBase:
             PRIMARY KEY (日期, 股票代码)
         )
         """
-        self.create_table(db_path, create_table_sql)
+        self.create_table(db_path, 'stock_data', create_table_sql)
 
     def get_bao_stock_data(self, stock_code, start_date=None, end_date=None, table_name="stock_data"):
+        db_path = self.get_db_path(stock_code)
+        # print("db_path:", db_path)
         if not self.check_stock_db_exists(stock_code):
             print(f"股票 {stock_code} 的数据库不存在")
             return None
@@ -581,130 +729,48 @@ class StockDbBase:
         allowed_tables = {"stock_data", "user_info", "transaction_log"}  # 合法表名白名单
         if table_name not in allowed_tables:
             raise ValueError("非法表名！")
+        
+        return self.get_table_data(db_path, table_name)
 
-        try:
-            conn = sqlite3.connect(str(self.get_db_path(stock_code)))
-            query = f"SELECT * FROM {table_name}"
+        # try:
+        #     conn = sqlite3.connect(str(self.get_db_path(stock_code)))
+        #     query = f"SELECT * FROM {table_name}"
             
-            # 添加日期过滤条件
-            if start_date or end_date:
-                conditions = []
-                if start_date:
-                    conditions.append(f"日期 >= '{start_date}'")
-                if end_date:
-                    conditions.append(f"日期 <= '{end_date}'")
+        #     # 添加日期过滤条件
+        #     if start_date or end_date:
+        #         conditions = []
+        #         if start_date:
+        #             conditions.append(f"日期 >= '{start_date}'")
+        #         if end_date:
+        #             conditions.append(f"日期 <= '{end_date}'")
                 
-                if conditions:
-                    query += " WHERE " + " AND ".join(conditions)
+        #         if conditions:
+        #             query += " WHERE " + " AND ".join(conditions)
             
-            # 按日期排序
-            query += " ORDER BY 日期"
+        #     # 按日期排序
+        #     query += " ORDER BY 日期"
             
-            df = pd.read_sql_query(query, conn)
-            conn.close()
-            return df
-        except Exception as e:
-            print(f"获取股票 {stock_code} 数据时出错: {str(e)}")
-            return None
+        #     df = pd.read_sql_query(query, conn)
+        #     conn.close()
+        #     return df
+        # except Exception as e:
+        #     print(f"获取股票 {stock_code} 数据时出错: {str(e)}")
+        #     return None
 
     def save_bao_stock_data_to_db(self, stock_code, stock_data, writeWay="replace", table_name="stock_data"):
         db_path = self.get_db_path(stock_code)
         if not self.check_stock_db_exists(stock_code):
             # print(f"股票 {stock_code} 的数据库不存在，自动创建")
             self.create_baostock_table(db_path)
+
+        self.insert_dataframe_to_table(db_path, table_name, stock_data, writeWay)
         
         # 列对齐检查
-
-        conn = sqlite3.connect(str(db_path))
-        stock_data.to_sql(table_name, conn, if_exists=writeWay, index=False)
-        conn.close()
-        return True
+        # conn = sqlite3.connect(str(db_path))
+        # stock_data.to_sql(table_name, conn, if_exists=writeWay, index=False)
+        # conn.close()
+        # return True
     
-    def delete_last_row(self, stock_code, table_name="stock_data"):
-        """
-        删除SQLite3数据库中指定表的最后一行数据（通过自增ID定位）
-
-        参数:
-            stock_code (str): 股票代码，数据库文件名
-            table_name (str): 要操作的表名
-        """
-        # 连接到数据库
-        conn = sqlite3.connect(self.get_db_path(stock_code))
-        cursor = conn.cursor()
-
-        try:
-            # 开始一个事务
-            conn.execute("BEGIN")
-
-            # 1. 查询表中最大的ID值，即最后一行的ID
-            cursor.execute(f"SELECT MAX(id) FROM {table_name}")
-            last_id = cursor.fetchone()[0]  # 获取查询结果的第一行第一列
-
-            # 如果表不为空，则执行删除操作
-            if last_id is not None:
-                # 2. 构建DELETE语句，使用参数化查询以防止SQL注入
-                delete_sql = f"DELETE FROM {table_name} WHERE id = ?"
-                cursor.execute(delete_sql, (last_id,))
-                print(f"已删除 {table_name} 表中ID为 {last_id} 的最后一行数据。")
-            else:
-                print(f"表 {table_name} 为空，无数据可删除。")
-
-            # 提交事务，使删除操作生效
-            conn.commit()
-
-        except sqlite3.Error as e:
-            # 如果发生任何错误，回滚事务
-            conn.rollback()
-            print(f"操作过程中发生数据库错误: {e}")
-        except Exception as e:
-            conn.rollback()
-            print(f"发生未知错误: {e}")
-        finally:
-            # 最后，确保关闭游标和数据库连接以释放资源
-            cursor.close()
-            conn.close()
-
-    def delete_last_row_directly(self, stock_code, table_name="stock_data"):
-        """·
-        直接删除SQLite3数据库中指定表的最后一行数据（通过rowid定位）
-
-        参数:
-            db_path (str): 数据库文件的路径
-            table_name (str): 要操作的表名
-        """
-        conn = sqlite3.connect(self.get_db_path(stock_code))
-        cursor = conn.cursor()
-
-        try:
-            conn.execute("BEGIN") # 开始事务
-            # 使用子查询直接定位并删除rowid最大的那一行
-            delete_sql = f"""
-                DELETE FROM {table_name} 
-                WHERE rowid = (
-                    SELECT rowid FROM {table_name} 
-                    ORDER BY rowid DESC 
-                    LIMIT 1
-                )
-            """
-            cursor.execute(delete_sql)
-            # 获取受影响的行数
-            rows_affected = cursor.rowcount
-            if rows_affected > 0:
-                print(f"已直接删除 {table_name} 表的最后一行数据。")
-            else:
-                print(f"表 {table_name} 可能为空，无数据被删除。")
-            conn.commit() # 提交事务
-
-        except sqlite3.Error as e:
-            conn.rollback() # 回滚事务
-            print(f"操作过程中发生数据库错误: {e}")
-        except Exception as e:
-            conn.rollback()
-            print(f"发生未知错误: {e}")
-        finally:
-            cursor.close()
-            conn.close()
-
     # 测试代码
 if __name__ == "__main__":
     print("stock_db_base.py run")
