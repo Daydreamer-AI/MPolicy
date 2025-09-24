@@ -229,6 +229,78 @@ class StockDbBase:
             print(error_msg)
             raise
 
+
+    def upsert_data(self, db_path, table_name, data, conflict_columns=None):
+        """
+        插入或更新数据（upsert操作）
+        
+        :param table_name: 表名
+        :param data: 要插入或更新的数据（字典或字典列表）
+        :param conflict_columns: 冲突检测列（用于ON CONFLICT子句），如果为None则使用主键
+        :return: 操作的行数
+
+        示例：db_manager.upsert_data("users", {"id": 1, "name": "User1", "email": "user1@example.com"}, ["id"])
+        """
+        if not table_name:
+            raise ValueError("表名不能为空")
+            
+        if not data:
+            print("警告: 数据为空，未执行操作")
+            return 0
+            
+        # 确保data是列表格式
+        if isinstance(data, dict):
+            data = [data]
+            
+        if not isinstance(data, list):
+            raise ValueError("数据必须是字典或字典列表")
+            
+        try:
+            inserted_count = 0
+            
+            with self._get_connection(db_path) as cur:
+                for record in data:
+                    if not record:
+                        continue
+                        
+                    # 构造INSERT语句
+                    columns = list(record.keys())
+                    placeholders = ','.join(['?' for _ in columns])
+                    columns_str = ','.join(columns)
+                    
+                    sql = f"INSERT INTO {table_name} ({columns_str}) VALUES ({placeholders})"
+                    
+                    # 如果指定了冲突列，则添加ON CONFLICT子句
+                    if conflict_columns:
+                        conflict_cols_str = ','.join(conflict_columns)
+                        # 构造UPDATE子句（排除冲突列）
+                        update_columns = [col for col in columns if col not in conflict_columns]
+                        if update_columns:
+                            update_clause = ','.join([f"{col} = excluded.{col}" for col in update_columns])
+                            sql += f" ON CONFLICT({conflict_cols_str}) DO UPDATE SET {update_clause}"
+                        else:
+                            sql += f" ON CONFLICT({conflict_cols_str}) DO NOTHING"
+                    else:
+                        # 如果没有指定冲突列，使用INSERT OR REPLACE
+                        sql = f"INSERT OR REPLACE INTO {table_name} ({columns_str}) VALUES ({placeholders})"
+                    
+                    values = list(record.values())
+                    cur.execute(sql, values)
+                    inserted_count += cur.rowcount
+                    
+            print(f"成功对表 {table_name} 执行 {inserted_count} 次upsert操作")
+            return inserted_count
+            
+        except sqlite3.Error as e:
+            error_msg = f"对表 {table_name} 执行upsert操作时发生数据库错误: {str(e)}"
+            print(error_msg)
+            raise
+        except Exception as e:
+            error_msg = f"对表 {table_name} 执行upsert操作时发生错误: {str(e)}"
+            print(error_msg)
+            raise
+
+
     # =====================================================================数据库文件相关接口======================================================
     def list_all_stocks(self):
         """
@@ -737,7 +809,7 @@ class StockDbBase:
         if df_data is None or df_data.empty:
             print("警告: 要插入的数据为空，未执行插入操作")
             return True
-
+        
         try:
             # 先查询数据库中已存在的数据
             with self._get_connection_object(db_path) as conn:
@@ -750,6 +822,8 @@ class StockDbBase:
                 df_filtered = df_data[~df_data['日期'].isin(existing_data['日期'])]
             else:
                 df_filtered = df_data
+
+            print(f"插入的数据行数：{len(df_filtered)}")
             
             # 只有当还有数据需要插入时才执行插入操作
             if not df_filtered.empty:
@@ -757,7 +831,14 @@ class StockDbBase:
                 # 使用原有的 insert_dataframe_to_table 方法，但使用 append 模式
                 self.insert_dataframe_to_table(db_path, table_name, df_filtered, if_exists="append")
             else:
-                print("没有新数据需要插入")
+                print("没有新数据需要插入，更新最后一天数据")
+                upserted_count = self.upsert_data(
+                    'stock_chip_distribution_data_eastmoney',
+                    df_data.tail(1).to_dict('records'),
+                    conflict_columns=['日期']
+                )
+            
+                print(f"数据upsert完成，处理了 {upserted_count} 条记录")
                 
             return True
             

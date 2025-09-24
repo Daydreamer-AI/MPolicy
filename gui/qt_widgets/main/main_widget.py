@@ -33,6 +33,7 @@ class MainWidget(QWidget):
         self.btn_update_star_data.clicked.connect(self.slot_btn_update_star_data_clicked)
         self.btn_update_weekly_data.clicked.connect(self.slot_btn_update_weekly_data_clicked)
         self.btn_update_chip_distribution_data_eastmoney.clicked.connect(self.slot_btn_update_chip_distribution_data_eastmoney_clicked)
+        self.btn_get_chip_distribution_data_eastmoney.clicked.connect(self.slot_btn_get_chip_distribution_data_eastmoney_clicked)
 
         # 策略筛选
         self.btn_daily_up_ma52_filter.clicked.connect(self.slot_btn_daily_up_ma52_filter_clicked)
@@ -162,6 +163,12 @@ class MainWidget(QWidget):
         self.plainTextEdit_log.appendPlainText("slot_btn_update_chip_distribution_data_eastmoney_clicked...")
         AKStockDataProcessor().process_and_insert_eastmoney_stock_chip_distribution_data_to_db()
         print("slot_btn_update_chip_distribution_data_eastmoney_clicked done.")
+
+    @pyqtSlot()
+    def slot_btn_get_chip_distribution_data_eastmoney_clicked(self):
+        self.plainTextEdit_log.appendPlainText("slot_btn_get_chip_distribution_data_eastmoney_clicked...")
+        AKStockDataProcessor().query_eastmoney_stock_chip_distribution_data()
+        print("slot_btn_get_chip_distribution_data_eastmoney_clicked done.")
 
     # =================================================================================策略筛选=================================================================
     @pyqtSlot()

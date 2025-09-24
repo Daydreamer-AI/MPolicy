@@ -224,9 +224,6 @@ class AKStockDataProcessor:
 
     def process_and_insert_eastmoney_stock_chip_distribution_data_to_db(self):
         # self.dict_chip_distribution_data_eastmoney.clear()
-        if self.dict_chip_distribution_data_eastmoney == {}:
-            pass
-
         for board, df_data in self.dict_stocks.items():
             # 检查 DataFrame 是否为空
             if board == "" or df_data.empty:
@@ -234,6 +231,8 @@ class AKStockDataProcessor:
 
             if board == "bse" or board == "star":
                 continue
+
+            print(f"正在处理 {board} 数据...")
             
             db_dir = self.stock_db_base.get_src_db_dir()
             db_dir = db_dir / board
@@ -247,6 +246,7 @@ class AKStockDataProcessor:
                 print(f"正在获取第 {index} 只股票的筹码分布信息：{stock_code}")
 
                 try:
+                    # 注意：stock_cyq_em接口会超时
                     stock_cyq_em_df = ak.stock_cyq_em(symbol=stock_code, adjust="qfq")
                     # print("stock_cyq_em_df的类型：", stock_cyq_em_df)
 
