@@ -195,7 +195,7 @@ class AKStockDataProcessor:
                     self.df_stocks_eastmoney = pd.concat([self.df_stocks_eastmoney, stock_row], ignore_index=True)
                     
 
-                    sleep_time = random.uniform(0.5, 1)
+                    sleep_time = random.uniform(0.1, 0.5)
                     # time.sleep(sleep_time)
 
                 except Exception as e:

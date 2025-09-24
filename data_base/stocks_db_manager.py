@@ -173,7 +173,7 @@ class StockDBManager(CommonDBManager):
                 float_market_cap REAL,
                 industry TEXT,
                 list_date TEXT,
-                PRIMARY KEY (date)
+                PRIMARY KEY (stock_code, date)
             )
         ''')
 
@@ -186,6 +186,7 @@ class StockDBManager(CommonDBManager):
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_board_industry_change_percent ON board_industry(change_percent)')
                 
                 # 东方财富股票数据索引
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_stock_data_eastmoney_stock_code ON stock_data_eastmoney(stock_code)')
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_stock_data_eastmoney_data_date ON stock_data_eastmoney(date)')
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_stock_data_eastmoney_industry_name ON stock_data_eastmoney(industry)')
                 
@@ -316,20 +317,21 @@ class StockDBManager(CommonDBManager):
                     lambda x: None if x == '-' or pd.isna(x) else float(x)
                 )
             
-            # 使用父类的智能插入功能
-            inserted_count = self.insert_dataframe_to_table(
-                'stock_data_eastmoney', df_filtered, 'append',
-                validate_columns=False, fast_mode=True
+            # 使用 upsert 功能，基于股票代码和日期的复合主键进行更新
+            upserted_count = self.upsert_data(
+                'stock_data_eastmoney',
+                df_filtered.to_dict('records'),
+                conflict_columns=['stock_code', 'date']  # 基于股票代码和日期的冲突检测
             )
             
-            print(f"数据插入完成，成功插入 {inserted_count} 条新记录")
+            print(f"数据upsert完成，处理了 {upserted_count} 条记录")
             return True
-            
+                
         except Exception as e:
             print(f"插入数据失败: {e}")
             return False
 
-    def query_eastmoney_stock_data(self, date=None, industry_name=None):
+    def query_eastmoney_stock_data(self, date=None, stock_code=None, industry_name=None):
         """查询东方财富股票数据"""
         conditions = []
         params = []
@@ -338,6 +340,10 @@ class StockDBManager(CommonDBManager):
             conditions.append("date = ?")
             params.append(date)
         
+        if stock_code:
+            conditions.append("stock_code = ?")
+            params.append(stock_code)
+        
         if industry_name:
             conditions.append("industry LIKE ?")
             params.append(f"%{industry_name}%")
@@ -345,7 +351,7 @@ class StockDBManager(CommonDBManager):
         query = "SELECT * FROM stock_data_eastmoney"
         if conditions:
             query += " WHERE " + " AND ".join(conditions)
-        query += " ORDER BY date DESC"
+        query += " ORDER BY date DESC, stock_code"
         
         try:
             with self._get_connection() as cur:
@@ -379,6 +385,28 @@ class StockDBManager(CommonDBManager):
             print(f"查询东方财富股票数据表时出错: {str(e)}")
             return pd.DataFrame()
 
+    def get_stock_data_by_code(self, stock_code, limit_days=30):
+        """获取指定股票最近N天的数据"""
+        try:
+            with self._get_connection() as cur:
+                cur.execute('''
+                    SELECT * FROM stock_data_eastmoney 
+                    WHERE stock_code = ?
+                    ORDER BY date DESC
+                    LIMIT ?
+                ''', (stock_code, limit_days))
+                
+                column_names = [description[0] for description in cur.description]
+                rows = cur.fetchall()
+                
+                if rows:
+                    return pd.DataFrame(rows, columns=column_names)
+                else:
+                    return pd.DataFrame()
+                    
+        except Exception as e:
+            print(f"查询东方财富股票数据表时出错: {str(e)}")
+            return pd.DataFrame()
 
     # ========================================================================BaoStock相关接口========================================================================
     # 添加以下方法到StockDBManager类
