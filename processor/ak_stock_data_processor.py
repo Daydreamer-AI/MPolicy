@@ -42,14 +42,18 @@ class AKStockDataProcessor:
     2. 不维护股票数据，随用随删。
     '''
     def __init__(self):
+        print("AKStockDataProcessor::__init__ begin")
         self.stocks_db = DBManagerPool().get_manager(0)
+        print("AKStockDataProcessor--DBManagerPool().get_manager(0) end")
         self.stock_db_base = StockDbBase("./stocks/db/akshare")
 
         self.dict_stocks = {}   # key: 板块，value：板块对应的股票信息（证券代码、证券名称）- pandas.DataFrame对象
         self.df_stocks_eastmoney = pd.DataFrame() # 带有市值信息的股票数据 - pandas.DataFrame对象
         self.dict_chip_distribution_data_eastmoney = {}   # 东方财富的筹码分布数据 - 字典对象，key：股票代码，value： pandas.DataFrame对象
+        print("AKStockDataProcessor::__init__ done")
 
     def initialize(self) -> bool:
+        print("AKStockDataProcessor::initialize begin")
         self.dict_stocks = self.get_stock_info_from_db()
         self.df_stocks_eastmoney = self.stocks_db.get_latest_eastmoney_stock_data()
         # if file_exists('./stocks/excel/stocks_eastmoney.xlsx'):
@@ -58,6 +62,7 @@ class AKStockDataProcessor:
         #     print('未找到./stocks/excel/stocks_eastmoney.xlsx')
 
         self.query_eastmoney_stock_chip_distribution_data()
+        print("AKStockDataProcessor::initialize done")
 
         return True
     
@@ -118,7 +123,7 @@ class AKStockDataProcessor:
             print(f"获取数据失败: {e}")
             return False
         
-        print(df.head(3))
+        # print(df.head(3))
 
         # 处理百分比字段
         df['涨跌幅'] = df['涨跌幅'].apply(convert_percentage)

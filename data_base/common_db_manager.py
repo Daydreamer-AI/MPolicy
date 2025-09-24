@@ -77,6 +77,7 @@ class CommonDBManager:
         self._start_cleanup_timer()         # 启动清理定时器
 
         self._init_db()
+        print("CommonDBManager--初始化完成")
 
     def _ensure_db_directory(self):
         """确保数据库目录存在且有写入权限"""

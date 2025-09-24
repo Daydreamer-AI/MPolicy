@@ -8,7 +8,6 @@ import time
 import numpy as np
 from data_base.common_db_manager import CommonDBManager
 
-
 class DBManagerPool:
     """管理多个 StockDBManager 实例的池（单例模式）"""
     
@@ -18,19 +17,19 @@ class DBManagerPool:
     
     def __new__(cls):
         """重写 __new__ 方法控制实例创建"""
-        with cls._lock:
-            if cls._instance is None:
-                cls._instance = super().__new__(cls)
-                # 初始化实例变量
-                cls._instance._managers = {}
-                cls._instance._init_lock = threading.RLock()
+        if cls._instance is None:
+            with cls._lock:
+                if cls._instance is None:
+                    cls._instance = super().__new__(cls)
+                    # 初始化实例变量
+                    cls._instance._managers = {}
         return cls._instance
     
     def __init__(self):
-        """初始化方法（由于__new__已控制创建，这里可避免重复初始化）"""
+        """初始化方法"""
         # 确保只初始化一次
         if not hasattr(self, '_initialized'):
-            with self._init_lock:
+            with self._lock:
                 if not hasattr(self, '_initialized'):
                     self._managers = {}
                     self._initialized = True
@@ -40,14 +39,16 @@ class DBManagerPool:
         if key is None:
             key = f"default_{db_type}"
             
-        with self._init_lock:  # 使用实例级别的锁
-            if key not in self._managers:
-                self._managers[key] = StockDBManager(db_type)
-            return self._managers[key]
+        # 只使用一个锁
+        if key not in self._managers:
+            with self._lock:  # 使用类级别的锁
+                if key not in self._managers:
+                    self._managers[key] = StockDBManager(db_type)
+        return self._managers[key]
             
     def close_all(self):
         """关闭所有数据库管理器"""
-        with self._init_lock:
+        with self._lock:
             for key, manager in list(self._managers.items()):
                 manager.close_connection()
                 del self._managers[key]
@@ -72,10 +73,7 @@ class StockDBManager(CommonDBManager):
         
         # 调用父类构造函数
         super().__init__(db_path_tmp)
-    
-        self.db_path = os.path.abspath(db_path_tmp)  # 转为绝对路径
-        self._ensure_db_directory()  # 确保目录存在
-
+        print("StockDBManager--self._init_db()")
         self._init_db()
 
     def _get_db_path_by_type(self, db_type):
@@ -111,20 +109,20 @@ class StockDBManager(CommonDBManager):
 
     def _init_db(self):
         """初始化数据库表结构"""
-        with self._lock:
-            # 创建股票基本信息表
-            #MAIN    ​主板    上交所 + 深交所
-            #GEM     ​创业板   深交所
-            #STAR    ​科创板   上交所
-            #BSE     ​北交所   深交所
-            # 调用相应的初始化方法
-            if self.db_type == 0:
-                self.init_akshare_db()
-            elif self.db_type == 1:
-                self.init_baostock_db()
-            elif self.db_type == 2:
-                self.init_efinance_db()
-            print(f"股票数据库已初始化: {self.db_path}")
+        # with self._lock:
+        # 创建股票基本信息表
+        #MAIN    ​主板    上交所 + 深交所
+        #GEM     ​创业板   深交所
+        #STAR    ​科创板   上交所
+        #BSE     ​北交所   深交所
+        # 调用相应的初始化方法
+        if self.db_type == 0:
+            self.init_akshare_db()
+        elif self.db_type == 1:
+            self.init_baostock_db()
+        elif self.db_type == 2:
+            self.init_efinance_db()
+        print(f"股票数据库已初始化: {self.db_path}")
 
     # ========================================================================AKShare相关接口========================================================================
     # AKShare
@@ -157,7 +155,8 @@ class StockDBManager(CommonDBManager):
                 leading_stock_price REAL NOT NULL,
                 leading_stock_change_percent REAL NOT NULL,
                 data_date TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(industry_name, data_date)  -- 关键：基于行业名称和日期的唯一约束
             )
         ''')
 
@@ -220,14 +219,25 @@ class StockDBManager(CommonDBManager):
                 '日期': 'data_date'
             })
             
-            # 使用父类的智能插入功能
-            inserted_count = self.insert_dataframe_to_table(
-                'board_industry', df, 'append',
-                validate_columns=False, fast_mode=True
+            # 使用 replace 模式，配合 UNIQUE(industry_name, data_date) 约束实现更新
+            # inserted_count = self.insert_dataframe_to_table(
+            #     'board_industry', df, 'replace',  # 使用 replace 模式
+            #     validate_columns=False, fast_mode=False  # 不使用快速模式以确保约束生效
+            # )
+        
+            # print(f"数据插入完成，处理了 {inserted_count} 条记录")
+            # return True
+        
+            # 方式二：使用 upsert 功能，明确指定冲突列
+            upserted_count = self.upsert_data(
+                'board_industry',
+                df.to_dict('records'),
+                conflict_columns=['industry_name', 'data_date']  # 明确指定冲突检测列
             )
             
-            print(f"数据插入完成，成功插入 {inserted_count} 条新记录")
-            return True
+            print(f"数据upsert完成，处理了 {upserted_count} 条记录")
+            # return True
+
             
         except Exception as e:
             print(f"插入数据失败: {e}")

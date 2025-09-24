@@ -48,8 +48,10 @@ class MainWidget(QWidget):
     
     def init_processors(self):
         """初始化所有处理器（如Baostock）"""
+        print("初始化所有处理器")
         try:
             ak_success = AKStockDataProcessor().initialize()
+            print("AK股票数据初始化完成")
             success = BaoStockProcessor().initialize()
             if ak_success and success:
                 print("所有处理器初始化成功")
