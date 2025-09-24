@@ -381,13 +381,50 @@ class CommonDBManager:
                     print(f"表 {table_name} 不存在，将创建新表")
 
             # 获取DataFrame的列名
-            columns = list(df_data.columns)
-            if not columns:
+            df_columns = list(df_data.columns)
+            if not df_columns:
                 raise ValueError("DataFrame没有有效的列")
             
+            # 获取表的列信息
+            table_columns = []
+            with self._get_connection() as cur:
+                try:
+                    cur.execute(f"PRAGMA table_info({table_name})")
+                    columns_info = cur.fetchall()
+                    table_columns = [col[1] for col in columns_info]  # 第二列是列名
+                except sqlite3.Error:
+                    # 如果表不存在或无法获取列信息，使用DataFrame的列
+                    table_columns = df_columns.copy()
+                    print(f"无法获取表 {table_name} 的列信息，将使用DataFrame的列名")
+            
+            # 处理列匹配
+            if not table_columns:
+                # 如果无法获取表列信息，使用DataFrame的所有列
+                columns_to_insert = df_columns
+                print(f"使用DataFrame的所有列进行插入: {columns_to_insert}")
+            else:
+                # 找出DataFrame中存在且表中也存在的列
+                columns_to_insert = [col for col in df_columns if col in table_columns]
+                
+                # 找出DataFrame中有但表中没有的列
+                extra_columns = [col for col in df_columns if col not in table_columns]
+                if extra_columns:
+                    print(f"警告: DataFrame中的以下列在表 {table_name} 中不存在，将被忽略: {extra_columns}")
+                
+                # 找出表中有但DataFrame中没有的列
+                missing_columns = [col for col in table_columns if col not in df_columns]
+                if missing_columns:
+                    print(f"注意: 表 {table_name} 中的以下列在DataFrame中不存在: {missing_columns}")
+                    print("这些列将使用默认值或NULL填充")
+            
+            if not columns_to_insert:
+                raise ValueError(f"DataFrame的列与表 {table_name} 的列没有匹配项，无法插入数据")
+            
+            print(f"将插入以下列的数据: {columns_to_insert}")
+            
             # 准备插入语句
-            placeholders = ', '.join('?' * len(columns))
-            columns_str = ', '.join([f'"{col}"' for col in columns])  # 用引号包围列名防止关键字冲突
+            placeholders = ', '.join('?' * len(columns_to_insert))
+            columns_str = ', '.join([f'"{col}"' for col in columns_to_insert])  # 用引号包围列名防止关键字冲突
             
             # 根据if_exists参数选择不同的插入策略
             if if_exists == "ignore":
@@ -395,8 +432,11 @@ class CommonDBManager:
             else:
                 insert_sql = f'INSERT OR REPLACE INTO "{table_name}" ({columns_str}) VALUES ({placeholders})'
             
+            # 筛选出需要插入的列数据
+            df_filtered = df_data[columns_to_insert].copy()
+            
             # 将DataFrame转换为记录列表
-            records = df_data.to_dict('records')
+            records = df_filtered.to_dict('records')
             
             # 处理缺失值，将NaN替换为None
             processed_records = []
