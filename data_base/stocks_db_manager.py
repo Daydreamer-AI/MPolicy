@@ -300,7 +300,7 @@ class StockDBManager:
         将pandas.DataFrame数据插入到指定表中
         
         :param table_name: 表名
-        :param df_data: pandas.DataFrame格式的数据
+        :param df_data: pandas.DataFrame格式的数据，注意：DataFrame 的列名应该与目标表的列名匹配
         :param if_exists: 如果表已存在数据时的处理方式
                         "replace" - 替换原有数据（默认）
                         "append" - 追加数据
@@ -428,9 +428,7 @@ class StockDBManager:
                         leading_stock_price REAL NOT NULL,
                         leading_stock_change_percent REAL NOT NULL,
                         data_date TEXT NOT NULL,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        
-                        UNIQUE(industry_name, data_date)
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )
                     '''
                 cur.execute(query)
@@ -457,7 +455,7 @@ class StockDBManager:
                         float_market_cap REAL,
                         industry TEXT,
                         list_date TEXT,
-                        PRIMARY KEY (stock_code, date)
+                        PRIMARY KEY (date)
                     )
                     '''
                 cur.execute(create_table_sql)
@@ -580,41 +578,54 @@ class StockDBManager:
 
 
     # ------------------------------------------------------------同花顺行业板块一览表接口-----------------------------------------
-    def insert_ths_board_industry_data_to_db(self, df_industry_data):
-        # 插入数据
-        inserted_count = 0
+    def insert_ths_board_industry_data_to_db_optimized(self, df_industry_data):
         try:
-            with self._get_connection() as cursor:
-                for _, row in df_industry_data.iterrows():
-                    cursor.execute('''
-                    INSERT OR REPLACE INTO board_industry (
-                        serial_number, industry_name, change_percent, total_volume, 
-                        total_amount, net_inflow, rising_count, falling_count, 
-                        avg_price, leading_stock, leading_stock_price, 
-                        leading_stock_change_percent, data_date
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    ''', (
-                        int(row['序号']),
-                        str(row['板块']),
-                        float(row['涨跌幅']),
-                        float(row['总成交量']),
-                        float(row['总成交额']),
-                        float(row['净流入']),
-                        int(row['上涨家数']),
-                        int(row['下跌家数']),
-                        float(row['均价']),
-                        str(row['领涨股']),
-                        float(row['领涨股-最新价']),
-                        float(row['领涨股-涨跌幅']),
-                        row['日期']
-                    ))
-                    inserted_count += 1
+            # 重命名列以匹配数据库表结构
+            df = df_industry_data.rename(columns={
+                '序号': 'serial_number',
+                '板块': 'industry_name',
+                '涨跌幅': 'change_percent',
+                '总成交量': 'total_volume',
+                '总成交额': 'total_amount',
+                '净流入': 'net_inflow',
+                '上涨家数': 'rising_count',
+                '下跌家数': 'falling_count',
+                '均价': 'avg_price',
+                '领涨股': 'leading_stock',
+                '领涨股-最新价': 'leading_stock_price',
+                '领涨股-涨跌幅': 'leading_stock_change_percent',
+                '日期': 'data_date'
+            })
+            
+            # 先查询数据库中已存在的数据
+            with self._get_connection_object() as conn:
+                existing_data = pd.read_sql_query(
+                    "SELECT industry_name, data_date FROM board_industry", conn)
+                
+            # 从新数据中移除已存在的数据
+            if not existing_data.empty:
+                # 创建合并键
+                df['merge_key'] = df['data_date']
+                existing_data['merge_key'] = existing_data['data_date']
+                
+                # 过滤掉已存在的数据
+                df = df[~df['merge_key'].isin(existing_data['merge_key'])]
+                df = df.drop('merge_key', axis=1)
+            
+            # 只有当还有数据需要插入时才执行插入操作
+            if not df.empty:
+                with self._get_connection_object() as conn:
+                    df.to_sql('board_industry', conn, if_exists='append', index=False, method='multi')
+                
+                print(f"数据插入完成，成功插入 {len(df)} 条新记录")
+            else:
+                print("没有新数据需要插入")
+                
+            return True
+        
         except Exception as e:
-            print(f"插入数据失败: {e}, 行数据: {row}")
-        
-        
-        print(f"数据插入完成，成功插入/更新 {inserted_count} 条记录")
-        return True
+            print(f"插入数据失败: {e}")
+            return False
 
     def query_ths_board_industry_data(self, date=None, industry_name=None):
         """查询行业数据"""
@@ -673,42 +684,61 @@ class StockDBManager:
             return pd.DataFrame()
 
     # ------------------------------------------------------------东方财富股票数据表stock_data_eastmoney接口-----------------------------------------
-    def insert_eastmoney_stock_data_to_db(self, df_stock_data):
-        inserted_count = 0
+    def insert_eastmoney_stock_data_to_db_optimized(self, df_stock_data):
         try:
-            with self._get_connection() as cursor:
-                for _, row in df_stock_data.iterrows():
-                    # 处理可能为'-'的数据
-                    latest_price = row['最新']
-                    if latest_price == '-' or pd.isna(latest_price):
-                        latest_price = None  # 或者设置为0或其他默认值
-                    else:
-                        latest_price = float(latest_price)
-                    
-                    cursor.execute('''
-                    INSERT OR REPLACE INTO stock_data_eastmoney (
-                        stock_code, date, latest_price,  stock_name, 
-                        total_shares, float_shares, total_market_cap, float_market_cap, 
-                        industry, list_date
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    ''', (
-                        str(row['股票代码']),
-                        row['日期'],
-                        latest_price,  # 使用处理后的值
-                        str(row['股票简称']),
-                        float(row['总股本']),
-                        float(row['流通股']),
-                        float(row['总市值']),
-                        float(row['流通市值']),
-                        str(row['行业']),
-                        str(row['上市时间'])
-                    ))
-                    inserted_count += 1
+            # 先查询数据库中已存在的数据（基于 stock_code 和 date）
+            with self._get_connection_object() as conn:
+                existing_data = pd.read_sql_query(
+                    "SELECT stock_code, date FROM stock_data_eastmoney", conn)
+                
+            # 从新数据中移除已存在的数据
+            if not existing_data.empty:
+                # 创建合并键
+                df_stock_data['merge_key'] = df_stock_data['日期']
+                existing_data['merge_key'] = existing_data['date']
+                
+                # 过滤掉已存在的数据
+                df_filtered = df_stock_data[~df_stock_data['merge_key'].isin(existing_data['merge_key'])]
+                df_filtered = df_filtered.drop('merge_key', axis=1)
+            else:
+                df_filtered = df_stock_data
+            
+            # 只有当还有数据需要插入时才执行插入操作
+            if not df_filtered.empty:
+                # 重命名列以匹配数据库表结构
+                df = df_filtered.rename(columns={
+                    '股票代码': 'stock_code',
+                    '日期': 'date',
+                    '最新': 'latest_price',
+                    '股票简称': 'stock_name',
+                    '总股本': 'total_shares',
+                    '流通股': 'float_shares',
+                    '总市值': 'total_market_cap',
+                    '流通市值': 'float_market_cap',
+                    '行业': 'industry',
+                    '上市时间': 'list_date'
+                })
+                
+                # 处理特殊数据
+                # 处理可能为'-'的数据
+                if 'latest_price' in df.columns:
+                    df['latest_price'] = df['latest_price'].apply(
+                        lambda x: None if x == '-' or pd.isna(x) else float(x)
+                    )
+                
+                # 批量插入数据
+                with self._get_connection_object() as conn:
+                    df.to_sql('stock_data_eastmoney', conn, if_exists='append', index=False, method='multi')
+                
+                print(f"数据插入完成，成功插入 {len(df)} 条新记录")
+                return True
+            else:
+                print("没有新数据需要插入")
+                return True
+                
         except Exception as e:
-            print(f"插入数据失败: {e}, 行数据: {row}")
-        
-        print(f"数据插入完成，成功插入/更新 {inserted_count} 条记录")
-        return True
+            print(f"插入数据失败: {e}")
+            return False
     
     def query_eastmoney_stock_data(self, date=None, industry_name=None):
         conditions = []
