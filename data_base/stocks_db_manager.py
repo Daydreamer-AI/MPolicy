@@ -220,6 +220,7 @@ class StockDBManager(CommonDBManager):
             })
             
             # 使用 replace 模式，配合 UNIQUE(industry_name, data_date) 约束实现更新
+            # 问题：会删除掉旧数据，不适用
             # inserted_count = self.insert_dataframe_to_table(
             #     'board_industry', df, 'replace',  # 使用 replace 模式
             #     validate_columns=False, fast_mode=False  # 不使用快速模式以确保约束生效
@@ -293,7 +294,7 @@ class StockDBManager(CommonDBManager):
             print(f"查询同花顺行业板块一览表时出错: {str(e)}")
             return pd.DataFrame()
     # ------------------------------------------------------------东方财富股票数据表stock_data_eastmoney接口-----------------------------------------
-    def insert_eastmoney_stock_data_to_db_optimized(self, df_stock_data):
+    def insert_eastmoney_stock_data_to_db(self, df_stock_data):
         try:
             # 重命名列以匹配数据库表结构
             df_filtered = df_stock_data.rename(columns={

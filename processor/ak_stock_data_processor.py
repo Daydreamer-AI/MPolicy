@@ -160,39 +160,6 @@ class AKStockDataProcessor:
     # ------------------------------------------------------------东方财富股票数据表stock_data_eastmoney接口-----------------------------------------
     # 获取A股所有股票信息
     def get_all_stocks_from_eastmoney(self):
-        # 600561, 002283，300821
-        # df_tmp1 = ak.stock_individual_info_em(symbol='600561', timeout=30000)
-        # stock_data1 = df_tmp1.set_index('item')['value'].to_dict()        
-        # # 转换为DataFrame的一行
-        # stock_row1 = pd.DataFrame([stock_data1])
-        # print(stock_row1)
-
-        # df_tmp2 = ak.stock_individual_info_em(symbol='002283', timeout=30000)
-        # stock_data2 = df_tmp2.set_index('item')['value'].to_dict()        
-        # # 转换为DataFrame的一行
-        # stock_row2 = pd.DataFrame([stock_data2])
-        # print(stock_row2)
-
-        # df_tmp3 = ak.stock_individual_info_em(symbol='300821', timeout=30000)
-        # stock_data3 = df_tmp3.set_index('item')['value'].to_dict()        
-        # # 转换为DataFrame的一行
-        # stock_row3 = pd.DataFrame([stock_data3])
-        # print(stock_row3)
-
-        # self.df_stocks_eastmoney = pd.concat([self.df_stocks_eastmoney, stock_row1], ignore_index=True)
-        # self.df_stocks_eastmoney = pd.concat([self.df_stocks_eastmoney, stock_row2], ignore_index=True)
-        # self.df_stocks_eastmoney = pd.concat([self.df_stocks_eastmoney, stock_row3], ignore_index=True)
-
-        # print("保存数据到Excel中...")
-        # self.df_stocks_eastmoney.to_excel('./stocks/excel/stocks_eastmoney.xlsx', index=False)
-
-        # 添加日期字段
-        # today = datetime.datetime.now().strftime('%Y-%m-%d')
-        # self.df_stocks_eastmoney['日期'] = today
-        # print(self.df_stocks_eastmoney.tail(3))
-        # self.stocks_db.insert_stock_data_from_eastmoney(self.df_stocks_eastmoney)
-        # return
-
         print(self.df_stocks_eastmoney.tail(3))
         today = datetime.datetime.now().strftime('%Y-%m-%d')
         if self.df_stocks_eastmoney is not None and not self.df_stocks_eastmoney.empty and today in self.df_stocks_eastmoney['date'].values:
