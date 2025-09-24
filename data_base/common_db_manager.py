@@ -58,6 +58,10 @@ class CommonDBManager:
     """
     通用数据库管理器
     """
+    # 表结构缓存相关属性和方法
+    _table_columns_cache = {}  # 表结构缓存
+    _cache_lock = threading.Lock()  # 缓存锁
+
     def __init__(self, db_path=''):
         self.db_path = os.path.abspath(db_path)  # 转为绝对路径
         self._ensure_db_directory()  # 确保目录存在
@@ -331,9 +335,10 @@ class CommonDBManager:
         
         return None  # 所有重试尝试都失败
     
-    def insert_dataframe_to_table(self, table_name, df_data, if_exists="replace"):
+    def insert_dataframe_to_table(self, table_name, df_data, if_exists="replace", 
+                              validate_columns=True, use_cache=False, fast_mode=False):
         """
-        将pandas.DataFrame数据插入到指定表中
+        将pandas.DataFrame数据插入到指定表中（性能优化版本）
         
         :param table_name: 表名
         :param df_data: pandas.DataFrame格式的数据
@@ -342,7 +347,23 @@ class CommonDBManager:
                         "append" - 追加数据
                         "fail" - 如果表中有数据则抛出异常
                         "ignore" - 忽略重复数据
+        :param validate_columns: 是否进行列验证（False时跳过列匹配检查，提高性能）
+        :param use_cache: 是否使用表结构缓存（减少重复查询）
+        :param fast_mode: 快速模式（跳过所有验证和智能处理，最高性能）
         :return: 插入的行数
+
+        示例：
+        # 完整的列验证和智能处理 -- 标准模式（默认）
+        db_manager.insert_dataframe_to_table("users", df, if_exists="append")
+
+        # 跳过所有验证，直接插入 -- 快速模式（最高性能）
+        db_manager.insert_dataframe_to_table("users", df, if_exists="append", fast_mode=True)
+
+        # 使用表结构缓存 -- 缓存模式（减少重复查询）
+        db_manager.insert_dataframe_to_table("users", df, if_exists="append", use_cache=True)
+
+        # 跳过列验证，但仍进行基本处理 -- 无验证模式（中等性能）
+        db_manager.insert_dataframe_to_table("users", df, if_exists="append", validate_columns=False)
         """
         # 参数验证
         if not table_name:
@@ -358,69 +379,70 @@ class CommonDBManager:
         if if_exists not in ["replace", "append", "fail", "ignore"]:
             raise ValueError("if_exists参数必须是'replace', 'append', 'fail', 'ignore'之一")
 
+        # 快速模式：跳过所有验证和智能处理
+        if fast_mode:
+            return self._insert_dataframe_fast(table_name, df_data, if_exists)
+        
         try:
             # 检查表是否存在数据
-            with self._get_connection() as cur:
-                cur.execute(f"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?", (table_name,))
-                table_exists = cur.fetchone()[0] > 0
-                
-                if table_exists:
-                    cur.execute(f"SELECT COUNT(*) FROM {table_name}")
-                    row_count = cur.fetchone()[0]
+            table_exists = False
+            row_count = 0
+            if not fast_mode:  # 非快速模式下才检查
+                with self._get_connection() as cur:
+                    cur.execute(f"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?", (table_name,))
+                    table_exists = cur.fetchone()[0] > 0
                     
-                    if row_count > 0:
-                        if if_exists == "fail":
-                            raise ValueError(f"表 {table_name} 中已存在数据，根据if_exists='fail'参数，操作被终止")
-                        elif if_exists == "replace":
-                            cur.execute(f"DELETE FROM {table_name}")
-                            print(f"已清空表 {table_name} 中的 {row_count} 行数据")
-                        elif if_exists == "ignore":
-                            # 对于ignore模式，我们检查主键冲突，只插入不重复的数据
-                            print(f"表 {table_name} 中已存在数据，将忽略重复数据进行插入")
-                else:
-                    print(f"表 {table_name} 不存在，将创建新表")
+                    if table_exists:
+                        cur.execute(f"SELECT COUNT(*) FROM {table_name}")
+                        row_count = cur.fetchone()[0]
+                        
+                        if row_count > 0:
+                            if if_exists == "fail":
+                                raise ValueError(f"表 {table_name} 中已存在数据，根据if_exists='fail'参数，操作被终止")
+                            elif if_exists == "replace":
+                                cur.execute(f"DELETE FROM {table_name}")
+                                print(f"已清空表 {table_name} 中的 {row_count} 行数据")
+                            elif if_exists == "ignore":
+                                print(f"表 {table_name} 中已存在数据，将忽略重复数据进行插入")
+                    else:
+                        print(f"表 {table_name} 不存在，将创建新表")
 
             # 获取DataFrame的列名
             df_columns = list(df_data.columns)
             if not df_columns:
                 raise ValueError("DataFrame没有有效的列")
             
-            # 获取表的列信息
-            table_columns = []
-            with self._get_connection() as cur:
-                try:
-                    cur.execute(f"PRAGMA table_info({table_name})")
-                    columns_info = cur.fetchall()
-                    table_columns = [col[1] for col in columns_info]  # 第二列是列名
-                except sqlite3.Error:
-                    # 如果表不存在或无法获取列信息，使用DataFrame的列
-                    table_columns = df_columns.copy()
-                    print(f"无法获取表 {table_name} 的列信息，将使用DataFrame的列名")
+            # 列验证和智能处理
+            columns_to_insert = df_columns
+            df_filtered = df_data
             
-            # 处理列匹配
-            if not table_columns:
-                # 如果无法获取表列信息，使用DataFrame的所有列
-                columns_to_insert = df_columns
-                print(f"使用DataFrame的所有列进行插入: {columns_to_insert}")
-            else:
-                # 找出DataFrame中存在且表中也存在的列
-                columns_to_insert = [col for col in df_columns if col in table_columns]
+            if validate_columns and not fast_mode:
+                # 获取表的列信息
+                table_columns = self._get_table_columns_cached(table_name) if use_cache else self._get_table_columns(table_name)
                 
-                # 找出DataFrame中有但表中没有的列
-                extra_columns = [col for col in df_columns if col not in table_columns]
-                if extra_columns:
-                    print(f"警告: DataFrame中的以下列在表 {table_name} 中不存在，将被忽略: {extra_columns}")
+                # 处理列匹配
+                if table_columns:
+                    # 找出DataFrame中存在且表中也存在的列
+                    columns_to_insert = [col for col in df_columns if col in table_columns]
+                    
+                    # 找出DataFrame中有但表中没有的列
+                    extra_columns = [col for col in df_columns if col not in table_columns]
+                    if extra_columns:
+                        print(f"警告: DataFrame中的以下列在表 {table_name} 中不存在，将被忽略: {extra_columns}")
+                    
+                    # 找出表中有但DataFrame中没有的列
+                    missing_columns = [col for col in table_columns if col not in df_columns]
+                    if missing_columns:
+                        print(f"注意: 表 {table_name} 中的以下列在DataFrame中不存在: {missing_columns}")
+                        print("这些列将使用默认值或NULL填充")
                 
-                # 找出表中有但DataFrame中没有的列
-                missing_columns = [col for col in table_columns if col not in df_columns]
-                if missing_columns:
-                    print(f"注意: 表 {table_name} 中的以下列在DataFrame中不存在: {missing_columns}")
-                    print("这些列将使用默认值或NULL填充")
-            
-            if not columns_to_insert:
-                raise ValueError(f"DataFrame的列与表 {table_name} 的列没有匹配项，无法插入数据")
-            
-            print(f"将插入以下列的数据: {columns_to_insert}")
+                if not columns_to_insert:
+                    raise ValueError(f"DataFrame的列与表 {table_name} 的列没有匹配项，无法插入数据")
+                
+                print(f"将插入以下列的数据: {columns_to_insert}")
+                
+                # 筛选出需要插入的列数据
+                df_filtered = df_data[columns_to_insert].copy()
             
             # 准备插入语句
             placeholders = ', '.join('?' * len(columns_to_insert))
@@ -431,9 +453,6 @@ class CommonDBManager:
                 insert_sql = f'INSERT OR IGNORE INTO "{table_name}" ({columns_str}) VALUES ({placeholders})'
             else:
                 insert_sql = f'INSERT OR REPLACE INTO "{table_name}" ({columns_str}) VALUES ({placeholders})'
-            
-            # 筛选出需要插入的列数据
-            df_filtered = df_data[columns_to_insert].copy()
             
             # 将DataFrame转换为记录列表
             records = df_filtered.to_dict('records')
@@ -470,6 +489,218 @@ class CommonDBManager:
             error_msg = f"向表 {table_name} 插入数据时发生错误: {str(e)}"
             print(error_msg)
             raise
+
+    def _insert_dataframe_fast(self, table_name, df_data, if_exists="replace"):
+        """
+        快速插入DataFrame数据（跳过所有验证和智能处理）
+        
+        :param table_name: 表名
+        :param df_data: pandas.DataFrame格式的数据
+        :param if_exists: 插入方式
+        :return: 插入的行数
+
+        示例：
+        
+        """
+        try:
+            # 获取DataFrame的列名
+            columns = list(df_data.columns)
+            
+            # 准备插入语句
+            placeholders = ', '.join('?' * len(columns))
+            columns_str = ', '.join([f'"{col}"' for col in columns])
+            
+            # 根据if_exists参数选择不同的插入策略
+            if if_exists == "ignore":
+                insert_sql = f'INSERT OR IGNORE INTO "{table_name}" ({columns_str}) VALUES ({placeholders})'
+            else:
+                insert_sql = f'INSERT OR REPLACE INTO "{table_name}" ({columns_str}) VALUES ({placeholders})'
+            
+            # 直接转换DataFrame为记录列表（不进行额外处理）
+            records = df_data.to_dict('records')
+            
+            # 简单处理缺失值
+            processed_records = []
+            for record in records:
+                processed_record = tuple(None if pd.isna(value) else value for value in record.values())
+                processed_records.append(processed_record)
+            
+            # 执行批量插入
+            with self._get_connection() as cur:
+                cur.executemany(insert_sql, processed_records)
+                row_count = cur.rowcount
+                print(f"快速插入完成，向表 {table_name} 插入 {row_count} 行数据")
+                return row_count
+                
+        except sqlite3.Error as e:
+            error_msg = f"快速向表 {table_name} 插入数据时发生数据库错误: {str(e)}"
+            print(error_msg)
+            raise
+        except Exception as e:
+            error_msg = f"快速向表 {table_name} 插入数据时发生错误: {str(e)}"
+            print(error_msg)
+            raise
+
+    def _get_table_columns(self, table_name):
+        """
+        获取表的列信息
+        
+        :param table_name: 表名
+        :return: 列名列表
+        """
+        table_columns = []
+        with self._get_connection() as cur:
+            try:
+                cur.execute(f"PRAGMA table_info({table_name})")
+                columns_info = cur.fetchall()
+                table_columns = [col[1] for col in columns_info]  # 第二列是列名
+            except sqlite3.Error:
+                print(f"无法获取表 {table_name} 的列信息")
+        return table_columns
+
+    def _get_table_columns_cached(self, table_name):
+        """
+        获取表的列信息（带缓存）
+        
+        :param table_name: 表名
+        :return: 列名列表
+        """
+        # 检查缓存
+        with self._cache_lock:
+            if table_name in self._table_columns_cache:
+                return self._table_columns_cache[table_name]
+        
+        # 缓存未命中，查询数据库
+        table_columns = self._get_table_columns(table_name)
+        
+        # 更新缓存
+        with self._cache_lock:
+            self._table_columns_cache[table_name] = table_columns
+        
+        return table_columns
+
+    def clear_table_columns_cache(self):
+        """
+        清空表结构缓存
+        """
+        with self._cache_lock:
+            self._table_columns_cache.clear()
+        print("已清空表结构缓存")
+
+    def batch_insert_dataframes(self, table_name, df_list, if_exists="replace", validate_columns=True):
+        """
+        批量插入多个DataFrame，只查询一次表结构
+        
+        :param table_name: 表名
+        :param df_list: DataFrame列表
+        :param if_exists: 插入方式
+        :param validate_columns: 是否进行列验证
+        :return: 总插入行数
+
+        示例：
+        # 批量插入多个DataFrame，只查询一次表结构
+        df_list = [df1, df2, df3]
+        db_manager.batch_insert_dataframes("users", df_list, if_exists="append")
+        """
+        if not df_list:
+            print("警告: DataFrame列表为空，未执行插入操作")
+            return 0
+        
+        total_inserted = 0
+        
+        try:
+            # 只查询一次表结构
+            table_columns = []
+            if validate_columns:
+                table_columns = self._get_table_columns_cached(table_name)
+            
+            # 对每个DataFrame执行插入操作
+            for i, df_data in enumerate(df_list):
+                if df_data is None or df_data.empty:
+                    print(f"警告: DataFrame列表中第 {i+1} 个DataFrame为空，跳过")
+                    continue
+                
+                try:
+                    # 使用已查询的表结构信息进行插入
+                    inserted_count = self._insert_single_dataframe_with_columns(
+                        table_name, df_data, if_exists, table_columns if validate_columns else None, validate_columns
+                    )
+                    total_inserted += inserted_count
+                except Exception as e:
+                    print(f"插入第 {i+1} 个DataFrame时出错: {str(e)}")
+                    continue
+                    
+            print(f"批量插入完成，总共向表 {table_name} 插入 {total_inserted} 行数据")
+            return total_inserted
+            
+        except Exception as e:
+            error_msg = f"批量插入数据时发生错误: {str(e)}"
+            print(error_msg)
+            raise
+
+    def _insert_single_dataframe_with_columns(self, table_name, df_data, if_exists, table_columns, validate_columns):
+        """
+        使用预查询的表结构信息插入单个DataFrame
+        
+        :param table_name: 表名
+        :param df_data: DataFrame数据
+        :param if_exists: 插入方式
+        :param table_columns: 表列信息
+        :param validate_columns: 是否进行列验证
+        :return: 插入行数
+        """
+        # 获取DataFrame的列名
+        df_columns = list(df_data.columns)
+        if not df_columns:
+            raise ValueError("DataFrame没有有效的列")
+        
+        # 列处理
+        columns_to_insert = df_columns
+        df_filtered = df_data
+        
+        if validate_columns and table_columns:
+            # 找出DataFrame中存在且表中也存在的列
+            columns_to_insert = [col for col in df_columns if col in table_columns]
+            
+            if not columns_to_insert:
+                raise ValueError(f"DataFrame的列与表 {table_name} 的列没有匹配项，无法插入数据")
+            
+            # 筛选出需要插入的列数据
+            df_filtered = df_data[columns_to_insert].copy()
+        
+        # 准备插入语句
+        placeholders = ', '.join('?' * len(columns_to_insert))
+        columns_str = ', '.join([f'"{col}"' for col in columns_to_insert])
+        
+        # 根据if_exists参数选择不同的插入策略
+        if if_exists == "ignore":
+            insert_sql = f'INSERT OR IGNORE INTO "{table_name}" ({columns_str}) VALUES ({placeholders})'
+        else:
+            insert_sql = f'INSERT OR REPLACE INTO "{table_name}" ({columns_str}) VALUES ({placeholders})'
+        
+        # 将DataFrame转换为记录列表
+        records = df_filtered.to_dict('records')
+        
+        # 处理缺失值
+        processed_records = []
+        for record in records:
+            processed_record = {}
+            for key, value in record.items():
+                if pd.isna(value):
+                    processed_record[key] = None
+                elif isinstance(value, (np.integer, np.floating)):
+                    processed_record[key] = value.item()
+                elif isinstance(value, np.bool_):
+                    processed_record[key] = bool(value)
+                else:
+                    processed_record[key] = value
+            processed_records.append(tuple(processed_record.values()))
+        
+        # 执行批量插入
+        with self._get_connection() as cur:
+            cur.executemany(insert_sql, processed_records)
+            row_count = cur.rowcount
+            return row_count
 
     # ======================== 数据删除接口 ========================
     def delete_data(self, table_name, condition=None, params=None):
