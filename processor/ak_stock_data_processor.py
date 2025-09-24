@@ -43,7 +43,7 @@ class AKStockDataProcessor:
     '''
     def __init__(self):
         self.stocks_db = DBManagerPool().get_manager(0)
-        self.stock_db_manager = StockDbBase("./stocks/db/akshare")
+        self.stock_db_base = StockDbBase("./stocks/db/akshare")
 
         self.dict_stocks = {}   # key: 板块，value：板块对应的股票信息（证券代码、证券名称）- pandas.DataFrame对象
         self.df_stocks_eastmoney = pd.DataFrame() # 带有市值信息的股票数据 - pandas.DataFrame对象
@@ -263,10 +263,10 @@ class AKStockDataProcessor:
             if board == "bse" or board == "star":
                 continue
             
-            db_dir = self.stock_db_manager.get_src_db_dir()
+            db_dir = self.stock_db_base.get_src_db_dir()
             db_dir = db_dir / board
             print("db_dir: ", db_dir)
-            self.stock_db_manager.set_db_dir(db_dir)
+            self.stock_db_base.set_db_dir(db_dir)
 
             for index, row in df_data.iterrows():
                 stock_code = row['证券代码']
@@ -280,7 +280,7 @@ class AKStockDataProcessor:
 
                     # if self.dict_chip_distribution_data_eastmoney[stock_code].empty:
                     #     # 不存在则全量更新
-                    #     self.stock_db_manager.insert_eastmoney_stock_chip_distribution_data_to_db(stock_code, stock_cyq_em_df)
+                    #     self.stock_db_base.insert_eastmoney_stock_chip_distribution_data_to_db(stock_code, stock_cyq_em_df)
                     #     # 优化：策略筛选只需要最后一行数据
                     #     self.dict_chip_distribution_data_eastmoney[stock_code] = stock_cyq_em_df
                     # else:
@@ -304,10 +304,10 @@ class AKStockDataProcessor:
                     #     print(new_data_in_df2)
 
                         # # 新增数据添加到数据库中
-                        # self.stock_db_manager.insert_eastmoney_stock_chip_distribution_data_to_db(stock_code, new_data_in_df2)
+                        # self.stock_db_base.insert_eastmoney_stock_chip_distribution_data_to_db(stock_code, new_data_in_df2)
 
                     # 获取到的数据直接插入，接口内部会做去重
-                    self.stock_db_manager.insert_eastmoney_stock_chip_distribution_data_to_db(stock_code, stock_cyq_em_df)
+                    self.stock_db_base.insert_eastmoney_stock_chip_distribution_data_to_db(stock_code, stock_cyq_em_df)
 
                     sleep_time = random.uniform(0.1, 0.5)
                     time.sleep(sleep_time)
@@ -324,13 +324,13 @@ class AKStockDataProcessor:
             if board == "" or df_data.empty:
                 continue
             
-            db_dir = self.stock_db_manager.get_src_db_dir()
+            db_dir = self.stock_db_base.get_src_db_dir()
             db_dir = db_dir / board
             print("db_dir: ", db_dir)
-            self.stock_db_manager.set_db_dir(db_dir)
+            self.stock_db_base.set_db_dir(db_dir)
             for index, row in df_data.iterrows():
                 stock_code = row['证券代码']
-                df_chip_distribution_data = self.stock_db_manager.query_eastmoney_stock_chip_distribution_data(stock_code)
+                df_chip_distribution_data = self.stock_db_base.query_eastmoney_stock_chip_distribution_data(stock_code)
 
                 # 优化：策略筛选只需要最后一行数据
                 self.dict_chip_distribution_data_eastmoney[stock_code] = df_chip_distribution_data

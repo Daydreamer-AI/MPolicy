@@ -136,7 +136,7 @@ class StockDbBase:
     def insert_dataframe_to_table(self, db_path, table_name, df_data, if_exists="replace"):
         """将 DataFrame 数据插入数据库表
         :param table_name: 表名
-        :param df_data: DataFrame 数据
+        :param df_data: DataFrame 数据, 列名和表列名对应才能使用该接口插入
         :param if_exists: 插入方式，默认为替换
         """
         # 参数验证
@@ -706,7 +706,7 @@ class StockDbBase:
 
 
     # ------------------------------------------------------------东方财富股票筹码分布表stock_chip_distribution_data_eastmoney接口-----------------------------------------
-    def insert_eastmoney_stock_chip_distribution_data_to_db_optimized(self, code, df_data, table_name="stock_chip_distribution_data_eastmoney"):
+    def insert_eastmoney_stock_chip_distribution_data_to_db(self, code, df_data, table_name="stock_chip_distribution_data_eastmoney"):
         db_path = self.get_db_path(code)
         print("insert_eastmoney_stock_chip_distribution_data_to_db--db_path:", db_path)
 
@@ -753,6 +753,7 @@ class StockDbBase:
             
             # 只有当还有数据需要插入时才执行插入操作
             if not df_filtered.empty:
+                # 
                 # 使用原有的 insert_dataframe_to_table 方法，但使用 append 模式
                 self.insert_dataframe_to_table(db_path, table_name, df_filtered, if_exists="append")
             else:

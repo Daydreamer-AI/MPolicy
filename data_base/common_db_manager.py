@@ -1,7 +1,7 @@
 import sqlite3
 import os
 from contextlib import contextmanager
-from datetime import datetime
+from datetime import datetime, timedelta
 import pandas as pd
 import threading
 import time
@@ -63,7 +63,14 @@ class CommonDBManager:
         self._ensure_db_directory()  # 确保目录存在
 
         self._local = threading.local()     # 多线程隔离
-        self._lock = threading.Lock()       # 保护​​共享资源​​
+        self._lock = threading.Lock()       # 保护共享资源
+        
+        # 连接管理相关属性
+        self._connection_timestamps = {}    # 记录每个线程连接的最后使用时间
+        self._cleanup_interval = 300        # 连接清理间隔（秒），默认5分钟
+        self._connection_timeout = 1800     # 连接超时时间（秒），默认30分钟
+        self._cleanup_timer = None          # 清理定时器
+        self._start_cleanup_timer()         # 启动清理定时器
 
         self._init_db()
 
@@ -81,10 +88,69 @@ class CommonDBManager:
         if not os.access(db_dir, os.W_OK):
             raise PermissionError(f"目录无写入权限: {db_dir}")
         
+    def _start_cleanup_timer(self):
+        """启动连接清理定时器"""
+        if self._cleanup_timer is not None:
+            self._cleanup_timer.cancel()
+        
+        self._cleanup_timer = threading.Timer(
+            self._cleanup_interval, 
+            self._cleanup_idle_connections
+        )
+        self._cleanup_timer.daemon = True  # 设置为守护线程
+        self._cleanup_timer.start()
+
+    def _cleanup_idle_connections(self):
+        """清理空闲连接"""
+        try:
+            current_time = time.time()
+            idle_threads = []
+            
+            # 查找超时的连接
+            with self._lock:
+                for thread_id, timestamp in list(self._connection_timestamps.items()):
+                    if current_time - timestamp > self._connection_timeout:
+                        idle_threads.append(thread_id)
+                
+                # 从时间戳记录中移除超时连接
+                for thread_id in idle_threads:
+                    if thread_id in self._connection_timestamps:
+                        del self._connection_timestamps[thread_id]
+            
+            # 关闭超时连接
+            if idle_threads:
+                print(f"清理了 {len(idle_threads)} 个空闲数据库连接")
+                
+        except Exception as e:
+            print(f"清理空闲连接时出错: {e}")
+        finally:
+            # 重新启动定时器
+            self._start_cleanup_timer()
+
+    def set_cleanup_config(self, interval_seconds=300, timeout_seconds=1800):
+        """
+        设置连接清理配置
+        
+        :param interval_seconds: 清理间隔（秒）
+        :param timeout_seconds: 连接超时时间（秒）
+        """
+        self._cleanup_interval = interval_seconds
+        self._connection_timeout = timeout_seconds
+        
+        # 重启清理定时器以应用新配置
+        if self._cleanup_timer:
+            self._cleanup_timer.cancel()
+        self._start_cleanup_timer()
 
     @contextmanager
     def _get_connection(self):
         """线程安全的数据库连接获取"""
+        thread_id = threading.get_ident()
+        
+        # 更新连接使用时间戳
+        with self._lock:
+            self._connection_timestamps[thread_id] = time.time()
+        
         if not hasattr(self._local, 'conn'):
             self._local.conn = sqlite3.connect(
                 self.db_path, 
@@ -96,6 +162,9 @@ class CommonDBManager:
         try:
             cursor = self._local.conn.cursor()
             yield cursor
+            # 更新连接使用时间戳
+            with self._lock:
+                self._connection_timestamps[thread_id] = time.time()
             self._local.conn.commit()
         except sqlite3.Error as e:
             self._local.conn.rollback()
@@ -104,6 +173,12 @@ class CommonDBManager:
     @contextmanager
     def _get_connection_object(self):
         """线程安全的数据库连接获取（返回连接对象）"""
+        thread_id = threading.get_ident()
+        
+        # 更新连接使用时间戳
+        with self._lock:
+            self._connection_timestamps[thread_id] = time.time()
+        
         if not hasattr(self._local, 'conn'):
             self._local.conn = sqlite3.connect(
                 self.db_path, 
@@ -114,6 +189,9 @@ class CommonDBManager:
         
         try:
             yield self._local.conn
+            # 更新连接使用时间戳
+            with self._lock:
+                self._connection_timestamps[thread_id] = time.time()
             self._local.conn.commit()
         except sqlite3.Error as e:
             self._local.conn.rollback()
@@ -121,9 +199,43 @@ class CommonDBManager:
 
     def close_connection(self):
         """关闭当前线程的数据库连接"""
+        thread_id = threading.get_ident()
+        
+        # 从时间戳记录中移除
+        with self._lock:
+            if thread_id in self._connection_timestamps:
+                del self._connection_timestamps[thread_id]
+        
         if hasattr(self._local, 'conn'):
             self._local.conn.close()
             del self._local.conn
+
+    def get_active_connections_count(self):
+        """
+        获取当前活跃连接数
+        
+        :return: 活跃连接数
+        """
+        with self._lock:
+            return len(self._connection_timestamps)
+
+    def force_cleanup_all_connections(self):
+        """
+        强制清理所有连接（用于特殊场景）
+        """
+        try:
+            # 关闭所有线程的连接
+            if hasattr(self._local, 'conn'):
+                self._local.conn.close()
+                del self._local.conn
+                
+            # 清空时间戳记录
+            with self._lock:
+                self._connection_timestamps.clear()
+                
+            print("已强制清理所有数据库连接")
+        except Exception as e:
+            print(f"强制清理所有连接时出错: {e}")
 
     def _init_db(self):
         # 建表检查
@@ -318,3 +430,343 @@ class CommonDBManager:
             error_msg = f"向表 {table_name} 插入数据时发生错误: {str(e)}"
             print(error_msg)
             raise
+
+    # ======================== 数据删除接口 ========================
+    def delete_data(self, table_name, condition=None, params=None):
+        """
+        删除表中的数据
+        
+        :param table_name: 表名
+        :param condition: 删除条件（WHERE子句，不包含WHERE关键字）
+        :param params: 条件参数列表
+        :return: 删除的行数
+
+        示例：db_manager.delete_data("users", "age < ?", [18])
+        """
+        if not table_name:
+            raise ValueError("表名不能为空")
+            
+        try:
+            with self._get_connection() as cur:
+                if condition:
+                    sql = f"DELETE FROM {table_name} WHERE {condition}"
+                    if params:
+                        cur.execute(sql, params)
+                    else:
+                        cur.execute(sql)
+                else:
+                    # 删除表中所有数据
+                    sql = f"DELETE FROM {table_name}"
+                    cur.execute(sql)
+                    
+                row_count = cur.rowcount
+                print(f"成功从表 {table_name} 删除 {row_count} 行数据")
+                return row_count
+                
+        except sqlite3.Error as e:
+            error_msg = f"从表 {table_name} 删除数据时发生数据库错误: {str(e)}"
+            print(error_msg)
+            raise
+        except Exception as e:
+            error_msg = f"从表 {table_name} 删除数据时发生错误: {str(e)}"
+            print(error_msg)
+            raise
+
+    def delete_data_by_ids(self, table_name, ids, id_column="id"):
+        """
+        根据ID列表删除数据
+        
+        :param table_name: 表名
+        :param ids: ID列表
+        :param id_column: ID列名，默认为"id"
+        :return: 删除的行数
+
+        示例：db_manager.delete_data_by_ids("users", [1, 2, 3])
+        """
+        if not table_name:
+            raise ValueError("表名不能为空")
+            
+        if not ids:
+            print("警告: ID列表为空，未执行删除操作")
+            return 0
+            
+        try:
+            # 构造占位符
+            placeholders = ','.join(['?' for _ in ids])
+            sql = f"DELETE FROM {table_name} WHERE {id_column} IN ({placeholders})"
+            
+            with self._get_connection() as cur:
+                cur.execute(sql, ids)
+                row_count = cur.rowcount
+                print(f"成功从表 {table_name} 删除 {row_count} 行数据")
+                return row_count
+                
+        except sqlite3.Error as e:
+            error_msg = f"根据ID从表 {table_name} 删除数据时发生数据库错误: {str(e)}"
+            print(error_msg)
+            raise
+        except Exception as e:
+            error_msg = f"根据ID从表 {table_name} 删除数据时发生错误: {str(e)}"
+            print(error_msg)
+            raise
+
+    def truncate_table(self, table_name):
+        """
+        清空表中所有数据（比DELETE FROM更快）
+        
+        :param table_name: 表名
+        :return: True表示成功
+
+        示例：db_manager.truncate_table("logs")
+        """
+        if not table_name:
+            raise ValueError("表名不能为空")
+            
+        try:
+            with self._get_connection() as cur:
+                cur.execute(f"DELETE FROM {table_name}")
+                print(f"成功清空表 {table_name}")
+                return True
+                
+        except sqlite3.Error as e:
+            error_msg = f"清空表 {table_name} 时发生数据库错误: {str(e)}"
+            print(error_msg)
+            raise
+        except Exception as e:
+            error_msg = f"清空表 {table_name} 时发生错误: {str(e)}"
+            print(error_msg)
+            raise
+
+    # ======================== 数据更新接口 ========================
+    def update_data(self, table_name, update_data, condition=None, params=None):
+        """
+        更新表中的数据
+        
+        :param table_name: 表名
+        :param update_data: 要更新的字段和值的字典
+        :param condition: 更新条件（WHERE子句，不包含WHERE关键字）
+        :param params: 条件参数列表
+        :return: 更新的行数
+
+        示例：db_manager.update_data("users", {"name": "New Name", "age": 25}, "id = ?", [1])
+        """
+        if not table_name:
+            raise ValueError("表名不能为空")
+            
+        if not update_data:
+            print("警告: 更新数据为空，未执行更新操作")
+            return 0
+            
+        try:
+            # 构造SET子句
+            set_clause = ', '.join([f"{key} = ?" for key in update_data.keys()])
+            values = list(update_data.values())
+            
+            with self._get_connection() as cur:
+                if condition:
+                    sql = f"UPDATE {table_name} SET {set_clause} WHERE {condition}"
+                    if params:
+                        cur.execute(sql, values + params)
+                    else:
+                        cur.execute(sql, values)
+                else:
+                    # 更新表中所有行
+                    sql = f"UPDATE {table_name} SET {set_clause}"
+                    cur.execute(sql, values)
+                    
+                row_count = cur.rowcount
+                print(f"成功更新表 {table_name} 中的 {row_count} 行数据")
+                return row_count
+                
+        except sqlite3.Error as e:
+            error_msg = f"更新表 {table_name} 数据时发生数据库错误: {str(e)}"
+            print(error_msg)
+            raise
+        except Exception as e:
+            error_msg = f"更新表 {table_name} 数据时发生错误: {str(e)}"
+            print(error_msg)
+            raise
+
+    def update_data_by_id(self, table_name, record_id, update_data, id_column="id"):
+        """
+        根据ID更新单条记录
+        
+        :param table_name: 表名
+        :param record_id: 记录ID
+        :param update_data: 要更新的字段和值的字典
+        :param id_column: ID列名，默认为"id"
+        :return: 更新的行数
+
+        示例：db_manager.update_data_by_id("users", 1, {"name": "Updated Name"})
+        """
+        if not table_name:
+            raise ValueError("表名不能为空")
+            
+        if not record_id:
+            raise ValueError("记录ID不能为空")
+            
+        if not update_data:
+            print("警告: 更新数据为空，未执行更新操作")
+            return 0
+            
+        try:
+            # 构造SET子句
+            set_clause = ', '.join([f"{key} = ?" for key in update_data.keys()])
+            values = list(update_data.values())
+            
+            sql = f"UPDATE {table_name} SET {set_clause} WHERE {id_column} = ?"
+            
+            with self._get_connection() as cur:
+                cur.execute(sql, values + [record_id])
+                row_count = cur.rowcount
+                if row_count == 0:
+                    print(f"警告: 未找到ID为 {record_id} 的记录进行更新")
+                else:
+                    print(f"成功更新表 {table_name} 中ID为 {record_id} 的记录")
+                return row_count
+                
+        except sqlite3.Error as e:
+            error_msg = f"根据ID更新表 {table_name} 数据时发生数据库错误: {str(e)}"
+            print(error_msg)
+            raise
+        except Exception as e:
+            error_msg = f"根据ID更新表 {table_name} 数据时发生错误: {str(e)}"
+            print(error_msg)
+            raise
+
+    def batch_update_data(self, table_name, update_list, id_column="id"):
+        """
+        批量更新数据
+        
+        :param table_name: 表名
+        :param update_list: 更新数据列表，每个元素为包含ID和更新数据的字典
+                           格式: [{"id": 1, "field1": "value1", "field2": "value2"}, ...]
+        :param id_column: ID列名，默认为"id"
+        :return: 更新的行数
+
+        示例：
+            update_list = [
+                {"id": 1, "name": "User1", "age": 20},
+                {"id": 2, "name": "User2", "age": 21}
+            ]
+            db_manager.batch_update_data("users", update_list)
+        """
+        if not table_name:
+            raise ValueError("表名不能为空")
+            
+        if not update_list:
+            print("警告: 更新数据列表为空，未执行更新操作")
+            return 0
+            
+        try:
+            updated_count = 0
+            
+            with self._get_connection() as cur:
+                for record in update_list:
+                    if id_column not in record:
+                        print(f"警告: 记录缺少 {id_column} 字段，跳过该记录")
+                        continue
+                        
+                    record_id = record.pop(id_column)  # 移除ID字段
+                    if not record:  # 如果没有其他字段需要更新
+                        print(f"警告: ID为 {record_id} 的记录没有需要更新的字段，跳过该记录")
+                        continue
+                    
+                    # 构造SET子句
+                    set_clause = ', '.join([f"{key} = ?" for key in record.keys()])
+                    values = list(record.values())
+                    
+                    sql = f"UPDATE {table_name} SET {set_clause} WHERE {id_column} = ?"
+                    cur.execute(sql, values + [record_id])
+                    updated_count += cur.rowcount
+                    
+            print(f"成功批量更新表 {table_name} 中的 {updated_count} 行数据")
+            return updated_count
+            
+        except sqlite3.Error as e:
+            error_msg = f"批量更新表 {table_name} 数据时发生数据库错误: {str(e)}"
+            print(error_msg)
+            raise
+        except Exception as e:
+            error_msg = f"批量更新表 {table_name} 数据时发生错误: {str(e)}"
+            print(error_msg)
+            raise
+
+    def upsert_data(self, table_name, data, conflict_columns=None):
+        """
+        插入或更新数据（upsert操作）
+        
+        :param table_name: 表名
+        :param data: 要插入或更新的数据（字典或字典列表）
+        :param conflict_columns: 冲突检测列（用于ON CONFLICT子句），如果为None则使用主键
+        :return: 操作的行数
+
+        示例：db_manager.upsert_data("users", {"id": 1, "name": "User1", "email": "user1@example.com"}, ["id"])
+        """
+        if not table_name:
+            raise ValueError("表名不能为空")
+            
+        if not data:
+            print("警告: 数据为空，未执行操作")
+            return 0
+            
+        # 确保data是列表格式
+        if isinstance(data, dict):
+            data = [data]
+            
+        if not isinstance(data, list):
+            raise ValueError("数据必须是字典或字典列表")
+            
+        try:
+            inserted_count = 0
+            
+            with self._get_connection() as cur:
+                for record in data:
+                    if not record:
+                        continue
+                        
+                    # 构造INSERT语句
+                    columns = list(record.keys())
+                    placeholders = ','.join(['?' for _ in columns])
+                    columns_str = ','.join(columns)
+                    
+                    sql = f"INSERT INTO {table_name} ({columns_str}) VALUES ({placeholders})"
+                    
+                    # 如果指定了冲突列，则添加ON CONFLICT子句
+                    if conflict_columns:
+                        conflict_cols_str = ','.join(conflict_columns)
+                        # 构造UPDATE子句（排除冲突列）
+                        update_columns = [col for col in columns if col not in conflict_columns]
+                        if update_columns:
+                            update_clause = ','.join([f"{col} = excluded.{col}" for col in update_columns])
+                            sql += f" ON CONFLICT({conflict_cols_str}) DO UPDATE SET {update_clause}"
+                        else:
+                            sql += f" ON CONFLICT({conflict_cols_str}) DO NOTHING"
+                    else:
+                        # 如果没有指定冲突列，使用INSERT OR REPLACE
+                        sql = f"INSERT OR REPLACE INTO {table_name} ({columns_str}) VALUES ({placeholders})"
+                    
+                    values = list(record.values())
+                    cur.execute(sql, values)
+                    inserted_count += cur.rowcount
+                    
+            print(f"成功对表 {table_name} 执行 {inserted_count} 次upsert操作")
+            return inserted_count
+            
+        except sqlite3.Error as e:
+            error_msg = f"对表 {table_name} 执行upsert操作时发生数据库错误: {str(e)}"
+            print(error_msg)
+            raise
+        except Exception as e:
+            error_msg = f"对表 {table_name} 执行upsert操作时发生错误: {str(e)}"
+            print(error_msg)
+            raise
+
+    def __del__(self):
+        """析构时清理资源"""
+        # 取消定时器
+        if self._cleanup_timer:
+            self._cleanup_timer.cancel()
+        
+        # 关闭所有连接
+        self.force_cleanup_all_connections()
