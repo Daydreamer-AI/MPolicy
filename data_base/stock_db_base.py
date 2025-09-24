@@ -706,7 +706,7 @@ class StockDbBase:
 
 
     # ------------------------------------------------------------东方财富股票筹码分布表stock_chip_distribution_data_eastmoney接口-----------------------------------------
-    def insert_eastmoney_stock_chip_distribution_data_to_db(self, code, df_data, table_name="stock_chip_distribution_data_eastmoney"):
+    def insert_eastmoney_stock_chip_distribution_data_to_db_optimized(self, code, df_data, table_name="stock_chip_distribution_data_eastmoney"):
         db_path = self.get_db_path(code)
         print("insert_eastmoney_stock_chip_distribution_data_to_db--db_path:", db_path)
 
@@ -733,28 +733,36 @@ class StockDbBase:
                 '''
             self.create_table(db_path, table_name, create_table_sql)
 
-        self.insert_dataframe_to_table(db_path, table_name, df_data, if_exists="replace")
+        # 如果数据为空，直接返回
+        if df_data is None or df_data.empty:
+            print("警告: 要插入的数据为空，未执行插入操作")
+            return True
 
-        # create_table_sql = '''
-        #     CREATE TABLE IF NOT EXISTS stock_chip_distribution_data_eastmoney (
-        #         日期 TEXT PRIMARY KEY,
-        #         获利比例 REAL,
-        #         平均成本 REAL,
-        #         "90成本-低" REAL,
-        #         "90成本-高" REAL,
-        #         90集中度 REAL,
-        #         "70成本-低" REAL,
-        #         "70成本-高" REAL,
-        #         70集中度 REAL
-
-        #         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        
-        #         UNIQUE(日期)
-        #     )
-        #     '''
-        # self.create_table(db_path, table_name, create_table_sql)
-
-        # self.insert_dataframe_to_table(db_path, table_name, df_data, if_exists="replace")
+        try:
+            # 先查询数据库中已存在的数据
+            with self._get_connection_object(db_path) as conn:
+                existing_data = pd.read_sql_query(
+                    "SELECT 日期 FROM stock_chip_distribution_data_eastmoney", conn)
+            
+            # 从新数据中移除已存在的数据
+            if not existing_data.empty:
+                # 过滤掉已存在的数据
+                df_filtered = df_data[~df_data['日期'].isin(existing_data['日期'])]
+            else:
+                df_filtered = df_data
+            
+            # 只有当还有数据需要插入时才执行插入操作
+            if not df_filtered.empty:
+                # 使用原有的 insert_dataframe_to_table 方法，但使用 append 模式
+                self.insert_dataframe_to_table(db_path, table_name, df_filtered, if_exists="append")
+            else:
+                print("没有新数据需要插入")
+                
+            return True
+            
+        except Exception as e:
+            print(f"插入筹码分布数据失败: {e}")
+            return False
 
 
     def query_eastmoney_stock_chip_distribution_data(self, code):

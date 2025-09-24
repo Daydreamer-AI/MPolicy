@@ -278,33 +278,36 @@ class AKStockDataProcessor:
                     stock_cyq_em_df = ak.stock_cyq_em(symbol=stock_code, adjust="qfq")
                     # print("stock_cyq_em_df的类型：", stock_cyq_em_df)
 
-                    if self.dict_chip_distribution_data_eastmoney[stock_code].empty:
-                        # 不存在则全量更新
-                        self.stock_db_manager.insert_eastmoney_stock_chip_distribution_data_to_db(stock_code, stock_cyq_em_df)
-                        # 优化：策略筛选只需要最后一行数据
-                        self.dict_chip_distribution_data_eastmoney[stock_code] = stock_cyq_em_df
-                    else:
-                        # 存在则增量更新
-                        # combined_df = pd.concat([self.dict_chip_distribution_data_eastmoney[stock_code], stock_cyq_em_df], axis=0, ignore_index=True)
-                        # 删除重复行（基于所有列）
-                        # unique_df = combined_df.drop_duplicates()
+                    # if self.dict_chip_distribution_data_eastmoney[stock_code].empty:
+                    #     # 不存在则全量更新
+                    #     self.stock_db_manager.insert_eastmoney_stock_chip_distribution_data_to_db(stock_code, stock_cyq_em_df)
+                    #     # 优化：策略筛选只需要最后一行数据
+                    #     self.dict_chip_distribution_data_eastmoney[stock_code] = stock_cyq_em_df
+                    # else:
+                    #     # 存在则增量更新
+                    #     # combined_df = pd.concat([self.dict_chip_distribution_data_eastmoney[stock_code], stock_cyq_em_df], axis=0, ignore_index=True)
+                    #     # 删除重复行（基于所有列）
+                    #     # unique_df = combined_df.drop_duplicates()
 
-                        self.dict_chip_distribution_data_eastmoney[stock_code]['日期'] = pd.to_datetime(self.dict_chip_distribution_data_eastmoney[stock_code]['日期'])
-                        stock_cyq_em_df['日期'] = pd.to_datetime(stock_cyq_em_df['日期'])
+                    #     self.dict_chip_distribution_data_eastmoney[stock_code]['日期'] = pd.to_datetime(self.dict_chip_distribution_data_eastmoney[stock_code]['日期'])
+                    #     stock_cyq_em_df['日期'] = pd.to_datetime(stock_cyq_em_df['日期'])
 
-                        # 找到 df1 中的最大日期（最后日期）
-                        last_date_in_df1 = self.dict_chip_distribution_data_eastmoney[stock_code]['日期'].max()
-                        print(f"df1 中的最后日期是: {last_date_in_df1}")
+                    #     # 找到 df1 中的最大日期（最后日期）
+                    #     last_date_in_df1 = self.dict_chip_distribution_data_eastmoney[stock_code]['日期'].max()
+                    #     print(f"df1 中的最后日期是: {last_date_in_df1}")
 
-                        # 在 df2 中筛选所有日期大于 df1 最后日期的行
-                        new_data_in_df2 = stock_cyq_em_df[stock_cyq_em_df['日期'] > last_date_in_df1] # 使用布尔索引进行条件筛选[2](@ref)
+                    #     # 在 df2 中筛选所有日期大于 df1 最后日期的行
+                    #     new_data_in_df2 = stock_cyq_em_df[stock_cyq_em_df['日期'] > last_date_in_df1] # 使用布尔索引进行条件筛选[2](@ref)
 
-                        # 显示新增的数据
-                        print(f"df2 中在 {last_date_in_df1} 之后的新增数据行数为: {len(new_data_in_df2)}")
-                        print(new_data_in_df2)
+                    #     # 显示新增的数据
+                    #     print(f"df2 中在 {last_date_in_df1} 之后的新增数据行数为: {len(new_data_in_df2)}")
+                    #     print(new_data_in_df2)
 
-                        # 新增数据添加到数据库中
-                        self.stock_db_manager.insert_eastmoney_stock_chip_distribution_data_to_db(stock_code, new_data_in_df2)
+                        # # 新增数据添加到数据库中
+                        # self.stock_db_manager.insert_eastmoney_stock_chip_distribution_data_to_db(stock_code, new_data_in_df2)
+
+                    # 获取到的数据直接插入，接口内部会做去重
+                    self.stock_db_manager.insert_eastmoney_stock_chip_distribution_data_to_db(stock_code, stock_cyq_em_df)
 
                     sleep_time = random.uniform(0.1, 0.5)
                     time.sleep(sleep_time)
