@@ -307,13 +307,13 @@ class BaoStockProcessor:
             return day_stock_data
         
         # 判断数据库最后日期至今有无交易日数据需更新
-        if self.is_trading_day_today():
-            # 交易日17:30后才能更新当天数据
-            if not self.can_update_today_data():
-                return day_stock_data
-        else:
-            print("今天不是交易日，直接返回最新数据")
-            return day_stock_data
+        # if self.is_trading_day_today():
+        #     # 交易日17:30后才能更新当天数据
+        #     if not self.can_update_today_data():
+        #         return day_stock_data
+        # else:
+        #     print("今天不是交易日，直接返回最新数据")
+        #     return day_stock_data
 
         last_date = day_stock_data['日期'].iloc[-1]
         # print("最后日期（方法2）:", last_date) 
