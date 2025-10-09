@@ -237,6 +237,8 @@ class BaoStockProcessor:
         sleep_time = random.uniform(0, 1)
         # time.sleep(sleep_time)
 
+        # 判断是否是否交易
+
         # lg = bs.login()
         rs = bs.query_history_k_data_plus(code,
             "date,code,open,high,low,close,volume,amount,pctChg,turn,adjustflag,isST",
@@ -305,28 +307,33 @@ class BaoStockProcessor:
         # print(day_stock_data.tail(1))
 
         # 判断是否存在空值
-        if day_stock_data.isnull().values.any():
-            print("存在空值")
-            # 获取所有包含空值的行
-            rows_with_nulls = day_stock_data[day_stock_data.isnull().any(axis=1)]
-            print("\n所有包含空值的行:")
-            print(rows_with_nulls)
+        # if day_stock_data.isnull().values.any():
+        #     print("存在空值")
+        #     # 获取所有包含空值的行
+        #     rows_with_nulls = day_stock_data[day_stock_data.isnull().any(axis=1)]
+        #     # print("\n所有包含空值的行:")
+        #     # print(rows_with_nulls)
             
-            # 提取第一个包含空值的行（按索引顺序）
-            first_row_with_null = rows_with_nulls.iloc[0]
-            print("\n第一个包含空值的行:")
-            print(first_row_with_null)
-            first_null_date = first_row_with_null['日期']
-            print("第一个包含空值的行日期类型是: ", type(first_null_date))
-            print(f"第一个包含空值的行日期是: {first_null_date}")
+        #     # 提取第一个包含空值的行（按索引顺序）
+        #     first_row_with_null = rows_with_nulls.iloc[0]
+        #     # print("\n第一个包含空值的行:")
+        #     # print(first_row_with_null)
 
-            # 查找第一个出现空值的行索引
-            # first_null_index = day_stock_data.isnull().any(axis=1).idxmax()
+        #     null_data_code = first_row_with_null['股票代码']
+        #     print(f"第一个包含空值行的股票代码: {null_data_code}")
+        #     first_null_date = first_row_with_null['日期']
+        #     # print("第一个包含空值的行日期类型是: ", type(first_null_date))  # <class 'str'>
+        #     print(f"第一个包含空值的行日期是: {first_null_date}")
+        
 
-            # 删除该行及之后的所有行
-            # day_stock_data = day_stock_data.loc[:first_null_index-1]  # 保留到第一个空值行之前的所有行
-            # 数据库同步
+        #     # 查找第一个出现空值的行索引
+        #     first_null_index = day_stock_data.isnull().any(axis=1).idxmax()
 
+        #     # 删除该行及之后的所有行
+        #     day_stock_data = day_stock_data.loc[:first_null_index-1]  # 保留到第一个空值行之前的所有行
+
+        #     # 数据库同步
+        #     self.day_stock_db.delete_data_by_date(null_data_code, first_null_date)
         
         now_date = datetime.datetime.now().strftime("%Y-%m-%d")
         if now_date in day_stock_data['日期'].values:
@@ -342,7 +349,12 @@ class BaoStockProcessor:
         #     print("今天不是交易日，直接返回最新数据")
         #     return day_stock_data
 
-        last_date = day_stock_data['日期'].iloc[-1]
+        last_date = None
+        if day_stock_data.empty or day_stock_data is None:
+            print("数据库表为空，默认获取近1年股票数据")
+            last_date = (datetime.datetime.now() - datetime.timedelta(days=365)).strftime("%Y-%m-%d")
+        else:
+            last_date = day_stock_data['日期'].iloc[-1]
         # print("最后日期（方法2）:", last_date) 
 
         parsed_date = datetime.datetime.strptime(last_date, "%Y-%m-%d")  # 解析为日期对象
@@ -353,6 +365,10 @@ class BaoStockProcessor:
         end_date = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
         # print(f"获取股票 {code} 数据，时间范围：{start_date} 至 {end_date}")
         df_new_stock_data = self.process_daily_stock_data(code, start_date, end_date)
+        # 判断获取到的数据是否存在空值
+        # if df_new_stock_data.isnull().values.any():
+        #     print(f"股票 {code} 的数据存在空值")
+        #     return day_stock_data
         # if df_new_stock_data.empty:
         #     print("process_daily_stock_data执行结果为空！")
         #     return False
@@ -361,10 +377,13 @@ class BaoStockProcessor:
         # print(df_new_stock_data)
 
         if not df_new_stock_data.empty:
-            # 合并计算指标
-            combined_df = pd.concat([day_stock_data, df_new_stock_data], axis=0, ignore_index=True)
-            # print("合并后的combined_df:")
-            # print(combined_df.tail(6))
+            # 处理空 DataFrame 的情况
+            if day_stock_data.empty:
+                combined_df = df_new_stock_data.copy()
+                print("原数据为空，直接使用新获取的数据")
+            else:
+                # 合并计算指标
+                combined_df = pd.concat([day_stock_data, df_new_stock_data], axis=0, ignore_index=True)
 
             sdi.macd(combined_df)
             sdi.ma(combined_df, 'MA5', 5)
@@ -398,7 +417,7 @@ class BaoStockProcessor:
             end_date = datetime.datetime.now().strftime("%Y-%m-%d")
             start_date = (datetime.datetime.now() - datetime.timedelta(days=730)).strftime("%Y-%m-%d")
 
-        print(f"获取股票 {code} 周线数据，时间范围：{start_date} 至 {end_date}")
+        # print(f"获取股票 {code} 周线数据，时间范围：{start_date} 至 {end_date}")
         
         sleep_time = random.uniform(0, 1) # 等待时间可以设得稍长一些
         # time.sleep(sleep_time)
@@ -531,7 +550,7 @@ class BaoStockProcessor:
         self.day_stock_db.set_db_dir("./stocks/db/baostock/day/sh_main")
         i = 1
         for value in self.dict_all_stocks['sh_main']['证券代码']:
-            print(f"获取第 {i} 只沪市主板股票 {value} 【日线】数据")
+            # print(f"获取第 {i} 只沪市主板股票 {value} 【日线】数据")
             i += 1
 
             # 判断是否已加载到内存
@@ -547,7 +566,7 @@ class BaoStockProcessor:
         self.week_stock_db.set_db_dir("./stocks/db/baostock/week/sh_main")
         i = 1
         for value in self.dict_all_stocks['sh_main']['证券代码']:
-            print(f"获取第 {i} 只沪市主板股票 {value} 【周线】数据")
+            # print(f"获取第 {i} 只沪市主板股票 {value} 【周线】数据")
             i += 1
             self.process_and_save_weekly_stock_data(value)
 
@@ -557,7 +576,7 @@ class BaoStockProcessor:
         self.day_stock_db.set_db_dir("./stocks/db/baostock/day/sz_main")
         i = 1
         for value in self.dict_all_stocks['sz_main']['证券代码']:
-            print(f"获取第 {i} 只深市主板股票 {value} 【日线】数据")
+            # print(f"获取第 {i} 只深市主板股票 {value} 【日线】数据")
             i += 1
             self.process_and_save_daily_stock_data(value)
 
@@ -565,7 +584,7 @@ class BaoStockProcessor:
         self.week_stock_db.set_db_dir("./stocks/db/baostock/week/sz_main")
         i = 1
         for value in self.dict_all_stocks['sz_main']['证券代码']:
-            print(f"获取第 {i} 只深市主板股票 {value} 【周线】数据")
+            # print(f"获取第 {i} 只深市主板股票 {value} 【周线】数据")
             i += 1
             self.process_and_save_weekly_stock_data(value)
 

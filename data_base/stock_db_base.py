@@ -970,7 +970,7 @@ class StockDbBase:
         # return True
     
 
-    def delete_data_by_date(self, cutoff_date, table_name='stock_data'):
+    def delete_data_by_date(self, code, cutoff_date, table_name='stock_data'):
         """
         根据日期删除表中的数据
         
@@ -978,8 +978,9 @@ class StockDbBase:
         :return: 删除的行数
         """
         try:
-            with self._get_connection() as cur:
-                sql = f"DELETE FROM {table_name} WHERE 日期 >= {cutoff_date}"
+            db_path = self.get_db_path(code)
+            with self._get_connection(db_path) as cur:
+                sql = f"DELETE FROM {table_name} WHERE 日期 >= '{cutoff_date}'"
                 cur.execute(sql)
 
                 row_count = cur.rowcount
