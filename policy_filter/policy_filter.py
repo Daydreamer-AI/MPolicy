@@ -236,7 +236,9 @@ def daily_up_ma52_filter(df_daily_data, df_weekly_data):
         return False
     
     day_close = 0.0
+    day_dif = 0.0
     day_dea = 0.0
+    day_ma10 = 0.0
     day_ma24 = 0.0
     day_ma52 = 0.0
     day_ma60 = 0.0
@@ -244,12 +246,13 @@ def daily_up_ma52_filter(df_daily_data, df_weekly_data):
     day_lb = 0.0
     week_close = 0.0
     week_ma52 = 0.0
-    if columns_check(df_daily_data, ('收盘', 'DEA', 'MA5', 'MA24', 'MA30',  'MA52', 'MA60', '换手率', '量比5日')):
+    if columns_check(df_daily_data, ('收盘', 'DIF', 'DEA', 'MA5', 'MA10', 'MA24', 'MA30',  'MA52', 'MA60', '换手率', '量比5日')):
         last_day_row = df_daily_data.tail(1)
         day_close = last_day_row['收盘'].item()
+        day_dif = last_day_row['DIF'].item()
         day_dea = last_day_row['DEA'].item()
         day_ma5 = last_day_row['MA5'].item()
-        # day_ma10 = last_day_row['MA10'].item()
+        day_ma10 = last_day_row['MA10'].item()
         # day_ma20 = last_day_row['MA20'].item()
         day_ma24 = last_day_row['MA24'].item()
         day_ma30 = last_day_row['MA30'].item()
@@ -278,9 +281,11 @@ def daily_up_ma52_filter(df_daily_data, df_weekly_data):
     b_ret = (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
     b_ret_2 = week_close > week_ma52 and week_dea > 0
 
-    b_ret_3 = day_dea > 0
-    b_ret_4 = (day_close >= day_ma52 or day_close >= day_ma60) and (day_close <= day_ma30)
-    b_ret_5 = day_ma5 < day_ma24 and day_ma5 > day_ma52 and day_ma24 > day_ma52 or day_ma24 > day_ma60
+    b_ret_3 = day_dea > 0 and day_dif > 0
+    b_ret_4 = (day_close >= day_ma52) and (day_close <= day_ma24) and day_close <= day_ma5
+    b_ret_5 = day_ma5 <= day_ma10 and day_ma5 <= day_ma24 and day_ma5 >= day_ma52 and day_ma24 >= day_ma52
+
+    # 优化判断：MA5大于MA52；近2根k线收盘价均大于MA52，小于MA24；
 
     if b_ret and b_ret_2 and b_ret_3 and b_ret_4 and b_ret_5:
         # print("符合【日线零轴上方MA52】筛选")
@@ -305,6 +310,7 @@ def daily_up_ma24_filter(df_daily_data, df_weekly_data):
         return False
     
     day_close = 0.0
+    day_dif = 0.0
     day_dea = 0.0
     day_ma24 = 0.0
     day_ma52 = 0.0
@@ -312,9 +318,10 @@ def daily_up_ma24_filter(df_daily_data, df_weekly_data):
     day_lb = 0.0
     week_close = 0.0
     week_ma52 = 0.0
-    if columns_check(df_daily_data, ('收盘', 'DEA', 'MA5', 'MA10', 'MA20', 'MA24', 'MA30', 'MA52', '换手率', '量比5日')):
+    if columns_check(df_daily_data, ('收盘', 'DIF', 'DEA', 'MA5', 'MA10', 'MA20', 'MA24', 'MA30', 'MA52', '换手率', '量比5日')):
         last_day_row = df_daily_data.tail(1)
         day_close = last_day_row['收盘'].item()
+        day_dif = last_day_row['DIF'].item()
         day_dea = last_day_row['DEA'].item()
         day_ma5 = last_day_row['MA5'].item()
         day_ma10 = last_day_row['MA10'].item()
@@ -342,9 +349,9 @@ def daily_up_ma24_filter(df_daily_data, df_weekly_data):
     b_ret = (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
     b_ret_2 = week_close > week_ma52
 
-    b_ret_3 = day_dea > 0
-    b_ret_4 = (day_close >= day_ma20 or day_close >= day_ma24 or day_close >= day_ma30) and (day_close <= day_ma5 and day_close <= day_ma10)# abs(day_close - day_ma24) < day_ma24 * policy_filter_ma24_diff
-    b_ret_5 = day_ma5 <= day_ma10 and day_ma10 > day_ma24 and day_ma5 > day_ma24 and day_ma24 > day_ma52
+    b_ret_3 = day_dea > 0 and day_dif > 0
+    b_ret_4 = (day_close >= day_ma24 or day_close >= day_ma30) and (day_close <= day_ma5 or day_close <= day_ma10)# abs(day_close - day_ma24) < day_ma24 * policy_filter_ma24_diff
+    b_ret_5 = day_ma5 <= day_ma10 and day_ma10 >= day_ma24 and day_ma5 >= day_ma24 and day_ma24 > day_ma52
 
     if b_ret and b_ret_2 and b_ret_3 and b_ret_4 and b_ret_5:
         # print("符合【日线零轴上方MA24】筛选")

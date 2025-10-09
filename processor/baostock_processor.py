@@ -307,23 +307,23 @@ class BaoStockProcessor:
         # print(day_stock_data.tail(1))
 
         # 判断是否存在空值
-        # if day_stock_data.isnull().values.any():
-        #     print("存在空值")
-        #     # 获取所有包含空值的行
-        #     rows_with_nulls = day_stock_data[day_stock_data.isnull().any(axis=1)]
-        #     # print("\n所有包含空值的行:")
-        #     # print(rows_with_nulls)
+        if day_stock_data.isnull().values.any():
+            print("存在空值")
+            # 获取所有包含空值的行
+            rows_with_nulls = day_stock_data[day_stock_data.isnull().any(axis=1)]
+            # print("\n所有包含空值的行:")
+            # print(rows_with_nulls)
             
-        #     # 提取第一个包含空值的行（按索引顺序）
-        #     first_row_with_null = rows_with_nulls.iloc[0]
-        #     # print("\n第一个包含空值的行:")
-        #     # print(first_row_with_null)
+            # 提取第一个包含空值的行（按索引顺序）
+            first_row_with_null = rows_with_nulls.iloc[0]
+            # print("\n第一个包含空值的行:")
+            # print(first_row_with_null)
 
-        #     null_data_code = first_row_with_null['股票代码']
-        #     print(f"第一个包含空值行的股票代码: {null_data_code}")
-        #     first_null_date = first_row_with_null['日期']
-        #     # print("第一个包含空值的行日期类型是: ", type(first_null_date))  # <class 'str'>
-        #     print(f"第一个包含空值的行日期是: {first_null_date}")
+            null_data_code = first_row_with_null['股票代码']
+            print(f"第一个包含空值行的股票代码: {null_data_code}")
+            first_null_date = first_row_with_null['日期']
+            # print("第一个包含空值的行日期类型是: ", type(first_null_date))  # <class 'str'>
+            print(f"第一个包含空值的行日期是: {first_null_date}")
         
 
         #     # 查找第一个出现空值的行索引
