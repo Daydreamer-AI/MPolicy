@@ -969,6 +969,33 @@ class StockDbBase:
         # conn.close()
         # return True
     
+
+    def delete_data_by_date(self, cutoff_date, table_name='stock_data'):
+        """
+        根据日期删除表中的数据
+        
+        :param cutoff_date: 删除 cutoff_date 之前的数据
+        :return: 删除的行数
+        """
+        try:
+            with self._get_connection() as cur:
+                sql = f"DELETE FROM {table_name} WHERE 日期 >= {cutoff_date}"
+                cur.execute(sql)
+
+                row_count = cur.rowcount
+                print(f"成功从表 {table_name} 删除 {row_count} 行数据")
+                return row_count
+                
+        except sqlite3.Error as e:
+            error_msg = f"从表 {table_name} 删除数据时发生数据库错误: {str(e)}"
+            print(error_msg)
+            raise
+        except Exception as e:
+            error_msg = f"从表 {table_name} 删除数据时发生错误: {str(e)}"
+            print(error_msg)
+            raise
+
+
     # 测试代码
 if __name__ == "__main__":
     print("stock_db_base.py run")

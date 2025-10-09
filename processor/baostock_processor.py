@@ -52,6 +52,9 @@ class BaoStockProcessor:
         self.lock = threading.Lock()  # 创建一把锁
         self._is_initialized = False # 状态标志
 
+        self.dict_daily_null_codes = {}
+        self.dict_weekly_null_codes = {}
+
     
     # def __del__(self):
     #     print("登出Baostock系统")
@@ -300,6 +303,30 @@ class BaoStockProcessor:
         # print("code: ", code)
         # print("day_stock_data的类型：", type(day_stock_data))
         # print(day_stock_data.tail(1))
+
+        # 判断是否存在空值
+        if day_stock_data.isnull().values.any():
+            print("存在空值")
+            # 获取所有包含空值的行
+            rows_with_nulls = day_stock_data[day_stock_data.isnull().any(axis=1)]
+            print("\n所有包含空值的行:")
+            print(rows_with_nulls)
+            
+            # 提取第一个包含空值的行（按索引顺序）
+            first_row_with_null = rows_with_nulls.iloc[0]
+            print("\n第一个包含空值的行:")
+            print(first_row_with_null)
+            first_null_date = first_row_with_null['日期']
+            print("第一个包含空值的行日期类型是: ", type(first_null_date))
+            print(f"第一个包含空值的行日期是: {first_null_date}")
+
+            # 查找第一个出现空值的行索引
+            # first_null_index = day_stock_data.isnull().any(axis=1).idxmax()
+
+            # 删除该行及之后的所有行
+            # day_stock_data = day_stock_data.loc[:first_null_index-1]  # 保留到第一个空值行之前的所有行
+            # 数据库同步
+
         
         now_date = datetime.datetime.now().strftime("%Y-%m-%d")
         if now_date in day_stock_data['日期'].values:
@@ -360,6 +387,9 @@ class BaoStockProcessor:
         self.dict_daily_stock_data[code] = day_stock_data
         return day_stock_data
 
+    # 空值修复
+    def fix_null_value(self, code, data_to_save):
+        pass
 
     # 全量更新
     def process_weekly_stock_data(self, code, start_date=None, end_date=None):
