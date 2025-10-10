@@ -260,6 +260,8 @@ class BaoStockProcessor:
 
         self.data_type_conversion(result)
 
+        result = result.dropna()
+
         # 登出系统
         # bs.logout()
         return result
@@ -334,6 +336,9 @@ class BaoStockProcessor:
 
         #     # 数据库同步
         #     self.day_stock_db.delete_data_by_date(null_data_code, first_null_date)
+
+            # 移除空列以便后面合并
+            day_stock_data = day_stock_data.dropna()
         
         now_date = datetime.datetime.now().strftime("%Y-%m-%d")
         if now_date in day_stock_data['日期'].values:
@@ -375,6 +380,8 @@ class BaoStockProcessor:
         
         # print("获取到的新数据：")
         # print(df_new_stock_data)
+
+        df_new_stock_data = df_new_stock_data.dropna()
 
         if not df_new_stock_data.empty:
             # 处理空 DataFrame 的情况
@@ -443,6 +450,8 @@ class BaoStockProcessor:
 
         self.data_type_conversion(result)
 
+        result = result.dropna()
+
         # 登出系统
         # bs.logout()
         return result
@@ -482,6 +491,7 @@ class BaoStockProcessor:
 
         # 步骤一：得到当前数据库中的股票数据
         week_stock_data = self.week_stock_db.get_bao_stock_data(code)
+        week_stock_data = week_stock_data.dropna()
         
         # 最后一行数据日期 + 1，至今有几个周五？一个也没有说明是最新数据，无需更新。
         # now_date = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -521,6 +531,8 @@ class BaoStockProcessor:
 
         # if not df_new_weekly_stock_data.empty:
         #     self.day_stock_db.save_bao_stock_data_to_db(code, df_new_weekly_stock_data, "append")
+
+        df_new_weekly_stock_data = df_new_weekly_stock_data.dropna()
 
         if not df_new_weekly_stock_data.empty:
             # 合并计算指标

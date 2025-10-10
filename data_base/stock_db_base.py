@@ -217,7 +217,7 @@ class StockDbBase:
             with self._get_connection(db_path) as cur:
                 cur.executemany(insert_sql, processed_records)
                 row_count = cur.rowcount
-                print(f"成功向表 {table_name} {if_exists} {row_count} 行数据")
+                # print(f"成功向表 {table_name} {if_exists} {row_count} 行数据")
                 return row_count
                 
         except sqlite3.Error as e:
