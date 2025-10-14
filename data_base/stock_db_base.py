@@ -288,7 +288,7 @@ class StockDbBase:
                     cur.execute(sql, values)
                     inserted_count += cur.rowcount
                     
-            print(f"成功对表 {table_name} 执行 {inserted_count} 次upsert操作")
+            # print(f"成功对表 {table_name} 执行 {inserted_count} 次upsert操作")
             return inserted_count
             
         except sqlite3.Error as e:
