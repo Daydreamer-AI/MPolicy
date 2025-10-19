@@ -4,12 +4,25 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QIcon
 from gui.qt_widgets.main.main_widget import MainWidget
 from resources import resources_rc
+from common.logging_manager import get_logger, setup_logging
 
 # qml
 from PyQt5.QtQml import QQmlApplicationEngine
 from gui.qml.main.main_bridge import MainBridge 
 
 def main():
+    # 初始化日志系统
+    setup_logging(
+        log_dir="logs",
+        level="INFO",  # 开发环境使用 DEBUG, PyQt5会产生大量Debug日志，因此调整为INFO
+        enable_file_log=True,
+        max_bytes=10 * 1024 * 1024,
+        backup_count=5
+    )
+    
+    logger = get_logger(__name__)
+    logger.info("应用程序启动")
+
     # PyQt5
     app = QApplication(sys.argv)  # 创建应用程序对象
     app.setWindowIcon(QIcon(":/app.svg"))
@@ -54,8 +67,17 @@ def main():
     #     label_object.setProperty("text", "你好，这是Python设置的消息！")
 
     # -----------------------------------------------------------------
+    ret = -1
+    try:
+        ret = app.exec_()
+        logger.info("应用程序正常退出")
+        
+    except Exception as e:
+        logger.error(f"应用程序异常退出: {e}")
 
-    sys.exit(app.exec_())          # 进入主事件循环[1,7]
+    # sys.exit(app.exec_())          # 进入主事件循环[1,7]
+    # logger.info("应用程序正常退出")
+    sys.exit(ret)
 
 if __name__ == "__main__":
     main()
