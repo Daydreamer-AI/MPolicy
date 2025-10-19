@@ -507,7 +507,7 @@ class BaoStockProcessor:
         last_date = parsed_date + datetime.timedelta(days=1)
         num_fridays = self.count_fridays_since(last_date.strftime("%Y-%m-%d"))
         if not num_fridays > 0:
-            # self.logger.info("已是最新数据")
+            # self.logger.info("已是最新周线数据")
             return week_stock_data
         
         if self.is_trading_day_today():
@@ -777,124 +777,65 @@ class BaoStockProcessor:
         self.logger.info(f"set_policy_filter_lb--量比：{lb}")
         pf.set_policy_filter_lb(lb)
 
+    def filter_check(self, code, condition=None, b_use_weekly_data=True):
+        if b_use_weekly_data and code not in self.dict_weekly_stock_data.keys():
+            self.logger.info(f"{code} 未在周线数据中")
+            return False
+
+        if condition is None or condition.empty:
+            self.logger.info(f"筛选条件为空")
+            return True
+        else:
+            # 筛选市值大于50亿的股票
+            standard_code = extract_pure_stock_code(code)
+
+            # 根据实际列名调整
+            code_column = 'stock_code' if 'stock_code' in condition.columns else '股票代码'
+            market_value_column = 'float_market_cap' if 'float_market_cap' in condition.columns else '流通市值'
+
+            if code_column not in condition.columns or market_value_column not in condition.columns:
+                self.logger.info(f"condition DataFrame中缺少必要的列，跳过市值筛选，股票代码：{code}")
+                return True
+            else:
+                exists = standard_code in condition[code_column].values
+                if exists:
+                    circulating_market_value = condition.loc[condition[code_column] == standard_code, market_value_column].iloc[0]
+                    if circulating_market_value < 50 * 10000 * 10000:
+                        self.logger.info(f"流通市值小于50亿的股票被过滤掉: {code}")
+                        return False
+                    else:
+                        return True
+
     def daily_up_ma52_filter(self, condition=None):
-        # self.logger.info("dict_daily_stock_data长度：", len(self.dict_daily_stock_data))
-        # self.logger.info("dict_weekly_stock_data长度：", len(self.dict_weekly_stock_data))
-        # self.logger.info("condition长度：", len(condition))
-
-        if condition is not None and not condition.empty:
-            self.logger.info("daily_up_ma52_filter--condition columns:", condition.columns.tolist())  # 添加调试信息
-
         filter_result = []
         self.logger.info("开始执行日线零轴上方MA52筛选，换手率：", pf.get_policy_filter_turn(), ", 量比：", pf.get_policy_filter_lb())
         for code, df_data in self.dict_daily_stock_data.items():
-            if code not in self.dict_weekly_stock_data.keys():
-                self.logger.info(f"{code} 未在周线数据中")
+            if not self.filter_check(code, condition):
                 continue
 
-            if condition is None or condition.empty:
-                self.logger.info(f"筛选条件为空")
-                pass
-            else:
-                # 筛选市值大于50亿的股票
-                standard_code = extract_pure_stock_code(code)
-
-                # 根据实际列名调整
-                code_column = 'stock_code' if 'stock_code' in condition.columns else '股票代码'
-                market_value_column = 'float_market_cap' if 'float_market_cap' in condition.columns else '流通市值'
-
-                if code_column not in condition.columns or market_value_column not in condition.columns:
-                    # self.logger.info(f"condition DataFrame中缺少必要的列，跳过市值筛选")
-                    pass
-                else:
-                    exists = standard_code in condition[code_column].values
-                    if exists:
-                        circulating_market_value = condition.loc[condition[code_column] == standard_code, market_value_column].iloc[0]
-                        if circulating_market_value < 50 * 10000 * 10000:
-                            # self.logger.info(f"流通市值小于50亿的股票被过滤掉: {code}")
-                            continue
-
-
-            # self.logger.info(f"即将筛选股票 {code}")
-            # self.logger.info(df_data.tail(1))
             if pf.daily_up_ma52_filter(df_data, self.dict_weekly_stock_data[code]):
                 filter_result.append(code)
 
         return filter_result
     
     def daily_up_ma24_filter(self, condition=None):
-        if condition is not None and not condition.empty:
-            self.logger.info("daily_up_ma52_filter--condition columns:", condition.columns.tolist())  # 添加调试信息
         filter_result = []
         self.logger.info("开始执行日线零轴上方MA24筛选，换手率：", pf.get_policy_filter_turn(), ", 量比：", pf.get_policy_filter_lb())
         for code, df_data in self.dict_daily_stock_data.items():
-            if code not in self.dict_weekly_stock_data.keys():
-                self.logger.info(f"{code} 未在周线数据中")
+            if not self.filter_check(code, condition):
                 continue
 
-            if condition is None or condition.empty:
-                self.logger.info(f"筛选条件为空")
-                pass
-            else:
-                # 筛选市值大于50亿的股票
-                standard_code = extract_pure_stock_code(code)
-
-                # 根据实际列名调整
-                code_column = 'stock_code' if 'stock_code' in condition.columns else '股票代码'
-                market_value_column = 'float_market_cap' if 'float_market_cap' in condition.columns else '流通市值'
-
-                if code_column not in condition.columns or market_value_column not in condition.columns:
-                    # self.logger.info(f"condition DataFrame中缺少必要的列，跳过市值筛选")
-                    pass
-                else:
-                    exists = standard_code in condition[code_column].values
-                    if exists:
-                        circulating_market_value = condition.loc[condition[code_column] == standard_code, market_value_column].iloc[0]
-                        if circulating_market_value < 50 * 10000 * 10000:
-                            # self.logger.info(f"流通市值小于50亿的股票被过滤掉: {code}")
-                            continue
-
-            # self.logger.info(f"即将筛选股票 {code}")
-            # self.logger.info(df_data.tail(1))
             if pf.daily_up_ma24_filter(df_data, self.dict_weekly_stock_data[code]):
                 filter_result.append(code)
 
         return filter_result
 
     def daily_up_ma10_filter(self, condition=None):
-        if condition is not None and not condition.empty:
-            self.logger.info("daily_up_ma52_filter--condition columns:", condition.columns.tolist())  # 添加调试信息
         filter_result = []
         self.logger.info("开始执行日线零轴上方MA10筛选，换手率：", pf.get_policy_filter_turn(), ", 量比：", pf.get_policy_filter_lb())
         for code, df_data in self.dict_daily_stock_data.items():
-            # if code not in self.dict_weekly_stock_data.keys():
-            #     self.logger.info(f"{code} 未在周线数据中")
-            #     continue
-
-            if condition is None or condition.empty:
-                self.logger.info(f"筛选条件为空")
-                pass
-            else:
-                # 筛选市值大于50亿的股票
-                standard_code = extract_pure_stock_code(code)
-
-                # 根据实际列名调整
-                code_column = 'stock_code' if 'stock_code' in condition.columns else '股票代码'
-                market_value_column = 'float_market_cap' if 'float_market_cap' in condition.columns else '流通市值'
-
-                if code_column not in condition.columns or market_value_column not in condition.columns:
-                    # self.logger.info(f"condition DataFrame中缺少必要的列，跳过市值筛选")
-                    pass
-                else:
-                    exists = standard_code in condition[code_column].values
-                    if exists:
-                        circulating_market_value = condition.loc[condition[code_column] == standard_code, market_value_column].iloc[0]
-                        if circulating_market_value < 50 * 10000 * 10000:
-                            # self.logger.info(f"流通市值小于50亿的股票被过滤掉: {code}")
-                            continue
-
-            # self.logger.info(f"即将筛选股票 {code}")
-            # self.logger.info(df_data.tail(1))
+            if not self.filter_check(code, condition, False):
+                continue
 
             if pf.daily_up_ma10_filter(df_data):
                 filter_result.append(code)
@@ -902,38 +843,12 @@ class BaoStockProcessor:
         return filter_result
     
     def daily_down_between_ma24_ma52_filter(self, condition=None):
-        if condition is not None and not condition.empty:
-            self.logger.info("daily_up_ma52_filter--condition columns:", condition.columns.tolist())  # 添加调试信息
+        
         filter_result = []
         self.logger.info("开始执行日线零轴下方方MA24-MA52筛选，换手率：", pf.get_policy_filter_turn(), ", 量比：", pf.get_policy_filter_lb())
         for code, df_data in self.dict_daily_stock_data.items():
-            # self.logger.info(f"即将筛选股票 {code}")
-            # self.logger.info(df_data.tail(1))
-            if code not in self.dict_weekly_stock_data.keys():
-                self.logger.info(f"{code} 未在周线数据中")
+            if not self.filter_check(code, condition):
                 continue
-
-            if condition is None or condition.empty:
-                self.logger.info(f"筛选条件为空")
-                pass
-            else:
-                # 筛选市值大于50亿的股票
-                standard_code = extract_pure_stock_code(code)
-
-                # 根据实际列名调整
-                code_column = 'stock_code' if 'stock_code' in condition.columns else '股票代码'
-                market_value_column = 'float_market_cap' if 'float_market_cap' in condition.columns else '流通市值'
-
-                if code_column not in condition.columns or market_value_column not in condition.columns:
-                    # self.logger.info(f"condition DataFrame中缺少必要的列，跳过市值筛选")
-                    pass
-                else:
-                    exists = standard_code in condition[code_column].values
-                    if exists:
-                        circulating_market_value = condition.loc[condition[code_column] == standard_code, market_value_column].iloc[0]
-                        if circulating_market_value < 50 * 10000 * 10000:
-                            # self.logger.info(f"流通市值小于50亿的股票被过滤掉: {code}")
-                            continue
 
             if pf.daily_down_between_ma24_ma52_filter(df_data, self.dict_weekly_stock_data[code]):
                 filter_result.append(code)
@@ -941,44 +856,55 @@ class BaoStockProcessor:
         return filter_result
     
     def daily_down_between_ma5_ma52_filter(self, condition=None):
-        if condition is not None and not condition.empty:
-            self.logger.info("daily_up_ma52_filter--condition columns:", condition.columns.tolist())  # 添加调试信息
+        
         filter_result = []
         self.logger.info("开始执行日线零轴下方方MA5-MA52筛选，换手率：", pf.get_policy_filter_turn(), ", 量比：", pf.get_policy_filter_lb())
         for code, df_data in self.dict_daily_stock_data.items():
-            # self.logger.info(f"即将筛选股票 {code}")
-            # self.logger.info(df_data.tail(1))
-            if code not in self.dict_weekly_stock_data.keys():
-                self.logger.info(f"{code} 未在周线数据中")
+            if not self.filter_check(code, condition):
                 continue
-
-            if condition is None or condition.empty:
-                self.logger.info(f"筛选条件为空")
-                pass
-            else:
-                # 筛选市值大于50亿的股票
-                standard_code = extract_pure_stock_code(code)
-
-                # 根据实际列名调整
-                code_column = 'stock_code' if 'stock_code' in condition.columns else '股票代码'
-                market_value_column = 'float_market_cap' if 'float_market_cap' in condition.columns else '流通市值'
-
-                if code_column not in condition.columns or market_value_column not in condition.columns:
-                    # self.logger.info(f"condition DataFrame中缺少必要的列，跳过市值筛选")
-                    pass
-                else:
-                    exists = standard_code in condition[code_column].values
-                    if exists:
-                        circulating_market_value = condition.loc[condition[code_column] == standard_code, market_value_column].iloc[0]
-                        if circulating_market_value < 50 * 10000 * 10000:
-                            # self.logger.info(f"流通市值小于50亿的股票被过滤掉: {code}")
-                            continue
 
             if pf.daily_down_between_ma5_ma52_filter(df_data, self.dict_weekly_stock_data[code]):
                 filter_result.append(code)
 
         return filter_result
     
+
+    def daily_down_breakthrough_ma24_filter(self, condition=None):
+        filter_result = []
+        self.logger.info("开始执行日线零轴下方MA24突破筛选，换手率：", pf.get_policy_filter_turn(), ", 量比：", pf.get_policy_filter_lb())
+        for code, df_data in self.dict_daily_stock_data.items():
+            if not self.filter_check(code, condition, False):
+                continue
+
+            if pf.daily_down_breakthrough_ma24_filter(df_data):
+                filter_result.append(code)
+
+        return filter_result
+
+    def daily_down_breakthrough_ma52_filter(self, condition=None):
+        filter_result = []
+        self.logger.info("开始执行日线零轴下方MA52突破筛选，换手率：", pf.get_policy_filter_turn(), ", 量比：", pf.get_policy_filter_lb())
+        for code, df_data in self.dict_daily_stock_data.items():
+            if not self.filter_check(code, condition, False):
+                continue
+
+            if pf.daily_down_breakthrough_ma52_filter(df_data):
+                filter_result.append(code)
+
+        return filter_result
+
+    def daily_down_double_bottom_filter(self, condition=None):
+        filter_result = []
+        self.logger.info("开始执行日线零轴下方双底筛选，换手率：", pf.get_policy_filter_turn(), ", 量比：", pf.get_policy_filter_lb())
+        for code, df_data in self.dict_daily_stock_data.items():
+            if not self.filter_check(code, condition, False):
+                continue
+
+            if pf.daily_down_double_bottom_filter(df_data):
+                filter_result.append(code)
+
+        return filter_result
+
     def stop_process(self):
         self.b_stop_process = True
 

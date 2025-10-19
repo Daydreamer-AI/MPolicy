@@ -562,3 +562,12 @@ def daily_down_between_ma5_ma52_filter(df_daily_data, df_weekly_data):
         return True
     
     return False
+
+def daily_down_breakthrough_ma24_filter(df_daily_data):
+    pass
+
+def daily_down_breakthrough_ma52_filter(df_daily_data):
+    pass
+
+def daily_down_double_bottom_filter(df_daily_data):
+    pass
