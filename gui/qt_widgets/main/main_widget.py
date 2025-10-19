@@ -29,12 +29,17 @@ class MainWidget(QWidget):
 
         # AKShare
         self.btn_get_akshare_stocks_info.clicked.connect(self.slot_btn_get_akshare_stocks_info_clicked)
-        self.btn_update_ths_board_industry_data.clicked.connect(self.slot_btn_update_ths_board_industry_data_clicked)
+
         self.btn_update_sh_main_data.clicked.connect(self.slot_btn_update_sh_main_data_clicked)
         self.btn_update_sz_main_data.clicked.connect(self.slot_btn_update_sz_main_data_clicked)
         self.btn_update_gem_data.clicked.connect(self.slot_btn_update_gem_data_clicked)
         self.btn_update_star_data.clicked.connect(self.slot_btn_update_star_data_clicked)
         self.btn_update_weekly_data.clicked.connect(self.slot_btn_update_weekly_data_clicked)
+
+        self.btn_update_float_cap.clicked.connect(self.slot_btn_update_float_cap_clicked)
+        self.btn_query_float_cap.clicked.connect(self.slot_btn_query_float_cap_clicked)
+        self.btn_update_ths_board_industry_data.clicked.connect(self.slot_btn_update_ths_board_industry_data_clicked)
+        self.btn_query_ths_board_industry_data.clicked.connect(self.slot_btn_query_ths_board_industry_data_clicked)
         self.btn_update_chip_distribution_data_eastmoney.clicked.connect(self.slot_btn_update_chip_distribution_data_eastmoney_clicked)
         self.btn_get_chip_distribution_data_eastmoney.clicked.connect(self.slot_btn_get_chip_distribution_data_eastmoney_clicked)
 
@@ -42,12 +47,16 @@ class MainWidget(QWidget):
         self.btn_daily_up_ma52_filter.clicked.connect(self.slot_btn_daily_up_ma52_filter_clicked)
         self.btn_daily_up_ma24_filter.clicked.connect(self.slot_btn_daily_up_ma24_filter_clicked)
         self.btn_daily_up_ma10_filter.clicked.connect(self.slot_btn_daily_up_ma10_filter_clicked)
+
         self.btn_daily_down_ma52_filter.clicked.connect(self.slot_btn_daily_down_ma52_filter_clicked)
         self.btn_daily_down_ma5_filter.clicked.connect(self.slot_btn_daily_down_ma5_filter_clicked)
+        self.btn_daily_down_breakthrough_ma24.clicked.connect(self.slot_btn_daily_down_breakthrough_ma24_clicked)
+        self.btn_daily_down_breakthrough_ma52.clicked.connect(self.slot_btn_daily_down_breakthrough_ma52_clicked)
+        self.btn_daily_down_double_bottom.clicked.connect(self.slot_btn_daily_down_double_bottom_clicked)
 
         self.btn_stop.clicked.connect(self.slot_btn_stop_clicked)
-
         self.btn_policy_filter_setting.clicked.connect(self.slot_btn_policy_filter_setting_clicked)
+
         self.init_processors()
     
     def init_processors(self):
@@ -85,146 +94,186 @@ class MainWidget(QWidget):
     # Baostock
     @pyqtSlot()
     def slot_btn_get_all_stocks_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_get_all_stocks_clicked")
+        self.logger.info("Baostock--获取A股所有股票数据基本信息")
         BaoStockProcessor().get_and_save_all_stocks_from_bao()
         BaoStockProcessor().get_all_stocks_from_db()
+        self.logger.info("Baostock--获取A股所有股票数据基本信息完成")
 
     @pyqtSlot()
     def slot_btn_query_sh_main_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_query_sh_main_clicked...")
+        self.logger.info("Baostock--查询沪市主板股票数据")
         BaoStockProcessor().process_sh_main_stock_daily_data()
         BaoStockProcessor().process_sh_main_stock_weekly_data()
-        self.logger.info("done")
+        self.logger.info("Baostock--查询沪市主板股票数据完成")
 
     @pyqtSlot()
     def slot_btn_query_sz_main_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_query_sz_main_clicked...")
+        self.logger.info("Baostock--查询深市主板股票数据")
         BaoStockProcessor().process_sz_main_stock_daily_data()
         BaoStockProcessor().process_sz_main_stock_weekly_data()
-        self.logger.info("done")
-
+        self.logger.info("Baostock--查询深市主板股票数据完成")
     @pyqtSlot()
     def slot_btn_query_gem_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_query_gem_clicked...")
+        self.logger.info("Baostock--查询创业板股票数据")
         BaoStockProcessor().process_gem_stock_daily_data()
         BaoStockProcessor().process_gem_stock_weekly_data()
-        self.logger.info("done")
+        self.logger.info("Baostock--查询创业板股票数据完成")
 
     @pyqtSlot()
     def slot_btn_query_star_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_query_star_clicked...")
+        self.logger.info("Baostock--查询科创板股票数据")
         BaoStockProcessor().process_star_stock_daily_data()
         BaoStockProcessor().process_star_stock_weekly_data()
-        self.logger.info("done")
+        self.logger.info("Baostock--查询科创板股票数据")
 
     # =================================================================================AKShare==========================================================================
     @pyqtSlot()
     def slot_btn_get_akshare_stocks_info_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_get_akshare_stocks_info_clicked...")
+        self.logger.info("AKShare--查询A股所有股票级别信息")
         AKStockDataProcessor().get_stocks_info_and_save_to_db()
-    @pyqtSlot()
-    def slot_btn_update_ths_board_industry_data_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_update_ths_board_industry_data_clicked...")
-        AKStockDataProcessor().process_and_save_ths_board_industry()
+        self.logger.info("AKShare--查询A股所有股票级别信息完成")
 
     @pyqtSlot()
     def slot_btn_update_sh_main_data_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_update_sh_main_data_clicked...")
-        result = AKStockDataProcessor().query_ths_board_industry_data()
-        self.logger.info("slot_btn_update_sh_main_data_clicked done.")
-        self.logger.info(result)
+        self.logger.info("AKShare--更新沪市主板股票数据")
+        self.logger.info("AKShare--更新沪市主板股票数据完成")
 
     @pyqtSlot()
     def slot_btn_update_sz_main_data_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_update_sz_main_data_clicked...")
-        result = AKStockDataProcessor().get_latest_ths_board_industry_data()
-        self.logger.info("slot_btn_update_sz_main_data_clicked done.")
-        self.logger.info(result)
+        self.logger.info("AKShare--更新深市主板股票数据")
+        self.logger.info("AKShare--更新深市主板股票数据完成")
 
     @pyqtSlot()
     def slot_btn_update_gem_data_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_update_gem_data_clicked...")
-        AKStockDataProcessor().get_all_stocks_from_eastmoney()
-        self.logger.info("slot_btn_update_gem_data_clicked done.")
+        self.logger.info("AKShare--更新创业板股票数据")
+        self.logger.info("AKShare--更新创业板股票数据完成")
 
     @pyqtSlot()
     def slot_btn_update_star_data_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_update_star_data_clicked...")
-        result = AKStockDataProcessor().query_eastmoney_stock_data()
-        self.logger.info("slot_btn_update_star_data_clicked done.")
-        self.logger.info(result)
+        self.logger.info("AKShare--更新科创板股票数据")
+        self.logger.info("AKShare--更新科创板股票数据完成")
+        
 
     @pyqtSlot()
     def slot_btn_update_weekly_data_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_update_weekly_data_clicked...")
+        self.logger.info("AKShare--更新股票周线数据")
+        self.logger.info("AKShare--更新股票周线数据完成")
+        
+
+    @pyqtSlot()
+    def slot_btn_update_float_cap_clicked(self):
+        # 周更 or 月更，更新所有股票流通市值
+        self.logger.info("AKShare--更新所有股票流通市值")
+        AKStockDataProcessor().get_all_stocks_from_eastmoney()
+        self.logger.info("AKShare--更新所有股票流通市值完成")
+
+    @pyqtSlot()
+    def slot_btn_query_float_cap_clicked(self):
+        self.logger.info("AKShare--查询最后一个交易日所有股票流通市值")
+        # result = AKStockDataProcessor().query_eastmoney_stock_data()
+        # self.logger.info(result)
         result = AKStockDataProcessor().get_latest_eastmoney_stock_data()
-        self.logger.info("slot_btn_update_weekly_data_clicked done.")
         self.logger.info(result)
+        self.logger.info("AKShare--查询最后一个交易日所有股票流通市值完成")
+
+    @pyqtSlot()
+    def slot_btn_update_ths_board_industry_data_clicked(self):
+        self.logger.info("AKShare--更新同花顺行业板块数据")
+        AKStockDataProcessor().process_and_save_ths_board_industry()
+        self.logger.info("AKShare--更新同花顺行业板块数据完成")
+
+    @pyqtSlot()
+    def slot_btn_query_ths_board_industry_data_clicked(self):
+        self.logger.info("AKShare--查询最后一个交易日的同花顺行业板块数据")
+        # result = AKStockDataProcessor().query_ths_board_industry_data()
+        # self.logger.info(result)
+        result = AKStockDataProcessor().get_latest_ths_board_industry_data()
+        self.logger.info(result)
+        self.logger.info("AKShare--查询最后一个交易日的同花顺行业板块数据完成")
 
     @pyqtSlot()
     def slot_btn_update_chip_distribution_data_eastmoney_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_update_chip_distribution_data_eastmoney_clicked...")
+        self.logger.info("AKShare--更新所有股票筹码分布数据")
         AKStockDataProcessor().process_and_insert_eastmoney_stock_chip_distribution_data_to_db()
-        self.logger.info("slot_btn_update_chip_distribution_data_eastmoney_clicked done.")
+        self.logger.info("AKShare--更新所有股票筹码分布数据完成")
 
     @pyqtSlot()
     def slot_btn_get_chip_distribution_data_eastmoney_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_get_chip_distribution_data_eastmoney_clicked...")
+        self.logger.info("AKShare--查询所有股票筹码分布数据")
         AKStockDataProcessor().query_eastmoney_stock_chip_distribution_data()
-        self.logger.info("slot_btn_get_chip_distribution_data_eastmoney_clicked done.")
+        self.logger.info("AKShare--查询所有股票筹码分布数据完成")
 
     # =================================================================================策略筛选=================================================================
     @pyqtSlot()
     def slot_btn_daily_up_ma52_filter_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_daily_up_ma52_filter_clicked...")
+        self.logger.info("执行零轴上方MA52筛选")
         result = BaoStockProcessor().daily_up_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney())
         today_str = datetime.datetime.now().strftime('%m%d')
         save_list_to_txt(result, f"./policy_filter/filter_result/daily_up_ma52/{today_str}.txt", ', ', "零轴上方MA52筛选结果：\n")
-        self.logger.info("daily_up_ma52_filter done.")
+        self.logger.info("零轴上方MA52筛选完成")
         self.logger.info(result)
 
     @pyqtSlot()
     def slot_btn_daily_up_ma24_filter_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_daily_up_ma24_filter_clicked...")
+        self.logger.info("执行零轴上方MA24筛选")
         result = BaoStockProcessor().daily_up_ma24_filter(AKStockDataProcessor().get_stocks_eastmoney())
         today_str = datetime.datetime.now().strftime('%m%d')
         save_list_to_txt(result, f"./policy_filter/filter_result/daily_up_ma24/{today_str}.txt", ', ', "零轴上方MA24筛选结果：\n")
-        self.logger.info("daily_up_ma24_filter done.")
+        self.logger.info("零轴上方MA24筛选完成")
         self.logger.info(result)
 
     @pyqtSlot()
     def slot_btn_daily_up_ma10_filter_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_daily_up_ma10_filter_clicked...")
+        self.logger.info("执行零轴上方MA10筛选")
         result = BaoStockProcessor().daily_up_ma10_filter(AKStockDataProcessor().get_stocks_eastmoney())
         today_str = datetime.datetime.now().strftime('%m%d')
         save_list_to_txt(result, f"./policy_filter/filter_result/daily_up_ma10/{today_str}.txt", ', ', "零轴上方MA10筛选结果：\n")
-        self.logger.info("daily_up_ma10_filter done.")
+        self.logger.info("零轴上方MA10筛选完成")
         self.logger.info(result)
 
     @pyqtSlot()
     def slot_btn_daily_down_ma52_filter_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_daily_down_ma52_filter_clicked...")
+        self.logger.info("执行零轴下方MA52筛选")
         result = BaoStockProcessor().daily_down_between_ma24_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney())
         today_str = datetime.datetime.now().strftime('%m%d')
         save_list_to_txt(result, f"./policy_filter/filter_result/daily_down_ma52/{today_str}.txt", ', ', "零轴下方MA52筛选结果：\n")
-        self.logger.info("daily_down_between_ma24_ma52_filter done.")
+        self.logger.info("零轴下方MA52筛选完成")
         self.logger.info(result)
 
     @pyqtSlot()
     def slot_btn_daily_down_ma5_filter_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_daily_down_ma5_filter_clicked...")
+        self.logger.info("执行零轴下方MA5筛选")
         result = BaoStockProcessor().daily_down_between_ma5_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney())
         today_str = datetime.datetime.now().strftime('%m%d')
         save_list_to_txt(result, f"./policy_filter/filter_result/daily_down_ma5/{today_str}.txt", ', ', "零轴下方MA5筛选结果：\n")
-        self.logger.info("daily_down_between_ma5_ma52_filter done.")
+        self.logger.info("零轴下方MA5筛选完成")
         self.logger.info(result)
+
+    
+    @pyqtSlot()
+    def slot_btn_daily_down_breakthrough_ma24_clicked(self):
+        self.logger.info("执行零轴下方MA24突破筛选")
+        self.logger.info("零轴下方MA24突破筛选完成")
+
+
+    @pyqtSlot()
+    def slot_btn_daily_down_breakthrough_ma52_clicked(self):
+        self.logger.info("执行零轴下方MA52突破筛选")
+        self.logger.info("零轴下方MA52突破筛选完成")
+
+    @pyqtSlot()
+    def slot_btn_daily_down_double_bottom_clicked(self):
+        self.logger.info("执行零轴下方双底筛选")
+        self.logger.info("零轴下方双底筛选完成")
 
     @pyqtSlot()
     def slot_btn_stop_clicked(self):
-        self.plainTextEdit_log.appendPlainText("slot_btn_stop_clicked...")
+        self.logger.info("手动停止所有执行")
         BaoStockProcessor().stop_process()
 
     @pyqtSlot()
     def slot_btn_policy_filter_setting_clicked(self):
+        self.logger.info("点击筛选设置")
         dlg = PolicyFilterSettingDialog()
         dlg.exec()
+        self.logger.info("完成筛选设置")
