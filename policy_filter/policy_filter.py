@@ -564,10 +564,206 @@ def daily_down_between_ma5_ma52_filter(df_daily_data, df_weekly_data):
     return False
 
 def daily_down_breakthrough_ma24_filter(df_daily_data):
-    pass
+    '''
+        日线零轴下方MA24突破筛选
+        筛选逻辑：日线MACD的diff、dea均小于0；最新k线收盘价大于MA24，小于MA52；MA5必须要金叉MA10，MA24小于MA52
+        进场逻辑：回踩MA24进场。
+        止盈：短期看日线MA52压力止盈；若120分钟经过多个单位调整周期调整，且单位调整周期间已明显背离或下跌动能不足，则可做突破日线MA52的趋势行情。
+        止损：跌破MA24清仓离场。
+    '''
+    if df_daily_data.empty:
+        return False
+    
+    if not columns_check(df_daily_data, ('收盘', 'DIF', 'DEA', 'MA5', 'MA10', 'MA24', 'MA52', 'MA60', '换手率', '量比5日')):
+        return False
+    
+    last_day_row = df_daily_data.tail(1)
+    day_close = last_day_row['收盘'].item()
+    day_diff = last_day_row['DIF'].item()
+    day_dea = last_day_row['DEA'].item()
+    day_ma5 = last_day_row['MA5'].item()
+    day_ma10 = last_day_row['MA10'].item()
+    # day_ma20 = last_day_row['MA20'].item()
+    day_ma24 = last_day_row['MA24'].item()
+    # day_ma30 = last_day_row['MA30'].item()
+    day_ma52 = last_day_row['MA52'].item()
+    day_ma60 = last_day_row['MA60'].item()
+    day_turn = last_day_row['换手率'].item()
+    day_lb = last_day_row['量比5日'].item()
+
+    b_ret = day_diff < 0 and day_dea < 0
+    b_ret_2 = day_close >= day_ma24 and day_close <= day_ma60
+    b_ret_3 = day_ma5 >= day_ma10 and day_ma24 < day_ma52
+    if b_ret and b_ret_2 and b_ret_3:
+        # logger.info("符合【日线零轴下方MA24突破】筛选")
+        return True
+    
+    return False
+
 
 def daily_down_breakthrough_ma52_filter(df_daily_data):
-    pass
+    '''
+        日线零轴下方MA52突破筛选
+        筛选逻辑：日线MACD的dea小于0；最新k线收盘价大于MA52且与MA52的差值小于MA52*0.1；MA5必须要金叉MA10，MA24小于MA52
+        进场逻辑：回踩MA52进场。
+        止盈：短期看上面级别（2日、3日、周线）压力止盈；若成功突破上面级别压力，则可做有效反弹的趋势行情。
+        止损：跌破MA52或MA24清仓离场。
+    '''
+    if df_daily_data.empty:
+        return False
+    
+    if not columns_check(df_daily_data, ('收盘', 'DIF', 'DEA', 'MA5', 'MA10', 'MA24', 'MA52', 'MA60', '换手率', '量比5日')):
+        return False
+    
+    last_day_row = df_daily_data.tail(1)
+    day_close = last_day_row['收盘'].item()
+    day_diff = last_day_row['DIF'].item()
+    day_dea = last_day_row['DEA'].item()
+    day_ma5 = last_day_row['MA5'].item()
+    day_ma10 = last_day_row['MA10'].item()
+    # day_ma20 = last_day_row['MA20'].item()
+    day_ma24 = last_day_row['MA24'].item()
+    # day_ma30 = last_day_row['MA30'].item()
+    day_ma52 = last_day_row['MA52'].item()
+    day_ma60 = last_day_row['MA60'].item()
+    day_turn = last_day_row['换手率'].item()
+    day_lb = last_day_row['量比5日'].item()
+
+    b_ret = day_dea <= 0
+    b_ret_2 = day_close >= day_ma52 and (day_close - day_ma52) <= day_ma52 * 0.1
+    b_ret_3 = day_ma5 >= day_ma10 and day_ma5 <= day_ma52 and day_ma24 < day_ma52
+    if b_ret and b_ret_2 and b_ret_3:
+        # logger.info("符合【日线零轴下方MA52突破】筛选")
+        return True
+    
+    return False
 
 def daily_down_double_bottom_filter(df_daily_data):
-    pass
+    '''
+        日线零轴下方双底筛选
+        筛选逻辑：
+            日线MACD的dea小于0；
+            往回找dea第一次下穿零轴k线、diff第一次下穿零轴k线，得到dea第一次下穿零轴到当前位置区间；
+            遍历区间，用收盘价更新最低值及其对应k线、MACD值；
+            判断：
+                当前收盘价大于等于最低值
+                当前收盘价小于MA10
+                MA5小于等于MA24，MA24小于MA52
+
+        进场逻辑：回踩MA24或前低进场。
+        止盈：短期看日线MA52压力止盈；若成功突破日线MA52压力，则可做有效反弹的趋势行情。
+        止损：跌破前低清仓离场。
+    '''
+    if df_daily_data.empty:
+        return False
+    
+    # logger.info(df_daily_data.tail(10))
+    
+    if not columns_check(df_daily_data, ('收盘', 'DIF', 'DEA', 'MA5', 'MA10', 'MA24', 'MA52', 'MA60', '换手率', '量比5日')):
+        return False
+    
+    last_day_row = df_daily_data.tail(1)
+    day_close = last_day_row['收盘'].item()
+    day_diff = last_day_row['DIF'].item()
+    day_dea = last_day_row['DEA'].item()
+    day_ma5 = last_day_row['MA5'].item()
+    day_ma10 = last_day_row['MA10'].item()
+    # day_ma20 = last_day_row['MA20'].item()
+    day_ma24 = last_day_row['MA24'].item()
+    # day_ma30 = last_day_row['MA30'].item()
+    day_ma52 = last_day_row['MA52'].item()
+    day_ma60 = last_day_row['MA60'].item()
+    day_turn = last_day_row['换手率'].item()
+    day_lb = last_day_row['量比5日'].item()
+
+    if day_diff >= 0 or day_dea >= 0 and day_ma24 >= day_ma52:
+        return False
+
+    # logger.info("find_lowest_after_dea_cross_below_zero")
+    lowest_result = find_lowest_after_dea_cross_below_zero(df_daily_data)
+    lowest_value = lowest_result['lowest_value']
+
+    b_ret = day_diff <= 0 and day_dea < 0
+    b_ret_2 = day_close > lowest_value and day_close <= day_ma10 and day_close < day_ma24 and day_close < day_ma52
+    b_ret_3 = day_ma5 <= day_ma24 and day_ma24 < day_ma52
+    if b_ret and b_ret_2 and b_ret_3:
+        # logger.info("符合【日线零轴下方双底】筛选")
+        return True
+    
+    return False
+
+def find_lowest_after_dea_cross_below_zero(df_daily_data):
+    '''
+    从最后的日期k线开始往前遍历，找到dea最近一次下穿零轴（小于0）的位置，
+    然后从该位置往后遍历，判断该位置到最后这段区间内的日k的最低值
+    
+    Args:
+        df_daily_data (pandas.DataFrame): 日线股票数据
+        
+    Returns:
+        dict: 包含以下键值的字典：
+            - found (bool): 是否找到DEA下穿零轴的情况
+            - cross_index (int): DEA下穿零轴的位置索引
+            - lowest_value (float): 区间内的最低值
+            - lowest_index (int): 最低值的位置索引
+            - lowest_date (str): 最低值对应的日期
+    '''
+    # 初始化返回结果
+    result = {
+        'found': False,
+        'cross_index': -1,
+        'lowest_value': float('inf'),
+        'lowest_index': -1,
+        'lowest_date': None
+    }
+    
+    # 检查数据是否为空
+    if df_daily_data.empty:
+        logger.info("日线数据为空")
+        return result
+    
+    # 检查是否包含必要的列
+    if not columns_check(df_daily_data, ('股票代码', 'DEA', '最低')):
+        logger.info("缺少必要的列：股票代码 或 DEA 或 最低")
+        return result
+    
+    # 因为数据已按日期排序（最后一行是最新的日期），所以直接使用原数据
+    df_data = df_daily_data
+    
+    # 从最后的日期开始往前遍历，找到DEA最近一次下穿零轴的位置
+    cross_index = -1
+    for i in range(len(df_data) - 1, 0, -1):  # 从倒数第二个开始，避免索引越界
+        current_dea = df_data.iloc[i]['DEA']
+        previous_dea = df_data.iloc[i-1]['DEA']
+        
+        # 判断是否为下穿零轴：当前DEA<=0 且 前一个DEA>0
+        if current_dea <= 0 and previous_dea > 0:
+            cross_index = i
+            break
+    
+    # 如果没有找到下穿零轴的情况
+    if cross_index == -1:
+        # logger.info("未找到DEA下穿零轴的情况")
+        return result
+    
+    # 从下穿零轴的位置到最后一个位置，查找最低值
+    lowest_value = float('inf')
+    lowest_index = -1
+    
+    for i in range(cross_index, len(df_data)):
+        low_price = df_data.iloc[i]['最低']
+        if low_price < lowest_value:
+            lowest_value = low_price
+            lowest_index = i
+    
+    # 设置返回结果
+    result['found'] = True
+    result['cross_index'] = cross_index
+    result['lowest_value'] = lowest_value
+    result['lowest_index'] = lowest_index
+    result['lowest_date'] = df_data.index[lowest_index] if lowest_index >= 0 else None
+    
+    code = df_data.iloc[-1]['股票代码']
+    # logger.info(f"找到 {code} DEA下穿零轴位置: {cross_index}, 区间最低值: {lowest_value}, 最低值位置: {lowest_index}")
+    
+    return result

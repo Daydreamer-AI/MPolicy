@@ -254,6 +254,7 @@ class MainWidget(QWidget):
     def slot_btn_daily_down_breakthrough_ma24_clicked(self):
         self.logger.info("执行零轴下方MA24突破筛选")
         result = BaoStockProcessor().daily_down_breakthrough_ma24_filter(AKStockDataProcessor().get_stocks_eastmoney())
+        self.logger.info(result)
         today_str = datetime.datetime.now().strftime('%m%d')
         save_list_to_txt(result, f"./policy_filter/filter_result/daily_down_breakthrough_ma24_filter/{today_str}.txt", ', ', "零轴下方MA24突破筛选结果：\n")
         self.logger.info("零轴下方MA24突破筛选完成")
@@ -263,6 +264,7 @@ class MainWidget(QWidget):
     def slot_btn_daily_down_breakthrough_ma52_clicked(self):
         self.logger.info("执行零轴下方MA52突破筛选")
         result = BaoStockProcessor().daily_down_breakthrough_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney())
+        self.logger.info(result)
         today_str = datetime.datetime.now().strftime('%m%d')
         save_list_to_txt(result, f"./policy_filter/filter_result/daily_down_breakthrough_ma52_filter/{today_str}.txt", ', ', "零轴下方MA52突破筛选结果：\n")
         self.logger.info("零轴下方MA52突破筛选完成")
@@ -271,6 +273,7 @@ class MainWidget(QWidget):
     def slot_btn_daily_down_double_bottom_clicked(self):
         self.logger.info("执行零轴下方双底筛选")
         result = BaoStockProcessor().daily_down_double_bottom_filter(AKStockDataProcessor().get_stocks_eastmoney())
+        self.logger.info(result)
         today_str = datetime.datetime.now().strftime('%m%d')
         save_list_to_txt(result, f"./policy_filter/filter_result/daily_down_double_bottom_filter/{today_str}.txt", ', ', "零轴下方双底筛选结果：\n")
         self.logger.info("零轴下方双底筛选完成")
