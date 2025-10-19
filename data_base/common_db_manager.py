@@ -7,6 +7,8 @@ import threading
 import time
 import numpy as np
 
+from common.logging_manager import get_logger
+
 class CommonDBManagerPool:
     """管理多个 StockDBManager 实例的池（单例模式）"""
     
@@ -63,6 +65,7 @@ class CommonDBManager:
     _cache_lock = threading.Lock()  # 缓存锁
 
     def __init__(self, db_path=''):
+        self.logger = get_logger(__name__)
         self.db_path = os.path.abspath(db_path)  # 转为绝对路径
         self._ensure_db_directory()  # 确保目录存在
 
@@ -77,7 +80,7 @@ class CommonDBManager:
         self._start_cleanup_timer()         # 启动清理定时器
 
         self._init_db()
-        print("CommonDBManager--初始化完成")
+        self.logger.info("CommonDBManager--初始化完成")
 
     def _ensure_db_directory(self):
         """确保数据库目录存在且有写入权限"""
@@ -85,7 +88,7 @@ class CommonDBManager:
         if not os.path.exists(db_dir):
             try:
                 os.makedirs(db_dir, exist_ok=True)  # 递归创建目录
-                print(f"创建目录: {db_dir}")
+                self.logger.info(f"创建目录: {db_dir}")
             except OSError as e:
                 raise PermissionError(f"无法创建目录 {db_dir}: {str(e)}")
         
@@ -124,10 +127,10 @@ class CommonDBManager:
             
             # 关闭超时连接
             if idle_threads:
-                print(f"清理了 {len(idle_threads)} 个空闲数据库连接")
+                self.logger.info(f"清理了 {len(idle_threads)} 个空闲数据库连接")
                 
         except Exception as e:
-            print(f"清理空闲连接时出错: {e}")
+            self.logger.info(f"清理空闲连接时出错: {e}")
         finally:
             # 重新启动定时器
             self._start_cleanup_timer()
@@ -238,9 +241,9 @@ class CommonDBManager:
             with self._lock:
                 self._connection_timestamps.clear()
                 
-            print("已强制清理所有数据库连接")
+            self.logger.info("已强制清理所有数据库连接")
         except Exception as e:
-            print(f"强制清理所有连接时出错: {e}")
+            self.logger.info(f"强制清理所有连接时出错: {e}")
 
     def _init_db(self):
         # 建表检查
@@ -272,10 +275,10 @@ class CommonDBManager:
         with self._get_connection() as cur:
             try:
                 cur.execute(create_table_sql)
-                print(f"表 {table_name} 创建成功或已存在")
+                self.logger.info(f"表 {table_name} 创建成功或已存在")
                 return True
             except sqlite3.Error as e:
-                print(f"创建表 {table_name} 失败: {str(e)}")
+                self.logger.info(f"创建表 {table_name} 失败: {str(e)}")
                 raise
 
     def get_table_data(self, table="stock_basic_info"):
@@ -299,7 +302,7 @@ class CommonDBManager:
                 df = pd.DataFrame(rows, columns=column_names)
                 return df
         except Exception as e:
-            print(f"获取股票数据时出错: {str(e)}")
+            self.logger.info(f"获取股票数据时出错: {str(e)}")
             return pd.DataFrame()
     
     def count_sqlite_tables(self, db_path, max_retries: int = 3):
@@ -324,14 +327,14 @@ class CommonDBManager:
                 if "database is locked" in str(e) and attempt < max_retries - 1:
                     # 数据库被锁定，等待后重试
                     wait_time = 0.1 * (attempt + 1)
-                    print(f"数据库 {db_path} 被锁定，等待 {wait_time} 秒后重试...")
+                    self.logger.info(f"数据库 {db_path} 被锁定，等待 {wait_time} 秒后重试...")
                     threading.Event().wait(wait_time)
                     continue
                 else:
-                    print(f"查询数据库 {db_path} 表数量失败: {e}")
+                    self.logger.info(f"查询数据库 {db_path} 表数量失败: {e}")
                     return None
             except sqlite3.Error as e:
-                print(f"查询数据库 {db_path} 表数量时发生错误: {e}")
+                self.logger.info(f"查询数据库 {db_path} 表数量时发生错误: {e}")
                 return None
         
         return None  # 所有重试尝试都失败
@@ -371,7 +374,7 @@ class CommonDBManager:
             raise ValueError("表名不能为空")
         
         if df_data is None or df_data.empty:
-            print(f"警告: 要插入的数据为空，未执行插入操作")
+            self.logger.info(f"警告: 要插入的数据为空，未执行插入操作")
             return 0
         
         if not isinstance(df_data, pd.DataFrame):
@@ -402,11 +405,11 @@ class CommonDBManager:
                                 raise ValueError(f"表 {table_name} 中已存在数据，根据if_exists='fail'参数，操作被终止")
                             elif if_exists == "replace":
                                 cur.execute(f"DELETE FROM {table_name}")
-                                print(f"已清空表 {table_name} 中的 {row_count} 行数据")
+                                self.logger.info(f"已清空表 {table_name} 中的 {row_count} 行数据")
                             elif if_exists == "ignore":
-                                print(f"表 {table_name} 中已存在数据，将忽略重复数据进行插入")
+                                self.logger.info(f"表 {table_name} 中已存在数据，将忽略重复数据进行插入")
                     else:
-                        print(f"表 {table_name} 不存在，将创建新表")
+                        self.logger.info(f"表 {table_name} 不存在，将创建新表")
 
             # 获取DataFrame的列名
             df_columns = list(df_data.columns)
@@ -429,18 +432,18 @@ class CommonDBManager:
                     # 找出DataFrame中有但表中没有的列
                     extra_columns = [col for col in df_columns if col not in table_columns]
                     if extra_columns:
-                        print(f"警告: DataFrame中的以下列在表 {table_name} 中不存在，将被忽略: {extra_columns}")
+                        self.logger.info(f"警告: DataFrame中的以下列在表 {table_name} 中不存在，将被忽略: {extra_columns}")
                     
                     # 找出表中有但DataFrame中没有的列
                     missing_columns = [col for col in table_columns if col not in df_columns]
                     if missing_columns:
-                        print(f"注意: 表 {table_name} 中的以下列在DataFrame中不存在: {missing_columns}")
-                        print("这些列将使用默认值或NULL填充")
+                        self.logger.info(f"注意: 表 {table_name} 中的以下列在DataFrame中不存在: {missing_columns}")
+                        self.logger.info("这些列将使用默认值或NULL填充")
                 
                 if not columns_to_insert:
                     raise ValueError(f"DataFrame的列与表 {table_name} 的列没有匹配项，无法插入数据")
                 
-                print(f"将插入以下列的数据: {columns_to_insert}")
+                self.logger.info(f"将插入以下列的数据: {columns_to_insert}")
                 
                 # 筛选出需要插入的列数据
                 df_filtered = df_data[columns_to_insert].copy()
@@ -479,16 +482,16 @@ class CommonDBManager:
             with self._get_connection() as cur:
                 cur.executemany(insert_sql, processed_records)
                 row_count = cur.rowcount
-                print(f"成功向表 {table_name} {if_exists} {row_count} 行数据")
+                self.logger.info(f"成功向表 {table_name} {if_exists} {row_count} 行数据")
                 return row_count
                 
         except sqlite3.Error as e:
             error_msg = f"向表 {table_name} 插入数据时发生数据库错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
         except Exception as e:
             error_msg = f"向表 {table_name} 插入数据时发生错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
 
     def _insert_dataframe_fast(self, table_name, df_data, if_exists="replace"):
@@ -530,16 +533,16 @@ class CommonDBManager:
             with self._get_connection() as cur:
                 cur.executemany(insert_sql, processed_records)
                 row_count = cur.rowcount
-                print(f"快速插入完成，向表 {table_name} 插入 {row_count} 行数据")
+                self.logger.info(f"快速插入完成，向表 {table_name} 插入 {row_count} 行数据")
                 return row_count
                 
         except sqlite3.Error as e:
             error_msg = f"快速向表 {table_name} 插入数据时发生数据库错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
         except Exception as e:
             error_msg = f"快速向表 {table_name} 插入数据时发生错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
 
     def _get_table_columns(self, table_name):
@@ -556,7 +559,7 @@ class CommonDBManager:
                 columns_info = cur.fetchall()
                 table_columns = [col[1] for col in columns_info]  # 第二列是列名
             except sqlite3.Error:
-                print(f"无法获取表 {table_name} 的列信息")
+                self.logger.info(f"无法获取表 {table_name} 的列信息")
         return table_columns
 
     def _get_table_columns_cached(self, table_name):
@@ -586,7 +589,7 @@ class CommonDBManager:
         """
         with self._cache_lock:
             self._table_columns_cache.clear()
-        print("已清空表结构缓存")
+        self.logger.info("已清空表结构缓存")
 
     def batch_insert_dataframes(self, table_name, df_list, if_exists="replace", validate_columns=True):
         """
@@ -604,7 +607,7 @@ class CommonDBManager:
         db_manager.batch_insert_dataframes("users", df_list, if_exists="append")
         """
         if not df_list:
-            print("警告: DataFrame列表为空，未执行插入操作")
+            self.logger.info("警告: DataFrame列表为空，未执行插入操作")
             return 0
         
         total_inserted = 0
@@ -618,7 +621,7 @@ class CommonDBManager:
             # 对每个DataFrame执行插入操作
             for i, df_data in enumerate(df_list):
                 if df_data is None or df_data.empty:
-                    print(f"警告: DataFrame列表中第 {i+1} 个DataFrame为空，跳过")
+                    self.logger.info(f"警告: DataFrame列表中第 {i+1} 个DataFrame为空，跳过")
                     continue
                 
                 try:
@@ -628,15 +631,15 @@ class CommonDBManager:
                     )
                     total_inserted += inserted_count
                 except Exception as e:
-                    print(f"插入第 {i+1} 个DataFrame时出错: {str(e)}")
+                    self.logger.info(f"插入第 {i+1} 个DataFrame时出错: {str(e)}")
                     continue
                     
-            print(f"批量插入完成，总共向表 {table_name} 插入 {total_inserted} 行数据")
+            self.logger.info(f"批量插入完成，总共向表 {table_name} 插入 {total_inserted} 行数据")
             return total_inserted
             
         except Exception as e:
             error_msg = f"批量插入数据时发生错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
 
     def _insert_single_dataframe_with_columns(self, table_name, df_data, if_exists, table_columns, validate_columns):
@@ -732,16 +735,16 @@ class CommonDBManager:
                     cur.execute(sql)
                     
                 row_count = cur.rowcount
-                print(f"成功从表 {table_name} 删除 {row_count} 行数据")
+                self.logger.info(f"成功从表 {table_name} 删除 {row_count} 行数据")
                 return row_count
                 
         except sqlite3.Error as e:
             error_msg = f"从表 {table_name} 删除数据时发生数据库错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
         except Exception as e:
             error_msg = f"从表 {table_name} 删除数据时发生错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
 
     def delete_data_by_ids(self, table_name, ids, id_column="id"):
@@ -759,7 +762,7 @@ class CommonDBManager:
             raise ValueError("表名不能为空")
             
         if not ids:
-            print("警告: ID列表为空，未执行删除操作")
+            self.logger.info("警告: ID列表为空，未执行删除操作")
             return 0
             
         try:
@@ -770,16 +773,16 @@ class CommonDBManager:
             with self._get_connection() as cur:
                 cur.execute(sql, ids)
                 row_count = cur.rowcount
-                print(f"成功从表 {table_name} 删除 {row_count} 行数据")
+                self.logger.info(f"成功从表 {table_name} 删除 {row_count} 行数据")
                 return row_count
                 
         except sqlite3.Error as e:
             error_msg = f"根据ID从表 {table_name} 删除数据时发生数据库错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
         except Exception as e:
             error_msg = f"根据ID从表 {table_name} 删除数据时发生错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
 
     def truncate_table(self, table_name):
@@ -797,16 +800,16 @@ class CommonDBManager:
         try:
             with self._get_connection() as cur:
                 cur.execute(f"DELETE FROM {table_name}")
-                print(f"成功清空表 {table_name}")
+                self.logger.info(f"成功清空表 {table_name}")
                 return True
                 
         except sqlite3.Error as e:
             error_msg = f"清空表 {table_name} 时发生数据库错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
         except Exception as e:
             error_msg = f"清空表 {table_name} 时发生错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
 
     # ======================== 数据更新接口 ========================
@@ -826,7 +829,7 @@ class CommonDBManager:
             raise ValueError("表名不能为空")
             
         if not update_data:
-            print("警告: 更新数据为空，未执行更新操作")
+            self.logger.info("警告: 更新数据为空，未执行更新操作")
             return 0
             
         try:
@@ -847,16 +850,16 @@ class CommonDBManager:
                     cur.execute(sql, values)
                     
                 row_count = cur.rowcount
-                print(f"成功更新表 {table_name} 中的 {row_count} 行数据")
+                self.logger.info(f"成功更新表 {table_name} 中的 {row_count} 行数据")
                 return row_count
                 
         except sqlite3.Error as e:
             error_msg = f"更新表 {table_name} 数据时发生数据库错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
         except Exception as e:
             error_msg = f"更新表 {table_name} 数据时发生错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
 
     def update_data_by_id(self, table_name, record_id, update_data, id_column="id"):
@@ -878,7 +881,7 @@ class CommonDBManager:
             raise ValueError("记录ID不能为空")
             
         if not update_data:
-            print("警告: 更新数据为空，未执行更新操作")
+            self.logger.info("警告: 更新数据为空，未执行更新操作")
             return 0
             
         try:
@@ -892,18 +895,18 @@ class CommonDBManager:
                 cur.execute(sql, values + [record_id])
                 row_count = cur.rowcount
                 if row_count == 0:
-                    print(f"警告: 未找到ID为 {record_id} 的记录进行更新")
+                    self.logger.info(f"警告: 未找到ID为 {record_id} 的记录进行更新")
                 else:
-                    print(f"成功更新表 {table_name} 中ID为 {record_id} 的记录")
+                    self.logger.info(f"成功更新表 {table_name} 中ID为 {record_id} 的记录")
                 return row_count
                 
         except sqlite3.Error as e:
             error_msg = f"根据ID更新表 {table_name} 数据时发生数据库错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
         except Exception as e:
             error_msg = f"根据ID更新表 {table_name} 数据时发生错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
 
     def batch_update_data(self, table_name, update_list, id_column="id"):
@@ -927,7 +930,7 @@ class CommonDBManager:
             raise ValueError("表名不能为空")
             
         if not update_list:
-            print("警告: 更新数据列表为空，未执行更新操作")
+            self.logger.info("警告: 更新数据列表为空，未执行更新操作")
             return 0
             
         try:
@@ -936,12 +939,12 @@ class CommonDBManager:
             with self._get_connection() as cur:
                 for record in update_list:
                     if id_column not in record:
-                        print(f"警告: 记录缺少 {id_column} 字段，跳过该记录")
+                        self.logger.info(f"警告: 记录缺少 {id_column} 字段，跳过该记录")
                         continue
                         
                     record_id = record.pop(id_column)  # 移除ID字段
                     if not record:  # 如果没有其他字段需要更新
-                        print(f"警告: ID为 {record_id} 的记录没有需要更新的字段，跳过该记录")
+                        self.logger.info(f"警告: ID为 {record_id} 的记录没有需要更新的字段，跳过该记录")
                         continue
                     
                     # 构造SET子句
@@ -952,16 +955,16 @@ class CommonDBManager:
                     cur.execute(sql, values + [record_id])
                     updated_count += cur.rowcount
                     
-            print(f"成功批量更新表 {table_name} 中的 {updated_count} 行数据")
+            self.logger.info(f"成功批量更新表 {table_name} 中的 {updated_count} 行数据")
             return updated_count
             
         except sqlite3.Error as e:
             error_msg = f"批量更新表 {table_name} 数据时发生数据库错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
         except Exception as e:
             error_msg = f"批量更新表 {table_name} 数据时发生错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
 
     def upsert_data(self, table_name, data, conflict_columns=None):
@@ -979,7 +982,7 @@ class CommonDBManager:
             raise ValueError("表名不能为空")
             
         if not data:
-            print("警告: 数据为空，未执行操作")
+            self.logger.info("警告: 数据为空，未执行操作")
             return 0
             
         # 确保data是列表格式
@@ -1022,16 +1025,16 @@ class CommonDBManager:
                     cur.execute(sql, values)
                     inserted_count += cur.rowcount
                     
-            print(f"成功对表 {table_name} 执行 {inserted_count} 次upsert操作")
+            self.logger.info(f"成功对表 {table_name} 执行 {inserted_count} 次upsert操作")
             return inserted_count
             
         except sqlite3.Error as e:
             error_msg = f"对表 {table_name} 执行upsert操作时发生数据库错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
         except Exception as e:
             error_msg = f"对表 {table_name} 执行upsert操作时发生错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
 
     def __del__(self):

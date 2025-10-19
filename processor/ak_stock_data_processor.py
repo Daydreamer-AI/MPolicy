@@ -12,6 +12,7 @@ import random
 import time
 from common.common_api import *
 import threading
+from common.logging_manager import get_logger
 
 def singleton(cls):
     """
@@ -42,27 +43,28 @@ class AKStockDataProcessor:
     2. 不维护股票数据，随用随删。
     '''
     def __init__(self):
-        print("AKStockDataProcessor::__init__ begin")
+        self.logger = get_logger(__name__)
+        self.logger.info("AKStockDataProcessor::__init__ begin")
         self.stocks_db = DBManagerPool().get_manager(0)
-        print("AKStockDataProcessor--DBManagerPool().get_manager(0) end")
+        self.logger.info("AKStockDataProcessor--DBManagerPool().get_manager(0) end")
         self.stock_db_base = StockDbBase("./stocks/db/akshare")
 
         self.dict_stocks = {}   # key: 板块，value：板块对应的股票信息（证券代码、证券名称）- pandas.DataFrame对象
         self.df_stocks_eastmoney = pd.DataFrame() # 带有市值信息的股票数据 - pandas.DataFrame对象
         self.dict_chip_distribution_data_eastmoney = {}   # 东方财富的筹码分布数据 - 字典对象，key：股票代码，value： pandas.DataFrame对象
-        print("AKStockDataProcessor::__init__ done")
+        self.logger.info("AKStockDataProcessor::__init__ done")
 
     def initialize(self) -> bool:
-        print("AKStockDataProcessor::initialize begin")
+        self.logger.info("AKStockDataProcessor::initialize begin")
         self.dict_stocks = self.get_stock_info_from_db()
         self.df_stocks_eastmoney = self.stocks_db.get_latest_eastmoney_stock_data()
         # if file_exists('./stocks/excel/stocks_eastmoney.xlsx'):
         #     self.df_stocks_eastmoney = pd.read_excel('./stocks/excel/stocks_eastmoney.xlsx')
         # else:
-        #     print('未找到./stocks/excel/stocks_eastmoney.xlsx')
+        #     self.logger.info('未找到./stocks/excel/stocks_eastmoney.xlsx')
 
         self.query_eastmoney_stock_chip_distribution_data()
-        print("AKStockDataProcessor::initialize done")
+        self.logger.info("AKStockDataProcessor::initialize done")
 
         return True
     
@@ -80,10 +82,10 @@ class AKStockDataProcessor:
         # 获取股票代码和名称
         # 获取A股所有股票代码和名称
         df = ak.stock_info_a_code_name()
-        # print("原始数据验证:\n", df.tail(3))
+        # self.logger.info("原始数据验证:\n", df.tail(3))
 
         df.columns = ['证券代码', '证券名称']
-        # print("验证:\n", df.tail(3))
+        # self.logger.info("验证:\n", df.tail(3))
 
         # 建表。self.stocks_db初始化时已创建
         # self.stocks_db.create_table("stock_basic_info", "CREATE TABLE IF NOT EXISTS stock_basic_info (证券代码 TEXT PRIMARY KEY, 证券名称 TEXT)")
@@ -94,19 +96,19 @@ class AKStockDataProcessor:
     def get_stock_info_from_db(self):
         df_stocks_info = self.stocks_db.get_table_data("stock_basic_info")
         dick_stocks = classify_a_stocks_by_board(df_stocks_info)
-        # print("上海主板股票：", dick_stocks['sh_main'].tail(3))
-        # print("\n")
-        # print("深圳主板股票：", dick_stocks['sz_main'].tail(3))
-        # print("\n")
-        # print("创业板股票：", dick_stocks['gem'].tail(3))
-        # print("\n")
-        # print("科创板股票：", dick_stocks['star'].tail(3))
-        # print("\n")
-        # print("北交所股票：", dick_stocks['bse'].tail(3))
+        # self.logger.info("上海主板股票：", dick_stocks['sh_main'].tail(3))
+        # self.logger.info("\n")
+        # self.logger.info("深圳主板股票：", dick_stocks['sz_main'].tail(3))
+        # self.logger.info("\n")
+        # self.logger.info("创业板股票：", dick_stocks['gem'].tail(3))
+        # self.logger.info("\n")
+        # self.logger.info("科创板股票：", dick_stocks['star'].tail(3))
+        # self.logger.info("\n")
+        # self.logger.info("北交所股票：", dick_stocks['bse'].tail(3))
 
         statistics = get_board_stock_statistics(df_stocks_info)
         for board, count in statistics.items():
-            print(f"{board}: {count} 只股票")
+            self.logger.info(f"{board}: {count} 只股票")
         
         return dick_stocks
 
@@ -120,10 +122,10 @@ class AKStockDataProcessor:
         try:
             df = ak.stock_board_industry_summary_ths()
         except Exception as e:
-            print(f"获取数据失败: {e}")
+            self.logger.info(f"获取数据失败: {e}")
             return False
         
-        # print(df.head(3))
+        # self.logger.info(df.head(3))
 
         # 处理百分比字段
         df['涨跌幅'] = df['涨跌幅'].apply(convert_percentage)
@@ -148,7 +150,7 @@ class AKStockDataProcessor:
 
     def process_and_save_stock_fund_flow_industry(self):
         stock_board_industry_name_em_df = ak.stock_board_industry_name_em()
-        print(stock_board_industry_name_em_df)
+        self.logger.info(stock_board_industry_name_em_df)
 
 
     # --------------------------------------------------------暂无用----------------------------------------------------------
@@ -160,10 +162,10 @@ class AKStockDataProcessor:
     # ------------------------------------------------------------东方财富股票数据表stock_data_eastmoney接口-----------------------------------------
     # 获取A股所有股票信息
     def get_all_stocks_from_eastmoney(self):
-        print(self.df_stocks_eastmoney.tail(3))
+        self.logger.info(self.df_stocks_eastmoney.tail(3))
         today = datetime.datetime.now().strftime('%Y-%m-%d')
         if self.df_stocks_eastmoney is not None and not self.df_stocks_eastmoney.empty and today in self.df_stocks_eastmoney['date'].values:
-            print("已是最新日期数据")
+            self.logger.info("已是最新日期数据")
             return
 
         self.df_stocks_eastmoney = pd.DataFrame()
@@ -176,12 +178,12 @@ class AKStockDataProcessor:
             for index, row in value.iterrows():
                 try:
                     stock_code = row['证券代码']
-                    # print("stock_code的类型：", type(stock_code))
-                    print(f"正在获取第 {index} 只股票：{stock_code}")
+                    # self.logger.info("stock_code的类型：", type(stock_code))
+                    self.logger.info(f"正在获取第 {index} 只股票：{stock_code}")
                     stock_individual_info_em_df = ak.stock_individual_info_em(symbol=stock_code, timeout=30000)
-                    # print("stock_individual_info_em_df的类型：", type(stock_individual_info_em_df))
+                    # self.logger.info("stock_individual_info_em_df的类型：", type(stock_individual_info_em_df))
                     # add_stock_data(self.df_stocks_eastmoney, stock_individual_info_em_df)
-                    # print("stock_individual_info_em_df:", stock_individual_info_em_df)
+                    # self.logger.info("stock_individual_info_em_df:", stock_individual_info_em_df)
 
                     # 将键值对形式的DataFrame转换为一行数据
                     # 方法1: 使用pivot或set_index + unstack
@@ -189,7 +191,7 @@ class AKStockDataProcessor:
                     
                     # 转换为DataFrame的一行
                     stock_row = pd.DataFrame([stock_data])
-                    # print("转换后的数据:", stock_row)
+                    # self.logger.info("转换后的数据:", stock_row)
                     
                     # 合并到总数据中
                     self.df_stocks_eastmoney = pd.concat([self.df_stocks_eastmoney, stock_row], ignore_index=True)
@@ -199,13 +201,13 @@ class AKStockDataProcessor:
                     # time.sleep(sleep_time)
 
                 except Exception as e:
-                    print(f"处理股票 {stock_code} 时出错: {e}")
+                    self.logger.info(f"处理股票 {stock_code} 时出错: {e}")
                     continue
         
         # 打印最后处理的股票数据
         self.df_stocks_eastmoney['日期'] = today
-        print("\n处理后的数据:\n")
-        print(self.df_stocks_eastmoney.tail(3))
+        self.logger.info("\n处理后的数据:\n")
+        self.logger.info(self.df_stocks_eastmoney.tail(3))
         # self.df_stocks_eastmoney.to_excel('./stocks/excel/stocks_eastmoney.xlsx', index=False)
         self.stocks_db.insert_eastmoney_stock_data_to_db(self.df_stocks_eastmoney)
 
@@ -232,23 +234,23 @@ class AKStockDataProcessor:
             if board == "bse" or board == "star":
                 continue
 
-            print(f"正在处理 {board} 数据...")
+            self.logger.info(f"正在处理 {board} 数据...")
             
             db_dir = self.stock_db_base.get_src_db_dir()
             db_dir = db_dir / board
-            print("db_dir: ", db_dir)
+            self.logger.info(f"db_dir: {db_dir}")
             self.stock_db_base.set_db_dir(db_dir)
 
             for index, row in df_data.iterrows():
                 stock_code = row['证券代码']
-                # print("stock_code的类型：", type(stock_code))
+                # self.logger.info("stock_code的类型：", type(stock_code))
 
-                print(f"正在获取第 {index} 只股票的筹码分布信息：{stock_code}")
+                self.logger.info(f"正在获取第 {index} 只股票的筹码分布信息：{stock_code}")
 
                 try:
                     # 注意：stock_cyq_em接口会超时
                     stock_cyq_em_df = ak.stock_cyq_em(symbol=stock_code, adjust="qfq")
-                    # print("stock_cyq_em_df的类型：", stock_cyq_em_df)
+                    # self.logger.info("stock_cyq_em_df的类型：", stock_cyq_em_df)
 
                     # if self.dict_chip_distribution_data_eastmoney[stock_code].empty:
                     #     # 不存在则全量更新
@@ -266,14 +268,14 @@ class AKStockDataProcessor:
 
                     #     # 找到 df1 中的最大日期（最后日期）
                     #     last_date_in_df1 = self.dict_chip_distribution_data_eastmoney[stock_code]['日期'].max()
-                    #     print(f"df1 中的最后日期是: {last_date_in_df1}")
+                    #     self.logger.info(f"df1 中的最后日期是: {last_date_in_df1}")
 
                     #     # 在 df2 中筛选所有日期大于 df1 最后日期的行
                     #     new_data_in_df2 = stock_cyq_em_df[stock_cyq_em_df['日期'] > last_date_in_df1] # 使用布尔索引进行条件筛选[2](@ref)
 
                     #     # 显示新增的数据
-                    #     print(f"df2 中在 {last_date_in_df1} 之后的新增数据行数为: {len(new_data_in_df2)}")
-                    #     print(new_data_in_df2)
+                    #     self.logger.info(f"df2 中在 {last_date_in_df1} 之后的新增数据行数为: {len(new_data_in_df2)}")
+                    #     self.logger.info(new_data_in_df2)
 
                         # # 新增数据添加到数据库中
                         # self.stock_db_base.insert_eastmoney_stock_chip_distribution_data_to_db(stock_code, new_data_in_df2)
@@ -285,7 +287,7 @@ class AKStockDataProcessor:
                     time.sleep(sleep_time)
                     
                 except Exception as e:
-                        print(f"处理股票 {stock_code} 的筹码分布信息时出错: {e}")
+                        self.logger.info(f"处理股票 {stock_code} 的筹码分布信息时出错: {e}")
                         continue
                 
 
@@ -298,7 +300,7 @@ class AKStockDataProcessor:
             
             db_dir = self.stock_db_base.get_src_db_dir()
             db_dir = db_dir / board
-            print("db_dir: ", db_dir)
+            self.logger.info(f"db_dir: {db_dir}")
             self.stock_db_base.set_db_dir(db_dir)
             for index, row in df_data.iterrows():
                 stock_code = row['证券代码']
@@ -317,9 +319,9 @@ if __name__ == "__main__":
     
     # 测试获取最近一个交易日的数据
     # latest_daily_result = process_latest_daily_data(test_stock_code)
-    # print(f"最近交易日数据处理结果: {'成功' if latest_daily_result else '失败'}")
+    # self.logger.info(f"最近交易日数据处理结果: {'成功' if latest_daily_result else '失败'}")
     
     # 测试获取最近一周的周线数据
     # latest_weekly_result = process_latest_weekly_data(test_stock_code)
-    # print(f"最近周线数据处理结果: {'成功' if latest_weekly_result else '失败'}")
+    # self.logger.info(f"最近周线数据处理结果: {'成功' if latest_weekly_result else '失败'}")
     print("stock_data_processor.py run")

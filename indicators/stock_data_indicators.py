@@ -72,8 +72,6 @@ def macd_deviation(stock_data):
     first_diff_down_cross_zero_index = -1
     cur_index = -1
     for index, row in df.iloc[::-1].iterrows():
-        print("row的类型：", type(row))
-
         if cur_index == -1:
             cur_index = index
 

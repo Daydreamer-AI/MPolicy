@@ -3,6 +3,9 @@
 import pandas as pd
 import re
 from pathlib import Path
+from common.logging_manager import get_logger
+
+logger = get_logger(__name__)
 
 class StockCodeAnalyzer:
     """
@@ -249,7 +252,7 @@ class StockCodeAnalyzer:
             'bse': pd.DataFrame()
         }
         
-        print("匹配的列名：", code_column)
+        # logger.info("匹配的列名：", code_column)
 
         # 按板块分类股票
         for index, row in stocks_df.iterrows():
@@ -408,7 +411,7 @@ def file_exists(file_path):
 
     # 检查路径是否存在（可以是文件或目录）
     # if file_path.exists():
-    #     print(f"路径 '{file_path}' 存在")
+    #     logger.info(f"路径 '{file_path}' 存在")
 
     # 检查是否为文件
     return file_path.is_file()
@@ -417,7 +420,7 @@ def dir_exists(dir_path):
     dir_path = Path(dir_path)
     # 检查路径是否存在（可以是文件或目录）
     # if file_path.exists():
-    #     print(f"路径 '{file_path}' 存在")
+    #     logger.info(f"路径 '{file_path}' 存在")
     # 检查是否为目录
     return dir_path.is_dir()
 
@@ -456,11 +459,11 @@ def save_dataframe_to_txt(df_data, file_path, sep='\t', encoding='utf-8', index=
         
         # 保存DataFrame到txt文件
         df_data.to_csv(file_path, sep=sep, encoding=encoding, index=index, header=header)
-        print(f"数据已成功保存到: {file_path}")
+        logger.info(f"数据已成功保存到: {file_path}")
         return True
         
     except Exception as e:
-        print(f"保存数据到 {file_path} 时发生错误: {str(e)}")
+        logger.info(f"保存数据到 {file_path} 时发生错误: {str(e)}")
         return False
 
 def save_dataframe_to_csv(df_data, file_path, sep=',', encoding='utf-8', index=False, header=True):
@@ -494,11 +497,11 @@ def save_dataframe_to_csv(df_data, file_path, sep=',', encoding='utf-8', index=F
         
         # 保存DataFrame到csv文件
         df_data.to_csv(file_path, sep=sep, encoding=encoding, index=index, header=header)
-        print(f"数据已成功保存到: {file_path}")
+        logger.info(f"数据已成功保存到: {file_path}")
         return True
         
     except Exception as e:
-        print(f"保存数据到 {file_path} 时发生错误: {str(e)}")
+        logger.info(f"保存数据到 {file_path} 时发生错误: {str(e)}")
         return False
 
 def save_classified_stocks_to_txt(classified_stocks_dict, base_path="./output/stocks"):
@@ -541,16 +544,16 @@ def save_classified_stocks_to_txt(classified_stocks_dict, base_path="./output/st
                 # 保存数据
                 success = save_dataframe_to_txt(df_data, file_path)
                 if success:
-                    print(f"{board_chinese_name}数据已保存到: {file_path}")
+                    logger.info(f"{board_chinese_name}数据已保存到: {file_path}")
                 else:
-                    print(f"保存{board_chinese_name}数据失败")
+                    logger.info(f"保存{board_chinese_name}数据失败")
             else:
-                print(f"{board_names.get(board_key, board_key)}没有数据需要保存")
+                logger.info(f"{board_names.get(board_key, board_key)}没有数据需要保存")
         
         return True
         
     except Exception as e:
-        print(f"保存分类股票数据时发生错误: {str(e)}")
+        logger.info(f"保存分类股票数据时发生错误: {str(e)}")
         return False
     
 
@@ -594,11 +597,11 @@ def save_list_to_txt(data_list, file_path, separator='\n', str_header=None, enco
             f.write(str_header)
             f.write(content)
         
-        print(f"列表数据已成功保存到: {file_path}")
+        logger.info(f"列表数据已成功保存到: {file_path}")
         return True
         
     except Exception as e:
-        print(f"保存列表数据到 {file_path} 时发生错误: {str(e)}")
+        logger.info(f"保存列表数据到 {file_path} 时发生错误: {str(e)}")
         return False
 
 def save_stock_codes_to_txt(stock_codes, file_path, encoding='utf-8'):
@@ -632,11 +635,11 @@ def save_stock_codes_to_txt(stock_codes, file_path, encoding='utf-8'):
             for code in stock_codes:
                 f.write(str(code) + '\n')
         
-        print(f"股票代码列表已成功保存到: {file_path}")
+        logger.info(f"股票代码列表已成功保存到: {file_path}")
         return True
         
     except Exception as e:
-        print(f"保存股票代码列表到 {file_path} 时发生错误: {str(e)}")
+        logger.info(f"保存股票代码列表到 {file_path} 时发生错误: {str(e)}")
         return False
 
 def save_classified_stock_codes_to_txt(classified_stock_codes_dict, base_path="./output/stock_codes"):
@@ -679,16 +682,16 @@ def save_classified_stock_codes_to_txt(classified_stock_codes_dict, base_path=".
                 # 保存数据
                 success = save_stock_codes_to_txt(stock_codes, file_path)
                 if success:
-                    print(f"{board_chinese_name}股票代码已保存到: {file_path}")
+                    logger.info(f"{board_chinese_name}股票代码已保存到: {file_path}")
                 else:
-                    print(f"保存{board_chinese_name}股票代码失败")
+                    logger.info(f"保存{board_chinese_name}股票代码失败")
             else:
-                print(f"{board_names.get(board_key, board_key)}没有股票代码需要保存")
+                logger.info(f"{board_names.get(board_key, board_key)}没有股票代码需要保存")
         
         return True
         
     except Exception as e:
-        print(f"保存分类股票代码时发生错误: {str(e)}")
+        logger.info(f"保存分类股票代码时发生错误: {str(e)}")
         return False
     
 
@@ -760,9 +763,9 @@ def update_stock_data(df, stock_code, update_data):
         for key, value in update_data.items():
             if key in df.columns:
                 df.loc[mask, key] = value
-        print(f"已更新股票 {stock_code} 的数据")
+        logger.info(f"已更新股票 {stock_code} 的数据")
     else:
-        print(f"未找到股票代码: {stock_code}")
+        logger.info(f"未找到股票代码: {stock_code}")
     return df
 
 def delete_stock_data(df, stock_code):
@@ -770,9 +773,9 @@ def delete_stock_data(df, stock_code):
     original_length = len(df)
     df = df[df['股票代码'] != stock_code]
     if len(df) < original_length:
-        print(f"已删除股票 {stock_code}")
+        logger.info(f"已删除股票 {stock_code}")
     else:
-        print(f"未找到股票代码: {stock_code}")
+        logger.info(f"未找到股票代码: {stock_code}")
     return df
 
 def query_stock_data(df, condition=None):

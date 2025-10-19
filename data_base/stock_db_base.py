@@ -7,6 +7,8 @@ from common.common_api import *
 import threading
 import numpy as np
 
+from common.logging_manager import get_logger
+
 '''
     常规插入：executemany+ 分批提交
     超大数据：DataFrame.to_sql或原生 LOAD DATA/COPY
@@ -24,6 +26,7 @@ class StockDbBase:
             db_dir (str, optional): 数据库目录路径，默认为./stocks/db/day
             
         """
+        self.logger = get_logger(__name__)
         if db_dir is None:
             self.db_dir = Path("./stocks/db/akshare")
         else:
@@ -109,10 +112,10 @@ class StockDbBase:
         with self._get_connection(db_path) as cur:
             try:
                 cur.execute(create_table_sql)
-                print(f"表 {table_name} 创建成功或已存在")
+                self.logger.info(f"表 {table_name} 创建成功或已存在")
                 return True
             except sqlite3.Error as e:
-                print(f"创建表 {table_name} 失败: {str(e)}")
+                self.logger.info(f"创建表 {table_name} 失败: {str(e)}")
                 raise
 
     def get_table_data(self, db_path, table="stock_data"):
@@ -130,7 +133,7 @@ class StockDbBase:
                 df = pd.DataFrame(rows, columns=column_names)
                 return df
         except Exception as e:
-            print(f"获取股票数据时出错: {str(e)}")
+            self.logger.info(f"获取股票数据时出错: {str(e)}")
             return pd.DataFrame()
         
     def insert_dataframe_to_table(self, db_path, table_name, df_data, if_exists="replace"):
@@ -147,7 +150,7 @@ class StockDbBase:
             raise ValueError("表名不能为空")
         
         if df_data is None or df_data.empty:
-            print(f"警告: 要插入的数据为空，未执行插入操作")
+            self.logger.info(f"警告: 要插入的数据为空，未执行插入操作")
             return 0
         
         if not isinstance(df_data, pd.DataFrame):
@@ -171,12 +174,12 @@ class StockDbBase:
                             raise ValueError(f"表 {table_name} 中已存在数据，根据if_exists='fail'参数，操作被终止")
                         elif if_exists == "replace":
                             cur.execute(f"DELETE FROM {table_name}")
-                            print(f"已清空表 {table_name} 中的 {row_count} 行数据")
+                            self.logger.info(f"已清空表 {table_name} 中的 {row_count} 行数据")
                         elif if_exists == "ignore":
                             # 对于ignore模式，我们检查主键冲突，只插入不重复的数据
-                            print(f"表 {table_name} 中已存在数据，将忽略重复数据进行插入")
+                            self.logger.info(f"表 {table_name} 中已存在数据，将忽略重复数据进行插入")
                 else:
-                    print(f"表 {table_name} 不存在，将创建新表")
+                    self.logger.info(f"表 {table_name} 不存在，将创建新表")
 
             # 获取DataFrame的列名
             columns = list(df_data.columns)
@@ -217,16 +220,16 @@ class StockDbBase:
             with self._get_connection(db_path) as cur:
                 cur.executemany(insert_sql, processed_records)
                 row_count = cur.rowcount
-                # print(f"成功向表 {table_name} {if_exists} {row_count} 行数据")
+                # self.logger.info(f"成功向表 {table_name} {if_exists} {row_count} 行数据")
                 return row_count
                 
         except sqlite3.Error as e:
             error_msg = f"向表 {table_name} 插入数据时发生数据库错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
         except Exception as e:
             error_msg = f"向表 {table_name} 插入数据时发生错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
 
 
@@ -245,7 +248,7 @@ class StockDbBase:
             raise ValueError("表名不能为空")
             
         if not data:
-            print("警告: 数据为空，未执行操作")
+            self.logger.info("警告: 数据为空，未执行操作")
             return 0
             
         # 确保data是列表格式
@@ -288,16 +291,16 @@ class StockDbBase:
                     cur.execute(sql, values)
                     inserted_count += cur.rowcount
                     
-            # print(f"成功对表 {table_name} 执行 {inserted_count} 次upsert操作")
+            # self.logger.info(f"成功对表 {table_name} 执行 {inserted_count} 次upsert操作")
             return inserted_count
             
         except sqlite3.Error as e:
             error_msg = f"对表 {table_name} 执行upsert操作时发生数据库错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
         except Exception as e:
             error_msg = f"对表 {table_name} 执行upsert操作时发生错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
 
 
@@ -377,16 +380,16 @@ class StockDbBase:
             bool: 删除成功返回True，否则返回False
         """
         if not self.check_stock_db_exists(stock_code):
-            print(f"股票 {stock_code} 的数据库不存在")
+            self.logger.info(f"股票 {stock_code} 的数据库不存在")
             return False
         
         try:
             db_path = self.get_db_path(stock_code)
             os.remove(db_path)
-            print(f"成功删除股票 {stock_code} 的数据库")
+            self.logger.info(f"成功删除股票 {stock_code} 的数据库")
             return True
         except Exception as e:
-            print(f"删除股票 {stock_code} 数据库时出错: {str(e)}")
+            self.logger.info(f"删除股票 {stock_code} 数据库时出错: {str(e)}")
             return False  
 
     # TODO: 添加股票数据库文件，修改股票数据库文件
@@ -410,7 +413,7 @@ class StockDbBase:
             list: 表字段信息列表
         """
         if not self.check_stock_db_exists(stock_code):
-            print(f"股票 {stock_code} 的数据库不存在")
+            self.logger.info(f"股票 {stock_code} 的数据库不存在")
             return None
         
         allowed_tables = {"stock_data", "user_info", "transaction_log"}  # 合法表名白名单
@@ -426,7 +429,7 @@ class StockDbBase:
             conn.close()
             return columns_info
         except Exception as e:
-            print(f"获取股票 {stock_code} 数据库表结构时出错: {str(e)}")
+            self.logger.info(f"获取股票 {stock_code} 数据库表结构时出错: {str(e)}")
             return None
 
     def check_column_exists(self, stock_code, column_name, table_name="stock_data"):
@@ -472,7 +475,7 @@ class StockDbBase:
             bool: 添加成功返回True，否则返回False
         """
         if not self.check_stock_db_exists(stock_code):
-            print(f"股票 {stock_code} 的数据库不存在")
+            self.logger.info(f"股票 {stock_code} 的数据库不存在")
             return False
         
         allowed_tables = {"stock_data", "user_info", "transaction_log"}  # 合法表名白名单
@@ -482,7 +485,7 @@ class StockDbBase:
         
         # 检查字段是否已存在
         if self.check_column_exists(stock_code, column_name, table_name):
-            print(f"字段 {column_name} 已存在于表 {table_name} 中")
+            self.logger.info(f"字段 {column_name} 已存在于表 {table_name} 中")
             return True
         
         try:
@@ -501,10 +504,10 @@ class StockDbBase:
             conn.commit()
             conn.close()
             
-            print(f"成功为表 {table_name} 添加字段 {column_name} ({column_type})")
+            self.logger.info(f"成功为表 {table_name} 添加字段 {column_name} ({column_type})")
             return True
         except Exception as e:
-            print(f"为表 {table_name} 添加字段 {column_name} 时出错: {str(e)}")
+            self.logger.info(f"为表 {table_name} 添加字段 {column_name} 时出错: {str(e)}")
             return False
 
     def add_columns(self, stock_code, columns_info, table_name="stock_data"):
@@ -522,7 +525,7 @@ class StockDbBase:
             dict: 字段名和添加结果的字典
         """
         if not self.check_stock_db_exists(stock_code):
-            print(f"股票 {stock_code} 的数据库不存在")
+            self.logger.info(f"股票 {stock_code} 的数据库不存在")
             return {}
         
         allowed_tables = {"stock_data", "user_info", "transaction_log"}  # 合法表名白名单
@@ -558,7 +561,7 @@ class StockDbBase:
         # 获取股票数据
         df = self.get_stock_data(stock_code)
         if df is None or df.empty:
-            print(f"无法获取股票 {stock_code} 的数据")
+            self.logger.info(f"无法获取股票 {stock_code} 的数据")
             return False
         
         allowed_tables = {"stock_data", "user_info", "transaction_log"}  # 合法表名白名单
@@ -592,10 +595,10 @@ class StockDbBase:
             conn.commit()
             conn.close()
             
-            print(f"成功计算并添加字段 {column_name} 到表 {table_name}")
+            self.logger.info(f"成功计算并添加字段 {column_name} 到表 {table_name}")
             return True
         except Exception as e:
-            print(f"计算并添加字段 {column_name} 时出错: {str(e)}")
+            self.logger.info(f"计算并添加字段 {column_name} 时出错: {str(e)}")
             return False
 
     # TODO: 修改指定table的指定列，删除指定table指定列 
@@ -615,10 +618,10 @@ class StockDbBase:
             # 重命名表
             cursor.execute(f"ALTER TABLE {old_table_name} RENAME TO {new_table_name};")
             conn.commit()
-            print(f"表名已从 '{old_table_name}' 改为 '{new_table_name}'")
+            self.logger.info(f"表名已从 '{old_table_name}' 改为 '{new_table_name}'")
         
         except sqlite3.OperationalError as e:
-            print(f"操作失败：{e}")
+            self.logger.info(f"操作失败：{e}")
             conn.rollback()
         finally:
             cursor.close()
@@ -669,7 +672,7 @@ class StockDbBase:
             DataFrame: 股票数据，如果数据库不存在则返回None
         """
         if not self.check_stock_db_exists(stock_code):
-            print(f"股票 {stock_code} 的数据库不存在")
+            self.logger.info(f"股票 {stock_code} 的数据库不存在")
             return None
         
         allowed_tables = {"stock_data", "user_info", "transaction_log"}  # 合法表名白名单
@@ -698,7 +701,7 @@ class StockDbBase:
             conn.close()
             return df
         except Exception as e:
-            print(f"获取股票 {stock_code} 数据时出错: {str(e)}")
+            self.logger.info(f"获取股票 {stock_code} 数据时出错: {str(e)}")
             return None
 
     def get_latest_data(self, stock_code, count=1):
@@ -751,7 +754,7 @@ class StockDbBase:
     def save_akshare_stock_data_to_db(self, stock_code, stock_data, writeWay="replace", table_name="stock_data"):
         db_path = self.get_db_path(stock_code)
         if not self.check_stock_db_exists(stock_code):
-            # print(f"股票 {stock_code} 的数据库不存在，自动创建")
+            # self.logger.info(f"股票 {stock_code} 的数据库不存在，自动创建")
             self.create_akshare_table(db_path)
         
         conn = sqlite3.connect(str(db_path))
@@ -780,7 +783,7 @@ class StockDbBase:
     # ------------------------------------------------------------东方财富股票筹码分布表stock_chip_distribution_data_eastmoney接口-----------------------------------------
     def insert_eastmoney_stock_chip_distribution_data_to_db(self, code, df_data, table_name="stock_chip_distribution_data_eastmoney"):
         db_path = self.get_db_path(code)
-        print("insert_eastmoney_stock_chip_distribution_data_to_db--db_path:", db_path)
+        self.logger.info("insert_eastmoney_stock_chip_distribution_data_to_db--db_path:", db_path)
 
         # 检查表是否已存在
         with self._get_connection(db_path) as cur:
@@ -807,7 +810,7 @@ class StockDbBase:
 
         # 如果数据为空，直接返回
         if df_data is None or df_data.empty:
-            print("警告: 要插入的数据为空，未执行插入操作")
+            self.logger.info("警告: 要插入的数据为空，未执行插入操作")
             return True
         
         try:
@@ -823,7 +826,7 @@ class StockDbBase:
             else:
                 df_filtered = df_data
 
-            print(f"插入的数据行数：{len(df_filtered)}")
+            self.logger.info(f"插入的数据行数：{len(df_filtered)}")
             
             # 只有当还有数据需要插入时才执行插入操作
             if not df_filtered.empty:
@@ -831,19 +834,19 @@ class StockDbBase:
                 # 使用原有的 insert_dataframe_to_table 方法，但使用 append 模式
                 self.insert_dataframe_to_table(db_path, table_name, df_filtered, if_exists="append")
             else:
-                print("没有新数据需要插入，更新最后一天数据")
+                self.logger.info("没有新数据需要插入，更新最后一天数据")
                 upserted_count = self.upsert_data(
                     'stock_chip_distribution_data_eastmoney',
                     df_data.tail(1).to_dict('records'),
                     conflict_columns=['日期']
                 )
             
-                print(f"数据upsert完成，处理了 {upserted_count} 条记录")
+                self.logger.info(f"数据upsert完成，处理了 {upserted_count} 条记录")
                 
             return True
             
         except Exception as e:
-            print(f"插入筹码分布数据失败: {e}")
+            self.logger.info(f"插入筹码分布数据失败: {e}")
             return False
 
 
@@ -868,9 +871,9 @@ class StockDbBase:
                     conn
                 ).iloc[0]['max_date']
 
-                # print("latest_date: ", latest_date)
+                # self.logger.info("latest_date: ", latest_date)
                 if not latest_date:
-                    print(f"没有找到最后日期{latest_date}的股票数据", latest_date)
+                    self.logger.info(f"没有找到最后日期{latest_date}的股票数据", latest_date)
                     return pd.DataFrame()
                 
                 # 获取该日期的所有数据
@@ -882,7 +885,7 @@ class StockDbBase:
                 return df
         
         except Exception as e:
-            print(f"查询东方财富股票数据表时出错: {str(e)}")
+            self.logger.info(f"查询东方财富股票数据表时出错: {str(e)}")
             return pd.DataFrame()
 
 
@@ -919,9 +922,9 @@ class StockDbBase:
 
     def get_bao_stock_data(self, stock_code, start_date=None, end_date=None, table_name="stock_data"):
         db_path = self.get_db_path(stock_code)
-        # print("db_path:", db_path)
+        # self.logger.info("db_path:", db_path)
         if not self.check_stock_db_exists(stock_code):
-            print(f"股票 {stock_code} 的数据库不存在")
+            self.logger.info(f"股票 {stock_code} 的数据库不存在")
             return None
         
         allowed_tables = {"stock_data", "user_info", "transaction_log"}  # 合法表名白名单
@@ -952,13 +955,13 @@ class StockDbBase:
         #     conn.close()
         #     return df
         # except Exception as e:
-        #     print(f"获取股票 {stock_code} 数据时出错: {str(e)}")
+        #     self.logger.info(f"获取股票 {stock_code} 数据时出错: {str(e)}")
         #     return None
 
     def save_bao_stock_data_to_db(self, stock_code, stock_data, writeWay="replace", table_name="stock_data"):
         db_path = self.get_db_path(stock_code)
         if not self.check_stock_db_exists(stock_code):
-            # print(f"股票 {stock_code} 的数据库不存在，自动创建")
+            # self.logger.info(f"股票 {stock_code} 的数据库不存在，自动创建")
             self.create_baostock_table(db_path)
 
         self.insert_dataframe_to_table(db_path, table_name, stock_data, writeWay)
@@ -984,16 +987,16 @@ class StockDbBase:
                 cur.execute(sql)
 
                 row_count = cur.rowcount
-                print(f"成功从表 {table_name} 删除 {row_count} 行数据")
+                self.logger.info(f"成功从表 {table_name} 删除 {row_count} 行数据")
                 return row_count
                 
         except sqlite3.Error as e:
             error_msg = f"从表 {table_name} 删除数据时发生数据库错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
         except Exception as e:
             error_msg = f"从表 {table_name} 删除数据时发生错误: {str(e)}"
-            print(error_msg)
+            self.logger.info(error_msg)
             raise
 
 

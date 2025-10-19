@@ -7,6 +7,7 @@ import threading
 import time
 import numpy as np
 from data_base.common_db_manager import CommonDBManager
+from common.logging_manager import get_logger
 
 class DBManagerPool:
     """管理多个 StockDBManager 实例的池（单例模式）"""
@@ -68,12 +69,13 @@ class StockDBManager(CommonDBManager):
     """
     
     def __init__(self, db_type = 0):
+        self.logger = get_logger(__name__)
         self.db_type = db_type
         db_path_tmp = self._get_db_path_by_type(db_type)
         
         # 调用父类构造函数
         super().__init__(db_path_tmp)
-        print("StockDBManager--self._init_db()")
+        self.logger.info("StockDBManager--self._init_db()")
         self._init_db()
 
     def _get_db_path_by_type(self, db_type):
@@ -122,7 +124,7 @@ class StockDBManager(CommonDBManager):
             self.init_baostock_db()
         elif self.db_type == 2:
             self.init_efinance_db()
-        print(f"股票数据库已初始化: {self.db_path}")
+        self.logger.info(f"股票数据库已初始化: {self.db_path}")
 
     # ========================================================================AKShare相关接口========================================================================
     # AKShare
@@ -190,13 +192,13 @@ class StockDBManager(CommonDBManager):
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_stock_data_eastmoney_data_date ON stock_data_eastmoney(date)')
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_stock_data_eastmoney_industry_name ON stock_data_eastmoney(industry)')
                 
-            print("所有索引创建成功")
+            self.logger.info("所有索引创建成功")
             
         except sqlite3.Error as e:
-            print(f"创建索引时发生数据库错误: {str(e)}")
+            self.logger.info(f"创建索引时发生数据库错误: {str(e)}")
             raise
         except Exception as e:
-            print(f"创建索引时发生错误: {str(e)}")
+            self.logger.info(f"创建索引时发生错误: {str(e)}")
             raise
     # ------------------------------------------------------------A股股票信息表接口----------------------------------------------
 
@@ -227,7 +229,7 @@ class StockDBManager(CommonDBManager):
             #     validate_columns=False, fast_mode=False  # 不使用快速模式以确保约束生效
             # )
         
-            # print(f"数据插入完成，处理了 {inserted_count} 条记录")
+            # self.logger.info(f"数据插入完成，处理了 {inserted_count} 条记录")
             # return True
         
             # 方式二：使用 upsert 功能，明确指定冲突列
@@ -237,12 +239,12 @@ class StockDBManager(CommonDBManager):
                 conflict_columns=['industry_name', 'data_date']  # 明确指定冲突检测列
             )
             
-            print(f"数据upsert完成，处理了 {upserted_count} 条记录")
+            self.logger.info(f"数据upsert完成，处理了 {upserted_count} 条记录")
             # return True
 
             
         except Exception as e:
-            print(f"插入数据失败: {e}")
+            self.logger.info(f"插入数据失败: {e}")
             return False
 
     def query_ths_board_industry_data(self, date=None, industry_name=None):
@@ -270,7 +272,7 @@ class StockDBManager(CommonDBManager):
                 rows = cur.fetchall()
                 return pd.DataFrame(rows, columns=column_names)
         except Exception as e:
-            print(f"查询同花顺行业板块一览表时出错: {str(e)}")
+            self.logger.info(f"查询同花顺行业板块一览表时出错: {str(e)}")
             return pd.DataFrame()
 
     def get_latest_ths_board_industry_data(self):
@@ -292,7 +294,7 @@ class StockDBManager(CommonDBManager):
                     return pd.DataFrame()
                     
         except Exception as e:
-            print(f"查询同花顺行业板块一览表时出错: {str(e)}")
+            self.logger.info(f"查询同花顺行业板块一览表时出错: {str(e)}")
             return pd.DataFrame()
     # ------------------------------------------------------------东方财富股票数据表stock_data_eastmoney接口-----------------------------------------
     def insert_eastmoney_stock_data_to_db(self, df_stock_data):
@@ -324,11 +326,11 @@ class StockDBManager(CommonDBManager):
                 conflict_columns=['stock_code', 'date']  # 基于股票代码和日期的冲突检测
             )
             
-            print(f"数据upsert完成，处理了 {upserted_count} 条记录")
+            self.logger.info(f"数据upsert完成，处理了 {upserted_count} 条记录")
             return True
                 
         except Exception as e:
-            print(f"插入数据失败: {e}")
+            self.logger.info(f"插入数据失败: {e}")
             return False
 
     def query_eastmoney_stock_data(self, date=None, stock_code=None, industry_name=None):
@@ -360,7 +362,7 @@ class StockDBManager(CommonDBManager):
                 rows = cur.fetchall()
                 return pd.DataFrame(rows, columns=column_names)
         except Exception as e:
-            print(f"查询东方财富股票数据表时出错: {str(e)}")
+            self.logger.info(f"查询东方财富股票数据表时出错: {str(e)}")
             return pd.DataFrame()
 
     def get_latest_eastmoney_stock_data(self):
@@ -382,7 +384,7 @@ class StockDBManager(CommonDBManager):
                     return pd.DataFrame()
                     
         except Exception as e:
-            print(f"查询东方财富股票数据表时出错: {str(e)}")
+            self.logger.info(f"查询东方财富股票数据表时出错: {str(e)}")
             return pd.DataFrame()
 
     def get_stock_data_by_code(self, stock_code, limit_days=30):
@@ -405,7 +407,7 @@ class StockDBManager(CommonDBManager):
                     return pd.DataFrame()
                     
         except Exception as e:
-            print(f"查询东方财富股票数据表时出错: {str(e)}")
+            self.logger.info(f"查询东方财富股票数据表时出错: {str(e)}")
             return pd.DataFrame()
 
     # ========================================================================BaoStock相关接口========================================================================
@@ -453,10 +455,10 @@ class StockDBManager(CommonDBManager):
                 fast_mode=True
             )
             
-            print(f"成功保存 {inserted_count} 条 {table_name} 股票数据")
+            self.logger.info(f"成功保存 {inserted_count} 条 {table_name} 股票数据")
             return inserted_count
         
-        print(f"没有数据需要保存到 {table_name}")
+        self.logger.info(f"没有数据需要保存到 {table_name}")
         return 0
 
     def get_stocks_with_filter(self, table_name, status_filter=None):
@@ -488,4 +490,4 @@ class StockDBManager(CommonDBManager):
 
 # 测试代码
 if __name__ == "__main__":
-    print("stocks_db_manager.py run")
+    self.logger.info("stocks_db_manager.py run")

@@ -5,6 +5,7 @@ import logging.config
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
 from typing import Dict, Optional, Union
 import json
+from datetime import datetime  # 添加datetime导入
 
 class LogManager:
     """通用的日志管理类，支持多环境配置和模块化日志记录"""
@@ -57,7 +58,8 @@ class LogManager:
         when: str = "midnight",  # 时间轮转间隔
         interval: int = 1,
         json_format: bool = False,
-        config_file: Optional[str] = None
+        config_file: Optional[str] = None,
+        unique_log_file: bool = False  # 新增参数控制是否使用唯一文件名
     ) -> None:
         """
         设置日志系统
@@ -72,6 +74,7 @@ class LogManager:
             interval: 轮转间隔数值
             json_format: 是否使用JSON格式（适合日志分析系统）
             config_file: 外部配置文件路径（JSON或YAML）
+            unique_log_file: 是否为每次运行创建唯一的日志文件名
         """
         if cls._initialized:
             return
@@ -82,7 +85,7 @@ class LogManager:
         else:
             cls._setup_from_parameters(
                 log_dir, level, enable_file_log, max_bytes, 
-                backup_count, when, interval, json_format
+                backup_count, when, interval, json_format, unique_log_file  # 传递新参数
             )
         
         # 设置全局异常处理
@@ -114,7 +117,8 @@ class LogManager:
     @classmethod
     def _setup_from_parameters(
         cls, log_dir: str, level: str, enable_file_log: bool, 
-        max_bytes: int, backup_count: int, when: str, interval: int, json_format: bool
+        max_bytes: int, backup_count: int, when: str, interval: int, 
+        json_format: bool, unique_log_file: bool  # 添加新参数
     ) -> None:
         """通过参数设置日志"""
         config = cls.DEFAULT_CONFIG.copy()
@@ -126,12 +130,21 @@ class LogManager:
         if enable_file_log:
             os.makedirs(log_dir, exist_ok=True)
             
+            # 根据unique_log_file参数决定文件名
+            if unique_log_file:
+                # 使用当前时间生成唯一的日志文件名
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                log_filename = os.path.join(log_dir, f'app_{timestamp}.log')
+            else:
+                # 使用默认的日志文件名
+                log_filename = os.path.join(log_dir, 'app.log')
+            
             # 添加文件处理器
             config['handlers']['file'] = {
                 'class': 'logging.handlers.RotatingFileHandler',
                 'level': level,
                 'formatter': formatter_name,
-                'filename': os.path.join(log_dir, 'app.log'),
+                'filename': log_filename,  # 使用新的文件名
                 'maxBytes': max_bytes,
                 'backupCount': backup_count,
                 'encoding': 'utf-8'

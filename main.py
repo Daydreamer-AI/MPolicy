@@ -12,12 +12,14 @@ from gui.qml.main.main_bridge import MainBridge
 
 def main():
     # 初始化日志系统
+    # 初始化日志系统
     setup_logging(
         log_dir="logs",
-        level="INFO",  # 开发环境使用 DEBUG, PyQt5会产生大量Debug日志，因此调整为INFO
+        level="INFO",
         enable_file_log=True,
         max_bytes=10 * 1024 * 1024,
-        backup_count=5
+        backup_count=5,
+        unique_log_file=True  # 启用唯一日志文件名
     )
     
     logger = get_logger(__name__)

@@ -1,6 +1,9 @@
 import pandas as pd
 from typing import Sequence
 
+from common.logging_manager import get_logger
+logger = get_logger(__name__)
+
 policy_filter_ma5_diff = 0.02
 policy_filter_ma10_diff = 0.02
 policy_filter_ma20_diff = 0.02
@@ -38,15 +41,15 @@ def get_ma5_diff():
 
 def set_policy_filter_turn(turn=3.0):
     global policy_filter_turn
-    # print("设置前换手率：", policy_filter_turn, ", 目标值：", turn)
+    # logger.info("设置前换手率：", policy_filter_turn, ", 目标值：", turn)
     policy_filter_turn = turn
-    # print("设置后换手率：", policy_filter_turn)
+    # logger.info("设置后换手率：", policy_filter_turn)
 
 def set_policy_filter_lb(lb=1.0):
     global policy_filter_lb
-    # print("设置前量比：", policy_filter_lb, ", 目标值：", lb)
+    # logger.info("设置前量比：", policy_filter_lb, ", 目标值：", lb)
     policy_filter_lb = lb
-    # print("设置后量比：", policy_filter_lb)
+    # logger.info("设置后量比：", policy_filter_lb)
 
 def get_ma10_diff():
     return policy_filter_ma10_diff
@@ -73,14 +76,14 @@ def get_policy_filter_lb():
     return policy_filter_lb
 
 def columns_check(df_data, col_names: Sequence[str]) -> bool:
-    # print("df_data.columns:")
-    # print(df_data.columns)
-    # print(col_names)
+    # logger.info("df_data.columns:")
+    # logger.info(df_data.columns)
+    # logger.info(col_names)
     for arg in col_names:
         if arg in df_data.columns:
             continue
         else:
-            print("错误，列不存在：", arg)
+            logger.info("错误，列不存在：", arg)
             return False
     return True
 
@@ -109,21 +112,21 @@ def daily_ma52_filter(df_daily_data):
         day_turn = last_day_row['换手率'].item()
         day_lb = last_day_row['量比5日'].item()
     else:
-        print("错误：日线数据必要的列不存在")
-        print("可用列：", df_daily_data.columns.tolist())
+        logger.info("错误：日线数据必要的列不存在")
+        logger.info("可用列：", df_daily_data.columns.tolist())
         return False  # 或者处理错误情况
     
     day_diff = day_ma52 * policy_filter_ma52_diff
-    # print(f"day_close: {day_close}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
+    # logger.info(f"day_close: {day_close}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
 
     # 修改后条件判断
     if (abs(day_close - day_ma52) < day_diff) and (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb):
     # 执行逻辑
     # if (week_stock_data.tail(1)['收盘'] > week_stock_data.tail(1)['MA52']) and (abs(day_stock_data.tail(1)['收盘'] - day_stock_data.tail(1)['MA52']) < day_stock_data.tail(1)['MA52'] * 1.1):
-        # print("符合日线MA52筛选")
+        # logger.info("符合日线MA52筛选")
         return True
     else:
-        # print("不符合多空逻辑")
+        # logger.info("不符合多空逻辑")
         return False
 
 # 策略待优化  
@@ -146,7 +149,7 @@ def daily_and_weekly_ma52_filter(df_daily_data, df_weekly_data):
         day_turn = last_day_row['换手率'].item()
         day_lb = last_day_row['量比5日'].item()
     else:
-        print("错误：【日线】数据必要的列不存在")
+        logger.info("错误：【日线】数据必要的列不存在")
         return False
 
     week_close = 0.0
@@ -156,14 +159,14 @@ def daily_and_weekly_ma52_filter(df_daily_data, df_weekly_data):
         week_close = last_week_row['收盘'].item()
         week_ma52 = last_week_row['MA52'].item()
     else:
-        print("错误：【周线】数据必要的列不存在")
+        logger.info("错误：【周线】数据必要的列不存在")
         return False
 
     day_diff = day_ma52 * policy_filter_ma52_diff
-    # print(f"day_close: {day_close}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
-    # print(f"week_close: {week_close}, week_ma52: {week_ma52}")
+    # logger.info(f"day_close: {day_close}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
+    # logger.info(f"week_close: {week_close}, week_ma52: {week_ma52}")
     if week_close > week_ma52 and (abs(day_close - day_ma52) < day_diff) and (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb):
-        # print("符合日线&周线MA52筛选")
+        # logger.info("符合日线&周线MA52筛选")
         return True
     else:
         return False
@@ -200,8 +203,8 @@ def daily_ma52_ma24_filter(df_daily_data, df_weekly_data, isUp=False):
         return False
 
     day_diff = day_ma52 * policy_filter_ma52_diff
-    # print(f"day_close: {day_close}, day_dea: {day_dea}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
-    # print(f"week_close: {week_close}, week_ma52: {week_ma52}")
+    # logger.info(f"day_close: {day_close}, day_dea: {day_dea}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
+    # logger.info(f"week_close: {week_close}, week_ma52: {week_ma52}")
 
     b_ret = (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
     b_ret_2 = week_close > week_ma52
@@ -215,7 +218,7 @@ def daily_ma52_ma24_filter(df_daily_data, df_weekly_data, isUp=False):
         b_ret_4 = day_dea < 0
 
     if b_ret and b_ret_2 and b_ret_3 and b_ret_4:
-        # print("符合日线MA24&MA52筛选")
+        # logger.info("符合日线MA24&MA52筛选")
         return True
     
     return False
@@ -232,7 +235,7 @@ def daily_up_ma52_filter(df_daily_data, df_weekly_data):
         止损位：有效跌破日线MA52或MA60清仓离场，等待日线零轴下方或大级别的零轴上方机会。
     '''
     if df_daily_data.empty or df_weekly_data.empty:
-        print("日线或周线数据为空！")
+        logger.info("日线或周线数据为空！")
         return False
     
     day_close = 0.0
@@ -261,7 +264,7 @@ def daily_up_ma52_filter(df_daily_data, df_weekly_data):
         day_turn = last_day_row['换手率'].item()
         day_lb = last_day_row['量比5日'].item()
     else:
-        print("日线列名不存在！")
+        logger.info("日线列名不存在！")
         return False
 
 
@@ -271,12 +274,12 @@ def daily_up_ma52_filter(df_daily_data, df_weekly_data):
         week_dea = last_week_row['DEA'].item()
         week_ma52 = last_week_row['MA52'].item()
     else:
-        print("周线列名不存在！")
+        logger.info("周线列名不存在！")
         return False
 
     # day_diff = day_ma52 * policy_filter_ma52_diff
-    # print(f"day_close: {day_close}, day_dea: {day_dea}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
-    # print(f"week_close: {week_close}, week_ma52: {week_ma52}")
+    # logger.info(f"day_close: {day_close}, day_dea: {day_dea}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
+    # logger.info(f"week_close: {week_close}, week_ma52: {week_ma52}")
 
     b_ret = (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
     b_ret_2 = week_close > week_ma52 and week_dea > 0
@@ -288,14 +291,14 @@ def daily_up_ma52_filter(df_daily_data, df_weekly_data):
     # 优化判断：MA5大于MA52；近2根k线收盘价均大于MA52，小于MA24；
 
     if b_ret and b_ret_2 and b_ret_3 and b_ret_4 and b_ret_5:
-        # print("符合【日线零轴上方MA52】筛选")
+        # logger.info("符合【日线零轴上方MA52】筛选")
         return True
     
-    # print("不符合【日线零轴上方MA52】筛选")
-    # print(f"b_ret: {b_ret}, b_ret_2: {b_ret_2}, b_ret_3: {b_ret_3}, b_ret_4: {b_ret_4}, b_ret_5: {b_ret_5}")
-    # print(f"day_turn: {day_turn}, day_lb: {day_lb}")
-    # print(f"day_dea: {day_dea}, day_close: {day_close}, day_ma52: {day_ma52}, day_ma60: {day_ma60}, day_ma30: {day_ma30}")
-    # print(f"day_ma5: {day_ma5}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, day_ma60: {day_ma60}")
+    # logger.info("不符合【日线零轴上方MA52】筛选")
+    # logger.info(f"b_ret: {b_ret}, b_ret_2: {b_ret_2}, b_ret_3: {b_ret_3}, b_ret_4: {b_ret_4}, b_ret_5: {b_ret_5}")
+    # logger.info(f"day_turn: {day_turn}, day_lb: {day_lb}")
+    # logger.info(f"day_dea: {day_dea}, day_close: {day_close}, day_ma52: {day_ma52}, day_ma60: {day_ma60}, day_ma30: {day_ma30}")
+    # logger.info(f"day_ma5: {day_ma5}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, day_ma60: {day_ma60}")
     return False
 
 # 零轴上方MA24选股法
@@ -343,8 +346,8 @@ def daily_up_ma24_filter(df_daily_data, df_weekly_data):
         return False
 
     # day_diff = day_ma52 * policy_filter_ma52_diff
-    # print(f"day_close: {day_close}, day_dea: {day_dea}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
-    # print(f"week_close: {week_close}, week_ma52: {week_ma52}")
+    # logger.info(f"day_close: {day_close}, day_dea: {day_dea}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
+    # logger.info(f"week_close: {week_close}, week_ma52: {week_ma52}")
 
     b_ret = (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
     b_ret_2 = week_close > week_ma52
@@ -354,7 +357,7 @@ def daily_up_ma24_filter(df_daily_data, df_weekly_data):
     b_ret_5 = day_ma5 <= day_ma10 and day_ma10 >= day_ma24 and day_ma5 >= day_ma24 and day_ma24 > day_ma52
 
     if b_ret and b_ret_2 and b_ret_3 and b_ret_4 and b_ret_5:
-        # print("符合【日线零轴上方MA24】筛选")
+        # logger.info("符合【日线零轴上方MA24】筛选")
         return True
     
     return False
@@ -399,10 +402,10 @@ def daily_up_ma10_filter(df_daily_data):
     b_ret_4 = day_close > day_ma10 and day_close < day_ma5# abs(day_close - day_ma10) < day_ma10 * policy_filter_ma10_diff
 
     day_ma10_diff = day_ma10 * policy_filter_ma10_diff
-    # print(f"day_close: {day_close}, day_dea: {day_dea}, day_ma10: {day_ma10}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, day_ma10_diff: {day_ma10_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
+    # logger.info(f"day_close: {day_close}, day_dea: {day_dea}, day_ma10: {day_ma10}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, day_ma10_diff: {day_ma10_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
 
     if b_ret and b_ret_2 and b_ret_3 and b_ret_4:
-        # print("符合【日线零轴上方MA10】筛选")
+        # logger.info("符合【日线零轴上方MA10】筛选")
         return True
     
     return False
@@ -446,10 +449,10 @@ def daily_up_ma20_filter(df_daily_data):
 
 
     # day_ma20_diff = day_ma20 * policy_filter_ma20_diff
-    # print(f"day_close: {day_close}, day_dea: {day_dea}, day_ma20: {day_ma20}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, day_ma20_diff: {day_ma20_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
+    # logger.info(f"day_close: {day_close}, day_dea: {day_dea}, day_ma20: {day_ma20}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, day_ma20_diff: {day_ma20_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
 
     if b_ret and b_ret_2 and b_ret_3 and b_ret_4:
-        # print("符合【日线零轴上方MA20】筛选")
+        # logger.info("符合【日线零轴上方MA20】筛选")
         return True
     
     return False
@@ -492,8 +495,8 @@ def daily_down_between_ma24_ma52_filter(df_daily_data, df_weekly_data):
     week_ma52 = last_week_row['MA52'].item()
         
     # day_diff = day_ma52 * policy_filter_ma52_diff
-    # print(f"day_close: {day_close}, day_dea: {day_dea}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
-    # print(f"week_close: {week_close}, week_ma52: {week_ma52}")
+    # logger.info(f"day_close: {day_close}, day_dea: {day_dea}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
+    # logger.info(f"week_close: {week_close}, week_ma52: {week_ma52}")
 
     b_ret = (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
     b_ret_2 = week_close > week_ma52 and week_dea > 0
@@ -503,7 +506,7 @@ def daily_down_between_ma24_ma52_filter(df_daily_data, df_weekly_data):
     b_ret_5 = (day_ma24 < day_ma52 or day_ma24 < day_ma60) and day_ma52 <= day_ma60
 
     if b_ret and b_ret_2 and b_ret_3 and b_ret_4 and b_ret_5:
-        # print("符合【日线零轴下方MA52】筛选")
+        # logger.info("符合【日线零轴下方MA52】筛选")
         return True
     
     return False
@@ -544,8 +547,8 @@ def daily_down_between_ma5_ma52_filter(df_daily_data, df_weekly_data):
     week_ma52 = last_week_row['MA52'].item()
         
     # day_diff = day_ma52 * policy_filter_ma52_diff
-    # print(f"day_close: {day_close}, day_dea: {day_dea}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
-    # print(f"week_close: {week_close}, week_ma52: {week_ma52}")
+    # logger.info(f"day_close: {day_close}, day_dea: {day_dea}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
+    # logger.info(f"week_close: {week_close}, week_ma52: {week_ma52}")
 
     b_ret = (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
     b_ret_2 = week_close > week_ma52 and week_dea > 0
@@ -555,7 +558,7 @@ def daily_down_between_ma5_ma52_filter(df_daily_data, df_weekly_data):
     b_ret_5 = (day_ma5 < day_ma52 or day_ma5 < day_ma60) and day_ma52 <= day_ma60
 
     if b_ret and b_ret_2 and b_ret_3 and b_ret_4 and b_ret_5:
-        # print("符合【日线零轴下方MA5】筛选")
+        # logger.info("符合【日线零轴下方MA5】筛选")
         return True
     
     return False

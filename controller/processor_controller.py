@@ -2,9 +2,12 @@ from processor.ak_stock_data_processor import AKStockDataProcessor
 from processor.baostock_processor import BaoStockProcessor
 from common.config_manager import ConfigManager
 
+from common.logging_manager import get_logger
+
 class ProcessorController:
     _instance = None
-    # def __init__(self):
+    def __init__(self):
+        self.logger = get_logger(__name__)
         # self.stock_processor = AKStockDataProcessor()
         # self.bao_stock_processor = BaoStockProcessor()
 
@@ -13,9 +16,9 @@ class ProcessorController:
         # config_manager.set_config_path("./resources/config/config.ini")
         # policy_filter_turn_config = config_manager.getint('PolicyFilter', 'turn', 1)
         # policy_filter_lb_config = config_manager.getint('PolicyFilter', 'lb', 1)
-        # print("turn 的类型: ", type(policy_filter_turn_config))
-        # print("lb 的类型: ", type(policy_filter_lb_config))
-        # print(f"Config from config.ini: {policy_filter_turn_config}, {policy_filter_lb_config}")
+        # self.logger.info("turn 的类型: ", type(policy_filter_turn_config))
+        # self.logger.info("lb 的类型: ", type(policy_filter_lb_config))
+        # self.logger.info(f"Config from config.ini: {policy_filter_turn_config}, {policy_filter_lb_config}")
 
     def __new__(cls):
         if cls._instance is None:
@@ -46,73 +49,73 @@ class ProcessorController:
                 self._is_initialized = False
 
     def test(self):
-        print("ProcessorController test")
+        self.logger.info("ProcessorController test")
 
     # 全量获取
     def process_sh_main_stock_data(self):
-        print("process_sh_main_stock_data")
+        self.logger.info("process_sh_main_stock_data")
         self.bao_stock_processor.process_sh_main_stock_daily_data()
         self.bao_stock_processor.process_sh_main_stock_weekly_data()
 
         # 接口测试
         # friday_count = self.bao_stock_processor.count_fridays_since("2025-08-30")
-        # print("周五个数：", friday_count)
+        # self.logger.info("周五个数：", friday_count)
 
     def process_sz_main_stock_data(self):
-        print("process_sz_main_stock_data")
+        self.logger.info("process_sz_main_stock_data")
         self.bao_stock_processor.process_sz_main_stock_daily_data()
         self.bao_stock_processor.process_sz_main_stock_weekly_data()
 
     def process_gem_stock_data(self):
-        print("process_gem_stock_data")
+        self.logger.info("process_gem_stock_data")
         self.bao_stock_processor.process_gem_stock_daily_data()
         self.bao_stock_processor.process_gem_stock_weekly_data()
 
     def process_star_stock_data(self):
-        print("process_star_stock_data")
+        self.logger.info("process_star_stock_data")
         self.bao_stock_processor.process_star_stock_daily_data()
         self.bao_stock_processor.process_star_stock_weekly_data()
 
     # 增量更新
     def update_sh_main_daily_data(self):
-        print("update_sh_main_daily_data")
+        self.logger.info("update_sh_main_daily_data")
         self.bao_stock_processor.update_sh_main_daily_data()
 
     # 策略筛选
     
 
     def process_daily_up_ma52_filter(self):
-        print("process_daily_up_ma52_filter")
+        self.logger.info("process_daily_up_ma52_filter")
         result = self.bao_stock_processor.daily_up_ma52_filter()
-        print("process_daily_up_ma52_filter done.")
-        print(result)
+        self.logger.info("process_daily_up_ma52_filter done.")
+        self.logger.info(result)
 
     def process_daily_up_ma24_filter(self):
-        print("process_daily_up_ma24_filter")
+        self.logger.info("process_daily_up_ma24_filter")
         result = self.bao_stock_processor.daily_up_ma24_filter()
-        print("process_daily_up_ma24_filter done.")
-        print(result)
+        self.logger.info("process_daily_up_ma24_filter done.")
+        self.logger.info(result)
 
     def process_daily_up_ma10_filter(self):
-        print("process_daily_up_ma10_filter")
+        self.logger.info("process_daily_up_ma10_filter")
         result = self.bao_stock_processor.daily_up_ma10_filter()
-        print("process_daily_up_ma10_filter done.")
-        print(result)
+        self.logger.info("process_daily_up_ma10_filter done.")
+        self.logger.info(result)
 
     def process_daily_down_between_ma24_ma52_filter(self):
-        print("process_daily_down_between_ma24_ma52_filter")
+        self.logger.info("process_daily_down_between_ma24_ma52_filter")
         result = self.bao_stock_processor.daily_down_between_ma24_ma52_filter()
-        print("process_daily_down_between_ma24_ma52_filter done.")
-        print(result)
+        self.logger.info("process_daily_down_between_ma24_ma52_filter done.")
+        self.logger.info(result)
 
     def process_daily_down_between_ma5_ma52_filter(self):
-        print("process_daily_down_between_ma5_ma52_filter")
+        self.logger.info("process_daily_down_between_ma5_ma52_filter")
         result = self.bao_stock_processor.daily_down_between_ma5_ma52_filter()
-        print("process_daily_down_between_ma5_ma52_filter done.")
-        print(result)
+        self.logger.info("process_daily_down_between_ma5_ma52_filter done.")
+        self.logger.info(result)
 
     def stop_process(self):
-        print("stop_process")
+        self.logger.info("stop_process")
         self.bao_stock_processor.stop_process()
     
 

@@ -2,6 +2,7 @@ import configparser
 import threading
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
+from common.logging_manager import get_logger
 
 class ConfigManager:
     """
@@ -23,6 +24,8 @@ class ConfigManager:
         """初始化管理器。真正的初始化在 set_config_path 中完成。"""
         if getattr(self, '__initialized', False):
             return
+        
+        self.logger = get_logger(__name__)
             
         self._config_path = None # 当前管理的配置文件路径
         self._config_data = configparser.ConfigParser() # 内存中的配置数据
@@ -66,7 +69,7 @@ class ConfigManager:
                     self._file_mtime = new_mtime
                 return True
             except (OSError, configparser.Error) as e:
-                print(f"加载配置文件失败: {e}")
+                self.logger.info(f"加载配置文件失败: {e}")
                 # 加载失败，使用空配置，但不改变原有记忆的mtime，防止覆盖
                 self._config_data = configparser.ConfigParser()
                 return False
@@ -74,7 +77,7 @@ class ConfigManager:
             # 文件不存在，初始化一个空配置
             self._config_data = configparser.ConfigParser()
             self._file_mtime = 0
-            print(f"配置文件 '{self._config_path}' 不存在，已初始化空配置。")
+            self.logger.info(f"配置文件 '{self._config_path}' 不存在，已初始化空配置。")
             return False
 
     def _ensure_loaded(self) -> None:
@@ -95,7 +98,7 @@ class ConfigManager:
         with self._lock:
             target_path = Path(save_path) if save_path is not None else self._config_path
             if target_path is None:
-                print("错误：未指定保存路径且当前无管理路径。")
+                self.logger.info("错误：未指定保存路径且当前无管理路径。")
                 return False
 
             try:
@@ -106,7 +109,7 @@ class ConfigManager:
                 self._file_mtime = target_path.stat().st_mtime if target_path.exists() else 0
                 return True
             except (OSError, configparser.Error) as e:
-                print(f"保存配置文件失败: {e}")
+                self.logger.info(f"保存配置文件失败: {e}")
                 return False
 
     def get(self, section: str, key: str, default: Any = None) -> Optional[str]:
@@ -188,4 +191,3 @@ if __name__ == "__main__":
     # 3. 再切回 config_a.ini，内存中的数据会自动更新回 config_a.ini 的内容
     manager.set_config_path('config_a.ini')
     db_host = manager.get('Database', 'host')
-    print(f"Database host from config_a.ini: {db_host}") # 输出: host_a.com

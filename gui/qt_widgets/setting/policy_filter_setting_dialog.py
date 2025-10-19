@@ -6,11 +6,14 @@ from PyQt5.QtCore import QUrl, QObject, pyqtSignal, pyqtSlot
 from gui.qml.setting.policy_filter_setting_bridge import PolicyFilterSettingBridge
 from processor.baostock_processor import BaoStockProcessor
 from common.config_manager import ConfigManager
+from common.logging_manager import get_logger
 
 class PolicyFilterSettingDialog(QDialog):
     def __init__(self):
         super().__init__()
         uic.loadUi('./gui/qt_widgets/setting/policy_filter_setting_dialog.ui', self)
+
+        self.logger = get_logger(__name__)
 
         # qt_widget控件初始化
         self.ui_init()
@@ -35,7 +38,7 @@ class PolicyFilterSettingDialog(QDialog):
 
         # 检查QML是否加载成功
         if self.quickWidget.status() == QQuickWidget.Error:
-            print("Error loading QML file!")
+            self.logger.info("Error loading QML file!")
             sys.exit(-1)
 
         self.policy_filter_setting_bridge = PolicyFilterSettingBridge()
@@ -50,7 +53,7 @@ class PolicyFilterSettingDialog(QDialog):
 
     @pyqtSlot()
     def solt_btn_cancel_clicked(self):
-        print("solt_cancel_clicked!")
+        self.logger.info("solt_cancel_clicked!")
         if self.qml_root:
             # 通过设置QML根对象的属性来更新QML界面
             self.qml_root.setMessage("Message from Qt Widgets Button!")
@@ -58,8 +61,8 @@ class PolicyFilterSettingDialog(QDialog):
     def solt_btn_ok_clicked(self):
         turn_str = self.lineEdit_turn.text()
         lb_str = self.lineEdit_lb.text()
-        print("策略筛选配置--换手率：", float(turn_str))
-        print("策略筛选配置--量比：", float(lb_str))
+        self.logger.info("策略筛选配置--换手率：", float(turn_str))
+        self.logger.info("策略筛选配置--量比：", float(lb_str))
         BaoStockProcessor().set_policy_filter_turn(float(turn_str))
         BaoStockProcessor().set_policy_filter_lb(float(lb_str))
         config_manager = ConfigManager()

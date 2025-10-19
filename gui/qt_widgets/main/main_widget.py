@@ -7,14 +7,17 @@ from processor.baostock_processor import BaoStockProcessor
 from processor.ak_stock_data_processor import AKStockDataProcessor
 from common.common_api import *
 import datetime
+from common.logging_manager import get_logger
 
 class MainWidget(QWidget):
     def __init__(self):
         super().__init__()
-        
+
         # 加载 UI 文件，第二个参数 self 表示将控件加载到当前窗口
         # 注意：PyQt5 在加载 .ui文件时，如果发现槽函数名称符合 on_对象名_信号名的格式，​​会自动连接​​信号和槽
         uic.loadUi('./gui/qt_widgets/main/MainWidget.ui', self)  # 确保路径正确
+
+        self.logger = get_logger(__name__)
 
         # 连接信号槽 (示例：假设UI文件中有一个名为 pushButton 的按钮)
         # Baostock
@@ -49,34 +52,34 @@ class MainWidget(QWidget):
     
     def init_processors(self):
         """初始化所有处理器（如Baostock）"""
-        print("初始化所有处理器")
+        self.logger.info("初始化所有处理器")
         try:
             ak_success = AKStockDataProcessor().initialize()
-            print("AK股票数据初始化完成")
+            self.logger.info("AK股票数据初始化完成")
             success = BaoStockProcessor().initialize()
             if ak_success and success:
-                print("所有处理器初始化成功")
+                self.logger.info("所有处理器初始化成功")
             else:
-                print("处理器初始化失败")
+                self.logger.info("处理器初始化失败")
                 # 可以进行一些UI提示，例如设置label的文本为红色警告
                 quit()
         except Exception as e:
-            print(f"初始化过程中发生错误: {e}")
+            self.logger.info(f"初始化过程中发生错误: {e}")
 
     def closeEvent(self, event):
         """
         重写 closeEvent，当窗口请求关闭时调用。
         这是执行清理操作的理想位置。
         """
-        print("开始执行清理操作...")
+        self.logger.info("开始执行清理操作...")
         try:
             BaoStockProcessor().cleanup() # 清理所有处理器
         except Exception as e:
-            print(f"清理过程中发生错误: {e}")
+            self.logger.info(f"清理过程中发生错误: {e}")
         finally:
             # 确保事件继续传递，允许窗口关闭
             event.accept()
-            print("清理完成，窗口关闭。")
+            self.logger.info("清理完成，窗口关闭。")
 
     # 槽函数
     # Baostock
@@ -91,28 +94,28 @@ class MainWidget(QWidget):
         self.plainTextEdit_log.appendPlainText("slot_btn_query_sh_main_clicked...")
         BaoStockProcessor().process_sh_main_stock_daily_data()
         BaoStockProcessor().process_sh_main_stock_weekly_data()
-        print("done")
+        self.logger.info("done")
 
     @pyqtSlot()
     def slot_btn_query_sz_main_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_query_sz_main_clicked...")
         BaoStockProcessor().process_sz_main_stock_daily_data()
         BaoStockProcessor().process_sz_main_stock_weekly_data()
-        print("done")
+        self.logger.info("done")
 
     @pyqtSlot()
     def slot_btn_query_gem_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_query_gem_clicked...")
         BaoStockProcessor().process_gem_stock_daily_data()
         BaoStockProcessor().process_gem_stock_weekly_data()
-        print("done")
+        self.logger.info("done")
 
     @pyqtSlot()
     def slot_btn_query_star_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_query_star_clicked...")
         BaoStockProcessor().process_star_stock_daily_data()
         BaoStockProcessor().process_star_stock_weekly_data()
-        print("done")
+        self.logger.info("done")
 
     # =================================================================================AKShare==========================================================================
     @pyqtSlot()
@@ -128,47 +131,47 @@ class MainWidget(QWidget):
     def slot_btn_update_sh_main_data_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_update_sh_main_data_clicked...")
         result = AKStockDataProcessor().query_ths_board_industry_data()
-        print("slot_btn_update_sh_main_data_clicked done.")
-        print(result)
+        self.logger.info("slot_btn_update_sh_main_data_clicked done.")
+        self.logger.info(result)
 
     @pyqtSlot()
     def slot_btn_update_sz_main_data_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_update_sz_main_data_clicked...")
         result = AKStockDataProcessor().get_latest_ths_board_industry_data()
-        print("slot_btn_update_sz_main_data_clicked done.")
-        print(result)
+        self.logger.info("slot_btn_update_sz_main_data_clicked done.")
+        self.logger.info(result)
 
     @pyqtSlot()
     def slot_btn_update_gem_data_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_update_gem_data_clicked...")
         AKStockDataProcessor().get_all_stocks_from_eastmoney()
-        print("slot_btn_update_gem_data_clicked done.")
+        self.logger.info("slot_btn_update_gem_data_clicked done.")
 
     @pyqtSlot()
     def slot_btn_update_star_data_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_update_star_data_clicked...")
         result = AKStockDataProcessor().query_eastmoney_stock_data()
-        print("slot_btn_update_star_data_clicked done.")
-        print(result)
+        self.logger.info("slot_btn_update_star_data_clicked done.")
+        self.logger.info(result)
 
     @pyqtSlot()
     def slot_btn_update_weekly_data_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_update_weekly_data_clicked...")
         result = AKStockDataProcessor().get_latest_eastmoney_stock_data()
-        print("slot_btn_update_weekly_data_clicked done.")
-        print(result)
+        self.logger.info("slot_btn_update_weekly_data_clicked done.")
+        self.logger.info(result)
 
     @pyqtSlot()
     def slot_btn_update_chip_distribution_data_eastmoney_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_update_chip_distribution_data_eastmoney_clicked...")
         AKStockDataProcessor().process_and_insert_eastmoney_stock_chip_distribution_data_to_db()
-        print("slot_btn_update_chip_distribution_data_eastmoney_clicked done.")
+        self.logger.info("slot_btn_update_chip_distribution_data_eastmoney_clicked done.")
 
     @pyqtSlot()
     def slot_btn_get_chip_distribution_data_eastmoney_clicked(self):
         self.plainTextEdit_log.appendPlainText("slot_btn_get_chip_distribution_data_eastmoney_clicked...")
         AKStockDataProcessor().query_eastmoney_stock_chip_distribution_data()
-        print("slot_btn_get_chip_distribution_data_eastmoney_clicked done.")
+        self.logger.info("slot_btn_get_chip_distribution_data_eastmoney_clicked done.")
 
     # =================================================================================策略筛选=================================================================
     @pyqtSlot()
@@ -177,8 +180,8 @@ class MainWidget(QWidget):
         result = BaoStockProcessor().daily_up_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney())
         today_str = datetime.datetime.now().strftime('%m%d')
         save_list_to_txt(result, f"./policy_filter/filter_result/daily_up_ma52/{today_str}.txt", ', ', "零轴上方MA52筛选结果：\n")
-        print("daily_up_ma52_filter done.")
-        print(result)
+        self.logger.info("daily_up_ma52_filter done.")
+        self.logger.info(result)
 
     @pyqtSlot()
     def slot_btn_daily_up_ma24_filter_clicked(self):
@@ -186,8 +189,8 @@ class MainWidget(QWidget):
         result = BaoStockProcessor().daily_up_ma24_filter(AKStockDataProcessor().get_stocks_eastmoney())
         today_str = datetime.datetime.now().strftime('%m%d')
         save_list_to_txt(result, f"./policy_filter/filter_result/daily_up_ma24/{today_str}.txt", ', ', "零轴上方MA24筛选结果：\n")
-        print("daily_up_ma24_filter done.")
-        print(result)
+        self.logger.info("daily_up_ma24_filter done.")
+        self.logger.info(result)
 
     @pyqtSlot()
     def slot_btn_daily_up_ma10_filter_clicked(self):
@@ -195,8 +198,8 @@ class MainWidget(QWidget):
         result = BaoStockProcessor().daily_up_ma10_filter(AKStockDataProcessor().get_stocks_eastmoney())
         today_str = datetime.datetime.now().strftime('%m%d')
         save_list_to_txt(result, f"./policy_filter/filter_result/daily_up_ma10/{today_str}.txt", ', ', "零轴上方MA10筛选结果：\n")
-        print("daily_up_ma10_filter done.")
-        print(result)
+        self.logger.info("daily_up_ma10_filter done.")
+        self.logger.info(result)
 
     @pyqtSlot()
     def slot_btn_daily_down_ma52_filter_clicked(self):
@@ -204,8 +207,8 @@ class MainWidget(QWidget):
         result = BaoStockProcessor().daily_down_between_ma24_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney())
         today_str = datetime.datetime.now().strftime('%m%d')
         save_list_to_txt(result, f"./policy_filter/filter_result/daily_down_ma52/{today_str}.txt", ', ', "零轴下方MA52筛选结果：\n")
-        print("daily_down_between_ma24_ma52_filter done.")
-        print(result)
+        self.logger.info("daily_down_between_ma24_ma52_filter done.")
+        self.logger.info(result)
 
     @pyqtSlot()
     def slot_btn_daily_down_ma5_filter_clicked(self):
@@ -213,8 +216,8 @@ class MainWidget(QWidget):
         result = BaoStockProcessor().daily_down_between_ma5_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney())
         today_str = datetime.datetime.now().strftime('%m%d')
         save_list_to_txt(result, f"./policy_filter/filter_result/daily_down_ma5/{today_str}.txt", ', ', "零轴下方MA5筛选结果：\n")
-        print("daily_down_between_ma5_ma52_filter done.")
-        print(result)
+        self.logger.info("daily_down_between_ma5_ma52_filter done.")
+        self.logger.info(result)
 
     @pyqtSlot()
     def slot_btn_stop_clicked(self):
