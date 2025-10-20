@@ -682,12 +682,16 @@ def daily_down_double_bottom_filter(df_daily_data):
     # logger.info("find_lowest_after_dea_cross_below_zero")
     lowest_result = find_lowest_after_dea_cross_below_zero(df_daily_data)
     lowest_value = lowest_result['lowest_value']
+    lowest_date = lowest_result['lowest_date']
+    neck_line = lowest_result['neckline']
 
     b_ret = day_diff <= 0 and day_dea < 0
-    b_ret_2 = day_close > lowest_value and day_close <= day_ma10 and day_close < day_ma24 and day_close < day_ma52
+    b_ret_2 = day_close >= lowest_value and day_close <= day_ma10 and day_close < day_ma24 and day_close < day_ma52
     b_ret_3 = day_ma5 <= day_ma24 and day_ma24 < day_ma52
-    if b_ret and b_ret_2 and b_ret_3:
-        # logger.info("符合【日线零轴下方双底】筛选")
+    b_ret_4 = neck_line >= day_ma24
+    if b_ret and b_ret_2 and b_ret_3 and b_ret_4:
+        code = last_day_row['股票代码'].item()
+        logger.info(f"股票代码【{code}】符合【日线零轴下方双底】筛选, 最低点：{lowest_value}, 最低点日期：{lowest_date}, 局部高点：{neck_line}")
         return True
     
     return False
@@ -714,7 +718,8 @@ def find_lowest_after_dea_cross_below_zero(df_daily_data):
         'cross_index': -1,
         'lowest_value': float('inf'),
         'lowest_index': -1,
-        'lowest_date': None
+        'lowest_date': None,
+        'neckline': float('inf')
     }
     
     # 检查数据是否为空
@@ -755,6 +760,14 @@ def find_lowest_after_dea_cross_below_zero(df_daily_data):
         if low_price < lowest_value:
             lowest_value = low_price
             lowest_index = i
+
+    # 寻找两个底部之间的高点(颈线)
+    intermediate_high = max(df_data['收盘'][lowest_index:len(df_data)])
+            
+    # 检查颈线是否明显高于底部
+    if (intermediate_high - lowest_value) / lowest_value < 0.03:  # 至少3%的颈线高度
+        return result
+        
     
     # 设置返回结果
     result['found'] = True
@@ -762,8 +775,169 @@ def find_lowest_after_dea_cross_below_zero(df_daily_data):
     result['lowest_value'] = lowest_value
     result['lowest_index'] = lowest_index
     result['lowest_date'] = df_data.index[lowest_index] if lowest_index >= 0 else None
+    result['neckline'] = intermediate_high
     
-    code = df_data.iloc[-1]['股票代码']
+    # code = df_data.iloc[-1]['股票代码']
     # logger.info(f"找到 {code} DEA下穿零轴位置: {cross_index}, 区间最低值: {lowest_value}, 最低值位置: {lowest_index}")
+    
+    return result
+
+
+def daily_down_double_bottom_filter_old(df_daily_data):
+    '''
+        日线零轴下方双底筛选
+        筛选逻辑：
+            1. 日线MACD的dea小于0；
+            2. 存在双底形态：
+               - 两个明显的低点
+               - 两个低点之间的反弹高点（颈线）
+               - 第二个低点不跌破第一个低点
+               - 当前价格突破颈线
+            3. 技术指标满足：
+               - MA5小于等于MA24，MA24小于MA52
+
+        进场逻辑：突破颈线进场。
+        止盈：短期看日线MA52压力止盈；若成功突破日线MA52压力，则可做有效反弹的趋势行情。
+        止损：跌破第二个底部清仓离场。
+    '''
+    if df_daily_data.empty:
+        return False
+    
+    if not columns_check(df_daily_data, ('收盘', 'DIF', 'DEA', 'MA5', 'MA10', 'MA24', 'MA52', 'MA60', '换手率', '量比5日')):
+        return False
+    
+    last_day_row = df_daily_data.tail(1)
+    day_close = last_day_row['收盘'].item()
+    day_diff = last_day_row['DIF'].item()
+    day_dea = last_day_row['DEA'].item()
+    day_ma5 = last_day_row['MA5'].item()
+    day_ma10 = last_day_row['MA10'].item()
+    day_ma24 = last_day_row['MA24'].item()
+    day_ma52 = last_day_row['MA52'].item()
+    day_ma60 = last_day_row['MA60'].item()
+    day_turn = last_day_row['换手率'].item()
+    day_lb = last_day_row['量比5日'].item()
+
+    # 基本条件检查
+    if day_dea >= 0 or day_ma24 >= day_ma52:
+        return False
+
+    # 检测双底形态
+    double_bottom_result = detect_double_bottom(df_daily_data)
+    
+    if not double_bottom_result['found']:
+        return False
+    
+    neckline = double_bottom_result['neckline']
+    first_low = double_bottom_result['first_low']
+    second_low = double_bottom_result['second_low']
+    first_idx = double_bottom_result['first_low_idx']
+    second_idx = double_bottom_result['second_low_idx']
+    
+    # 判断当前价格是否突破颈线且未突破MA52
+    b_ret_1 = day_close < neckline and day_close < day_ma24 and day_close < day_ma52
+    # 第二个底部不跌破第一个底部
+    b_ret_2 = second_low >= first_low * 0.99  # 允许1%的误差
+    # 均线排列正确
+    b_ret_3 = day_ma5 <= day_ma24 and day_ma24 < day_ma52
+    # 成交量条件
+    # b_ret_4 = day_turn > policy_filter_turn and day_lb > policy_filter_lb
+    
+    if b_ret_1 and b_ret_2 and b_ret_3:
+        code = df_daily_data.iloc[-1]['股票代码']
+        logger.info(f"日线零轴下方双底筛选通过：{code}, 第一个低点：{first_low}， 索引：{first_idx}, 第二个低点：{second_low}，索引：{second_idx}")
+        return True
+    
+    return False
+
+def detect_double_bottom(df_data, min_distance=10, max_distance=120):
+    '''
+    检测双底形态
+    
+    Args:
+        df_data: 股票数据
+        min_distance: 两个底部之间的最小距离(周期)
+        max_distance: 两个底部之间的最大距离(周期)
+        
+    Returns:
+        dict: 双底检测结果
+    '''
+    result = {
+        'found': False,
+        'first_low': None,
+        'second_low': None,
+        'first_low_idx': None,
+        'second_low_idx': None,
+        'neckline': None
+    }
+    
+    if len(df_data) < 30:  # 数据太少无法判断形态
+        return result
+    
+    # 从最后的日期开始往前遍历，找到DEA最近一次下穿零轴的位置
+    cross_index = -1
+    for i in range(len(df_data) - 1, 0, -1):  # 从倒数第二个开始，避免索引越界
+        current_dea = df_data.iloc[i]['DEA']
+        previous_dea = df_data.iloc[i-1]['DEA']
+        
+        # 判断是否为下穿零轴：当前DEA<=0 且 前一个DEA>0
+        if current_dea <= 0 and previous_dea > 0:
+            cross_index = i
+            break
+    
+    # 如果没有找到下穿零轴的情况
+    if cross_index == -1:
+        # logger.info("未找到DEA下穿零轴的情况")
+        return result
+    
+    close_prices = df_data['收盘'].values
+    low_prices = df_data['最低'].values
+    
+    # 寻找局部低点
+    local_lows = []
+    for i in range(cross_index, len(close_prices) - 1):
+        if low_prices[i] < low_prices[i-1] and low_prices[i] < low_prices[i+1]:
+            local_lows.append((i, low_prices[i]))
+    
+    if len(local_lows) < 2:
+        return result
+    
+    # 寻找符合条件的双底组合
+    for i in range(len(local_lows)):
+        for j in range(i+1, len(local_lows)):
+            first_idx, first_low = local_lows[i]
+            second_idx, second_low = local_lows[j]
+            
+            distance = second_idx - first_idx
+            
+            # 检查两个底部之间的距离是否符合要求
+            if distance < min_distance or distance > max_distance:
+                continue
+            
+            # 检查两个底部的价格是否相近(允许一定误差)
+            if abs(first_low - second_low) / first_low > 0.05:  # 5%以内差异
+                continue
+            
+            # 寻找两个底部之间的高点(颈线)
+            intermediate_high = max(close_prices[first_idx:second_idx+1])
+            
+            # 检查颈线是否明显高于底部
+            if (intermediate_high - first_low) / first_low < 0.03:  # 至少3%的颈线高度
+                continue
+            
+            # 检查第二底部之后是否有突破颈线的趋势
+            # if second_idx + 5 < len(close_prices):
+            #     post_breakout = any(price > intermediate_high for price in close_prices[second_idx:second_idx+5])
+            #     if not post_breakout:
+            #         continue
+            
+            result['found'] = True
+            result['first_low'] = first_low
+            result['second_low'] = second_low
+            result['first_low_idx'] = first_idx
+            result['second_low_idx'] = second_idx
+            result['neckline'] = intermediate_high
+            
+            return result
     
     return result
