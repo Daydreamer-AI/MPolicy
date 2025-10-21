@@ -638,7 +638,7 @@ def daily_down_breakthrough_ma52_filter(df_daily_data):
     
     return False
 
-def daily_down_double_bottom_filter(df_daily_data):
+def daily_down_double_bottom_filter(df_daily_data, df_weekly_data, b_weekly_filter=True):
     '''
         日线零轴下方双底筛选
         筛选逻辑：
@@ -654,7 +654,7 @@ def daily_down_double_bottom_filter(df_daily_data):
         止盈：短期看日线MA52压力止盈；若成功突破日线MA52压力，则可做有效反弹的趋势行情。
         止损：跌破前低清仓离场。
     '''
-    if df_daily_data.empty:
+    if df_daily_data.empty or df_weekly_data.empty:
         return False
     
     # logger.info(df_daily_data.tail(10))
@@ -678,6 +678,16 @@ def daily_down_double_bottom_filter(df_daily_data):
 
     if day_diff >= 0 or day_dea >= 0 and day_ma24 >= day_ma52:
         return False
+    
+    if not columns_check(df_weekly_data, ('收盘', 'DEA', 'MA52', 'MA60')):
+        return False
+    
+    last_week_row = df_weekly_data.tail(1)
+    week_close = last_week_row['收盘'].item()
+    week_dea = last_week_row['DEA'].item()
+    week_ma52 = last_week_row['MA52'].item()
+    week_ma60 = last_week_row['MA52'].item()
+        
 
     # logger.info("find_lowest_after_dea_cross_below_zero")
     lowest_result = find_lowest_after_dea_cross_below_zero(df_daily_data)
@@ -688,8 +698,12 @@ def daily_down_double_bottom_filter(df_daily_data):
     b_ret = day_diff <= 0 and day_dea < 0
     b_ret_2 = day_close >= lowest_value and day_close <= day_ma10 and day_close < day_ma24 and day_close < day_ma52
     b_ret_3 = day_ma5 <= day_ma24 and day_ma24 < day_ma52
-    b_ret_4 = neck_line >= day_ma24
-    if b_ret and b_ret_2 and b_ret_3 and b_ret_4:
+    b_ret_4 = neck_line >= day_ma10
+    
+    b_ret_weekly = b_weekly_filter and week_close >= week_ma60 and week_dea >= 0
+    b_ret_5 = b_ret_weekly if b_weekly_filter else True
+
+    if b_ret and b_ret_2 and b_ret_3 and b_ret_4 and b_ret_5:
         code = last_day_row['股票代码'].item()
         logger.info(f"股票代码【{code}】符合【日线零轴下方双底】筛选, 最低点：{lowest_value}, 最低点日期：{lowest_date}, 局部高点：{neck_line}")
         return True
