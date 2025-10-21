@@ -918,7 +918,7 @@ class BaoStockProcessor:
             if not self.filter_check(code, condition, False):
                 continue
             
-            if pf.daily_down_double_bottom_filter(df_data):
+            if pf.daily_down_double_bottom_filter(df_data, self.dict_weekly_stock_data[code]):
                 filter_result.append(code)
 
         return filter_result

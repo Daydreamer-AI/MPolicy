@@ -83,7 +83,7 @@ def columns_check(df_data, col_names: Sequence[str]) -> bool:
         if arg in df_data.columns:
             continue
         else:
-            logger.info("错误，列不存在：", arg)
+            logger.info(f"错误，列不存在：{arg}")
             return False
     return True
 
@@ -679,14 +679,14 @@ def daily_down_double_bottom_filter(df_daily_data, df_weekly_data, b_weekly_filt
     if day_diff >= 0 or day_dea >= 0 and day_ma24 >= day_ma52:
         return False
     
-    if not columns_check(df_weekly_data, ('收盘', 'DEA', 'MA52', 'MA60')):
+    if not columns_check(df_weekly_data, ('收盘', 'DEA', 'MA52')):
         return False
     
     last_week_row = df_weekly_data.tail(1)
     week_close = last_week_row['收盘'].item()
     week_dea = last_week_row['DEA'].item()
     week_ma52 = last_week_row['MA52'].item()
-    week_ma60 = last_week_row['MA52'].item()
+    # week_ma60 = last_week_row['MA52'].item()  # 周线没有维护MA60
         
 
     # logger.info("find_lowest_after_dea_cross_below_zero")
@@ -700,7 +700,7 @@ def daily_down_double_bottom_filter(df_daily_data, df_weekly_data, b_weekly_filt
     b_ret_3 = day_ma5 <= day_ma24 and day_ma24 < day_ma52
     b_ret_4 = neck_line >= day_ma10
     
-    b_ret_weekly = b_weekly_filter and week_close >= week_ma60 and week_dea >= 0
+    b_ret_weekly = b_weekly_filter and week_dea >= 0
     b_ret_5 = b_ret_weekly if b_weekly_filter else True
 
     if b_ret and b_ret_2 and b_ret_3 and b_ret_4 and b_ret_5:
