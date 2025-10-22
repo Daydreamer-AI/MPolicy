@@ -695,7 +695,7 @@ def daily_down_double_bottom_filter(df_daily_data, df_weekly_data, b_weekly_filt
     lowest_date = lowest_result['lowest_date']
     neck_line = lowest_result['neckline']
 
-    b_ret = day_diff <= 0 and day_dea < 0
+    b_ret = day_diff <= 0 and day_dea < 0 and day_turn > policy_filter_turn and day_lb > policy_filter_lb
     b_ret_2 = day_close >= lowest_value and day_close <= day_ma10 and day_close < day_ma24 and day_close < day_ma52
     b_ret_3 = day_ma5 <= day_ma24 and day_ma24 < day_ma52
     b_ret_4 = neck_line >= day_ma10
