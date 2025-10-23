@@ -8,7 +8,32 @@ import json
 from datetime import datetime  # 添加datetime导入
 
 class LogManager:
-    """通用的日志管理类，支持多环境配置和模块化日志记录"""
+    """
+        通用的日志管理类，支持多环境配置和模块化日志记录
+    
+        示例：
+        main():
+            # 初始化日志系统
+            setup_logging(
+                log_dir="logs",
+                level="INFO",
+                enable_file_log=True,
+                max_bytes=10 * 1024 * 1024,
+                backup_count=5,
+                unique_log_file=True  # 启用唯一日志文件名
+            )
+        
+            logger = get_logger(__name__)
+            logger.info("应用程序启动")
+
+        模块中使用：
+        logger = get_logger(__name__)
+        logger.info("模块日志记录")
+
+        类中使用：
+        self.logger = get_logger(__name__)
+        self.logger.info("类日志记录")
+    """
     
     # 默认配置模板
     DEFAULT_CONFIG = {
