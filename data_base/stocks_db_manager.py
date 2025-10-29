@@ -179,6 +179,20 @@ class StockDBManager(CommonDBManager):
             )
         ''')
 
+        # 创建东方财富股票人气表
+        self.create_table('stock_popularity_eastmoney', '''
+            CREATE TABLE IF NOT EXISTS stock_popularity_eastmoney (
+                rank INTEGER NOT NULL,
+                stock_code TEXT NOT NULL,
+                stock_name TEXT NOT NULL,
+                latest_price REAL NOT NULL,
+                change_amount REAL NOT NULL,
+                change_percent REAL NOT NULL,
+                date TEXT NOT NULL,
+                PRIMARY KEY (stock_code, date)
+            )
+        ''')
+
         # 4. 创建索引 - 使用专门的方法或直接SQL
         try:
             with self._get_connection() as cur:
@@ -191,6 +205,11 @@ class StockDBManager(CommonDBManager):
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_stock_data_eastmoney_stock_code ON stock_data_eastmoney(stock_code)')
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_stock_data_eastmoney_data_date ON stock_data_eastmoney(date)')
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_stock_data_eastmoney_industry_name ON stock_data_eastmoney(industry)')
+
+                # 东方财富股票人气索引
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_stock_popularity_eastmoney_stock_code ON stock_popularity_eastmoney(stock_code)')
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_stock_popularity_eastmoney_date ON stock_popularity_eastmoney(date)')
+
                 
             self.logger.info("所有索引创建成功")
             
@@ -408,6 +427,96 @@ class StockDBManager(CommonDBManager):
                     
         except Exception as e:
             self.logger.info(f"查询东方财富股票数据表时出错: {str(e)}")
+            return pd.DataFrame()
+
+
+    # ------------------------------------------------------------东方财富股票人气榜表stock_popularity_eastmoney接口-----------------------------------------
+    def insert_popularity_rank_stock_data_to_db(self, df_stock_data):
+        try:
+            # 重命名列以匹配数据库表结构
+            df_filtered = df_stock_data.rename(columns={
+                '当前排名': 'rank',
+                '代码': 'stock_code',
+                '股票名称': 'stock_name',
+                '最新价': 'last_price',
+                '涨跌额': 'change_amount',
+                '涨跌幅': 'change_percent',
+                '日期': 'date'
+            })
+            
+            # 处理特殊数据
+            if 'latest_price' in df_filtered.columns:
+                df_filtered['latest_price'] = df_filtered['latest_price'].apply(
+                    lambda x: None if x == '-' or pd.isna(x) else float(x)
+                )
+            
+            # 使用 upsert 功能，基于股票代码和日期的复合主键进行更新
+            upserted_count = self.upsert_data(
+                'stock_popularity_eastmoney',
+                df_filtered.to_dict('records'),
+                conflict_columns=['date']  # 基于股票代码和日期的冲突检测
+            )
+            
+            self.logger.info(f"东方财富股票人气榜数据upsert完成，处理了 {upserted_count} 条记录")
+            return True
+                
+        except Exception as e:
+            self.logger.info(f"东方财富股票人气榜插入数据失败: {e}")
+            return False
+        
+    def query_popularity_rank_stock_data(self, date=None, stock_code=None, industry_name=None):
+        """查询东方财富人气榜股数据"""
+        conditions = []
+        params = []
+        
+        if date:
+            conditions.append("date = ?")
+            params.append(date)
+        
+        if stock_code:
+            conditions.append("stock_code = ?")
+            params.append(stock_code)
+        
+        if industry_name:
+            conditions.append("industry LIKE ?")
+            params.append(f"%{industry_name}%")
+
+        query = "SELECT * FROM stock_popularity_eastmoney"
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
+        query += " ORDER BY date DESC, stock_code"
+        
+        try:
+            with self._get_connection() as cur:
+                cur.execute(query, params)
+                column_names = [description[0] for description in cur.description]
+                rows = cur.fetchall()
+                return pd.DataFrame(rows, columns=column_names)
+        except Exception as e:
+            self.logger.info(f"查询东方财富股票人气榜表时出错: {str(e)}")
+            return pd.DataFrame()
+        
+    
+    def get_latest_popularity_rank_stock_data(self):
+        """获取最新日期的所有人气榜股票数据"""
+        try:
+            with self._get_connection() as cur:
+                cur.execute('''
+                    SELECT * FROM stock_popularity_eastmoney 
+                    WHERE date = (SELECT MAX(date) FROM stock_popularity_eastmoney)
+                    ORDER BY date DESC
+                ''')
+                
+                column_names = [description[0] for description in cur.description]
+                rows = cur.fetchall()
+                
+                if rows:
+                    return pd.DataFrame(rows, columns=column_names)
+                else:
+                    return pd.DataFrame()
+                    
+        except Exception as e:
+            self.logger.info(f"查询东方财富人气榜股票表时出错: {str(e)}")
             return pd.DataFrame()
 
     # ========================================================================BaoStock相关接口========================================================================

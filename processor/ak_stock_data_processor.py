@@ -312,6 +312,40 @@ class AKStockDataProcessor:
     def get_latest_eastmoney_stock_chip_distribution_data(self, code):
         pass
 
+    # ------------------------------------------------------------东方财富人气榜股票表接口-----------------------------------------
+    def get_popularity_rank_stock_data_from_eastmoney(self):
+        # 获取人气榜
+        try:
+            df = ak.stock_hot_rank_em()
+            # print(stock_hot_rank_em_df)
+            self.logger.info(f"获取数据成功")
+            self.logger.info(df)
+        except Exception as e:
+            self.logger.info(f"获取数据失败: {e}")
+            return False
+        
+        # 添加日期字段
+        today = datetime.datetime.now().strftime('%Y-%m-%d')
+        df['日期'] = today
+
+        return self.stocks_db.insert_popularity_rank_stock_data_to_db(df)
+    
+    def query_popularity_rank_stock_data(self, date=None, industry_name=None):
+        return self.stocks_db.query_popularity_rank_stock_data(date, industry_name)
+
+    def get_latest_popularity_rank_stock_data(self):
+        return self.stocks_db.get_latest_popularity_rank_stock_data()
+
+    # ------------------------------------------------------------东方财富人气飙升榜股票表接口-----------------------------------------
+
+    # ------------------------------------------------------------暂不需要：东方财富股票历史趋势及粉丝特征表接口-----------------------------------------
+
+
+    # ------------------------------------------------------------暂不需要：东方财富个股人气榜-实时变动表接口-----------------------------------------
+
+    
+
+
 # 测试代码
 if __name__ == "__main__":
     # 测试函数

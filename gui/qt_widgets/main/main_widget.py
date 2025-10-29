@@ -38,10 +38,15 @@ class MainWidget(QWidget):
 
         self.btn_update_float_cap.clicked.connect(self.slot_btn_update_float_cap_clicked)
         self.btn_query_float_cap.clicked.connect(self.slot_btn_query_float_cap_clicked)
+
         self.btn_update_ths_board_industry_data.clicked.connect(self.slot_btn_update_ths_board_industry_data_clicked)
         self.btn_query_ths_board_industry_data.clicked.connect(self.slot_btn_query_ths_board_industry_data_clicked)
+
         self.btn_update_chip_distribution_data_eastmoney.clicked.connect(self.slot_btn_update_chip_distribution_data_eastmoney_clicked)
         self.btn_get_chip_distribution_data_eastmoney.clicked.connect(self.slot_btn_get_chip_distribution_data_eastmoney_clicked)
+
+        self.btn_update_popularity_rank_stock_data.clicked.connect(self.slot_btn_update_popularity_rank_stock_data_clicked)
+        self.btn_get_popularity_rank_stock_data.clicked.connect(self.slot_btn_get_popularity_rank_stock_data_clicked)
 
         # 策略筛选
         self.btn_daily_up_ma52_filter.clicked.connect(self.slot_btn_daily_up_ma52_filter_clicked)
@@ -202,6 +207,20 @@ class MainWidget(QWidget):
         self.logger.info("AKShare--查询所有股票筹码分布数据")
         AKStockDataProcessor().query_eastmoney_stock_chip_distribution_data()
         self.logger.info("AKShare--查询所有股票筹码分布数据完成")
+
+    @pyqtSlot()
+    def slot_btn_update_popularity_rank_stock_data_clicked(self):
+        self.logger.info("AKShare--更新人气榜数据")
+        AKStockDataProcessor().get_popularity_rank_stock_data_from_eastmoney()
+        self.logger.info("AKShare--更新人气榜数据完成")
+
+    @pyqtSlot()
+    def slot_btn_get_popularity_rank_stock_data_clicked(self):
+        self.logger.info("AKShare--查询人气榜数据")
+        result = AKStockDataProcessor().query_popularity_rank_stock_data()
+        # result = AKStockDataProcessor().get_latest_popularity_rank_stock_data
+        self.logger.info(result)
+        self.logger.info("AKShare--查询人气榜数据完成")
 
     # =================================================================================策略筛选=================================================================
     @pyqtSlot()
