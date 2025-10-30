@@ -315,6 +315,11 @@ class StockDBManager(CommonDBManager):
         except Exception as e:
             self.logger.info(f"查询同花顺行业板块一览表时出错: {str(e)}")
             return pd.DataFrame()
+
+
+    # ------------------------------------------------------------同花顺概念板块一览表接口-----------------------------------------
+    
+
     # ------------------------------------------------------------东方财富股票数据表stock_data_eastmoney接口-----------------------------------------
     def insert_eastmoney_stock_data_to_db(self, df_stock_data):
         try:
