@@ -180,7 +180,7 @@ class AKStockDataProcessor:
                 try:
                     stock_code = row['证券代码']
                     # self.logger.info("stock_code的类型：", type(stock_code))
-                    self.logger.info(f"正在获取第 {index} 只股票：{stock_code}")
+                    # self.logger.info(f"正在获取第 {index} 只股票：{stock_code}")
                     stock_individual_info_em_df = ak.stock_individual_info_em(symbol=stock_code, timeout=30000)
                     # self.logger.info("stock_individual_info_em_df的类型：", type(stock_individual_info_em_df))
                     # add_stock_data(self.df_stocks_eastmoney, stock_individual_info_em_df)
@@ -198,7 +198,7 @@ class AKStockDataProcessor:
                     self.df_stocks_eastmoney = pd.concat([self.df_stocks_eastmoney, stock_row], ignore_index=True)
                     
 
-                    sleep_time = random.uniform(0.1, 0.5)
+                    sleep_time = random.uniform(0.5, 1)
                     time.sleep(sleep_time)
 
                 except Exception as e:
