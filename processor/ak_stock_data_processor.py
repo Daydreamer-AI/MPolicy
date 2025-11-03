@@ -199,7 +199,7 @@ class AKStockDataProcessor:
                     
 
                     sleep_time = random.uniform(0.1, 0.5)
-                    # time.sleep(sleep_time)
+                    time.sleep(sleep_time)
 
                 except Exception as e:
                     self.logger.info(f"处理股票 {stock_code} 时出错: {e}")
