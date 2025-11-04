@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWidget</class>
- <widget class="QWidget" name="MainWidget">
+ <class>BoardHome</class>
+ <widget class="QWidget" name="BoardHome">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1366</width>
+    <width>1266</width>
     <height>768</height>
    </rect>
   </property>
@@ -14,23 +14,20 @@
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="spacing">
-    <number>3</number>
-   </property>
    <property name="leftMargin">
-    <number>0</number>
+    <number>6</number>
    </property>
    <property name="topMargin">
-    <number>0</number>
+    <number>6</number>
    </property>
    <property name="rightMargin">
-    <number>0</number>
+    <number>6</number>
    </property>
    <property name="bottomMargin">
-    <number>0</number>
+    <number>6</number>
    </property>
    <item>
-    <widget class="QFrame" name="frame_tab">
+    <widget class="QFrame" name="frame_board_type">
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -49,66 +46,47 @@
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_8">
+     <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QPushButton" name="btn_home">
+       <widget class="QPushButton" name="btn_industry_board">
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>30</height>
+          <height>32</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>30</height>
+          <height>32</height>
          </size>
         </property>
         <property name="text">
-         <string>主页</string>
+         <string>行业板块</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="btn_board">
+       <widget class="QPushButton" name="btn_concept_board">
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>30</height>
+          <height>32</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>30</height>
+          <height>32</height>
          </size>
         </property>
         <property name="text">
-         <string>板块</string>
+         <string>概念板块</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="btn_setting">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>设置</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_5">
+       <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -124,11 +102,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QStackedWidget" name="stackedWidget">
-     <property name="currentIndex">
-      <number>-1</number>
-     </property>
-    </widget>
+    <widget class="QStackedWidget" name="stackedWidget"/>
    </item>
   </layout>
  </widget>
