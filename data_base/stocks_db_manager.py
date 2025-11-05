@@ -163,14 +163,14 @@ class StockDBManager(CommonDBManager):
         ''')
 
         # 创建同花顺概念板块一览表 - 使用父类方法
-        self.create_table('ths_board_concept', '''
-            CREATE TABLE IF NOT EXISTS ths_board_concept (
+        self.create_table('ths_board_concept_info', '''
+            CREATE TABLE IF NOT EXISTS ths_board_concept_info (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 concept_name TEXT NOT NULL,
                 concept_code TEXT NOT NULL,
                 date TEXT NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE(concept_name, date)  -- 关键：基于概念名称和日期的唯一约束
+                UNIQUE(concept_name, concept_code, date)  -- 关键：基于概念名称和日期的唯一约束
             )
         ''')
 
@@ -214,9 +214,9 @@ class StockDBManager(CommonDBManager):
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_board_industry_change_percent ON board_industry(change_percent)')
 
                 # 同花顺概念板块索引
-                cur.execute('CREATE INDEX IF NOT EXISTS idx_ths_board_concept_name ON ths_board_concept(concept_name)')
-                cur.execute('CREATE INDEX IF NOT EXISTS idx_ths_board_concept_code ON ths_board_concept(concept_code)')
-                cur.execute('CREATE INDEX IF NOT EXISTS idx_ths_board_concept_date ON ths_board_concept(date)')
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_ths_board_concept_info_name ON ths_board_concept_info(concept_name)')
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_ths_board_concept_info_code ON ths_board_concept_info(concept_code)')
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_ths_board_concept_info_date ON ths_board_concept_info(date)')
                 
                 # 东方财富股票数据索引
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_stock_data_eastmoney_stock_code ON stock_data_eastmoney(stock_code)')
@@ -335,8 +335,47 @@ class StockDBManager(CommonDBManager):
 
 
     # ------------------------------------------------------------同花顺概念板块一览表接口-----------------------------------------
-    def insert_ths_concept_board__to_db(self, df_industry_data):
-        pass
+    def insert_ths_concept_board_info_to_db(self, df_concept_data):
+        try:
+            df = df_concept_data.rename(columns={
+                'name': 'concept_name',
+                'code': 'concept_code'
+            })
+
+            upserted_count = self.upsert_data(
+                'ths_board_concept_info',
+                df.to_dict('records'),
+                conflict_columns=['concept_name', 'concept_code', 'date']  # 明确指定冲突检测列，需和表定义中的UNIQUE一致
+            )
+            
+            self.logger.info(f"数据upsert完成，处理了 {upserted_count} 条记录")
+            return True
+
+            
+        except Exception as e:
+            self.logger.info(f"插入数据失败: {e}")
+            return False
+        
+    def get_latest_ths_concept_board_info(self):
+        try:
+            with self._get_connection() as cur:
+                cur.execute('''
+                    SELECT * FROM ths_board_concept_info 
+                    WHERE date = (SELECT MAX(date) FROM ths_board_concept_info)
+                    ORDER BY concept_name DESC
+                ''')
+                
+                column_names = [description[0] for description in cur.description]
+                rows = cur.fetchall()
+                
+                if rows:
+                    return pd.DataFrame(rows, columns=column_names)
+                else:
+                    return pd.DataFrame()
+                    
+        except Exception as e:
+            self.logger.info(f"查询同花顺概念板块一览表时出错: {str(e)}")
+            return pd.DataFrame()
     
     # ------------------------------------------------------------东方财富股票数据表stock_data_eastmoney接口-----------------------------------------
     def insert_eastmoney_stock_data_to_db(self, df_stock_data):

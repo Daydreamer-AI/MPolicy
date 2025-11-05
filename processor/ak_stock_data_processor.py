@@ -153,16 +153,25 @@ class AKStockDataProcessor:
         self.logger.info(stock_board_industry_name_em_df)
 
 
-    # --------------------------------------------------------同花顺行业板块一览表接口----------------------------------------------------------
+    # --------------------------------------------------------同花顺概念板块一览表接口----------------------------------------------------------
     # 通过stock_board_concept_name_em接口日更概念板块，再通过stock_board_concept_cons_em接口日更概念板块所有成分股
-    def query_ths_concept_board_data(self):
+    def query_ths_concept_board_info(self):
         try: 
             df = ak.stock_board_concept_name_ths()
             self.logger.info(f"获取到{len(df)} 个同花顺概念")
-            self.logger.info(df.head(3))
+            today = datetime.datetime.now().strftime('%Y-%m-%d')
+            df['date'] = today
+            # self.logger.info(df.head(3))
+            self.stocks_db.insert_ths_concept_board_info_to_db(df)
+
         except Exception as e:
             self.logger.info(f"获取数据失败: {e}")
             return False
+        
+    def get_latest_ths_concept_board_info(self):
+        return self.stocks_db.get_latest_ths_concept_board_info()
+    
+
     
     # ------------------------------------------------------------------------------------------------------------------
 
