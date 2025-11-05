@@ -202,7 +202,8 @@ class HomeWidget(QWidget):
     @pyqtSlot()
     def slot_btn_update_ths_board_concept_data_clicked(self):
         self.logger.info("AKShare--更新同花顺概念板块数据")
-        AKStockDataProcessor().query_ths_concept_board_info()
+        # AKStockDataProcessor().query_ths_concept_board_info()
+        AKStockDataProcessor().process_ths_board_concept_overview_data()
         self.logger.info("AKShare--更新同花顺概念板块数据完成")
 
     @pyqtSlot()
@@ -210,8 +211,13 @@ class HomeWidget(QWidget):
         self.logger.info("AKShare--查询最后一个交易日的同花顺概念板块数据")
         # result = AKStockDataProcessor().query_ths_board_industry_data()
         # self.logger.info(result)
-        result = AKStockDataProcessor().get_latest_ths_concept_board_info()
+
+        # result = AKStockDataProcessor().get_latest_ths_concept_board_info()
+        # self.logger.info(result)
+
+        result = AKStockDataProcessor().get_latest_ths_board_concept_overview()
         self.logger.info(result)
+
         self.logger.info("AKShare--查询最后一个交易日的同花顺概念板块数据完成")
 
     @pyqtSlot()

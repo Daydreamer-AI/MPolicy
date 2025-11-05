@@ -783,3 +783,16 @@ def query_stock_data(df, condition=None):
     if condition:
         return df.query(condition)
     return df
+
+def convert_to_float(value):
+    """转换字符串为浮点数"""
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        # 移除可能的单位字符
+        value = value.replace('%', '').replace('亿', '').replace('万手', '')
+        try:
+            return float(value)
+        except ValueError:
+            return None
+    return None

@@ -8,6 +8,7 @@ import time
 import numpy as np
 from data_base.common_db_manager import CommonDBManager
 from common.logging_manager import get_logger
+from common.common_api import *
 
 class DBManagerPool:
     """管理多个 StockDBManager 实例的池（单例模式）"""
@@ -162,7 +163,7 @@ class StockDBManager(CommonDBManager):
             )
         ''')
 
-        # 创建同花顺概念板块一览表 - 使用父类方法
+        # 创建同花顺概念板块信息表 - ths_board_concept_info
         self.create_table('ths_board_concept_info', '''
             CREATE TABLE IF NOT EXISTS ths_board_concept_info (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -173,6 +174,28 @@ class StockDBManager(CommonDBManager):
                 UNIQUE(concept_name, concept_code, date)  -- 关键：基于概念名称和日期的唯一约束
             )
         ''')
+
+        # 创建同花顺概念板块一览表 - ths_board_concept_overview
+        self.create_table('ths_board_concept_overview', '''
+        CREATE TABLE IF NOT EXISTS ths_board_concept_overview (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            concept_name TEXT NOT NULL,
+            concept_code TEXT NOT NULL,
+            open_price REAL,
+            previous_close REAL,
+            low_price REAL,
+            high_price REAL,
+            volume REAL,
+            board_change_percent REAL,
+            change_rank TEXT,
+            rise_fall_count TEXT,
+            net_inflow REAL,
+            turnover REAL,
+            date TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(concept_name, concept_code, date)
+        )
+    ''')
 
         # 3. 创建东方财富股票数据表 - 使用父类方法
         self.create_table('stock_data_eastmoney', '''
@@ -213,10 +236,15 @@ class StockDBManager(CommonDBManager):
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_board_industry_industry_name ON board_industry(industry_name)')
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_board_industry_change_percent ON board_industry(change_percent)')
 
-                # 同花顺概念板块索引
+                # 同花顺概念板块信息表索引
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_ths_board_concept_info_name ON ths_board_concept_info(concept_name)')
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_ths_board_concept_info_code ON ths_board_concept_info(concept_code)')
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_ths_board_concept_info_date ON ths_board_concept_info(date)')
+
+                # 同花顺概念板块一览索引
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_ths_board_concept_overview_name ON ths_board_concept_overview(concept_name)')
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_ths_board_concept_overview_code ON ths_board_concept_overview(concept_code)')
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_ths_board_concept_overview_date ON ths_board_concept_overview(date)')
                 
                 # 东方财富股票数据索引
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_stock_data_eastmoney_stock_code ON stock_data_eastmoney(stock_code)')
@@ -334,7 +362,7 @@ class StockDBManager(CommonDBManager):
             return pd.DataFrame()
 
 
-    # ------------------------------------------------------------同花顺概念板块一览表接口-----------------------------------------
+    # ------------------------------------------------------------同花顺概念板块信息表接口-----------------------------------------
     def insert_ths_concept_board_info_to_db(self, df_concept_data):
         try:
             df = df_concept_data.rename(columns={
@@ -376,7 +404,106 @@ class StockDBManager(CommonDBManager):
         except Exception as e:
             self.logger.info(f"查询同花顺概念板块一览表时出错: {str(e)}")
             return pd.DataFrame()
-    
+        
+    # ------------------------------------------------------------同花顺概念板块概览表接口-----------------------------------------
+    def insert_ths_board_concept_overview(self, concept_name, concept_code, df_detail):
+        """插入概念板块详细信息"""
+        try:
+            # 转换DataFrame格式
+            data_dict = {
+                'concept_name': concept_name,
+                'concept_code': concept_code,
+                'date': datetime.now().strftime('%Y-%m-%d')
+            }
+            
+            # 解析DataFrame中的键值对
+            for _, row in df_detail.iterrows():
+                item = row['项目']
+                value = row['值']
+                
+                if item == '今开':
+                    data_dict['open_price'] = convert_to_float(value)
+                elif item == '昨收':
+                    data_dict['previous_close'] = convert_to_float(value)
+                elif item == '最低':
+                    data_dict['low_price'] = convert_to_float(value)
+                elif item == '最高':
+                    data_dict['high_price'] = convert_to_float(value)
+                elif item == '成交量(万手)':
+                    data_dict['volume'] = convert_to_float(value)
+                elif item == '板块涨幅':
+                    data_dict['board_change_percent'] = convert_percentage(value)
+                elif item == '涨幅排名':
+                    data_dict['change_rank'] = str(value)
+                elif item == '涨跌家数':
+                    data_dict['rise_fall_count'] = str(value)
+                elif item == '资金净流入(亿)':
+                    data_dict['net_inflow'] = convert_to_float(value)
+                elif item == '成交额(亿)':
+                    data_dict['turnover'] = convert_to_float(value)
+            
+            # 使用upsert插入数据
+            upserted_count = self.upsert_data(
+                'ths_board_concept_overview',
+                [data_dict],
+                conflict_columns=['concept_name', 'concept_code', 'date']
+            )
+            
+            self.logger.info(f"概念板块详细信息upsert完成，处理了 {upserted_count} 条记录")
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"插入概念板块详细信息失败: {e}")
+            return False
+
+    def query_ths_board_concept_overview(self, concept_name=None, date=None):
+        """查询概念板块详细信息"""
+        conditions = []
+        params = []
+        
+        if concept_name:
+            conditions.append("concept_name = ?")
+            params.append(concept_name)
+        
+        if date:
+            conditions.append("date = ?")
+            params.append(date)
+
+        query = "SELECT * FROM ths_board_concept_overview"
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
+        query += " ORDER BY date DESC, concept_name"
+        
+        try:
+            with self._get_connection() as cur:
+                cur.execute(query, params)
+                column_names = [description[0] for description in cur.description]
+                rows = cur.fetchall()
+                return pd.DataFrame(rows, columns=column_names)
+        except Exception as e:
+            self.logger.error(f"查询概念板块详细信息时出错: {str(e)}")
+            return pd.DataFrame()
+        
+    def get_latest_ths_concept_board_overview(self):
+        try:
+            with self._get_connection() as cur:
+                cur.execute('''
+                    SELECT * FROM ths_board_concept_overview 
+                    WHERE date = (SELECT MAX(date) FROM ths_board_concept_overview)
+                    ORDER BY board_change_percent DESC
+                ''')
+                
+                column_names = [description[0] for description in cur.description]
+                rows = cur.fetchall()
+                
+                if rows:
+                    return pd.DataFrame(rows, columns=column_names)
+                else:
+                    return pd.DataFrame()
+                    
+        except Exception as e:
+            self.logger.info(f"查询同花顺概念板块一览表时出错: {str(e)}")
+            return pd.DataFrame()
     # ------------------------------------------------------------东方财富股票数据表stock_data_eastmoney接口-----------------------------------------
     def insert_eastmoney_stock_data_to_db(self, df_stock_data):
         try:

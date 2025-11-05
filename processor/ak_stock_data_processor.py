@@ -153,8 +153,7 @@ class AKStockDataProcessor:
         self.logger.info(stock_board_industry_name_em_df)
 
 
-    # --------------------------------------------------------同花顺概念板块一览表接口----------------------------------------------------------
-    # 通过stock_board_concept_name_em接口日更概念板块，再通过stock_board_concept_cons_em接口日更概念板块所有成分股
+    # --------------------------------------------------------同花顺概念板块信息表接口----------------------------------------------------------
     def query_ths_concept_board_info(self):
         try: 
             df = ak.stock_board_concept_name_ths()
@@ -162,7 +161,7 @@ class AKStockDataProcessor:
             today = datetime.datetime.now().strftime('%Y-%m-%d')
             df['date'] = today
             # self.logger.info(df.head(3))
-            self.stocks_db.insert_ths_concept_board_info_to_db(df)
+            return self.stocks_db.insert_ths_concept_board_info_to_db(df)
 
         except Exception as e:
             self.logger.info(f"获取数据失败: {e}")
@@ -171,6 +170,51 @@ class AKStockDataProcessor:
     def get_latest_ths_concept_board_info(self):
         return self.stocks_db.get_latest_ths_concept_board_info()
     
+    # --------------------------------------------------------同花顺概念板块概览表接口----------------------------------------------------------
+    def process_ths_board_concept_overview_data(self):
+        if not self.query_ths_concept_board_info():
+            return False
+        
+        lastest_ths_concept_board_info = self.get_latest_ths_concept_board_info()
+        count = 1
+        try: 
+            for row in lastest_ths_concept_board_info.itertuples():
+                self.logger.info(f"开始处理第 {count} 个概念: {row.concept_name}, 概念代码: {row.concept_code}")
+                df = ak.stock_board_concept_info_ths(symbol=row.concept_name)
+
+                # self.logger.info(f"返回数据类型：{type(df)}")   # <class 'pandas.core.frame.DataFrame'>
+                # self.logger.info(df)
+
+                # today = datetime.datetime.now().strftime('%Y-%m-%d')
+                # df['date'] = today
+                # self.logger.info(df.head(3))
+                # self.stocks_db.insert_ths_concept_board_info_to_db(df)
+
+                # 插入详细信息到数据库
+                self.stocks_db.insert_ths_board_concept_overview(row.concept_name, row.concept_code, df)
+
+                sleep_time = random.uniform(0.3, 1)
+                time.sleep(sleep_time)
+
+                count += 1
+                # if count >=50:
+                #     break
+
+            return True
+
+        except Exception as e:
+            self.logger.info(f"获取数据失败: {e}")
+            return False
+
+    def query_ths_board_concept_overview(self, concept_name=None, date=None):
+        return self.stocks_db.query_ths_board_concept_overview(concept_name, date)
+    
+    def get_latest_ths_board_concept_overview(self):
+        return self.stocks_db.get_latest_ths_concept_board_overview()
+
+
+    # --------------------------------------------------------东方财富概念板块信息表接口----------------------------------------------------------
+     # 通过stock_board_concept_name_em接口日更概念板块，再通过stock_board_concept_cons_em接口日更概念板块所有成分股
 
     
     # ------------------------------------------------------------------------------------------------------------------
