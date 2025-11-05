@@ -42,6 +42,9 @@ class HomeWidget(QWidget):
         self.btn_update_ths_board_industry_data.clicked.connect(self.slot_btn_update_ths_board_industry_data_clicked)
         self.btn_query_ths_board_industry_data.clicked.connect(self.slot_btn_query_ths_board_industry_data_clicked)
 
+        self.btn_update_ths_board_concept_data.clicked.connect(self.slot_btn_update_ths_board_concept_data_clicked)
+        self.btn_query_ths_board_concept_data.clicked.connect(self.slot_btn_query_ths_board_concept_data_clicked)
+
         self.btn_update_chip_distribution_data_eastmoney.clicked.connect(self.slot_btn_update_chip_distribution_data_eastmoney_clicked)
         self.btn_get_chip_distribution_data_eastmoney.clicked.connect(self.slot_btn_get_chip_distribution_data_eastmoney_clicked)
 
@@ -195,6 +198,21 @@ class HomeWidget(QWidget):
         result = AKStockDataProcessor().get_latest_ths_board_industry_data()
         self.logger.info(result)
         self.logger.info("AKShare--查询最后一个交易日的同花顺行业板块数据完成")
+
+    @pyqtSlot()
+    def slot_btn_update_ths_board_concept_data_clicked(self):
+        self.logger.info("AKShare--更新同花顺概念板块数据")
+        AKStockDataProcessor().query_ths_concept_board_data()
+        self.logger.info("AKShare--更新同花顺概念板块数据完成")
+
+    @pyqtSlot()
+    def slot_btn_query_ths_board_concept_data_clicked(self):
+        self.logger.info("AKShare--查询最后一个交易日的同花顺概念板块数据")
+        # result = AKStockDataProcessor().query_ths_board_industry_data()
+        # self.logger.info(result)
+        # result = AKStockDataProcessor().get_latest_ths_board_industry_data()
+        # self.logger.info(result)
+        self.logger.info("AKShare--查询最后一个交易日的同花顺概念板块数据完成")
 
     @pyqtSlot()
     def slot_btn_update_chip_distribution_data_eastmoney_clicked(self):

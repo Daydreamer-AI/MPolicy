@@ -155,6 +155,14 @@ class AKStockDataProcessor:
 
     # --------------------------------------------------------同花顺行业板块一览表接口----------------------------------------------------------
     # 通过stock_board_concept_name_em接口日更概念板块，再通过stock_board_concept_cons_em接口日更概念板块所有成分股
+    def query_ths_concept_board_data(self):
+        try: 
+            df = ak.stock_board_concept_name_ths()
+            self.logger.info(f"获取到{len(df)} 个同花顺概念")
+            self.logger.info(df.head(3))
+        except Exception as e:
+            self.logger.info(f"获取数据失败: {e}")
+            return False
     
     # ------------------------------------------------------------------------------------------------------------------
 

@@ -162,6 +162,18 @@ class StockDBManager(CommonDBManager):
             )
         ''')
 
+        # 创建同花顺概念板块一览表 - 使用父类方法
+        self.create_table('ths_board_concept', '''
+            CREATE TABLE IF NOT EXISTS ths_board_concept (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                concept_name TEXT NOT NULL,
+                concept_code TEXT NOT NULL,
+                date TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(concept_name, date)  -- 关键：基于概念名称和日期的唯一约束
+            )
+        ''')
+
         # 3. 创建东方财富股票数据表 - 使用父类方法
         self.create_table('stock_data_eastmoney', '''
             CREATE TABLE IF NOT EXISTS stock_data_eastmoney (
@@ -200,6 +212,11 @@ class StockDBManager(CommonDBManager):
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_board_industry_data_date ON board_industry(data_date)')
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_board_industry_industry_name ON board_industry(industry_name)')
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_board_industry_change_percent ON board_industry(change_percent)')
+
+                # 同花顺概念板块索引
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_ths_board_concept_name ON ths_board_concept(concept_name)')
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_ths_board_concept_code ON ths_board_concept(concept_code)')
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_ths_board_concept_date ON ths_board_concept(date)')
                 
                 # 东方财富股票数据索引
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_stock_data_eastmoney_stock_code ON stock_data_eastmoney(stock_code)')
@@ -318,8 +335,9 @@ class StockDBManager(CommonDBManager):
 
 
     # ------------------------------------------------------------同花顺概念板块一览表接口-----------------------------------------
+    def insert_ths_concept_board__to_db(self, df_industry_data):
+        pass
     
-
     # ------------------------------------------------------------东方财富股票数据表stock_data_eastmoney接口-----------------------------------------
     def insert_eastmoney_stock_data_to_db(self, df_stock_data):
         try:
