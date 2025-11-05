@@ -9,7 +9,7 @@ import pandas as pd
 class StockCardWidget(QWidget):
 
     # 定义自定义信号
-    clicked = pyqtSignal()  # 点击信号
+    clicked = pyqtSignal(object)  # 点击信号
     hovered = pyqtSignal()  # 悬浮进入信号
     hoverLeft = pyqtSignal()  # 悬浮离开信号
     doubleClicked = pyqtSignal()  # 双击信号
@@ -69,7 +69,7 @@ class StockCardWidget(QWidget):
     def mousePressEvent(self, event):
         """重写鼠标按下事件"""
         if event.button() == Qt.LeftButton:
-            self.clicked.emit()  # 发射点击信号
+            self.clicked.emit(self.data)  # 发射点击信号
         super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event):

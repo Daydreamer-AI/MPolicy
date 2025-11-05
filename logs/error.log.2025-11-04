@@ -1,0 +1,227 @@
+2025-11-04 16:23:38 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 85, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 34, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 19, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 28, in init_ui
+    self.board_home_page = BoardHomeWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_home_widget.py", line 12, in __init__
+    uic.loadUi('./gui/qt_widgets/board/board_home_widget.ui', self)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\PyQt5\uic\__init__.py", line 241, in loadUi
+    return DynamicUILoader(package).loadUi(uifile, baseinstance, resource_suffix)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\PyQt5\uic\Loader\loader.py", line 66, in loadUi
+    return self.parse(filename, resource_suffix)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\PyQt5\uic\uiparser.py", line 1020, in parse
+    document = parse(filename)
+  File "D:\Users\lips\AppData\Local\Programs\Python\Python310\lib\xml\etree\ElementTree.py", line 1222, in parse
+    tree.parse(source, parser)
+  File "D:\Users\lips\AppData\Local\Programs\Python\Python310\lib\xml\etree\ElementTree.py", line 569, in parse
+    source = open(source, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: './gui/qt_widgets/board/board_home_widget.ui'
+2025-11-04 16:24:27 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 85, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 34, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 19, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 28, in init_ui
+    self.board_home_page = BoardHomeWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_home_widget.py", line 15, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_home_widget.py", line 22, in init_ui
+    self.industry_board_widget = IndustryBoardWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\industry_board_widget.py", line 8, in __init__
+    uic.loadUi('./gui/qt_widgets/main/IndustryBoardWidget.ui', self)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\PyQt5\uic\__init__.py", line 241, in loadUi
+    return DynamicUILoader(package).loadUi(uifile, baseinstance, resource_suffix)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\PyQt5\uic\Loader\loader.py", line 66, in loadUi
+    return self.parse(filename, resource_suffix)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\PyQt5\uic\uiparser.py", line 1020, in parse
+    document = parse(filename)
+  File "D:\Users\lips\AppData\Local\Programs\Python\Python310\lib\xml\etree\ElementTree.py", line 1222, in parse
+    tree.parse(source, parser)
+  File "D:\Users\lips\AppData\Local\Programs\Python\Python310\lib\xml\etree\ElementTree.py", line 569, in parse
+    source = open(source, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: './gui/qt_widgets/main/IndustryBoardWidget.ui'
+2025-11-04 17:03:32 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 85, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 34, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 19, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 28, in init_ui
+    self.board_home_page = BoardHomeWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_home_widget.py", line 15, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_home_widget.py", line 22, in init_ui
+    self.industry_board_widget = IndustryBoardWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\industry_board_widget.py", line 15, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\industry_board_widget.py", line 26, in init_ui
+    stock_card_widget = StockCardWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\MComponents\stock_card_widget.py", line 15, in __init__
+    uic.loadUi('.gui/qt_widgets/MComponents/StockCardWidget.ui', self)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\PyQt5\uic\__init__.py", line 241, in loadUi
+    return DynamicUILoader(package).loadUi(uifile, baseinstance, resource_suffix)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\PyQt5\uic\Loader\loader.py", line 66, in loadUi
+    return self.parse(filename, resource_suffix)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\PyQt5\uic\uiparser.py", line 1020, in parse
+    document = parse(filename)
+  File "D:\Users\lips\AppData\Local\Programs\Python\Python310\lib\xml\etree\ElementTree.py", line 1222, in parse
+    tree.parse(source, parser)
+  File "D:\Users\lips\AppData\Local\Programs\Python\Python310\lib\xml\etree\ElementTree.py", line 569, in parse
+    source = open(source, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: '.gui/qt_widgets/MComponents/StockCardWidget.ui'
+2025-11-04 17:06:52 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 85, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 34, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 19, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 28, in init_ui
+    self.board_home_page = BoardHomeWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_home_widget.py", line 15, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_home_widget.py", line 22, in init_ui
+    self.industry_board_widget = IndustryBoardWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\industry_board_widget.py", line 15, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\industry_board_widget.py", line 26, in init_ui
+    stock_card_widget = StockCardWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\MComponents\stock_card_widget.py", line 15, in __init__
+    uic.loadUi('.gui/qt_widgets/MComponents/StockCardWidget.ui', self)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\PyQt5\uic\__init__.py", line 241, in loadUi
+    return DynamicUILoader(package).loadUi(uifile, baseinstance, resource_suffix)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\PyQt5\uic\Loader\loader.py", line 66, in loadUi
+    return self.parse(filename, resource_suffix)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\PyQt5\uic\uiparser.py", line 1020, in parse
+    document = parse(filename)
+  File "D:\Users\lips\AppData\Local\Programs\Python\Python310\lib\xml\etree\ElementTree.py", line 1222, in parse
+    tree.parse(source, parser)
+  File "D:\Users\lips\AppData\Local\Programs\Python\Python310\lib\xml\etree\ElementTree.py", line 569, in parse
+    source = open(source, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: '.gui/qt_widgets/MComponents/StockCardWidget.ui'
+2025-11-04 17:07:35 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 85, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 34, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 19, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 28, in init_ui
+    self.board_home_page = BoardHomeWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_home_widget.py", line 15, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_home_widget.py", line 22, in init_ui
+    self.industry_board_widget = IndustryBoardWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\industry_board_widget.py", line 15, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\industry_board_widget.py", line 26, in init_ui
+    stock_card_widget = StockCardWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\MComponents\stock_card_widget.py", line 15, in __init__
+    uic.loadUi('.gui/qt_widgets/MComponents/StockCardWidget.ui', self)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\PyQt5\uic\__init__.py", line 241, in loadUi
+    return DynamicUILoader(package).loadUi(uifile, baseinstance, resource_suffix)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\PyQt5\uic\Loader\loader.py", line 66, in loadUi
+    return self.parse(filename, resource_suffix)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\PyQt5\uic\uiparser.py", line 1020, in parse
+    document = parse(filename)
+  File "D:\Users\lips\AppData\Local\Programs\Python\Python310\lib\xml\etree\ElementTree.py", line 1222, in parse
+    tree.parse(source, parser)
+  File "D:\Users\lips\AppData\Local\Programs\Python\Python310\lib\xml\etree\ElementTree.py", line 569, in parse
+    source = open(source, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: '.gui/qt_widgets/MComponents/StockCardWidget.ui'
+2025-11-04 17:10:38 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 85, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 34, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 19, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 28, in init_ui
+    self.board_home_page = BoardHomeWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_home_widget.py", line 15, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_home_widget.py", line 22, in init_ui
+    self.industry_board_widget = IndustryBoardWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\industry_board_widget.py", line 15, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\industry_board_widget.py", line 28, in init_ui
+    stock_card_widget.update_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\MComponents\stock_card_widget.py", line 51, in update_ui
+    self.label_stock_name.setText(self.data['industry_name'])
+TypeError: tuple indices must be integers or slices, not str
+2025-11-04 17:11:55 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 85, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 34, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 19, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 28, in init_ui
+    self.board_home_page = BoardHomeWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_home_widget.py", line 15, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_home_widget.py", line 22, in init_ui
+    self.industry_board_widget = IndustryBoardWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\industry_board_widget.py", line 15, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\industry_board_widget.py", line 28, in init_ui
+    stock_card_widget.update_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\MComponents\stock_card_widget.py", line 53, in update_ui
+    self.label_price.setText(self.data.avg_price)
+TypeError: setText(self, a0: Optional[str]): argument 1 has unexpected type 'float'
+2025-11-04 17:23:20 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 85, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 34, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 19, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 28, in init_ui
+    self.board_home_page = BoardHomeWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_home_widget.py", line 15, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_home_widget.py", line 22, in init_ui
+    self.industry_board_widget = IndustryBoardWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\industry_board_widget.py", line 15, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\industry_board_widget.py", line 28, in init_ui
+    stock_card_widget.update_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\MComponents\stock_card_widget.py", line 55, in update_ui
+    if avg_price is not None and not (isinstance(avg_price, float) and pd.isna(avg_price)):
+NameError: name 'pd' is not defined
+2025-11-04 17:24:27 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 85, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 34, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 19, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 28, in init_ui
+    self.board_home_page = BoardHomeWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_home_widget.py", line 15, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_home_widget.py", line 22, in init_ui
+    self.industry_board_widget = IndustryBoardWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\industry_board_widget.py", line 15, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\industry_board_widget.py", line 30, in init_ui
+    self.listWidget_card.addItem(stock_card_widget)
+TypeError: arguments did not match any overloaded call:
+  addItem(self, aitem: Optional[QListWidgetItem]): argument 1 has unexpected type 'StockCardWidget'
+  addItem(self, label: Optional[str]): argument 1 has unexpected type 'StockCardWidget'
