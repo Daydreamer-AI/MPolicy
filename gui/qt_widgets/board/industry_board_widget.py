@@ -1,6 +1,8 @@
 from PyQt5 import QtWidgets, uic
-from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout, QMessageBox
-from PyQt5.QtCore import pyqtSlot, Qt
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QMessageBox, QGraphicsLineItem, QGraphicsRectItem, QGraphicsTextItem
+from PyQt5.QtCore import pyqtSlot, Qt, QPointF, QRectF
+from PyQt5.QtChart import QChart, QChartView, QLineSeries, QBarSeries, QBarSet, QDateTimeAxis, QValueAxis
+from PyQt5.QtGui import QPainter, QColor, QPen, QFont, QBrush
 
 # 导入pyqtgraph
 import pyqtgraph as pg
@@ -10,6 +12,7 @@ import numpy as np
 from common.logging_manager import get_logger
 from processor.ak_stock_data_processor import AKStockDataProcessor
 from gui.qt_widgets.MComponents.stock_card_widget import StockCardWidget
+from gui.qt_widgets.board.board_chart_widget import BoardChartWidget
 
 class IndustryBoardWidget(QWidget):
     def __init__(self):
@@ -75,6 +78,7 @@ class IndustryBoardWidget(QWidget):
             # 3. 对数据进行排序（按日期）
             # 假设有一个'date'列表示交易日期
             industry_history_data = industry_history_data.sort_values('data_date')
+            self.logger.info(f"获取行业 {industry_name} 的历史数据成功，数量: {len(industry_history_data)}")
             
             # 4. 调用绘图函数
             self.plot_industry_chart(industry_name, industry_history_data)
@@ -95,10 +99,10 @@ class IndustryBoardWidget(QWidget):
 
 
     # =================其他成员函数===============
-    # pyqtgraph 绘图
+    # QtChart 绘图
     def plot_industry_chart(self, industry_name, data):
         """
-        使用pyqtgraph绘制行业数据图表
+        使用封装的图表控件绘制行业数据图表
         :param industry_name: 行业名称
         :param data: 该行业的历史数据
         """
@@ -116,78 +120,136 @@ class IndustryBoardWidget(QWidget):
             for i in reversed(range(layout.count())): 
                 layout.itemAt(i).widget().setParent(None)
 
-            # 创建GraphicsLayoutWidget
-            graphics_layout = pg.GraphicsLayoutWidget()
-            layout.addWidget(graphics_layout)
+            # 创建图表控件实例
+            chart_widget = BoardChartWidget()
             
-            # 创建图表
-            plot_item = graphics_layout.addPlot(title=f"{industry_name} 数据")
+            # 绘制图表
+            success = chart_widget.plot_chart(industry_name, data)
             
-            # 处理日期数据
-            if 'data_date' in data.columns:  # 修正列名引用
-                data = data.copy()
-                data['date'] = pd.to_datetime(data['data_date'])
-                data = data.sort_values('date')
-                # 转换为时间戳用于绘图
-                timestamps = [d.timestamp() for d in data['date']]
+            if success:
+                # 添加到布局
+                layout.addWidget(chart_widget)
+                self.logger.info(f"成功绘制 {industry_name} 图表，数据量: {len(data)}")
             else:
-                timestamps = list(range(len(data)))
-            
-            # 绘制价格数据（根据实际字段调整）
-            price_columns = ['avg_price']
-            price_column = None
-            for col in price_columns:
-                if col in data.columns:
-                    price_column = col
-                    break
-                    
-            if price_column:
-                # 绘制价格折线图
-                price_curve = plot_item.plot(timestamps, data[price_column].values, 
-                                        pen=pg.mkPen(color='r', width=2), 
-                                        name='价格')
-                
-                # 设置X轴为日期
-                axis = plot_item.getAxis('bottom')
-                # 计算合适的日期标签间隔
-                tick_step = max(1, len(timestamps)//10)
-                axis.setTicks([[(timestamps[i], pd.to_datetime(timestamps[i], unit='s').strftime('%Y-%m-%d')) 
-                            for i in range(0, len(timestamps), tick_step)]])
-            
-            # 如果有成交量数据，创建第二个图表
-            if 'total_volume' in data.columns:
-                # 添加新的图表用于成交量
-                graphics_layout.nextRow()
-                volume_plot = graphics_layout.addPlot(title="成交量")
-                volume_plot.getViewBox().setBackgroundColor('w')  # 设置背景为白色
-                
-                # 使用BarGraphItem绘制成交量柱状图
-                if len(timestamps) > 1:
-                    # 计算柱状图宽度
-                    bar_width = (timestamps[1] - timestamps[0]) * 0.8
-                else:
-                    bar_width = 1
-                
-                # 创建柱状图项目
-                bar_graph_item = pg.BarGraphItem(
-                    x=timestamps, 
-                    height=data['total_volume'].values, 
-                    width=bar_width,
-                    brush='b'
-                )
-                volume_plot.addItem(bar_graph_item)
-                
-                # 设置X轴为日期
-                vol_axis = volume_plot.getAxis('bottom')
-                tick_step = max(1, len(timestamps)//10)
-                vol_axis.setTicks([[(timestamps[i], pd.to_datetime(timestamps[i], unit='s').strftime('%Y-%m-%d')) 
-                                for i in range(0, len(timestamps), tick_step)]])
-            
-            self.logger.info(f"成功绘制 {industry_name} 图表，数据量: {len(data)}")
+                self.logger.error(f"绘制 {industry_name} 图表失败")
 
         except Exception as e:
             self.logger.error(f"绘制图表时出错: {e}")
             QMessageBox.warning(self, "绘图错误", f"绘制图表时出现错误:\n{str(e)}")
+    
+    # pyqtgraph 绘图
+    # def plot_industry_chart(self, industry_name, data):
+    #     """
+    #     使用pyqtgraph绘制行业数据图表（柱状图和折线图在同一图表中）
+    #     :param industry_name: 行业名称
+    #     :param data: 该行业的历史数据
+    #     """
+    #     try:
+    #         # 检查数据是否为空
+    #         if data.empty:
+    #             self.logger.warning(f"没有找到 {industry_name} 的历史数据")
+    #             return
+            
+    #         layout = self.widget_view.layout()
+    #         if layout is None:
+    #             self.widget_view.setLayout(QVBoxLayout())
+
+    #         # 清除之前的图表（如果有）
+    #         for i in reversed(range(layout.count())): 
+    #             layout.itemAt(i).widget().setParent(None)
+
+    #         # 创建GraphicsLayoutWidget
+    #         graphics_layout = pg.GraphicsLayoutWidget()
+    #         layout.addWidget(graphics_layout)
+            
+    #         # 创建图表
+    #         plot_item = graphics_layout.addPlot(title=f"{industry_name} 数据")
+            
+    #         # 启用网格
+    #         plot_item.showGrid(x=True, y=True, alpha=0.3)
+            
+    #         # 处理日期数据
+    #         if 'data_date' in data.columns:
+    #             data = data.copy()
+    #             data['date'] = pd.to_datetime(data['data_date'])
+    #             data = data.sort_values('date')
+    #             # 转换为时间戳用于绘图
+    #             timestamps = [d.timestamp() for d in data['date']]
+    #         else:
+    #             timestamps = list(range(len(data)))
+            
+    #         # 创建第二个Y轴用于不同的数据类型
+    #         price_plot = plot_item
+    #         volume_plot = pg.ViewBox()
+    #         price_plot.showAxis('right')
+    #         price_plot.scene().addItem(volume_plot)
+    #         price_plot.getAxis('right').linkToView(volume_plot)
+    #         volume_plot.setXLink(price_plot)
+            
+    #         # 更新视图链接
+    #         def update_views():
+    #             volume_plot.setGeometry(price_plot.getViewBox().sceneBoundingRect())
+    #             volume_plot.linkedViewChanged(price_plot.getViewBox(), volume_plot.XAxis)
+            
+    #         update_views()
+    #         price_plot.getViewBox().sigResized.connect(update_views)
+            
+    #         # 绘制成交量柱状图（使用柱状图）
+    #         if 'total_volume' in data.columns:
+    #             if len(timestamps) > 1:
+    #                 # 计算柱状图宽度
+    #                 bar_width = (timestamps[1] - timestamps[0]) * 0.8
+    #             else:
+    #                 bar_width = 1
+                
+    #             # 创建柱状图项目
+    #             bar_graph_item = pg.BarGraphItem(
+    #                 x=timestamps, 
+    #                 height=data['total_volume'].values, 
+    #                 width=bar_width,
+    #                 brush=pg.mkBrush(100, 150, 255, 150),  # 半透明蓝色
+    #                 pen=pg.mkPen('b')
+    #             )
+    #             volume_plot.addItem(bar_graph_item)
+    #             price_plot.getAxis('right').setLabel('成交量', color='blue')
+            
+    #         # 绘制价格折线图
+    #         price_columns = ['avg_price']
+    #         price_column = None
+    #         for col in price_columns:
+    #             if col in data.columns:
+    #                 price_column = col
+    #                 break
+                    
+    #         if price_column:
+    #             # 绘制价格折线图
+    #             price_curve = price_plot.plot(
+    #                 timestamps, 
+    #                 data[price_column].values, 
+    #                 pen=pg.mkPen(color='r', width=2), 
+    #                 name='价格',
+    #                 symbol='o',
+    #                 symbolSize=4,
+    #                 symbolBrush='r'
+    #             )
+    #             price_plot.setLabel('left', '价格', color='red')
+            
+    #         # 设置X轴为日期
+    #         axis = price_plot.getAxis('bottom')
+    #         if len(timestamps) > 0:
+    #             # 计算合适的日期标签间隔
+    #             tick_step = max(1, len(timestamps)//10)
+    #             axis.setTicks([[(timestamps[i], pd.to_datetime(timestamps[i], unit='s').strftime('%Y-%m-%d')) 
+    #                         for i in range(0, len(timestamps), tick_step)]])
+            
+    #         # 设置X轴标签
+    #         price_plot.setLabel('bottom', '日期')
+            
+    #         self.logger.info(f"成功绘制 {industry_name} 图表，数据量: {len(data)}")
+
+    #     except Exception as e:
+    #         self.logger.error(f"绘制图表时出错: {e}")
+    #         QMessageBox.warning(self, "绘图错误", f"绘制图表时出现错误:\n{str(e)}")
 
     # matplotlib 绘图
     # def plot_industry_chart(self, industry_name, data):
