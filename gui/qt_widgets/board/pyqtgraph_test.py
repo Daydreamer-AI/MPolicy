@@ -345,33 +345,34 @@ class MainWindow(QMainWindow):
         return 1.0
 
     def on_mouse_move(self, pos):
-        """处理鼠标移动事件"""
+        """处理鼠标移动事件，限制只能在x轴节点上移动"""
         # 检查鼠标是否在绘图区域内
         if self.plot_widget.sceneBoundingRect().contains(pos):
-            # 显示十字线
-            self.v_line.show()
-            self.h_line.show()
-            self.label.show()
-            
-            # 将场景坐标转换为视图坐标
-            mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
-            x_val = mouse_point.x()
-            y_val = mouse_point.y()
-            
-            # 更新垂直线位置（跟随鼠标x坐标）
-            self.v_line.setPos(x_val)
-            
-            # 更新水平线位置（跟随鼠标y坐标）
-            self.h_line.setPos(y_val)
-            
-            # 查找最近的数据点
+            # 确保有数据存在
             if hasattr(self, 'adjusted_timestamps') and hasattr(self, 'sales_data'):
+                # 将场景坐标转换为视图坐标
+                mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
+                x_val = mouse_point.x()
+                
                 # 找到最接近的x坐标数据点
-                distances = [abs(ts + 0.8 * 24 * 60 * 60 / 2 - x_val) for ts in self.adjusted_timestamps]
+                bar_width = 0.8 * 24 * 60 * 60  # 一天的秒数 * 0.8
+                bar_centers = [ts + bar_width / 2 for ts in self.adjusted_timestamps]  # 柱子中心位置
+                distances = [abs(center - x_val) for center in bar_centers]
+                
                 if distances:
                     closest_index = distances.index(min(distances))
-                    closest_x = self.adjusted_timestamps[closest_index] + 0.8 * 24 * 60 * 60 / 2
+                    closest_x = bar_centers[closest_index]
                     closest_y = self.sales_data[closest_index]
+                    
+                    # 更新垂直线位置（对齐到最近的数据节点）
+                    self.v_line.setPos(closest_x)
+                    # 水平线仍然跟随鼠标y坐标
+                    self.h_line.setPos(mouse_point.y())
+                    
+                    # 显示十字线和标签
+                    self.v_line.show()
+                    self.h_line.show()
+                    self.label.show()
                     
                     # 转换x轴时间戳为日期字符串
                     try:
@@ -379,27 +380,44 @@ class MainWindow(QMainWindow):
                         qdt = QDateTime.fromMSecsSinceEpoch(timestamp_ms)
                         date_str = qdt.toString('yyyy-MM-dd')
                         
+                        # 获取对应的移动平均值
+                        line_y_value = self.line_data[closest_index] if hasattr(self, 'line_data') else 0
+                        
                         # 格式化标签文本
-                        label_text = f"日期: {date_str}\n销售额: {closest_y}\n鼠标Y: {y_val:.2f}"
+                        label_text = f"日期: {date_str}\n销售额: {closest_y}\n移动平均: {line_y_value:.2f}\n鼠标Y: {mouse_point.y():.2f}"
                         self.label.setText(label_text)
                         
-                        # 将标签定位在鼠标附近
-                        self.label.setPos(x_val, y_val)
-                    except:
+                        # 将标签定位在数据节点附近
+                        y_range = self.plot_widget.getViewBox().viewRange()[1]
+                        label_y = y_range[1] * 0.95  # 放在图表上部
+                        self.label.setPos(closest_x, label_y)
+                    except Exception as e:
+                        print(f"Error in mouse move: {e}")
                         pass
             else:
+                # 没有数据时的简单处理
+                mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
+                
+                # 显示十字线和标签
+                self.v_line.show()
+                self.h_line.show()
+                self.label.show()
+                
+                self.v_line.setPos(mouse_point.x())
+                self.h_line.setPos(mouse_point.y())
+                
                 # 简单显示坐标值
                 try:
-                    timestamp_ms = int(x_val * 1000)
+                    timestamp_ms = int(mouse_point.x() * 1000)
                     qdt = QDateTime.fromMSecsSinceEpoch(timestamp_ms)
                     date_str = qdt.toString('yyyy-MM-dd')
                     
                     # 格式化标签文本
-                    label_text = f"日期: {date_str}\n数值: {y_val:.2f}"
+                    label_text = f"日期: {date_str}\n数值: {mouse_point.y():.2f}"
                     self.label.setText(label_text)
                     
                     # 将标签定位在鼠标附近
-                    self.label.setPos(x_val, y_val)
+                    self.label.setPos(mouse_point.x(), mouse_point.y())
                 except:
                     pass
         else:
