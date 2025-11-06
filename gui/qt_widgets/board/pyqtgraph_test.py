@@ -1,7 +1,7 @@
 import pyqtgraph as pg
 from pyqtgraph import DateAxisItem
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
-from PyQt5.QtCore import QDateTime
+from PyQt5.QtCore import QDateTime, Qt
 import numpy as np
 from datetime import datetime, timedelta
 import sys
@@ -32,18 +32,21 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
         
-        # 关键修改：使用自定义的日期轴类
+        # 使用自定义的日期轴类
         self.date_axis = CustomDateAxisItem(orientation='bottom')
         self.plot_widget = pg.PlotWidget(axisItems={'bottom': self.date_axis})
         layout.addWidget(self.plot_widget)
 
         self.plot_widget.setMouseEnabled(x=True, y=False)
         # 在初始化时启用自动范围调整，即使禁用y轴鼠标交互
-        self.plot_widget.getViewBox().enableAutoRange(axis=pg.ViewBox.XAxis, enable=True)
-        self.plot_widget.getViewBox().enableAutoRange(axis=pg.ViewBox.YAxis, enable=True)
+        # self.plot_widget.getViewBox().enableAutoRange(axis=pg.ViewBox.XAxis, enable=True)
+        # self.plot_widget.getViewBox().enableAutoRange(axis=pg.ViewBox.YAxis, enable=True)
 
         # 连接视图范围改变信号
         self.plot_widget.sigRangeChanged.connect(self.on_range_changed)
+        
+        # 连接鼠标移动信号
+        self.plot_widget.scene().sigMouseMoved.connect(self.on_mouse_move)
 
         # self.plot_widget.getViewBox().setContentsMargins(0, 0, 0, 0)
         # plot_item = self.plot_widget.getPlotItem()
@@ -59,6 +62,21 @@ class MainWindow(QMainWindow):
         self.setup_plot_style()
         # 创建示例数据并绘图
         self.plot_date_bar_chart()
+
+        # 初始化十字线
+        self.v_line = pg.InfiniteLine(angle=90, movable=False, pen=pg.mkPen('r', width=1, style=Qt.DashLine))
+        self.h_line = pg.InfiniteLine(angle=0, movable=False, pen=pg.mkPen('r', width=1, style=Qt.DashLine))
+        self.plot_widget.addItem(self.v_line, ignoreBounds=True)
+        self.plot_widget.addItem(self.h_line, ignoreBounds=True)
+        
+        # 初始化标签
+        self.label = pg.TextItem("", anchor=(0, 1))
+        self.plot_widget.addItem(self.label, ignoreBounds=True)
+        
+        # 初始隐藏十字线
+        self.v_line.hide()
+        self.h_line.hide()
+        self.label.hide()
     
     def setup_plot_style(self):
         """设置图表样式"""
@@ -74,10 +92,13 @@ class MainWindow(QMainWindow):
         
         # 准备日期和数据
         base_date = datetime(2025, 10, 1)
-        date_list = [base_date + timedelta(days=i) for i in range(10)]
+        date_list = [base_date + timedelta(days=i) for i in range(100)]
         
         # 生成示例销售额数据
         self.sales_data = np.random.randint(1000, 5000, size=len(date_list))
+
+        # 生成折线图数据（例如7日移动平均线）
+        self.line_data = self.calculate_moving_average(self.sales_data, window=7)
         
         # 将日期转换为时间戳
         timestamps = [date.timestamp() for date in date_list]
@@ -101,6 +122,44 @@ class MainWindow(QMainWindow):
         )
         
         self.plot_widget.addItem(bargraph)
+
+         # 创建右侧Y轴用于显示折线图
+        self.right_viewbox = pg.ViewBox()
+        self.right_axis = self.plot_widget.getAxis('right')
+
+        # 链接右侧Y轴到主视图
+        self.plot_widget.scene().addItem(self.right_viewbox)
+        self.plot_widget.getAxis('right').linkToView(self.right_viewbox)
+        self.right_viewbox.setXLink(self.plot_widget)
+        
+        # 设置右侧Y轴标签
+        self.plot_widget.setLabel('right', '移动平均', units='元')
+        self.plot_widget.showAxis('right')
+
+        # 创建折线图（移动平均线）
+        # 使用柱子的中心位置作为x坐标
+        line_x_positions = [ts + bar_width/2 for ts in self.adjusted_timestamps]
+
+        # 创建折线图
+        self.line_plot = self.plot_widget.plot(
+            x=line_x_positions,
+            y=self.line_data,
+            pen=pg.mkPen(color='#ff7f0e', width=3),
+            symbol='o',
+            symbolSize=6,
+            symbolBrush='#ff7f0e',
+            name="7日移动平均"
+        )
+
+        self.right_viewbox.addItem(self.line_plot)
+
+        # 同步两个ViewBox的视图范围
+        def update_views():
+            self.right_viewbox.setGeometry(self.plot_widget.getViewBox().sceneBoundingRect())
+            self.right_viewbox.linkedViewChanged(self.plot_widget.getViewBox(), self.right_viewbox.XAxis)
+        
+        update_views()
+        self.plot_widget.getViewBox().sigResized.connect(update_views)
         
         # 调整视图范围
         # x_min = min(timestamps) - day_seconds
@@ -115,13 +174,16 @@ class MainWindow(QMainWindow):
         x_max = max(timestamps) + bar_width * 1.5
         self.plot_widget.setXRange(x_min, x_max)
         
-        y_max = max(self.sales_data) * 1.1
-        print(f"y_max: {y_max}")
-        self.plot_widget.setYRange(0, y_max)
+        # 设置左右两侧Y轴的范围
+        y_max_bar = max(self.sales_data) * 1.1
+        y_max_line = max(self.line_data) * 1.1
+        self.plot_widget.setYRange(0, y_max_bar)
+        self.right_viewbox.setYRange(0, y_max_line)
         
         # 可选：添加数据标签显示在柱子顶部
-        self.add_value_labels(self.adjusted_timestamps, self.sales_data, bar_width)
+        # self.add_value_labels(self.adjusted_timestamps, self.sales_data, bar_width)
         self.fix_y_axis_ticks(self.sales_data)
+        # self.fix_right_y_axis_ticks(self.line_data)
 
     def add_value_labels(self, timestamps, values, bar_width):
         """在柱子顶部添加数值标签"""
@@ -225,6 +287,22 @@ class MainWindow(QMainWindow):
                 # 设置Y轴范围，增加一些边距 (10%)
                 vb.setYRange(0, y_max * 1.1)
 
+    def calculate_moving_average(self, data, window=7):
+        """计算移动平均线"""
+        if len(data) < window:
+            return data
+        
+        moving_avg = []
+        for i in range(len(data)):
+            if i < window - 1:
+                # 对于前几个数据点，使用可用数据的平均值
+                avg = np.mean(data[:i+1])
+            else:
+                # 计算window天的移动平均
+                avg = np.mean(data[i-window+1:i+1])
+            moving_avg.append(avg)
+        
+        return moving_avg
 
     def get_x_zoom_ratio(self):
         """获取x轴当前缩放比例"""
@@ -266,6 +344,69 @@ class MainWindow(QMainWindow):
             return scale_factor
         return 1.0
 
+    def on_mouse_move(self, pos):
+        """处理鼠标移动事件"""
+        # 检查鼠标是否在绘图区域内
+        if self.plot_widget.sceneBoundingRect().contains(pos):
+            # 显示十字线
+            self.v_line.show()
+            self.h_line.show()
+            self.label.show()
+            
+            # 将场景坐标转换为视图坐标
+            mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
+            x_val = mouse_point.x()
+            y_val = mouse_point.y()
+            
+            # 更新垂直线位置（跟随鼠标x坐标）
+            self.v_line.setPos(x_val)
+            
+            # 更新水平线位置（跟随鼠标y坐标）
+            self.h_line.setPos(y_val)
+            
+            # 查找最近的数据点
+            if hasattr(self, 'adjusted_timestamps') and hasattr(self, 'sales_data'):
+                # 找到最接近的x坐标数据点
+                distances = [abs(ts + 0.8 * 24 * 60 * 60 / 2 - x_val) for ts in self.adjusted_timestamps]
+                if distances:
+                    closest_index = distances.index(min(distances))
+                    closest_x = self.adjusted_timestamps[closest_index] + 0.8 * 24 * 60 * 60 / 2
+                    closest_y = self.sales_data[closest_index]
+                    
+                    # 转换x轴时间戳为日期字符串
+                    try:
+                        timestamp_ms = int(closest_x * 1000)
+                        qdt = QDateTime.fromMSecsSinceEpoch(timestamp_ms)
+                        date_str = qdt.toString('yyyy-MM-dd')
+                        
+                        # 格式化标签文本
+                        label_text = f"日期: {date_str}\n销售额: {closest_y}\n鼠标Y: {y_val:.2f}"
+                        self.label.setText(label_text)
+                        
+                        # 将标签定位在鼠标附近
+                        self.label.setPos(x_val, y_val)
+                    except:
+                        pass
+            else:
+                # 简单显示坐标值
+                try:
+                    timestamp_ms = int(x_val * 1000)
+                    qdt = QDateTime.fromMSecsSinceEpoch(timestamp_ms)
+                    date_str = qdt.toString('yyyy-MM-dd')
+                    
+                    # 格式化标签文本
+                    label_text = f"日期: {date_str}\n数值: {y_val:.2f}"
+                    self.label.setText(label_text)
+                    
+                    # 将标签定位在鼠标附近
+                    self.label.setPos(x_val, y_val)
+                except:
+                    pass
+        else:
+            # 鼠标移出绘图区域时隐藏十字线
+            self.v_line.hide()
+            self.h_line.hide()
+            self.label.hide()
 def main():
     app = QApplication(sys.argv)
     window = MainWindow()
