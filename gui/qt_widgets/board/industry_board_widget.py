@@ -122,6 +122,7 @@ class IndustryBoardWidget(QWidget):
 
             # 创建图表控件实例
             chart_widget = BoardChartWidget()
+            # chart_widget.resize(1366, 768)
             
             # 绘制图表
             success = chart_widget.plot_chart(industry_name, data)

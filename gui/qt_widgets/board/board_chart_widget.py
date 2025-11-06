@@ -10,20 +10,22 @@ import numpy as np
 from datetime import datetime, timedelta
 from PyQt5.QtCore import QDateTime
 
-class CustomDateAxisItem(DateAxisItem):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+from gui.qt_widgets.MComponents.custom_date_axisItem import CustomDateAxisItem
+
+# class CustomDateAxisItem(DateAxisItem):
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
     
-    def tickStrings(self, values, scale, spacing):
-        """重写此方法来自定义日期显示格式为'YYYY-MM-DD'"""
-        strings = []
-        for value in values:
-            # 将时间戳转换为QDateTime对象
-            qdt = QDateTime.fromMSecsSinceEpoch(value * 1000)
-            # 格式化为'2025-10-10'这样的字符串
-            date_str = qdt.toString('yyyy-MM-dd')
-            strings.append(date_str)
-        return strings
+#     def tickStrings(self, values, scale, spacing):
+#         """重写此方法来自定义日期显示格式为'YYYY-MM-DD'"""
+#         strings = []
+#         for value in values:
+#             # 将时间戳转换为QDateTime对象
+#             qdt = QDateTime.fromMSecsSinceEpoch(value * 1000)
+#             # 格式化为'2025-10-10'这样的字符串
+#             date_str = qdt.toString('yyyy-MM-dd')
+#             strings.append(date_str)
+#         return strings
 
 class BoardChartWidget(QWidget):
     def __init__(self):
@@ -34,26 +36,22 @@ class BoardChartWidget(QWidget):
         layout = QVBoxLayout(self)
         
         # 创建使用日期轴的绘图窗口
-        self.plot_widget = pg.PlotWidget()
+        # 使用自定义的日期轴类
+        self.date_axis = CustomDateAxisItem(orientation='bottom')
+        self.plot_widget = pg.PlotWidget(axisItems={'bottom': self.date_axis})
         layout.addWidget(self.plot_widget)
         
         self.setup_plot_style()
 
     def setup_plot_style(self):
-        self.plot_widget.setBackground('w')
-
         # 设置坐标轴标签
         # 完全禁用坐标轴
         # self.plot_widget.getAxis('bottom').hide()
         # self.plot_widget.getAxis('left').hide()
-        self.plot_widget.setLabel('left', '平均价格')
-        self.plot_widget.setLabel('bottom', '交易日期')
 
         # 设置坐标轴从0开始并强制对齐
         # self.plot_widget.setXRange(0, 1)  # 设置X轴范围
         # self.plot_widget.setYRange(0, 1)  # 设置Y轴范围
-        self.date_axis = CustomDateAxisItem(orientation='bottom')
-        self.plot_widget = pg.PlotWidget(axisItems={'bottom': self.date_axis})
 
         # 关键修复：禁用自动边距，手动设置边距
         # self.plot_widget.getViewBox().setContentsMargins(0, 0, 0, 0)
@@ -66,12 +64,22 @@ class BoardChartWidget(QWidget):
         # self.plot_widget.setLimits(xMin=0, yMin=0)
 
         # 启用鼠标交互，默认开启
-        # self.plot_widget.setMouseEnabled(x=False, y=False)
+        self.plot_widget.setMouseEnabled(x=True, y=False)
         
         # 启用缩放和拖拽，默认开启
         # self.plot_widget.setMenuEnabled(False)
 
+        # 连接视图范围改变信号
+        self.plot_widget.sigRangeChanged.connect(self.slot_range_changed)
         
+        # 连接鼠标移动信号
+        self.plot_widget.scene().sigMouseMoved.connect(self.slot_mouse_move)
+
+        
+        self.plot_widget.setBackground('w')
+        self.plot_widget.setLabel('left', '总成交量')
+        self.plot_widget.setLabel('bottom', '交易日期')
+
         # 显示网格
         self.plot_widget.showGrid(x=True, y=True, alpha=0.3)
         
@@ -85,15 +93,59 @@ class BoardChartWidget(QWidget):
         self.plot_widget.setTitle(f"{industry_name}趋势", color='#008080', size='12pt')
         
         # 处理数据
-        # if 'data_date' in data.columns:
-        #     data = data.copy()
-        #     data['date'] = pd.to_datetime(data['data_date'])
-        #     data = data.sort_values('date')
-        #     timestamps = [d.timestamp() for d in data['date']]
-        #     dates = data['date'].tolist()
+        if 'data_date' in data.columns:
+            data = data.copy()
+            data['date'] = pd.to_datetime(data['data_date'])
+            data = data.sort_values('date')
+            timestamps = [d.timestamp() for d in data['date']]
+            dates = data['date'].tolist()
+        else:
+            timestamps = list(range(len(data)))
+            dates = [datetime.fromtimestamp(ts) for ts in timestamps]
+
+        # 计算合适的柱子宽度
+        day_seconds = 24 * 60 * 60
+        bar_width = 0.8 * day_seconds
+        # 动态计算柱子宽度
+        # if len(timestamps) > 1:
+        #     # 计算相邻时间点的最小间隔
+        #     time_intervals = [timestamps[i+1] - timestamps[i] for i in range(len(timestamps)-1)]
+        #     min_interval = min(time_intervals)
+        #     bar_width = 0.8 * min_interval  # 柱子占80%的最小时间间隔
         # else:
-        #     timestamps = list(range(len(data)))
-        #     dates = [datetime.fromtimestamp(ts) for ts in timestamps]
+        #     # 只有一个数据点时使用默认一天宽度
+        #     day_seconds = 24 * 60 * 60
+        #     bar_width = 0.8 * day_seconds
+
+        # 将柱子的中心对准日期时间点，而不是起始位置
+        self.adjusted_timestamps = [ts - bar_width*0.92 for ts in timestamps]
+
+        # 创建柱状图
+        total_volume = data['total_volume'].values
+        bargraph = pg.BarGraphItem(
+            x0=self.adjusted_timestamps,
+            height=total_volume,
+            width=bar_width,
+            brush='#1f77b4',
+            pen={'color': '#0f4d8f', 'width': 1},
+            name="总成交量"
+        )
+
+        self.plot_widget.addItem(bargraph)
+
+        # 考虑柱子宽度，使柱子居中显示
+        x_min = min(timestamps) - bar_width/2
+        x_max = max(timestamps) + bar_width * 1.5
+        self.plot_widget.setXRange(x_min, x_max)
+        
+        # 设置左右两侧Y轴的范围
+        y_max_bar = max(total_volume) * 1.1
+        self.plot_widget.setYRange(0, y_max_bar)
+
+        # y_max_line = max(self.line_data) * 1.1
+        # self.right_viewbox.setYRange(0, y_max_line)
+
+        self.add_bar_value_labels(self.adjusted_timestamps, total_volume, bar_width)
             
         # 绘制价格线
         # count = list(range(len(data)))
@@ -136,7 +188,7 @@ class BoardChartWidget(QWidget):
         #     )
         #     volume_plot.addItem(bars)
 
-        self.plot_date_bar_chart()
+        # self.plot_date_bar_chart()
 
         return True
     
@@ -182,4 +234,22 @@ class BoardChartWidget(QWidget):
         # 设置Y轴范围，留出一些顶部空间
         y_max = max(sales_data) * 1.1
         self.plot_widget.setYRange(0, y_max)
-        
+    
+    def add_bar_value_labels(self, timestamps, values, bar_width):
+        """在柱子顶部添加数值标签"""
+        for i, (ts, val) in enumerate(zip(timestamps, values)):
+            # 计算标签位置（柱子中心顶部）
+            x_pos = ts + bar_width/2
+            y_pos = val + 0.05  # 稍微高于柱子顶部
+            
+            # 创建文本项
+            text = pg.TextItem(text=f"{val}", color=(0, 0, 0), anchor=(0.5, 1))
+            text.setPos(x_pos, y_pos)
+            self.plot_widget.addItem(text)
+    def slot_range_changed(self):
+        # 根据当前可视范围调整Y轴
+        # 重新设置Y轴刻度
+        pass
+
+    def slot_mouse_move(self, pos):
+        pass
