@@ -7,7 +7,23 @@ from pyqtgraph import DateAxisItem
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 import pandas as pd
 import numpy as np
-from datetime import datetime
+from datetime import datetime, timedelta
+from PyQt5.QtCore import QDateTime
+
+class CustomDateAxisItem(DateAxisItem):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+    
+    def tickStrings(self, values, scale, spacing):
+        """重写此方法来自定义日期显示格式为'YYYY-MM-DD'"""
+        strings = []
+        for value in values:
+            # 将时间戳转换为QDateTime对象
+            qdt = QDateTime.fromMSecsSinceEpoch(value * 1000)
+            # 格式化为'2025-10-10'这样的字符串
+            date_str = qdt.toString('yyyy-MM-dd')
+            strings.append(date_str)
+        return strings
 
 class BoardChartWidget(QWidget):
     def __init__(self):
@@ -36,6 +52,8 @@ class BoardChartWidget(QWidget):
         # 设置坐标轴从0开始并强制对齐
         # self.plot_widget.setXRange(0, 1)  # 设置X轴范围
         # self.plot_widget.setYRange(0, 1)  # 设置Y轴范围
+        self.date_axis = CustomDateAxisItem(orientation='bottom')
+        self.plot_widget = pg.PlotWidget(axisItems={'bottom': self.date_axis})
 
         # 关键修复：禁用自动边距，手动设置边距
         # self.plot_widget.getViewBox().setContentsMargins(0, 0, 0, 0)
@@ -118,7 +136,50 @@ class BoardChartWidget(QWidget):
         #     )
         #     volume_plot.addItem(bars)
 
-
+        self.plot_date_bar_chart()
 
         return True
+    
+    def plot_date_bar_chart(self):
+        """绘制日期轴柱状图"""
+        
+        # 关键步骤2：准备日期和数据
+        # 生成示例日期（例如：2025-10-01 到 2025-10-10）
+        base_date = datetime(2025, 10, 1)
+        date_list = [base_date + timedelta(days=i) for i in range(10)]
+        
+        # 生成示例销售额数据
+        sales_data = np.random.randint(1000, 5000, size=len(date_list))
+        
+        # 关键步骤3：将日期转换为时间戳（PyQtGraph内部使用）
+        # DateAxisItem需要数值型的时间戳作为X轴数据[2,4](@ref)
+        timestamps = [date.timestamp() for date in date_list]
+        
+        # 关键步骤4：计算合适的柱子宽度
+        # 一天的秒数，确保柱子宽度与日期间隔匹配[4](@ref)
+        day_seconds = 24 * 60 * 60
+        # 柱子宽度设置为0.8天，使柱子间有间隙
+        bar_width = 0.8 * day_seconds
+        
+        # 关键步骤5：创建柱状图
+        bargraph = pg.BarGraphItem(
+            x0=timestamps, # 使用时间戳作为X轴数据
+            height=sales_data,
+            width=bar_width, # 设置柱子宽度
+            brush='#1f77b4', # 设置柱子颜色
+            pen={'color': '#0f4d8f', 'width': 1}, # 设置边框
+            name="日销售额"
+        )
+        
+        self.plot_widget.addItem(bargraph)
+        
+        # 关键步骤6：调整视图范围，确保所有柱子可见
+        # 设置X轴范围，包含所有日期并留有一些边距
+        x_min = min(timestamps) - day_seconds
+        x_max = max(timestamps) + day_seconds
+        self.plot_widget.setXRange(x_min, x_max)
+        
+        # 设置Y轴范围，留出一些顶部空间
+        y_max = max(sales_data) * 1.1
+        self.plot_widget.setYRange(0, y_max)
         
