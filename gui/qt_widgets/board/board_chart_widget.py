@@ -90,25 +90,25 @@ class BoardChartWidget(QWidget):
         self.plot_widget.addLegend()
 
         # 初始化十字线
-        self.v_line = pg.InfiniteLine(angle=90, movable=True, pen=pg.mkPen('r', width=1, style=Qt.DashLine))
-        self.h_line = pg.InfiniteLine(angle=0, movable=False, pen=pg.mkPen('r', width=1, style=Qt.DashLine))
-        self.plot_widget.addItem(self.v_line, ignoreBounds=True)
-        self.plot_widget.addItem(self.h_line, ignoreBounds=True)
+        self.v_line = pg.InfiniteLine(angle=90, movable=True, pen=pg.mkPen('r', width=2, style=Qt.DashLine))
+        self.h_line = pg.InfiniteLine(angle=0, movable=False, pen=pg.mkPen('r', width=2, style=Qt.DashLine))
+        # self.plot_widget.addItem(self.v_line, ignoreBounds=True)
+        # self.plot_widget.addItem(self.h_line, ignoreBounds=True)
 
         # 设置高Z值确保在最上层
-        # self.v_line.setZValue(1000)
-        # self.h_line.setZValue(1000)
+        self.v_line.setZValue(1000)
+        self.h_line.setZValue(1000)
 
-        # 确保添加到主ViewBox而不是场景
-        # main_viewbox = self.plot_widget.getViewBox()
-        # main_viewbox.addItem(self.v_line, ignoreBounds=True)
-        # main_viewbox.addItem(self.h_line, ignoreBounds=True)
+        # # 确保添加到主ViewBox而不是场景
+        main_viewbox = self.plot_widget.getViewBox()
+        main_viewbox.addItem(self.v_line, ignoreBounds=True)
+        main_viewbox.addItem(self.h_line, ignoreBounds=True)
         
         # 初始化标签
         self.label = pg.TextItem("", anchor=(0, 1))
-        # self.label.setZValue(1001)  # 标签也在最上层
-        self.plot_widget.addItem(self.label, ignoreBounds=True)
-        # main_viewbox.addItem(self.label, ignoreBounds=True)
+        self.label.setZValue(1001)  # 标签也在最上层
+        # self.plot_widget.addItem(self.label, ignoreBounds=True)
+        main_viewbox.addItem(self.label, ignoreBounds=True)
         
         
         # 初始隐藏十字线
@@ -126,26 +126,9 @@ class BoardChartWidget(QWidget):
         # 处理数据
         if 'data_date' in data.columns:
             self.logger.info(f"data_date类型：{type(data['data_date'][0])}")
-            # data['date'] = pd.to_datetime(data['data_date'])
-            # data = data.sort_values('date')
-            
-            # # 获取所有日期范围
-            # start_date = data['date'].min()
-            # end_date = data['date'].max()
-            
-            # # 创建完整的日期序列（包括缺失的日期）
-            # all_dates = pd.date_range(start=start_date, end=end_date, freq='D')
-            
-            # # 将原始数据转换为完整的时间序列
-            # complete_data = pd.DataFrame({'date': all_dates})
-            # complete_data = complete_data.merge(data[['date', 'total_volume']], on='date', how='left')
-            # complete_data = complete_data.fillna(0)  # 缺失值填充为0
-            
-            # # 使用完整的日期序列
-            # timestamps = [d.timestamp() for d in complete_data['date']]
+
             date_list = []
             for row in data.itertuples():
-                # self.logger.info(f"data_date类型：{type(row.date)}")
                 date_object = datetime.strptime(row.data_date, "%Y-%m-%d")
                 date_list.append(date_object)
         else:
@@ -510,21 +493,21 @@ class BoardChartWidget(QWidget):
             # self.logger.info(f"H line position set to: {y_val}")
             
             # 更新标签文本和位置
-            # try:
-            #     # 转换x轴时间戳为日期字符串
-            #     timestamp_ms = int(x_val * 1000)
-            #     qdt = QDateTime.fromMSecsSinceEpoch(timestamp_ms)
-            #     date_str = qdt.toString('yyyy-MM-dd')
+            try:
+                # 转换x轴时间戳为日期字符串
+                timestamp_ms = int(x_val * 1000)
+                qdt = QDateTime.fromMSecsSinceEpoch(timestamp_ms)
+                date_str = qdt.toString('yyyy-MM-dd')
                 
-            #     # 格式化标签文本
-            #     label_text = f"日期: {date_str}\nX: {x_val:.2f}\nY: {y_val:.2f}"
-            #     self.label.setText(label_text)
+                # 格式化标签文本
+                label_text = f"日期: {date_str}\nX: {x_val:.2f}\nY: {y_val:.2f}"
+                self.label.setText(label_text)
                 
-            #     # 将标签定位在鼠标附近
-            #     self.label.setPos(x_val, y_val)
-            # except Exception as e:
-            #     self.logger.error(f"Error updating crosshair label: {e}")
-            #     pass
+                # 将标签定位在鼠标附近
+                self.label.setPos(x_val, y_val)
+            except Exception as e:
+                self.logger.error(f"Error updating crosshair label: {e}")
+                pass
                 
         else:
             # 鼠标移出绘图区域时隐藏十字线
