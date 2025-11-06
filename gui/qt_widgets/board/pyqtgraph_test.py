@@ -349,18 +349,31 @@ class MainWindow(QMainWindow):
         # 检查鼠标是否在绘图区域内
         if self.plot_widget.sceneBoundingRect().contains(pos):
             # 确保有数据存在
-            if hasattr(self, 'adjusted_timestamps') and hasattr(self, 'sales_data'):
+            if (hasattr(self, 'adjusted_timestamps') and hasattr(self, 'sales_data') and 
+                len(self.adjusted_timestamps) > 0 and len(self.sales_data) > 0):
+                
                 # 将场景坐标转换为视图坐标
                 mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
                 x_val = mouse_point.x()
                 
-                # 找到最接近的x坐标数据点
+                # 计算柱子中心位置
                 bar_width = 0.8 * 24 * 60 * 60  # 一天的秒数 * 0.8
-                bar_centers = [ts + bar_width / 2 for ts in self.adjusted_timestamps]  # 柱子中心位置
-                distances = [abs(center - x_val) for center in bar_centers]
+                bar_centers = [ts + bar_width / 2 for ts in self.adjusted_timestamps]
                 
-                if distances:
-                    closest_index = distances.index(min(distances))
+                # 找到鼠标位置附近的柱子
+                closest_index = None
+                min_distance = float('inf')
+                
+                for i, center in enumerate(bar_centers):
+                    distance = abs(center - x_val)
+                    # 只有当鼠标在柱子宽度范围内时才考虑该柱子
+                    if distance <= bar_width / 2:
+                        if distance < min_distance:
+                            min_distance = distance
+                            closest_index = i
+                
+                # 如果找到有效的柱子
+                if closest_index is not None:
                     closest_x = bar_centers[closest_index]
                     closest_y = self.sales_data[closest_index]
                     
@@ -387,44 +400,32 @@ class MainWindow(QMainWindow):
                         label_text = f"日期: {date_str}\n销售额: {closest_y}\n移动平均: {line_y_value:.2f}\n鼠标Y: {mouse_point.y():.2f}"
                         self.label.setText(label_text)
                         
-                        # 将标签定位在数据节点附近
-                        y_range = self.plot_widget.getViewBox().viewRange()[1]
-                        label_y = y_range[1] * 0.95  # 放在图表上部
-                        self.label.setPos(closest_x, label_y)
+                        # 将标签定位在图表上部，避免遮挡
+                        # y_range = self.plot_widget.getViewBox().viewRange()[1]
+                        # label_y = y_range[1] * 0.95
+                        # self.label.setPos(closest_x, label_y)
+                        self.label.setPos(closest_x, mouse_point.y())
+
                     except Exception as e:
                         print(f"Error in mouse move: {e}")
                         pass
+                else:
+                    # 没有靠近任何柱子时隐藏十字线
+                    self.v_line.hide()
+                    self.h_line.hide()
+                    self.label.hide()
             else:
-                # 没有数据时的简单处理
-                mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
-                
-                # 显示十字线和标签
-                self.v_line.show()
-                self.h_line.show()
-                self.label.show()
-                
-                self.v_line.setPos(mouse_point.x())
-                self.h_line.setPos(mouse_point.y())
-                
-                # 简单显示坐标值
-                try:
-                    timestamp_ms = int(mouse_point.x() * 1000)
-                    qdt = QDateTime.fromMSecsSinceEpoch(timestamp_ms)
-                    date_str = qdt.toString('yyyy-MM-dd')
-                    
-                    # 格式化标签文本
-                    label_text = f"日期: {date_str}\n数值: {mouse_point.y():.2f}"
-                    self.label.setText(label_text)
-                    
-                    # 将标签定位在鼠标附近
-                    self.label.setPos(mouse_point.x(), mouse_point.y())
-                except:
-                    pass
+                # 没有数据时隐藏十字线
+                self.v_line.hide()
+                self.h_line.hide()
+                self.label.hide()
         else:
             # 鼠标移出绘图区域时隐藏十字线
             self.v_line.hide()
             self.h_line.hide()
             self.label.hide()
+
+
 def main():
     app = QApplication(sys.argv)
     window = MainWindow()
