@@ -14,6 +14,21 @@
    <string>Form</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item>
     <widget class="QFrame" name="frame_stock">
      <property name="minimumSize">
@@ -35,6 +50,15 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="leftMargin">
+       <number>6</number>
+      </property>
+      <property name="topMargin">
+       <number>9</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
       <item>
        <widget class="QLabel" name="label_stock_name">
         <property name="text">
@@ -64,16 +88,16 @@
    </item>
    <item>
     <widget class="QFrame" name="frame_price">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="minimumSize">
       <size>
        <width>60</width>
        <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>60</width>
-       <height>16777215</height>
       </size>
      </property>
      <property name="frameShape">
@@ -84,16 +108,16 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <property name="leftMargin">
-       <number>6</number>
+       <number>0</number>
       </property>
       <property name="topMargin">
-       <number>6</number>
+       <number>9</number>
       </property>
       <property name="rightMargin">
        <number>6</number>
       </property>
       <property name="bottomMargin">
-       <number>6</number>
+       <number>9</number>
       </property>
       <item>
        <widget class="QLabel" name="label_price">

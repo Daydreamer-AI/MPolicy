@@ -123,7 +123,7 @@ class MainWindow(QMainWindow):
         
         self.plot_widget.addItem(bargraph)
 
-         # 创建右侧Y轴用于显示折线图
+        # 创建右侧Y轴用于显示折线图
         self.right_viewbox = pg.ViewBox()
         self.right_axis = self.plot_widget.getAxis('right')
 
