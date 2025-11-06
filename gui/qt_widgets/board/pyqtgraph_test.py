@@ -122,9 +122,6 @@ class MainWindow(QMainWindow):
         # 可选：添加数据标签显示在柱子顶部
         self.add_value_labels(self.adjusted_timestamps, self.sales_data, bar_width)
         self.fix_y_axis_ticks(self.sales_data)
-        # self.adjust_y_range_to_visible_data()
-
-        print(f"当前x轴缩放比例：{self.get_x_zoom_ratio()}")
 
     def add_value_labels(self, timestamps, values, bar_width):
         """在柱子顶部添加数值标签"""
@@ -138,13 +135,45 @@ class MainWindow(QMainWindow):
             text.setPos(x_pos, y_pos)
             self.plot_widget.addItem(text)
 
+    def get_visible_y_data(self):
+        """获取当前可视范围内的Y轴数据"""
+        vb = self.plot_widget.getViewBox()
+        x_range = vb.viewRange()[0]  # 获取X轴范围
+        
+        # 找到在当前X轴范围内的数据点
+        visible_indices = []
+        bar_width = 0.8 * 24 * 60 * 60  # 一天的秒数 * 0.8
+        
+        for i, ts in enumerate(self.adjusted_timestamps):
+            bar_center = ts + bar_width / 2
+            if x_range[0] <= bar_center <= x_range[1]:
+                visible_indices.append(i)
+        
+        if visible_indices:
+            return [self.sales_data[i] for i in visible_indices]
+        return []
+
     def fix_y_axis_ticks(self, sales_data):
         """修复Y轴刻度显示，确保显示为整数"""
         # 获取Y轴对象
         y_axis = self.plot_widget.getAxis('left')
         
+        # if sales_data.empty:
+        #     return
+            
         # 计算合适的刻度间隔
-        data_range = max(sales_data) - min(sales_data)
+        data_min, data_max = min(sales_data), max(sales_data)
+        data_range = data_max - data_min
+
+        # 确保最小显示范围
+        # 设置最小显示范围
+        # MIN_DISPLAY_RANGE = 100  # 最小显示范围设置为100
+        # if data_range < MIN_DISPLAY_RANGE:
+        #     center = (data_min + data_max) / 2
+        #     data_min = max(0, center - MIN_DISPLAY_RANGE / 2)
+        #     data_max = center + MIN_DISPLAY_RANGE / 2
+        #     data_range = MIN_DISPLAY_RANGE
+        
         if data_range > 0:
             # 根据数据范围动态设置刻度间隔
             if data_range > 5000:
@@ -157,21 +186,17 @@ class MainWindow(QMainWindow):
                 tick_interval = 50
                 
             # 设置Y轴刻度
-            y_min = 0
-            y_max = max(sales_data) * 1.1
+            y_max = data_max * 1.1
             ticks = [(i, str(i)) for i in range(0, int(y_max) + tick_interval, tick_interval)]
             y_axis.setTicks([ticks])
+        else:
+            # 如果数据范围为0，设置默认刻度
+            y_max = data_max * 1.1 if data_max > 0 else 100
+            ticks = [(i, str(i)) for i in range(0, int(y_max) + 50, 50)]
+            y_axis.setTicks([ticks])
+
 
     def on_range_changed(self):
-        # 当范围改变时，自动调整Y轴范围
-        # vb = self.plot_widget.getViewBox()
-        # 获取当前X轴范围
-        # x_range = vb.viewRange()[0]
-        # 根据X轴范围内的数据重新计算Y轴范围
-        # self.adjust_y_range_to_visible_data()
-
-        # self.fix_y_axis_ticks(self.sales_data)
-        print(f"当前x轴缩放比例：{self.get_x_zoom_ratio()}")
         # 根据当前可视范围调整Y轴
         self.adjust_y_range_to_visible_data()
         # 重新设置Y轴刻度
@@ -219,6 +244,7 @@ class MainWindow(QMainWindow):
 
     def get_x_zoom_ratio_from_transform(self):
         """通过坐标变换矩阵获取缩放比例"""
+        # 无论怎么缩放，都是1
         vb = self.plot_widget.getViewBox()
         # 获取当前的变换矩阵
         transform = vb.transform()
