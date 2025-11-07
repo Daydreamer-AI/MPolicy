@@ -251,55 +251,43 @@ class HomeWidget(QWidget):
     def slot_btn_daily_up_ma52_filter_clicked(self):
         self.logger.info("执行零轴上方MA52筛选")
         result = BaoStockProcessor().daily_up_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney())
-        today_str = datetime.datetime.now().strftime('%m%d')
-        save_list_to_txt(result, f"./policy_filter/filter_result/daily_up_ma52/{today_str}.txt", ', ', "零轴上方MA52筛选结果：\n")
+        self.logger.info(f"筛选结果：\n{result}")
         self.logger.info("零轴上方MA52筛选完成")
-        self.logger.info(result)
 
     @pyqtSlot()
     def slot_btn_daily_up_ma24_filter_clicked(self):
         self.logger.info("执行零轴上方MA24筛选")
         result = BaoStockProcessor().daily_up_ma24_filter(AKStockDataProcessor().get_stocks_eastmoney())
-        today_str = datetime.datetime.now().strftime('%m%d')
-        save_list_to_txt(result, f"./policy_filter/filter_result/daily_up_ma24/{today_str}.txt", ', ', "零轴上方MA24筛选结果：\n")
+        self.logger.info(f"筛选结果：\n{result}")
         self.logger.info("零轴上方MA24筛选完成")
-        self.logger.info(result)
 
     @pyqtSlot()
     def slot_btn_daily_up_ma10_filter_clicked(self):
         self.logger.info("执行零轴上方MA10筛选")
         result = BaoStockProcessor().daily_up_ma10_filter(AKStockDataProcessor().get_stocks_eastmoney())
-        today_str = datetime.datetime.now().strftime('%m%d')
-        save_list_to_txt(result, f"./policy_filter/filter_result/daily_up_ma10/{today_str}.txt", ', ', "零轴上方MA10筛选结果：\n")
+        self.logger.info(f"筛选结果：\n{result}")
         self.logger.info("零轴上方MA10筛选完成")
-        self.logger.info(result)
 
     @pyqtSlot()
     def slot_btn_daily_down_ma52_filter_clicked(self):
         self.logger.info("执行零轴下方MA52筛选")
         result = BaoStockProcessor().daily_down_between_ma24_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney())
-        today_str = datetime.datetime.now().strftime('%m%d')
-        save_list_to_txt(result, f"./policy_filter/filter_result/daily_down_ma52/{today_str}.txt", ', ', "零轴下方MA52筛选结果：\n")
+        self.logger.info(f"筛选结果：\n{result}")
         self.logger.info("零轴下方MA52筛选完成")
-        self.logger.info(result)
 
     @pyqtSlot()
     def slot_btn_daily_down_ma5_filter_clicked(self):
         self.logger.info("执行零轴下方MA5筛选")
         result = BaoStockProcessor().daily_down_between_ma5_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney())
-        today_str = datetime.datetime.now().strftime('%m%d')
-        save_list_to_txt(result, f"./policy_filter/filter_result/daily_down_ma5/{today_str}.txt", ', ', "零轴下方MA5筛选结果：\n")
+        self.logger.info(f"筛选结果：\n{result}")
         self.logger.info("零轴下方MA5筛选完成")
-        self.logger.info(result)
 
     
     @pyqtSlot()
     def slot_btn_daily_down_breakthrough_ma24_clicked(self):
         self.logger.info("执行零轴下方MA24突破筛选")
         result = BaoStockProcessor().daily_down_breakthrough_ma24_filter(AKStockDataProcessor().get_stocks_eastmoney())
-        self.logger.info(result)
-        today_str = datetime.datetime.now().strftime('%m%d')
-        save_list_to_txt(result, f"./policy_filter/filter_result/daily_down_breakthrough_ma24_filter/{today_str}.txt", ', ', "零轴下方MA24突破筛选结果：\n")
+        self.logger.info(f"筛选结果：\n{result}")
         self.logger.info("零轴下方MA24突破筛选完成")
 
 
@@ -307,18 +295,14 @@ class HomeWidget(QWidget):
     def slot_btn_daily_down_breakthrough_ma52_clicked(self):
         self.logger.info("执行零轴下方MA52突破筛选")
         result = BaoStockProcessor().daily_down_breakthrough_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney())
-        self.logger.info(result)
-        today_str = datetime.datetime.now().strftime('%m%d')
-        save_list_to_txt(result, f"./policy_filter/filter_result/daily_down_breakthrough_ma52_filter/{today_str}.txt", ', ', "零轴下方MA52突破筛选结果：\n")
+        self.logger.info(f"筛选结果：\n{result}")
         self.logger.info("零轴下方MA52突破筛选完成")
 
     @pyqtSlot()
     def slot_btn_daily_down_double_bottom_clicked(self):
         self.logger.info("执行零轴下方双底筛选")
         result = BaoStockProcessor().daily_down_double_bottom_filter(AKStockDataProcessor().get_stocks_eastmoney())
-        self.logger.info(result)
-        today_str = datetime.datetime.now().strftime('%m%d')
-        save_list_to_txt(result, f"./policy_filter/filter_result/daily_down_double_bottom_filter/{today_str}.txt", ', ', "零轴下方双底筛选结果：\n")
+        self.logger.info(f"筛选结果：\n{result}")
         self.logger.info("零轴下方双底筛选完成")
 
     @pyqtSlot()

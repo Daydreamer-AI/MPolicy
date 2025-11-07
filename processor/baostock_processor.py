@@ -74,9 +74,25 @@ class BaoStockProcessor:
             config_manager.set_config_path("./resources/config/config.ini")
             policy_filter_turn_config = config_manager.get('PolicyFilter', 'turn')
             policy_filter_lb_config = config_manager.get('PolicyFilter', 'lb')
-            self.logger.info(f"Config from config.ini: {policy_filter_turn_config}, {policy_filter_lb_config}")
+            weekly_condition = config_manager.get('PolicyFilter', 'weekly_condition', '1')
+            s_filter_date = config_manager.get('PolicyFilter', 'filter_date', '')
+
+            self.logger.info(f"Config from config.ini: {policy_filter_turn_config}, {policy_filter_lb_config}, {weekly_condition}, {s_filter_date}")
+
             self.set_policy_filter_turn(float(policy_filter_turn_config))
             self.set_policy_filter_lb(float(policy_filter_lb_config))
+            if weekly_condition == '1':
+                b_weekly_condition = True
+            else:
+                b_weekly_condition = False
+            self.set_weekly_condition(b_weekly_condition)
+            self.set_filter_date(s_filter_date)
+
+            config_manager.set('PolicyFilter', 'turn', policy_filter_turn_config)
+            config_manager.set('PolicyFilter', 'lb', policy_filter_lb_config)
+            config_manager.set('PolicyFilter', 'weekly_condition', weekly_condition)
+            config_manager.set('PolicyFilter', 'filter_date', s_filter_date)
+            config_manager.save()
 
             self.logger.info("登录Baostock系统")
             lg = bs.login()
@@ -145,11 +161,24 @@ class BaoStockProcessor:
         # 打印转换后的数据类型检查
         # self.logger.info(result.dtypes)
 
+    def get_current_year_dates(self):
+        """
+        获取当前年份的起始和结束日期
+        
+        Returns:
+            tuple: (start_date, end_date) 格式为 "YYYY-MM-DD"
+        """
+        current_year = datetime.datetime.now().year
+        start_date = f"{current_year}-01-01"
+        end_date = f"{current_year}-12-31"
+        return start_date, end_date
+
     # 获取当年交易日信息
     def get_current_trade_dates(self):
         # bs.login()
         #### 获取交易日信息 ####
-        rs = bs.query_trade_dates(start_date="2025-01-01", end_date="2025-12-31")
+        start_date, end_date = self.get_current_year_dates()
+        rs = bs.query_trade_dates(start_date=start_date, end_date=end_date)
         self.logger.info('query_trade_dates respond error_code:'+rs.error_code)
         self.logger.info('query_trade_dates respond  error_msg:'+rs.error_msg)
 
@@ -184,7 +213,7 @@ class BaoStockProcessor:
         now = datetime.datetime.now()
 
         # 创建今天17:30的datetime对象
-        target_datetime = datetime.datetime(now.year, now.month, now.day, 17, 30)
+        target_datetime = datetime.datetime(now.year, now.month, now.day, 18, 00)
 
         # 直接比较
         if now > target_datetime:
@@ -229,6 +258,40 @@ class BaoStockProcessor:
             current_date += timedelta(days=1)
 
         return friday_count
+    
+    def count_trading_days(self, s_begin_date, s_end_date=None):
+        '''计算指定日期范围内的交易日天数'''
+        try:
+            # 1. 将字符串转换为日期对象
+            start_date = datetime.datetime.strptime(s_begin_date, '%Y-%m-%d').date()
+            
+            # 如果未指定结束日期，则使用今天
+            if s_end_date is None:
+                end_date = date.today()
+            else:
+                end_date = datetime.datetime.strptime(s_end_date, '%Y-%m-%d').date()
+        except ValueError:
+            raise ValueError("日期格式错误，请使用 'YYYY-MM-DD' 格式。")
+
+        # 确保日期合理
+        if end_date < start_date:
+            return 0
+        
+        # 确保交易日数据已加载
+        if not hasattr(self, 'df_trade_dates') or self.df_trade_dates is None:
+            self.logger.warning("交易日数据未初始化，返回0")
+            return 0
+        
+        # 筛选指定日期范围内的交易日
+        mask = (
+            (pd.to_datetime(self.df_trade_dates['calendar_date']).dt.date >= start_date) &
+            (pd.to_datetime(self.df_trade_dates['calendar_date']).dt.date <= end_date) &
+            (self.df_trade_dates['is_trading_day'] == '1')
+        )
+        
+        return len(self.df_trade_dates[mask])
+        
+        
 
     # 全量更新
     def process_daily_stock_data(self, code, start_date=None, end_date=None):
@@ -344,20 +407,12 @@ class BaoStockProcessor:
             # 移除空列以便后面合并
             day_stock_data = day_stock_data.dropna()
         
+
         now_date = datetime.datetime.now().strftime("%Y-%m-%d")
         if now_date in day_stock_data['日期'].values:
             # self.logger.info("已是最新数据")
             return day_stock_data
         
-        # 判断数据库最后日期至今有无交易日数据需更新
-        # if self.is_trading_day_today():
-        #     # 交易日17:30后才能更新当天数据
-        #     if not self.can_update_today_data():
-        #         return day_stock_data
-        # else:
-        #     self.logger.info("今天不是交易日，直接返回最新数据")
-        #     return day_stock_data
-
         last_date = None
         if day_stock_data.empty or day_stock_data is None:
             self.logger.info("数据库表为空，默认获取近1年股票数据")
@@ -369,10 +424,25 @@ class BaoStockProcessor:
         parsed_date = datetime.datetime.strptime(last_date, "%Y-%m-%d")  # 解析为日期对象
         last_date = parsed_date + datetime.timedelta(days=1)
 
-        # 步骤二：获取数据库中最后日期至今的股票数据
+        # 获取数据库中最后日期至今的股票数据
         start_date = last_date.strftime("%Y-%m-%d")               # Baostock要求的日期格式
-        end_date = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+        end_date = (datetime.datetime.now()).strftime("%Y-%m-%d")   #  + datetime.timedelta(days=1)
         # self.logger.info(f"获取股票 {code} 数据，时间范围：{start_date} 至 {end_date}")
+        
+        # 判断数据库最后日期至今有无交易日数据需更新
+        if self.is_trading_day_today():
+            # 交易日18:00后才能更新当天数据
+            if not self.can_update_today_data():
+                # self.logger.info("今天不是交易日，未到数据更新时间，请稍后再试")
+                return day_stock_data
+        # else:
+            self.logger.info("今天不是交易日，判断数据库中是否是最新数据")
+            trading_day_count = self.count_trading_days(start_date, end_date)
+            if trading_day_count == 0:
+                self.logger.info("数据库中已是最新数据，直接返回现有数据")
+                return day_stock_data
+
+        
         df_new_stock_data = self.process_daily_stock_data(code, start_date, end_date)
         # 判断获取到的数据是否存在空值
         # if df_new_stock_data.isnull().values.any():
@@ -770,6 +840,12 @@ class BaoStockProcessor:
     
     def get_policy_filter_lb(self):
         return pf.get_policy_filter_lb()
+    
+    def get_weekly_condition(self):
+        return pf.get_weekly_condition()
+    
+    def get_filter_date(self):
+        return pf.get_filter_date()
 
     def set_policy_filter_turn(self, turn=3.0):
         self.logger.info(f"set_policy_filter_turn--换手率：{turn}")
@@ -778,6 +854,14 @@ class BaoStockProcessor:
     def set_policy_filter_lb(self, lb=1.0):
         self.logger.info(f"set_policy_filter_lb--量比：{lb}")
         pf.set_policy_filter_lb(lb)
+
+    def set_weekly_condition(self, b_weekly=True):
+        self.logger.info(f"set_weekly_condition--启用周线筛选条件：{b_weekly}")
+        pf.set_weekly_condition(b_weekly)
+
+    def set_filter_date(self, date):
+        self.logger.info(f"set_filter_date--筛选日期：{date}")
+        pf.set_filter_date(date)
 
     def filter_check(self, code, condition=None, b_use_weekly_data=True):
         if b_use_weekly_data and code not in self.dict_weekly_stock_data.keys():
@@ -808,6 +892,14 @@ class BaoStockProcessor:
                     else:
                         return True
 
+    def get_filter_result_file_suffix(self):
+        turn = pf.get_policy_filter_turn()
+        lb = pf.get_policy_filter_lb()
+        b_weekly = pf.get_weekly_condition()
+        filter_date = pf.get_filter_date()
+        today_str = datetime.datetime.now().strftime('%m%d')
+        return f"{today_str}_{turn}_{lb}_{b_weekly}_{filter_date}"
+
     def daily_up_ma52_filter(self, condition=None):
         filter_result = []
         turn = pf.get_policy_filter_turn()
@@ -820,6 +912,8 @@ class BaoStockProcessor:
             if pf.daily_up_ma52_filter(df_data, self.dict_weekly_stock_data[code]):
                 filter_result.append(code)
 
+
+        save_list_to_txt(filter_result, f"./policy_filter/filter_result/daily_up_ma52/{self.get_filter_result_file_suffix()}.txt", ', ', "零轴上方MA52筛选结果：\n")
         return filter_result
     
     def daily_up_ma24_filter(self, condition=None):
@@ -834,6 +928,8 @@ class BaoStockProcessor:
             if pf.daily_up_ma24_filter(df_data, self.dict_weekly_stock_data[code]):
                 filter_result.append(code)
 
+ 
+        save_list_to_txt(filter_result, f"./policy_filter/filter_result/daily_up_ma24/{self.get_filter_result_file_suffix()}.txt", ', ', "零轴上方MA24筛选结果：\n")
         return filter_result
 
     def daily_up_ma10_filter(self, condition=None):
@@ -848,6 +944,8 @@ class BaoStockProcessor:
             if pf.daily_up_ma10_filter(df_data):
                 filter_result.append(code)
 
+
+        save_list_to_txt(filter_result, f"./policy_filter/filter_result/daily_up_ma10/{self.get_filter_result_file_suffix()}.txt", ', ', "零轴上方MA10筛选结果：\n")
         return filter_result
     
     def daily_down_between_ma24_ma52_filter(self, condition=None):
@@ -863,6 +961,7 @@ class BaoStockProcessor:
             if pf.daily_down_between_ma24_ma52_filter(df_data, self.dict_weekly_stock_data[code]):
                 filter_result.append(code)
 
+        save_list_to_txt(filter_result, f"./policy_filter/filter_result/daily_down_ma52/{self.get_filter_result_file_suffix()}.txt", ', ', "零轴下方MA52筛选结果：\n")
         return filter_result
     
     def daily_down_between_ma5_ma52_filter(self, condition=None):
@@ -878,6 +977,8 @@ class BaoStockProcessor:
             if pf.daily_down_between_ma5_ma52_filter(df_data, self.dict_weekly_stock_data[code]):
                 filter_result.append(code)
 
+
+        save_list_to_txt(filter_result, f"./policy_filter/filter_result/daily_down_ma5/{self.get_filter_result_file_suffix()}.txt", ', ', "零轴下方MA5筛选结果：\n")
         return filter_result
     
 
@@ -893,6 +994,7 @@ class BaoStockProcessor:
             if pf.daily_down_breakthrough_ma24_filter(df_data):
                 filter_result.append(code)
 
+        save_list_to_txt(filter_result, f"./policy_filter/filter_result/daily_down_breakthrough_ma24_filter/{self.get_filter_result_file_suffix()}.txt", ', ', "零轴下方MA24突破筛选结果：\n")
         return filter_result
 
     def daily_down_breakthrough_ma52_filter(self, condition=None):
@@ -907,6 +1009,7 @@ class BaoStockProcessor:
             if pf.daily_down_breakthrough_ma52_filter(df_data):
                 filter_result.append(code)
 
+        save_list_to_txt(filter_result, f"./policy_filter/filter_result/daily_down_breakthrough_ma52_filter/{self.get_filter_result_file_suffix()}.txt", ', ', "零轴下方MA52突破筛选结果：\n")
         return filter_result
 
     def daily_down_double_bottom_filter(self, condition=None):
@@ -921,6 +1024,7 @@ class BaoStockProcessor:
             if pf.daily_down_double_bottom_filter(df_data, self.dict_weekly_stock_data[code]):
                 filter_result.append(code)
 
+        save_list_to_txt(filter_result, f"./policy_filter/filter_result/daily_down_double_bottom_filter/{self.get_filter_result_file_suffix()}.txt", ', ', "零轴下方双底筛选结果：\n")
         return filter_result
 
     def stop_process(self):
