@@ -216,7 +216,7 @@ class BaoStockProcessor:
         now = datetime.datetime.now()
 
         # 创建今天17:30的datetime对象
-        target_datetime = datetime.datetime(now.year, now.month, now.day, 18, 30)
+        target_datetime = datetime.datetime(now.year, now.month, now.day, 18, 00)
 
         # 直接比较
         if now > target_datetime:
