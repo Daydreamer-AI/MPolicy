@@ -438,9 +438,10 @@ class BaoStockProcessor:
             if not self.can_update_today_data():
                 # self.logger.info("今天不是交易日，未到数据更新时间，请稍后再试")
                 return day_stock_data
-        # else:
+        else:
             self.logger.info("今天不是交易日，判断数据库中是否是最新数据")
             trading_day_count = self.count_trading_days(start_date, end_date)
+            self.logger.info(f"交易日数量：{trading_day_count}")
             if trading_day_count == 0:
                 self.logger.info("数据库中已是最新数据，直接返回现有数据")
                 return day_stock_data
