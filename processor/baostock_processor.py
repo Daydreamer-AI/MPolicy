@@ -76,8 +76,9 @@ class BaoStockProcessor:
             policy_filter_lb_config = config_manager.get('PolicyFilter', 'lb')
             weekly_condition = config_manager.get('PolicyFilter', 'weekly_condition', '1')
             s_filter_date = config_manager.get('PolicyFilter', 'filter_date', '')
+            s_target_code = config_manager.get('PolicyFilter', 'target_code', '')
 
-            self.logger.info(f"Config from config.ini: {policy_filter_turn_config}, {policy_filter_lb_config}, {weekly_condition}, {s_filter_date}")
+            self.logger.info(f"Config from config.ini: {policy_filter_turn_config}, {policy_filter_lb_config}, {weekly_condition}, {s_filter_date}, {s_target_code}")
 
             self.set_policy_filter_turn(float(policy_filter_turn_config))
             self.set_policy_filter_lb(float(policy_filter_lb_config))
@@ -87,11 +88,13 @@ class BaoStockProcessor:
                 b_weekly_condition = False
             self.set_weekly_condition(b_weekly_condition)
             self.set_filter_date(s_filter_date)
+            self.set_target_code(s_target_code)
 
             config_manager.set('PolicyFilter', 'turn', policy_filter_turn_config)
             config_manager.set('PolicyFilter', 'lb', policy_filter_lb_config)
             config_manager.set('PolicyFilter', 'weekly_condition', weekly_condition)
             config_manager.set('PolicyFilter', 'filter_date', s_filter_date)
+            config_manager.set('PolicyFilter', 'target_code', s_target_code)
             config_manager.save()
 
             self.logger.info("登录Baostock系统")
@@ -213,7 +216,7 @@ class BaoStockProcessor:
         now = datetime.datetime.now()
 
         # 创建今天17:30的datetime对象
-        target_datetime = datetime.datetime(now.year, now.month, now.day, 18, 00)
+        target_datetime = datetime.datetime(now.year, now.month, now.day, 18, 30)
 
         # 直接比较
         if now > target_datetime:
@@ -846,6 +849,9 @@ class BaoStockProcessor:
     
     def get_filter_date(self):
         return pf.get_filter_date()
+    
+    def get_target_code(self):
+        return pf.get_target_code()
 
     def set_policy_filter_turn(self, turn=3.0):
         self.logger.info(f"set_policy_filter_turn--换手率：{turn}")
@@ -863,6 +869,10 @@ class BaoStockProcessor:
         self.logger.info(f"set_filter_date--筛选日期：{date}")
         pf.set_filter_date(date)
 
+    def set_target_code(self, code):
+        self.logger.info(f"set_target_code--目标股票代码：{code}")
+        pf.set_target_code(code)
+
     def filter_check(self, code, condition=None, b_use_weekly_data=True):
         if b_use_weekly_data and code not in self.dict_weekly_stock_data.keys():
             self.logger.info(f"{code} 未在周线数据中")
@@ -872,6 +882,15 @@ class BaoStockProcessor:
             self.logger.info(f"筛选条件为空")
             return True
         else:
+            # 特定股票代码筛选
+            s_target_code = self.get_target_code()
+            if s_target_code != '':
+                # self.logger.info(f"目标股票代码：{s_target_code}，当前股票代码：{code}")
+                if s_target_code in code:
+                    return True
+                else:
+                    return False
+
             # 筛选市值大于50亿的股票
             standard_code = extract_pure_stock_code(code)
 
@@ -898,7 +917,8 @@ class BaoStockProcessor:
         b_weekly = pf.get_weekly_condition()
         filter_date = pf.get_filter_date()
         today_str = datetime.datetime.now().strftime('%m%d')
-        return f"{today_str}_{turn}_{lb}_{b_weekly}_{filter_date}"
+        s_target_code = pf.get_target_code()
+        return f"{today_str}_{turn}_{lb}_{b_weekly}_{filter_date}_{s_target_code}"
 
     def daily_up_ma52_filter(self, condition=None):
         filter_result = []

@@ -28,13 +28,15 @@ class PolicyFilterSettingDialog(QDialog):
         policy_filter_lb_config = BaoStockProcessor().get_policy_filter_lb()
         b_weekly_condition = BaoStockProcessor().get_weekly_condition()
         s_filter_date = BaoStockProcessor().get_filter_date()
+        s_target_code = BaoStockProcessor().get_target_code()
 
-        self.logger.info(f"Config from config.ini: {policy_filter_turn_config}, {policy_filter_lb_config}, {b_weekly_condition}, {s_filter_date}")
+        self.logger.info(f"Config from config.ini: {policy_filter_turn_config}, {policy_filter_lb_config}, {b_weekly_condition}, {s_filter_date}, {s_target_code}")
 
         self.lineEdit_turn.setText(str(policy_filter_turn_config))
         self.lineEdit_lb.setText(str(policy_filter_lb_config))
         self.checkBox_weekly_condition.setChecked(b_weekly_condition)
         self.lineEdit_filter_date.setText(s_filter_date)
+        self.lineEdit_target_code.setText(s_target_code)
 
     def connect_init(self):
         self.btn_cancel.clicked.connect(self.solt_btn_cancel_clicked)
@@ -70,18 +72,21 @@ class PolicyFilterSettingDialog(QDialog):
         lb_str = self.lineEdit_lb.text()
         b_weekly_condition = self.checkBox_weekly_condition.isChecked()
         s_filter_date = self.lineEdit_filter_date.text()
+        s_target_code = self.lineEdit_target_code.text()
 
 
         self.logger.info(f"策略筛选配置--换手率：{float(turn_str)}")
         self.logger.info(f"策略筛选配置--量比：{float(lb_str)}")
         self.logger.info(f"策略筛选配置--启用周线筛选条件：{b_weekly_condition}")
         self.logger.info("策略筛选配置--指定筛选日期：{s_filter_date}")
+        self.logger.info("策略筛选配置--指定股票代码：{s_target_code}")
 
 
         BaoStockProcessor().set_policy_filter_turn(float(turn_str))
         BaoStockProcessor().set_policy_filter_lb(float(lb_str))
         BaoStockProcessor().set_weekly_condition(b_weekly_condition)
         BaoStockProcessor().set_filter_date(s_filter_date)
+        BaoStockProcessor().set_target_code(s_target_code)
 
 
         config_manager = ConfigManager()
@@ -90,7 +95,7 @@ class PolicyFilterSettingDialog(QDialog):
         config_manager.set('PolicyFilter', 'lb', lb_str)
         config_manager.set('PolicyFilter', 'weekly_condition', '1' if b_weekly_condition else '0')
         config_manager.set('PolicyFilter', 'filter_date', s_filter_date)
-
+        config_manager.set('PolicyFilter', 'target_code', s_target_code)
         config_manager.save()
         
         self.accept()

@@ -16,6 +16,7 @@ policy_filter_turn = 3.0
 policy_filter_lb = 1.0
 b_weekly_condition = True
 s_filter_date = ""
+s_target_code = ""
 
 def set_ma5_diff(ma5_diff):
     policy_filter_ma5_diff = ma5_diff
@@ -61,6 +62,10 @@ def set_filter_date(date):
     global s_filter_date
     s_filter_date = date
 
+def set_target_code(code):
+    global s_target_code
+    s_target_code = code
+
 def get_ma10_diff():
     return policy_filter_ma10_diff
 
@@ -90,6 +95,9 @@ def get_weekly_condition():
 
 def get_filter_date():
     return s_filter_date
+
+def get_target_code():
+    return s_target_code
 
 def columns_check(df_data, col_names: Sequence[str]) -> bool:
     # logger.info("df_data.columns:")
@@ -511,10 +519,10 @@ def daily_down_between_ma24_ma52_filter(df_daily_data, df_weekly_data):
     week_close = last_week_row['收盘'].item()
     week_dea = last_week_row['DEA'].item()
     week_ma52 = last_week_row['MA52'].item()
-        
-    # day_diff = day_ma52 * policy_filter_ma52_diff
-    # logger.info(f"day_close: {day_close}, day_dea: {day_dea}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
-    # logger.info(f"week_close: {week_close}, week_ma52: {week_ma52}")
+
+
+
+    
 
     b_ret = (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
     b_ret_2 = (week_close > week_ma52 and week_dea > 0) if b_weekly_condition else True
@@ -522,6 +530,20 @@ def daily_down_between_ma24_ma52_filter(df_daily_data, df_weekly_data):
     b_ret_3 = day_dea < 0
     b_ret_4 = (day_close <= day_ma52 or day_close <= day_ma60) and (day_close >= day_ma24)
     b_ret_5 = (day_ma24 < day_ma52 or day_ma24 < day_ma60) and day_ma52 <= day_ma60
+
+    if s_filter_date != '' or s_target_code != '':
+        logger.info(f"特定筛选--s_filter_date: {s_filter_date}, s_target_code: {s_target_code}")
+
+        day_diff = day_ma52 * policy_filter_ma52_diff
+        logger.info(f"day_turn: {day_turn}, day_lb: {day_lb}, b_weekly_condition: {b_weekly_condition}")
+        logger.info(f"day_close: {day_close}, day_dea: {day_dea}, diff: {day_diff}")
+        logger.info(f"day_ma24: {day_ma24}, day_ma52: {day_ma52}, day_ma60: {day_ma60}")
+        logger.info(f"week_close: {week_close}, week_ma52: {week_ma52}, week_dea: {week_dea}")
+        logger.info(f"b_ret: {b_ret}, b_ret_2: {b_ret_2}, b_ret_3: {b_ret_3}, b_ret_4: {b_ret_4}, b_ret_5: {b_ret_5}")
+
+        logger.info(f"完整日线数据：\n{last_day_row}")    
+        logger.info(f"完整周线数据：\n{last_week_row}")
+
 
     if b_ret and b_ret_2 and b_ret_3 and b_ret_4 and b_ret_5:
         # logger.info("符合【日线零轴下方MA52】筛选")
