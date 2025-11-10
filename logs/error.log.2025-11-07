@@ -1,0 +1,54 @@
+2025-11-07 16:21:14 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\home_widget.py", line 332, in slot_btn_policy_filter_setting_clicked
+    dlg = PolicyFilterSettingDialog()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\setting\policy_filter_setting_dialog.py", line 19, in __init__
+    self.ui_init()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\setting\policy_filter_setting_dialog.py", line 34, in ui_init
+    self.checkBox_weekly_condition.setChecked(b_weekly_condition)
+TypeError: setChecked(self, a0: bool): argument 1 has unexpected type 'NoneType'
+2025-11-07 16:24:34 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\home_widget.py", line 332, in slot_btn_policy_filter_setting_clicked
+    dlg = PolicyFilterSettingDialog()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\setting\policy_filter_setting_dialog.py", line 19, in __init__
+    self.ui_init()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\setting\policy_filter_setting_dialog.py", line 34, in ui_init
+    self.checkBox_weekly_condition.setChecked(b_weekly_condition)
+TypeError: setChecked(self, a0: bool): argument 1 has unexpected type 'str'
+2025-11-07 16:29:32 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\home_widget.py", line 332, in slot_btn_policy_filter_setting_clicked
+    dlg = PolicyFilterSettingDialog()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\setting\policy_filter_setting_dialog.py", line 19, in __init__
+    self.ui_init()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\setting\policy_filter_setting_dialog.py", line 34, in ui_init
+    self.checkBox_weekly_condition.setChecked(str(b_weekly_condition))
+TypeError: setChecked(self, a0: bool): argument 1 has unexpected type 'str'
+2025-11-07 16:30:22 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\home_widget.py", line 332, in slot_btn_policy_filter_setting_clicked
+    dlg = PolicyFilterSettingDialog()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\setting\policy_filter_setting_dialog.py", line 19, in __init__
+    self.ui_init()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\setting\policy_filter_setting_dialog.py", line 34, in ui_init
+    self.checkBox_weekly_condition.setChecked(b_weekly_condition)
+TypeError: setChecked(self, a0: bool): argument 1 has unexpected type 'str'
+2025-11-07 17:25:17 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\home_widget.py", line 280, in slot_btn_daily_down_ma52_filter_clicked
+    result = BaoStockProcessor().daily_down_between_ma24_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney())
+  File "d:\PythonProject\MPolicy\processor\baostock_processor.py", line 947, in daily_down_between_ma24_ma52_filter
+    if pf.daily_down_between_ma24_ma52_filter(df_data, self.dict_weekly_stock_data[code]):
+  File "d:\PythonProject\MPolicy\policy_filter\policy_filter.py", line 504, in daily_down_between_ma24_ma52_filter
+    logger.info(f"last_week_row的日期: {last_week_row['日期'].item()}")
+AttributeError: 'str' object has no attribute 'item'
+2025-11-07 17:55:59 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\home_widget.py", line 274, in slot_btn_daily_down_ma52_filter_clicked
+    result = BaoStockProcessor().daily_down_between_ma24_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney())
+  File "d:\PythonProject\MPolicy\processor\baostock_processor.py", line 978, in daily_down_between_ma24_ma52_filter
+    if not self.filter_check(code, condition):
+  File "d:\PythonProject\MPolicy\processor\baostock_processor.py", line 889, in filter_check
+    if code.contains(s_target_code):
+AttributeError: 'str' object has no attribute 'contains'

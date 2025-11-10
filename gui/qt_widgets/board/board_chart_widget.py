@@ -125,7 +125,7 @@ class BoardChartWidget(QWidget):
         
         # 处理数据
         if 'data_date' in data.columns:
-            self.logger.info(f"data_date类型：{type(data['data_date'][0])}")
+            # self.logger.info(f"data_date类型：{type(data['data_date'][0])}")    # str
 
             date_list = []
             for row in data.itertuples():
@@ -462,53 +462,134 @@ class BoardChartWidget(QWidget):
     #         self.h_line.hide()
     #         self.label.hide()
 
-    def on_mouse_move(self, pos):
-        """处理鼠标移动事件，显示十字线"""
-        # 检查鼠标是否在绘图区域内
-        if self.plot_widget.sceneBoundingRect().contains(pos):
-            # self.logger.info(f"Mouse move: {pos}")
-            # 显示十字线
-            self.v_line.show()
-            self.h_line.show()
-            self.label.show()
+    # def on_mouse_move(self, pos):
+    #     """处理鼠标移动事件，显示十字线"""
+    #     # 检查鼠标是否在绘图区域内
+    #     if self.plot_widget.sceneBoundingRect().contains(pos):
+    #         # self.logger.info(f"Mouse move: {pos}")
+    #         # 显示十字线
+    #         self.v_line.show()
+    #         self.h_line.show()
+    #         self.label.show()
 
-            # 添加调试信息确认十字线状态
-            # self.logger.info(f"Crosshair visibility - V line: {self.v_line.isVisible()}, H line: {self.h_line.isVisible()}")
-            # self.logger.info(f"Crosshair Z values - V line: {self.v_line.zValue()}, H line: {self.h_line.zValue()}")
+    #         # 添加调试信息确认十字线状态
+    #         # self.logger.info(f"Crosshair visibility - V line: {self.v_line.isVisible()}, H line: {self.h_line.isVisible()}")
+    #         # self.logger.info(f"Crosshair Z values - V line: {self.v_line.zValue()}, H line: {self.h_line.zValue()}")
         
             
-            # 将场景坐标转换为视图坐标
-            mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
-            x_val = mouse_point.x()
-            y_val = mouse_point.y()
+    #         # 将场景坐标转换为视图坐标
+    #         mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
+    #         x_val = mouse_point.x()
+    #         y_val = mouse_point.y()
 
-            # self.logger.info(f"Mouse X: {x_val}, Mouse Y: {y_val}")
+    #         # self.logger.info(f"Mouse X: {x_val}, Mouse Y: {y_val}")
             
-            # 更新垂直线位置（跟随鼠标x坐标）
-            self.v_line.setPos(x_val)
-            # self.logger.info(f"V line position set to: {x_val}")
+    #         # 更新垂直线位置（跟随鼠标x坐标）
+    #         self.v_line.setPos(x_val)
+    #         # self.logger.info(f"V line position set to: {x_val}")
             
-            # 更新水平线位置（跟随鼠标y坐标）
-            self.h_line.setPos(y_val)
-            # self.logger.info(f"H line position set to: {y_val}")
+    #         # 更新水平线位置（跟随鼠标y坐标）
+    #         self.h_line.setPos(y_val)
+    #         # self.logger.info(f"H line position set to: {y_val}")
             
-            # 更新标签文本和位置
-            try:
-                # 转换x轴时间戳为日期字符串
-                timestamp_ms = int(x_val * 1000)
-                qdt = QDateTime.fromMSecsSinceEpoch(timestamp_ms)
-                date_str = qdt.toString('yyyy-MM-dd')
+    #         # 更新标签文本和位置
+    #         try:
+    #             # 转换x轴时间戳为日期字符串
+    #             timestamp_ms = int(x_val * 1000)
+    #             qdt = QDateTime.fromMSecsSinceEpoch(timestamp_ms)
+    #             date_str = qdt.toString('yyyy-MM-dd')
                 
-                # 格式化标签文本
-                label_text = f"日期: {date_str}\nX: {x_val:.2f}\nY: {y_val:.2f}"
-                self.label.setText(label_text)
+    #             # 格式化标签文本
+    #             label_text = f"日期: {date_str}\nX: {x_val:.2f}\nY: {y_val:.2f}"
+    #             self.label.setText(label_text)
                 
-                # 将标签定位在鼠标附近
-                self.label.setPos(x_val, y_val)
-            except Exception as e:
-                self.logger.error(f"Error updating crosshair label: {e}")
-                pass
+    #             # 将标签定位在鼠标附近
+    #             self.label.setPos(x_val, y_val)
+    #         except Exception as e:
+    #             self.logger.error(f"Error updating crosshair label: {e}")
+    #             pass
                 
+    #     else:
+    #         # 鼠标移出绘图区域时隐藏十字线
+    #         self.v_line.hide()
+    #         self.h_line.hide()
+    #         self.label.hide()
+
+    def on_mouse_move(self, pos):
+        """处理鼠标移动事件，限制只能在x轴节点上移动"""
+        # 检查鼠标是否在绘图区域内
+        if self.plot_widget.sceneBoundingRect().contains(pos):
+            # 确保有数据存在
+            if (hasattr(self, 'adjusted_timestamps') and hasattr(self, 'data') and 
+                len(self.adjusted_timestamps) > 0 and len(self.data) > 0):
+                
+                # 将场景坐标转换为视图坐标
+                mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
+                x_val = mouse_point.x()
+                
+                # 计算柱子中心位置
+                bar_width = 0.8 * 24 * 60 * 60  # 一天的秒数 * 0.8
+                bar_centers = [ts + bar_width / 2 for ts in self.adjusted_timestamps]
+                
+                # 找到鼠标位置附近的柱子
+                closest_index = None
+                min_distance = float('inf')
+                
+                for i, center in enumerate(bar_centers):
+                    distance = abs(center - x_val)
+                    # 只有当鼠标在柱子宽度范围内时才考虑该柱子
+                    if distance <= bar_width / 2:
+                        if distance < min_distance:
+                            min_distance = distance
+                            closest_index = i
+                
+                # 如果找到有效的柱子
+                if closest_index is not None:
+                    closest_x = bar_centers[closest_index]
+                    closest_row = self.data.iloc[closest_index]
+                    
+                    # 更新垂直线位置（对齐到最近的数据节点）
+                    self.v_line.setPos(closest_x)
+                    # 水平线仍然跟随鼠标y坐标
+                    self.h_line.setPos(mouse_point.y())
+                    
+                    # 显示十字线和标签
+                    self.v_line.show()
+                    self.h_line.show()
+                    self.label.show()
+                    
+                    # 转换x轴时间戳为日期字符串
+                    try:
+                        timestamp_ms = int(closest_x * 1000)
+                        qdt = QDateTime.fromMSecsSinceEpoch(timestamp_ms)
+                        date_str = qdt.toString('yyyy-MM-dd')
+
+                        total_volume = closest_row['total_volume']
+                        
+                        # 获取对应的移动平均值
+                        line_y_value = closest_row['avg_price'] if hasattr(self, 'line_data') else 0
+                        
+                        # 格式化标签文本
+                        label_text = f"日期: {date_str}\n成交量: {total_volume}\n移动平均: {line_y_value:.2f}\n鼠标Y: {mouse_point.y():.2f}"
+                        self.label.setText(label_text)
+                        
+                        # 将标签定位在图表上部，避免遮挡
+                        y_range = self.plot_widget.getViewBox().viewRange()[1]
+                        label_y = y_range[1] * 0.95
+                        self.label.setPos(closest_x, mouse_point.y())
+                    except Exception as e:
+                        print(f"Error in mouse move: {e}")
+                        pass
+                else:
+                    # 没有靠近任何柱子时隐藏十字线
+                    self.v_line.hide()
+                    self.h_line.hide()
+                    self.label.hide()
+            else:
+                # 没有数据时隐藏十字线
+                self.v_line.hide()
+                self.h_line.hide()
+                self.label.hide()
         else:
             # 鼠标移出绘图区域时隐藏十字线
             self.v_line.hide()
