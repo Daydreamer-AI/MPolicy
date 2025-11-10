@@ -40,83 +40,155 @@ class BoardChartWidget(QWidget):
         
         # 创建使用日期轴的绘图窗口
         # 使用自定义的日期轴类
-        self.date_axis = CustomDateAxisItem(orientation='bottom')
-        self.plot_widget = pg.PlotWidget(axisItems={'bottom': self.date_axis})
+        self.date_axis_main = CustomDateAxisItem(orientation='bottom')
+        self.plot_widget = pg.PlotWidget(axisItems={'bottom': self.date_axis_main})
         # self.plot_widget = pg.PlotWidget()
         layout.addWidget(self.plot_widget)
+
+        # 添加底部坐标系容器
+        self.date_axis_bottom = CustomDateAxisItem(orientation='bottom')
+        self.bottom_plot_widget = pg.PlotWidget(axisItems={'bottom': self.date_axis_bottom})
+        layout.addWidget(self.bottom_plot_widget)
+        
+        layout.setStretchFactor(self.plot_widget, 2)
+        layout.setStretchFactor(self.bottom_plot_widget, 1)
         
         self.setup_plot_style()
 
+    # def setup_plot_style(self):
+    #     # 设置坐标轴标签
+    #     # 完全禁用坐标轴
+    #     # self.plot_widget.getAxis('bottom').hide()
+    #     # self.plot_widget.getAxis('left').hide()
+
+    #     # 设置坐标轴从0开始并强制对齐
+    #     # self.plot_widget.setXRange(0, 1)  # 设置X轴范围
+    #     # self.plot_widget.setYRange(0, 1)  # 设置Y轴范围
+
+    #     # 关键修复：禁用自动边距，手动设置边距
+    #     # self.plot_widget.getViewBox().setContentsMargins(0, 0, 0, 0)
+        
+    #     # 设置坐标轴范围时考虑边距
+    #     # self.plot_widget.setXRange(0, 1, padding=0)  # padding=0 消除边距
+    #     # self.plot_widget.setYRange(0, 1, padding=0)
+
+    #     # 设置坐标轴从0开始
+    #     # self.plot_widget.setLimits(xMin=0, yMin=0)
+
+    #     # 启用鼠标交互，默认开启
+    #     self.plot_widget.setMouseEnabled(x=True, y=False)
+        
+    #     # 启用缩放和拖拽，默认开启
+    #     # self.plot_widget.setMenuEnabled(False)
+
+    #     # 连接视图范围改变信号
+    #     self.plot_widget.sigRangeChanged.connect(self.on_range_changed)
+        
+    #     # 连接鼠标移动信号
+    #     self.plot_widget.scene().sigMouseMoved.connect(self.on_mouse_move)
+
+        
+    #     self.plot_widget.setBackground('w')
+    #     self.plot_widget.setLabel('left', '总成交量')
+    #     self.plot_widget.setLabel('bottom', '日期')
+
+    #     # 显示网格
+    #     self.plot_widget.showGrid(x=True, y=True, alpha=0.3)
+        
+    #     # 添加图例
+    #     self.plot_widget.addLegend()
+
+    #     # 初始化十字线
+    #     self.v_line = pg.InfiniteLine(angle=90, movable=True, pen=pg.mkPen('r', width=2, style=Qt.DashLine))
+    #     self.h_line = pg.InfiniteLine(angle=0, movable=False, pen=pg.mkPen('r', width=2, style=Qt.DashLine))
+    #     # self.plot_widget.addItem(self.v_line, ignoreBounds=True)
+    #     # self.plot_widget.addItem(self.h_line, ignoreBounds=True)
+
+    #     # 设置高Z值确保在最上层
+    #     self.v_line.setZValue(1000)
+    #     self.h_line.setZValue(1000)
+
+    #     # # 确保添加到主ViewBox而不是场景
+    #     main_viewbox = self.plot_widget.getViewBox()
+    #     main_viewbox.addItem(self.v_line, ignoreBounds=True)
+    #     main_viewbox.addItem(self.h_line, ignoreBounds=True)
+        
+    #     # 初始化标签
+    #     self.label = pg.TextItem("", anchor=(0, 1))
+    #     self.label.setZValue(1001)  # 标签也在最上层
+    #     # self.plot_widget.addItem(self.label, ignoreBounds=True)
+    #     main_viewbox.addItem(self.label, ignoreBounds=True)
+        
+        
+    #     # 初始隐藏十字线
+    #     self.v_line.hide()
+    #     self.h_line.hide()
+    #     self.label.hide()
+
     def setup_plot_style(self):
-        # 设置坐标轴标签
-        # 完全禁用坐标轴
-        # self.plot_widget.getAxis('bottom').hide()
-        # self.plot_widget.getAxis('left').hide()
-
-        # 设置坐标轴从0开始并强制对齐
-        # self.plot_widget.setXRange(0, 1)  # 设置X轴范围
-        # self.plot_widget.setYRange(0, 1)  # 设置Y轴范围
-
-        # 关键修复：禁用自动边距，手动设置边距
-        # self.plot_widget.getViewBox().setContentsMargins(0, 0, 0, 0)
-        
-        # 设置坐标轴范围时考虑边距
-        # self.plot_widget.setXRange(0, 1, padding=0)  # padding=0 消除边距
-        # self.plot_widget.setYRange(0, 1, padding=0)
-
-        # 设置坐标轴从0开始
-        # self.plot_widget.setLimits(xMin=0, yMin=0)
-
-        # 启用鼠标交互，默认开启
-        self.plot_widget.setMouseEnabled(x=True, y=False)
-        
-        # 启用缩放和拖拽，默认开启
-        # self.plot_widget.setMenuEnabled(False)
-
-        # 连接视图范围改变信号
-        self.plot_widget.sigRangeChanged.connect(self.on_range_changed)
-        
-        # 连接鼠标移动信号
-        self.plot_widget.scene().sigMouseMoved.connect(self.on_mouse_move)
-
-        
+        # 主图表样式设置
         self.plot_widget.setBackground('w')
         self.plot_widget.setLabel('left', '总成交量')
         self.plot_widget.setLabel('bottom', '日期')
-
-        # 显示网格
         self.plot_widget.showGrid(x=True, y=True, alpha=0.3)
-        
-        # 添加图例
         self.plot_widget.addLegend()
-
-        # 初始化十字线
-        self.v_line = pg.InfiniteLine(angle=90, movable=True, pen=pg.mkPen('r', width=2, style=Qt.DashLine))
-        self.h_line = pg.InfiniteLine(angle=0, movable=False, pen=pg.mkPen('r', width=2, style=Qt.DashLine))
-        # self.plot_widget.addItem(self.v_line, ignoreBounds=True)
-        # self.plot_widget.addItem(self.h_line, ignoreBounds=True)
-
-        # 设置高Z值确保在最上层
-        self.v_line.setZValue(1000)
-        self.h_line.setZValue(1000)
-
-        # # 确保添加到主ViewBox而不是场景
+        self.plot_widget.setMouseEnabled(x=True, y=False)
+        
+        # 初始化主图表十字线
+        self.v_line_main = pg.InfiniteLine(angle=90, movable=True, pen=pg.mkPen('r', width=2, style=Qt.DashLine))
+        self.h_line_main = pg.InfiniteLine(angle=0, movable=False, pen=pg.mkPen('r', width=2, style=Qt.DashLine))
+        self.v_line_main.setZValue(1000)
+        self.h_line_main.setZValue(1000)
+        
         main_viewbox = self.plot_widget.getViewBox()
-        main_viewbox.addItem(self.v_line, ignoreBounds=True)
-        main_viewbox.addItem(self.h_line, ignoreBounds=True)
+        main_viewbox.addItem(self.v_line_main, ignoreBounds=True)
+        main_viewbox.addItem(self.h_line_main, ignoreBounds=True)
         
-        # 初始化标签
-        self.label = pg.TextItem("", anchor=(0, 1))
-        self.label.setZValue(1001)  # 标签也在最上层
-        # self.plot_widget.addItem(self.label, ignoreBounds=True)
-        main_viewbox.addItem(self.label, ignoreBounds=True)
+        # 初始化主图表标签
+        self.label_main = pg.TextItem("", anchor=(0, 1))
+        self.label_main.setZValue(1001)
+        main_viewbox.addItem(self.label_main, ignoreBounds=True)
         
+        # 隐藏主图表的十字线（将由底部坐标系控制）
+        self.v_line_main.hide()
+        self.h_line_main.hide()
+        self.label_main.hide()
         
-        # 初始隐藏十字线
-        self.v_line.hide()
-        self.h_line.hide()
-        self.label.hide()
+        # 底部图表样式设置
+        self.bottom_plot_widget.setBackground('w')
+        self.bottom_plot_widget.setLabel('left', '净流入')
+        self.bottom_plot_widget.setLabel('bottom', '日期')
+        self.bottom_plot_widget.showGrid(x=True, y=True, alpha=0.3)
+        self.bottom_plot_widget.setMouseEnabled(x=True, y=False)
         
+        # 初始化底部图表十字线
+        self.v_line_bottom = pg.InfiniteLine(angle=90, movable=True, pen=pg.mkPen('#808286', width=2, style=Qt.DashLine))
+        self.h_line_bottom = pg.InfiniteLine(angle=0, movable=False, pen=pg.mkPen('#808286', width=2, style=Qt.DashLine))
+        self.v_line_bottom.setZValue(1000)
+        self.h_line_bottom.setZValue(1000)
+        
+        bottom_viewbox = self.bottom_plot_widget.getViewBox()
+        bottom_viewbox.addItem(self.v_line_bottom, ignoreBounds=True)
+        bottom_viewbox.addItem(self.h_line_bottom, ignoreBounds=True)
+        
+        # 设置底部图表十字线与主图表同步
+        self.v_line_main.sigPositionChanged.connect(self.sync_v_line_position)
+        self.v_line_bottom.sigPositionChanged.connect(self.sync_v_line_position)
+        
+        # 连接信号
+        self.bottom_plot_widget.setXLink(self.plot_widget)
+        self.plot_widget.sigRangeChanged.connect(self.on_range_changed)
+        
+
+        self.plot_widget.scene().sigMouseMoved.connect(self.on_mouse_move)
+        self.bottom_plot_widget.scene().sigMouseMoved.connect(self.on_mouse_move_bottom)
+
+    def sync_v_line_position(self):
+        """同步两个坐标系的垂直线位置"""
+        if hasattr(self, 'v_line_main') and hasattr(self, 'v_line_bottom'):
+            pos = self.v_line_main.pos()
+            self.v_line_bottom.setPos(pos)
+
     def plot_chart(self, industry_name, data, field_name="总成交额"):
         # 字段映射字典
         field_mapping = {
@@ -160,10 +232,10 @@ class BoardChartWidget(QWidget):
 
         # 计算合适的柱子宽度
         day_seconds = 24 * 60 * 60
-        bar_width = 0.8 * day_seconds
+        self.bar_width = 0.8 * day_seconds
 
         # 将柱子的中心对准日期时间点，而不是起始位置
-        self.adjusted_timestamps = [ts - bar_width / 2 for ts in timestamps]
+        self.adjusted_timestamps = [ts - self.bar_width / 2 for ts in timestamps]
 
 
 
@@ -174,15 +246,44 @@ class BoardChartWidget(QWidget):
             self.field_data = data['total_amount'].values  # 回退到默认字段
             display_name = "总成交额"
 
-        bargraph = pg.BarGraphItem(
-            x0=self.adjusted_timestamps,
-            height=self.field_data ,
-            width=bar_width,
-            brush=pg.mkColor(31, 119, 180, 180),  # 添加alpha通道实现半透明
-            pen={'color': '#0f4d8f', 'width': 1},
-            name=display_name 
-        )
-        self.plot_widget.addItem(bargraph)
+
+        # 绘制主图表数据
+        # 获取涨跌幅数据
+        change_percent_data = data['change_percent'].values
+
+        # 分别创建上涨和下跌的柱子
+        up_indices = [i for i, pct in enumerate(change_percent_data) if pct >= 0]
+        down_indices = [i for i, pct in enumerate(change_percent_data) if pct < 0]
+
+        # 绘制上涨柱子（红色边框空心柱）
+        if up_indices:
+            up_timestamps = [self.adjusted_timestamps[i] for i in up_indices]
+            up_values = [self.field_data[i] for i in up_indices]
+            
+            up_bargraph = pg.BarGraphItem(
+                x0=up_timestamps,
+                height=up_values,
+                width=self.bar_width,
+                pen={'color': 'r', 'width': 2},  # 红色边框
+                brush=pg.mkColor(255, 255, 255, 0),  # 透明填充
+                name=display_name
+            )
+            self.plot_widget.addItem(up_bargraph)
+
+        # 绘制下跌柱子（#00A9B2实心柱）
+        if down_indices:
+            down_timestamps = [self.adjusted_timestamps[i] for i in down_indices]
+            down_values = [self.field_data[i] for i in down_indices]
+            
+            down_bargraph = pg.BarGraphItem(
+                x0=down_timestamps,
+                height=down_values,
+                width=self.bar_width,
+                pen={'color': '#0ACC5A', 'width': 1}, # 00A9B2  
+                brush=pg.mkColor(10, 204, 90),  # #00A9B2半透明填充    0, 169, 178, 180
+                name=display_name
+            )
+            self.plot_widget.addItem(down_bargraph)
 
         # 先创建右侧Y轴和折线图（确保在柱状图之前添加）
         # 创建右侧Y轴用于显示折线图
@@ -200,20 +301,23 @@ class BoardChartWidget(QWidget):
 
         # 创建折线图（移动平均线）
         # 使用柱子的中心位置作为x坐标
-        line_x_positions = [ts + bar_width / 2 for ts in self.adjusted_timestamps]
+        line_x_positions = [ts + self.bar_width / 2 for ts in self.adjusted_timestamps]
         # 创建折线图
         line_data = data['avg_price'].values
         self.line_plot = self.plot_widget.plot(
             x=line_x_positions,
             y=line_data,
-            pen=pg.mkPen(color='#ff7f0e', width=3),
+            pen=pg.mkPen(color='#0f4d8f', width=3),
             symbol='o',
-            symbolSize=6,
-            symbolBrush='#ff7f0e',
+            symbolSize=12,
+            symbolBrush='#ff7f0e',    # ff7f0e
             name="均价"
         )
         # self.line_plot.setZValue(2)  # 设置较高的Z值，显示在上层
         self.right_viewbox.addItem(self.line_plot)
+
+        # 绘制底部图表数据（示例：添加另一个指标）
+        self.plot_bottom_chart(data)
 
         # 同步两个ViewBox的视图范围
         def update_views():
@@ -224,8 +328,8 @@ class BoardChartWidget(QWidget):
         self.plot_widget.getViewBox().sigResized.connect(update_views)
 
         # 考虑柱子宽度，使柱子居中显示
-        x_min = min(timestamps) - bar_width / 2
-        x_max = max(timestamps) + bar_width * 1.5
+        x_min = min(timestamps) - self.bar_width / 2
+        x_max = max(timestamps) + self.bar_width * 1.5
         self.plot_widget.setXRange(x_min, x_max)
         
         # 设置左右两侧Y轴的范围
@@ -240,10 +344,57 @@ class BoardChartWidget(QWidget):
         y_min_line = min(line_data)  * direct * 1.1
         self.right_viewbox.setYRange(y_min_line, y_max_line)
 
-        self.add_bar_value_labels(self.adjusted_timestamps, self.field_data, bar_width)
+        self.add_bar_value_labels(self.adjusted_timestamps, self.field_data, self.bar_width)
 
         return True
 
+    def plot_bottom_chart(self, data):
+        """绘制底部图表的数据"""
+        # 示例：绘制净流入数据
+        if 'net_inflow' in data.columns:
+            net_inflow_data = data['net_inflow'].values
+            change_percent_data = data['change_percent'].values
+            
+            # 分别创建上涨和下跌的柱子
+            up_indices = [i for i, pct in enumerate(change_percent_data) if pct >= 0]
+            down_indices = [i for i, pct in enumerate(change_percent_data) if pct < 0]
+
+            # 绘制上涨柱子（#FF5656实心柱）
+            if up_indices:
+                up_timestamps = [self.adjusted_timestamps[i] for i in up_indices]
+                up_values = [net_inflow_data[i] for i in up_indices]
+                
+                up_bargraph = pg.BarGraphItem(
+                    x0=up_timestamps,
+                    height=up_values,
+                    width=self.bar_width,
+                    pen={'color': '#FF5656', 'width': 1},
+                    brush=pg.mkColor(255, 86, 86, 180),  # #FF5656半透明填充
+                    name="净流入"
+                )
+                self.bottom_plot_widget.addItem(up_bargraph)
+
+            # 绘制下跌柱子（#2AD672实心柱）
+            if down_indices:
+                down_timestamps = [self.adjusted_timestamps[i] for i in down_indices]
+                down_values = [net_inflow_data[i] for i in down_indices]
+                
+                down_bargraph = pg.BarGraphItem(
+                    x0=down_timestamps,
+                    height=down_values,
+                    width=self.bar_width,
+                    pen={'color': '#2AD672', 'width': 1},
+                    brush=pg.mkColor(42, 214, 114, 180),  # #2AD672半透明填充
+                    name="净流入"
+                )
+                self.bottom_plot_widget.addItem(down_bargraph)
+            
+            # 设置Y轴范围
+            y_max = max(net_inflow_data) * 1.1
+            y_min = min(net_inflow_data) * 1.1
+            if y_min >= 0:
+                y_min = 0
+            self.bottom_plot_widget.setYRange(y_min, y_max)
 
     def add_bar_value_labels(self, timestamps, values, bar_width):
         """在柱子顶部添加数值标签"""
@@ -332,6 +483,106 @@ class BoardChartWidget(QWidget):
             ticks = [(i, str(i)) for i in range(0, int(y_max) + 50, 50)]
         y_axis.setTicks([ticks])
 
+    def adjust_bottom_y_range_to_visible_data(self):
+        """根据X轴范围内可见数据调整底部图表Y轴范围"""
+        # 检查底部图表是否有数据
+        if not hasattr(self, 'data') or self.data is None:
+            return
+            
+        vb = self.bottom_plot_widget.getViewBox()
+        x_range = vb.viewRange()[0]  # 获取X轴范围
+        
+        # 找到在当前X轴范围内的数据点
+        visible_indices = []
+        bar_width = 0.8 * 24 * 60 * 60  # 一天的秒数 * 0.8
+        
+        for i, ts in enumerate(self.adjusted_timestamps):
+            # 柱子的范围是从 ts 到 ts+bar_width
+            bar_center = ts + bar_width / 2  # bar_width/2
+            if x_range[0] <= bar_center <= x_range[1]:
+                visible_indices.append(i)
+        
+        if visible_indices:
+            # 检查底部图表是否有净流入数据
+            if 'net_inflow' in self.data.columns:
+                # 获取可见数据点的高度值
+                visible_data = [self.data['net_inflow'].iloc[i] for i in visible_indices]
+                if visible_data:
+                    y_min, y_max = min(visible_data), max(visible_data)
+                    # 设置Y轴范围，增加一些边距 (10%)
+                    y_range = y_max - y_min
+                    margin = y_range * 0.1 if y_range > 0 else 0.1
+                    vb.setYRange(y_min - margin, y_max + margin)
+
+    def get_bottom_visible_y_data(self):
+        """获取底部图表当前可视范围内的Y轴数据"""
+        # 检查底部图表是否有数据
+        if not hasattr(self, 'data') or self.data is None:
+            return []
+            
+        vb = self.bottom_plot_widget.getViewBox()
+        x_range = vb.viewRange()[0]  # 获取X轴范围
+        
+        # 找到在当前X轴范围内的数据点
+        visible_indices = []
+        bar_width = 0.8 * 24 * 60 * 60  # 一天的秒数 * 0.8
+        
+        for i, ts in enumerate(self.adjusted_timestamps):
+            bar_center = ts + bar_width / 2
+            if x_range[0] <= bar_center <= x_range[1]:
+                visible_indices.append(i)
+        
+        if visible_indices:
+            # 检查底部图表是否有净流入数据
+            if 'net_inflow' in self.data.columns:
+                # 使用 iloc 按位置访问数据
+                return [self.data['net_inflow'].iloc[i] for i in visible_indices]
+        return []
+
+    def fix_bottom_y_axis_ticks(self, data):
+        """修复底部图表Y轴刻度显示，确保显示为整数"""
+        # 获取Y轴对象
+        y_axis = self.bottom_plot_widget.getAxis('left')
+        
+        if not data:
+            return
+
+        # 计算合适的刻度间隔
+        data_min, data_max = min(data), max(data)
+        data_range = data_max - data_min
+
+        if data_range > 0:
+            # 根据数据范围动态设置刻度间隔
+            if data_range > 5000:
+                tick_interval = 1000
+            elif data_range > 1000:
+                tick_interval = 500
+            elif data_range > 500:
+                tick_interval = 100
+            elif data_range > 100:
+                tick_interval = 50
+            else:
+                tick_interval = 10
+                
+            # 设置Y轴刻度
+            y_max = data_max * 1.1
+            y_min = data_min * 1.1
+            if y_min >= 0:
+                y_min = 0
+                
+            # 计算刻度范围
+            min_tick = int(y_min // tick_interval) * tick_interval
+            max_tick = int(y_max // tick_interval + 1) * tick_interval
+            
+            ticks = [(i, str(i)) for i in range(int(min_tick), int(max_tick) + int(tick_interval), int(tick_interval))]
+            y_axis.setTicks([ticks])
+        else:
+            # 如果数据范围为0，设置默认刻度
+            y_max = data_max * 1.1 if data_max > 0 else 100
+            y_min = data_min * 1.1 if data_min < 0 else 0
+            ticks = [(i, str(i)) for i in range(int(y_min), int(y_max) + 50, 50)]
+            y_axis.setTicks([ticks])
+
     def on_range_changed(self):
         """当视图范围改变时调用"""
         # 根据当前可视范围调整Y轴
@@ -340,94 +591,225 @@ class BoardChartWidget(QWidget):
         visible_y_data = self.get_left_visible_y_data()
         if visible_y_data:
             self.fix_left_y_axis_ticks(visible_y_data)
+
+        # 根据当前可视范围调整底部图表Y轴
+        self.adjust_bottom_y_range_to_visible_data()
+        # 重新设置底部图表Y轴刻度
+        visible_bottom_y_data = self.get_bottom_visible_y_data()
+        if visible_bottom_y_data:
+            self.fix_bottom_y_axis_ticks(visible_bottom_y_data)
+    # def on_mouse_move(self, pos):
+    #     """处理主图表鼠标移动事件"""
+    #     if self.plot_widget.sceneBoundingRect().contains(pos):
+    #         mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
+    #         x_val = mouse_point.x()
+            
+    #         # 找到最近的数据点
+    #         bar_width = 0.8 * 24 * 60 * 60
+    #         bar_centers = [ts + bar_width / 2 for ts in self.adjusted_timestamps]
+            
+    #         closest_index = None
+    #         min_distance = float('inf')
+            
+    #         for i, center in enumerate(bar_centers):
+    #             distance = abs(center - x_val)
+    #             if distance <= bar_width / 2:
+    #                 if distance < min_distance:
+    #                     min_distance = distance
+    #                     closest_index = i
+            
+    #         if closest_index is not None:
+    #             closest_x = bar_centers[closest_index]
+    #             self.v_line_main.setPos(closest_x)
+    #             self.v_line_main.show()
+    #             self.h_line_main.show()
+                
+    #             # 同步到底部坐标系
+    #             self.v_line_bottom.setPos(closest_x)
+    #             self.v_line_bottom.show()
+    #             self.h_line_bottom.show()
+                
+    #             # 更新标签
+    #             self.update_label(closest_index)
+    #         else:
+    #             self.v_line_main.hide()
+    #             self.h_line_main.hide()
+    #             self.v_line_bottom.hide()
+    #             self.h_line_bottom.hide()
+    #     else:
+    #         self.v_line_main.hide()
+    #         self.h_line_main.hide()
+    #         self.v_line_bottom.hide()
+    #         self.h_line_bottom.hide()
+
+    # def on_mouse_move_bottom(self, pos):
+    #     """处理底部图表鼠标移动事件"""
+    #     if self.bottom_plot_widget.sceneBoundingRect().contains(pos):
+    #         mouse_point = self.bottom_plot_widget.getViewBox().mapSceneToView(pos)
+    #         x_val = mouse_point.x()
+            
+    #         # 找到最近的数据点
+    #         bar_width = 0.8 * 24 * 60 * 60
+    #         bar_centers = [ts + bar_width / 2 for ts in self.adjusted_timestamps]
+            
+    #         closest_index = None
+    #         min_distance = float('inf')
+            
+    #         for i, center in enumerate(bar_centers):
+    #             distance = abs(center - x_val)
+    #             if distance <= bar_width / 2:
+    #                 if distance < min_distance:
+    #                     min_distance = distance
+    #                     closest_index = i
+            
+    #         if closest_index is not None:
+    #             closest_x = bar_centers[closest_index]
+    #             self.v_line_bottom.setPos(closest_x)
+    #             self.v_line_bottom.show()
+    #             self.h_line_bottom.show()
+                
+    #             # 同步到主图表
+    #             self.v_line_main.setPos(closest_x)
+    #             self.v_line_main.show()
+    #             self.h_line_main.show()
+                
+    #             # 更新标签
+    #             self.update_label(closest_index)
+    #         else:
+    #             self.v_line_bottom.hide()
+    #             self.h_line_bottom.hide()
+    #             self.v_line_main.hide()
+    #             self.h_line_main.hide()
+    #     else:
+    #         self.v_line_bottom.hide()
+    #         self.h_line_bottom.hide()
+    #         self.v_line_main.hide()
+    #         self.h_line_main.hide()
+
+
     def on_mouse_move(self, pos):
-        """处理鼠标移动事件，显示数据点信息"""
-        # 检查鼠标是否在绘图区域内
+        """处理主图表鼠标移动事件"""
         if self.plot_widget.sceneBoundingRect().contains(pos):
-            # 确保有数据存在
-            if (hasattr(self, 'adjusted_timestamps') and hasattr(self, 'data') and 
-                len(self.adjusted_timestamps) > 0 and len(self.data) > 0):
+            mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
+            x_val = mouse_point.x()
+            
+            # 找到最近的数据点
+            bar_width = 0.8 * 24 * 60 * 60
+            bar_centers = [ts + bar_width / 2 for ts in self.adjusted_timestamps]
+            
+            closest_index = None
+            min_distance = float('inf')
+            
+            for i, center in enumerate(bar_centers):
+                distance = abs(center - x_val)
+                if distance <= bar_width / 2:
+                    if distance < min_distance:
+                        min_distance = distance
+                        closest_index = i
+            
+            if closest_index is not None:
+                closest_x = bar_centers[closest_index]
                 
-                # 将场景坐标转换为视图坐标
-                mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
-                x_val = mouse_point.x()
+                # 更新主图表垂直线位置
+                self.v_line_main.setPos(closest_x)
+                self.v_line_main.show()
                 
-                # 计算柱子中心位置
-                bar_width = 0.8 * 24 * 60 * 60  # 一天的秒数 * 0.8
-                bar_centers = [ts + bar_width / 2 for ts in self.adjusted_timestamps]
+                # 更新主图表水平线位置（根据数据点的Y值）
+                # y_value = self.field_data[closest_index]
+                y_value = mouse_point.y()
+                self.h_line_main.setPos(y_value)
+                self.h_line_main.show()
                 
-                # 找到鼠标位置附近的柱子
-                closest_index = None
-                min_distance = float('inf')
+                # 同步到底部坐标系（只显示垂直线）
+                self.v_line_bottom.setPos(closest_x)
+                self.v_line_bottom.show()
+                self.h_line_bottom.hide()  # 隐藏底部水平线
                 
-                for i, center in enumerate(bar_centers):
-                    distance = abs(center - x_val)
-                    # 只有当鼠标在柱子宽度范围内时才考虑该柱子
-                    if distance <= bar_width / 2:
-                        if distance < min_distance:
-                            min_distance = distance
-                            closest_index = i
-                
-                # 如果找到有效的柱子
-                if closest_index is not None:
-                    closest_x = bar_centers[closest_index]
-                    closest_row = self.data.iloc[closest_index]
-                    
-                    # 更新垂直线位置（对齐到最近的数据节点）
-                    self.v_line.setPos(closest_x)
-                    # 水平线仍然跟随鼠标y坐标
-                    self.h_line.setPos(mouse_point.y())
-                    
-                    # 显示十字线和标签
-                    self.v_line.show()
-                    self.h_line.show()
-                    self.label.show()
-                    
-                    # 显示对应的日期和数据
-                    try:
-                        # 获取对应的日期字符串
-                        date_str = closest_row['data_date']
-
-                        change_percent = closest_row['change_percent']
-                        total_volume = closest_row['total_volume']
-                        total_amount = closest_row['total_amount']
-                        net_inflow = closest_row['net_inflow']
-                        rising_count = closest_row['rising_count']
-                        falling_count = closest_row['falling_count']
-                        avg_price = closest_row['avg_price']
-                        leading_stock = closest_row['leading_stock']
-                        leading_stock_price = closest_row['leading_stock_price']
-                        leading_stock_change_percent = closest_row['leading_stock_change_percent']
-
-                        
-                        # 获取对应的移动平均值
-                        line_y_value = closest_row['avg_price'] if 'avg_price' in closest_row else 0
-                        
-                        # 格式化标签文本
-                        label_text = f"日期: {date_str}\n涨跌幅：{change_percent}%\n成交量：{total_volume} 万\n成交额: {total_amount} 亿\n净流入: {net_inflow} 亿\n上涨家数: {rising_count}\
-                            \n下跌家数: {falling_count}\n均价: {avg_price}\n领涨股: {leading_stock}\n领涨股-最新价：{leading_stock_price}\n领涨股-涨跌幅：{leading_stock_change_percent}%"
-                        self.label.setText(label_text)
-                        
-                        # 将标签定位在鼠标附近
-                        self.label.setPos(closest_x, mouse_point.y())
-                    except Exception as e:
-                        print(f"Error in mouse move: {e}")
-                        pass
-                else:
-                    # 没有靠近任何柱子时隐藏十字线
-                    self.v_line.hide()
-                    self.h_line.hide()
-                    self.label.hide()
+                # 更新标签
+                self.update_label(closest_index)
             else:
-                # 没有数据时隐藏十字线
-                self.v_line.hide()
-                self.h_line.hide()
-                self.label.hide()
+                self.v_line_main.hide()
+                self.h_line_main.hide()
+                self.v_line_bottom.hide()
+                self.h_line_bottom.hide()
         else:
-            # 鼠标移出绘图区域时隐藏十字线
-            self.v_line.hide()
-            self.h_line.hide()
-            self.label.hide()
+            self.v_line_main.hide()
+            self.h_line_main.hide()
+            self.v_line_bottom.hide()
+            self.h_line_bottom.hide()
+
+    def on_mouse_move_bottom(self, pos):
+        """处理底部图表鼠标移动事件"""
+        if self.bottom_plot_widget.sceneBoundingRect().contains(pos):
+            mouse_point = self.bottom_plot_widget.getViewBox().mapSceneToView(pos)
+            x_val = mouse_point.x()
+            
+            # 找到最近的数据点
+            bar_width = 0.8 * 24 * 60 * 60
+            bar_centers = [ts + bar_width / 2 for ts in self.adjusted_timestamps]
+            
+            closest_index = None
+            min_distance = float('inf')
+            
+            for i, center in enumerate(bar_centers):
+                distance = abs(center - x_val)
+                if distance <= bar_width / 2:
+                    if distance < min_distance:
+                        min_distance = distance
+                        closest_index = i
+            
+            if closest_index is not None:
+                closest_x = bar_centers[closest_index]
+                
+                # 更新底部图表垂直线位置
+                self.v_line_bottom.setPos(closest_x)
+                self.v_line_bottom.show()
+                
+                # 更新底部图表水平线位置（根据净流入数据的Y值）
+                if 'net_inflow' in self.data.columns:
+                    # bottom_y_value = self.data['net_inflow'].iloc[closest_index]
+                    bottom_y_value = mouse_point.y()
+                    self.h_line_bottom.setPos(bottom_y_value)
+                    self.h_line_bottom.show()
+                
+                # 同步到主图表（只显示垂直线）
+                self.v_line_main.setPos(closest_x)
+                self.v_line_main.show()
+                self.h_line_main.hide()  # 隐藏主图表水平线
+                
+                # 更新标签
+                self.update_label(closest_index)
+            else:
+                self.v_line_main.hide()
+                self.h_line_main.hide()
+                self.v_line_bottom.hide()
+                self.h_line_bottom.hide()
+        else:
+            self.v_line_main.hide()
+            self.h_line_main.hide()
+            self.v_line_bottom.hide()
+            self.h_line_bottom.hide()
+    
+    def update_label(self, index):
+        """更新标签显示"""
+        if hasattr(self, 'data') and len(self.data) > index:
+            row = self.data.iloc[index]
+            date_str = row['data_date']
+            change_percent = row['change_percent']
+            total_volume = row['total_volume']
+            total_amount = row['total_amount']
+            net_inflow = row['net_inflow']
+            rising_count = row['rising_count']
+            falling_count = row['falling_count']
+            avg_price = row['avg_price']
+            leading_stock = row['leading_stock']
+            leading_stock_price = row['leading_stock_price']
+            leading_stock_change_percent = row['leading_stock_change_percent']
+
+            label_text = f"日期: {date_str}\n涨跌幅：{change_percent}%\n成交量：{total_volume} 万\n成交额: {total_amount} 亿\n净流入: {net_inflow} 亿\n上涨家数: {rising_count}\n下跌家数: {falling_count}\n均价: {avg_price}"
+            self.label_main.setText(label_text)
+            self.label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60 / 2, 0)
+
 
     def get_row_by_date(self, date_str):
         """根据日期字符串获取对应的行数据"""
