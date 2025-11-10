@@ -42,6 +42,7 @@ class BoardChartWidget(QWidget):
         # 使用自定义的日期轴类
         self.date_axis = CustomDateAxisItem(orientation='bottom')
         self.plot_widget = pg.PlotWidget(axisItems={'bottom': self.date_axis})
+        # self.plot_widget = pg.PlotWidget()
         layout.addWidget(self.plot_widget)
         
         self.setup_plot_style()
@@ -147,14 +148,14 @@ class BoardChartWidget(QWidget):
 
 
         # 再创建柱状图（后添加的会显示在上层）
-        total_volume = data['total_volume'].values
+        total_amount = data['total_amount'].values
         bargraph = pg.BarGraphItem(
             x0=self.adjusted_timestamps,
-            height=total_volume,
+            height=total_amount,
             width=bar_width,
             brush=pg.mkColor(31, 119, 180, 180),  # 添加alpha通道实现半透明
             pen={'color': '#0f4d8f', 'width': 1},
-            name="总成交量"
+            name="总成交额"
         )
         self.plot_widget.addItem(bargraph)
 
@@ -203,15 +204,16 @@ class BoardChartWidget(QWidget):
         self.plot_widget.setXRange(x_min, x_max)
         
         # 设置左右两侧Y轴的范围
-        y_max_bar = max(total_volume) * 1.1
+        y_max_bar = max(total_amount) * 1.1
         self.plot_widget.setYRange(0, y_max_bar)
 
         y_max_line = max(line_data) * 1.1
         self.right_viewbox.setYRange(0, y_max_line)
 
-        self.add_bar_value_labels(self.adjusted_timestamps, total_volume, bar_width)
+        self.add_bar_value_labels(self.adjusted_timestamps, total_amount, bar_width)
 
         return True
+
 
     def add_bar_value_labels(self, timestamps, values, bar_width):
         """在柱子顶部添加数值标签"""
@@ -242,7 +244,7 @@ class BoardChartWidget(QWidget):
         
         if visible_indices:
             # 获取可见数据点的高度值 - 使用 iloc 按位置访问
-            visible_data = [self.data['total_volume'].iloc[i] for i in visible_indices]
+            visible_data = [self.data['total_amount'].iloc[i] for i in visible_indices]
             if visible_data:
                 y_min, y_max = min(visible_data), max(visible_data)
                 # 设置Y轴范围，增加一些边距 (10%)
@@ -264,7 +266,7 @@ class BoardChartWidget(QWidget):
         
         if visible_indices:
             # 使用 iloc 按位置访问数据
-            return [self.data['total_volume'].iloc[i] for i in visible_indices]
+            return [self.data['total_amount'].iloc[i] for i in visible_indices]
         return []
 
     def fix_left_y_axis_ticks(self, data):
@@ -308,215 +310,8 @@ class BoardChartWidget(QWidget):
         visible_y_data = self.get_left_visible_y_data()
         if visible_y_data:
             self.fix_left_y_axis_ticks(visible_y_data)
-
-    # def on_mouse_move(self, pos):
-    #     """处理鼠标移动事件，限制只能在x轴节点上移动"""
-    #     # self.logger.info("on_mouse_move...")
-    #     # 检查鼠标是否在绘图区域内
-    #     if self.plot_widget.sceneBoundingRect().contains(pos):
-    #         # 显示十字线
-    #         self.v_line.show()
-    #         self.h_line.show()
-    #         self.label.show()
-            
-    #         # 将场景坐标转换为视图坐标
-    #         mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
-    #         x_val = mouse_point.x()
-    #         y_val = mouse_point.y()
-            
-    #         # 更新垂直线位置（跟随鼠标x坐标）
-    #         self.v_line.setPos(x_val)
-            
-    #         # 更新水平线位置（跟随鼠标y坐标）
-    #         self.h_line.setPos(y_val)
-
-    #         # 确保有数据存在
-    #         if (hasattr(self, 'adjusted_timestamps') and hasattr(self, 'data') and 
-    #             len(self.adjusted_timestamps) > 0 and len(self.data) > 0):
-                
-    #             # # 将场景坐标转换为视图坐标
-    #             # mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
-    #             # x_val = mouse_point.x()
-                
-    #             # # 计算柱子中心位置
-    #             # bar_width = 0.8 * 24 * 60 * 60  # 一天的秒数 * 0.8
-    #             # bar_centers = [ts + bar_width / 2 for ts in self.adjusted_timestamps]
-                
-    #             # # 找到鼠标位置附近的柱子
-    #             # closest_index = None
-    #             # min_distance = float('inf')
-                
-    #             # for i, center in enumerate(bar_centers):
-    #             #     distance = abs(center - x_val)
-    #             #     # 只有当鼠标在柱子宽度范围内时才考虑该柱子
-    #             #     if distance <= bar_width / 2:
-    #             #         if distance < min_distance:
-    #             #             min_distance = distance
-    #             #             closest_index = i
-
-    #             # # 调试信息
-    #             # # self.logger.info(f"Mouse X: {x_val}, Bar centers: {bar_centers[:3]}..., Distances checked: {len(bar_centers)}")
-    #             # # self.logger.info(f"Closest index: {closest_index}")
-                
-    #             # # 如果找到有效的柱子
-    #             # if closest_index is not None:
-    #             #     closest_x = bar_centers[closest_index]
-
-    #             #     # self.logger.info(f"closest_x: {closest_x}")
-                    
-    #             #     # 更新垂直线位置（对齐到最近的数据节点）
-    #             #     self.v_line.setPos(closest_x)
-    #             #     # 水平线仍然跟随鼠标y坐标
-    #             #     self.h_line.setPos(mouse_point.y())
-                    
-    #             #     # 显示十字线和标签
-    #             #     self.v_line.show()
-    #             #     self.h_line.show()
-    #             #     self.label.show()
-                    
-    #             #     # 转换x轴时间戳为日期字符串
-    #             #     try:
-    #             #         timestamp_ms = int(closest_x * 1000)
-    #             #         qdt = QDateTime.fromMSecsSinceEpoch(timestamp_ms)
-    #             #         date_str = qdt.toString('yyyy-MM-dd')
-                        
-    #             #         # 获取该日期对应的完整数据行
-    #             #         row_data = self.get_row_by_date(date_str)
-    #             #         if row_data is not None:
-    #             #             total_volume = row_data['total_volume']
-    #             #             avg_price = row_data['avg_price'] if 'avg_price' in row_data else 0
-                            
-    #             #             # 格式化标签文本
-    #             #             label_text = f"日期: {date_str}\n成交量: {total_volume}\n均价: {avg_price:.2f}\n鼠标Y: {mouse_point.y():.2f}"
-    #             #             self.label.setText(label_text)
-    #             #         else:
-    #             #             # 如果找不到对应数据，只显示基本坐标信息
-    #             #             label_text = f"日期: {date_str}\n鼠标Y: {mouse_point.y():.2f}"
-    #             #             self.label.setText(label_text)
-
-    #             #         # 将标签定位在图表上部，避免遮挡
-    #             #         # y_range = self.plot_widget.getViewBox().viewRange()[1]
-    #             #         # label_y = y_range[1] * 0.95
-    #             #         # self.label.setPos(closest_x, label_y)
-    #             #         self.label.setPos(closest_x, mouse_point.y())
-
-    #             #     except Exception as e:
-    #             #         print(f"Error in mouse move: {e}")
-    #             #         pass
-    #             # 将场景坐标转换为视图坐标
-    #             mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
-    #             x_val = mouse_point.x()
-                
-    #             # 找到最接近的x坐标数据点
-    #             bar_width = 0.8 * 24 * 60 * 60  # 一天的秒数 * 0.8
-    #             bar_centers = [ts + bar_width / 2 for ts in self.adjusted_timestamps]  # 柱子中心位置
-    #             distances = [abs(center - x_val) for center in bar_centers]
-
-    #             # self.logger.info(f"Mouse X: {x_val}, Bar centers: {bar_centers[:3]}..., Distances checked: {len(bar_centers)}")
-    #             # self.logger.info(f"distances: {distances}")
-
-    #             if distances:
-    #                 closest_index = distances.index(min(distances))
-    #                 closest_x = bar_centers[closest_index]
-                    
-    #                 # 更新垂直线位置（对齐到最近的数据节点）
-    #                 self.v_line.setPos(closest_x)
-    #                 # 水平线仍然跟随鼠标y坐标
-    #                 self.h_line.setPos(mouse_point.y())
-                    
-    #                 # 转换x轴时间戳为日期字符串
-    #                 try:
-    #                     # timestamp_ms = int(closest_x * 1000)
-    #                     # qdt = QDateTime.fromMSecsSinceEpoch(timestamp_ms)
-    #                     # date_str = qdt.toString('yyyy-MM-dd')
-                        
-    #                     # 获取对应的移动平均值
-    #                     # line_y_value = self.line_data[closest_index] if hasattr(self, 'line_data') else 0
-                        
-    #                     # 格式化标签文本
-    #                     # label_text = f"日期: {date_str}\n销售额: {closest_y}\n移动平均: {line_y_value:.2f}\n鼠标Y: {mouse_point.y():.2f}"
-    #                     # self.label.setText(label_text)
-                        
-    #                     # 将标签定位在数据节点附近
-    #                     y_range = self.plot_widget.getViewBox().viewRange()[1]
-    #                     label_y = y_range[1] * 0.95  # 放在图表上部
-    #                     self.label.setPos(closest_x, label_y)
-    #                 except Exception as e:
-    #                     print(f"Error in mouse move: {e}")
-    #                     pass
-    #             else:
-    #                 self.logger.warning("No closest bar found.")
-    #                 # 没有靠近任何柱子时隐藏十字线
-    #                 self.v_line.hide()
-    #                 self.h_line.hide()
-    #                 self.label.hide()
-    #         else:
-    #             self.logger.warning("No data available.")
-    #             # 没有数据时隐藏十字线
-    #             self.v_line.hide()
-    #             self.h_line.hide()
-    #             self.label.hide()
-    #     else:
-    #         # 鼠标移出绘图区域时隐藏十字线
-    #         self.v_line.hide()
-    #         self.h_line.hide()
-    #         self.label.hide()
-
-    # def on_mouse_move(self, pos):
-    #     """处理鼠标移动事件，显示十字线"""
-    #     # 检查鼠标是否在绘图区域内
-    #     if self.plot_widget.sceneBoundingRect().contains(pos):
-    #         # self.logger.info(f"Mouse move: {pos}")
-    #         # 显示十字线
-    #         self.v_line.show()
-    #         self.h_line.show()
-    #         self.label.show()
-
-    #         # 添加调试信息确认十字线状态
-    #         # self.logger.info(f"Crosshair visibility - V line: {self.v_line.isVisible()}, H line: {self.h_line.isVisible()}")
-    #         # self.logger.info(f"Crosshair Z values - V line: {self.v_line.zValue()}, H line: {self.h_line.zValue()}")
-        
-            
-    #         # 将场景坐标转换为视图坐标
-    #         mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
-    #         x_val = mouse_point.x()
-    #         y_val = mouse_point.y()
-
-    #         # self.logger.info(f"Mouse X: {x_val}, Mouse Y: {y_val}")
-            
-    #         # 更新垂直线位置（跟随鼠标x坐标）
-    #         self.v_line.setPos(x_val)
-    #         # self.logger.info(f"V line position set to: {x_val}")
-            
-    #         # 更新水平线位置（跟随鼠标y坐标）
-    #         self.h_line.setPos(y_val)
-    #         # self.logger.info(f"H line position set to: {y_val}")
-            
-    #         # 更新标签文本和位置
-    #         try:
-    #             # 转换x轴时间戳为日期字符串
-    #             timestamp_ms = int(x_val * 1000)
-    #             qdt = QDateTime.fromMSecsSinceEpoch(timestamp_ms)
-    #             date_str = qdt.toString('yyyy-MM-dd')
-                
-    #             # 格式化标签文本
-    #             label_text = f"日期: {date_str}\nX: {x_val:.2f}\nY: {y_val:.2f}"
-    #             self.label.setText(label_text)
-                
-    #             # 将标签定位在鼠标附近
-    #             self.label.setPos(x_val, y_val)
-    #         except Exception as e:
-    #             self.logger.error(f"Error updating crosshair label: {e}")
-    #             pass
-                
-    #     else:
-    #         # 鼠标移出绘图区域时隐藏十字线
-    #         self.v_line.hide()
-    #         self.h_line.hide()
-    #         self.label.hide()
-
     def on_mouse_move(self, pos):
-        """处理鼠标移动事件，限制只能在x轴节点上移动"""
+        """处理鼠标移动事件，显示数据点信息"""
         # 检查鼠标是否在绘图区域内
         if self.plot_widget.sceneBoundingRect().contains(pos):
             # 确保有数据存在
@@ -558,24 +353,32 @@ class BoardChartWidget(QWidget):
                     self.h_line.show()
                     self.label.show()
                     
-                    # 转换x轴时间戳为日期字符串
+                    # 显示对应的日期和数据
                     try:
-                        timestamp_ms = int(closest_x * 1000)
-                        qdt = QDateTime.fromMSecsSinceEpoch(timestamp_ms)
-                        date_str = qdt.toString('yyyy-MM-dd')
+                        # 获取对应的日期字符串
+                        date_str = closest_row['data_date']
 
+                        change_percent = closest_row['change_percent']
                         total_volume = closest_row['total_volume']
+                        total_amount = closest_row['total_amount']
+                        net_inflow = closest_row['net_inflow']
+                        rising_count = closest_row['rising_count']
+                        falling_count = closest_row['falling_count']
+                        avg_price = closest_row['avg_price']
+                        leading_stock = closest_row['leading_stock']
+                        leading_stock_price = closest_row['leading_stock_price']
+                        leading_stock_change_percent = closest_row['leading_stock_change_percent']
+
                         
                         # 获取对应的移动平均值
-                        line_y_value = closest_row['avg_price'] if hasattr(self, 'line_data') else 0
+                        line_y_value = closest_row['avg_price'] if 'avg_price' in closest_row else 0
                         
                         # 格式化标签文本
-                        label_text = f"日期: {date_str}\n成交量: {total_volume}\n移动平均: {line_y_value:.2f}\n鼠标Y: {mouse_point.y():.2f}"
+                        label_text = f"日期: {date_str}\n涨跌幅：{change_percent}%\n成交量：{total_volume} 万\n成交额: {total_amount} 亿\n净流入: {net_inflow} 亿\n上涨家数: {rising_count}\
+                            \n下跌家数: {falling_count}\n均价: {avg_price}\n领涨股: {leading_stock}\n领涨股-最新价：{leading_stock_price}\n领涨股-涨跌幅：{leading_stock_change_percent}%"
                         self.label.setText(label_text)
                         
-                        # 将标签定位在图表上部，避免遮挡
-                        y_range = self.plot_widget.getViewBox().viewRange()[1]
-                        label_y = y_range[1] * 0.95
+                        # 将标签定位在鼠标附近
                         self.label.setPos(closest_x, mouse_point.y())
                     except Exception as e:
                         print(f"Error in mouse move: {e}")
@@ -617,3 +420,25 @@ class BoardChartWidget(QWidget):
             print(f"Error finding row by date: {e}")
         
         return None
+    
+
+    def add_time_markers(self, timestamps):
+        """在X轴上添加时间节点标记但不影响数据点位置"""
+        if not timestamps:
+            return
+            
+        # 获取X轴范围
+        x_range = self.plot_widget.getViewBox().viewRange()[0]
+        
+        # 在X轴上添加标记点（仅作视觉参考）
+        for ts in timestamps:
+            if x_range[0] <= ts <= x_range[1]:  # 只显示可见范围内的标记
+                # 创建一个小的标记点
+                marker = pg.ScatterPlotItem(
+                    x=[ts], 
+                    y=[0], 
+                    pen=pg.mkPen('gray', width=1), 
+                    brush=pg.mkBrush('gray'), 
+                    size=3
+                )
+                self.plot_widget.addItem(marker)

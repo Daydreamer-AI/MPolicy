@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QMessageBox, QGraphicsLineItem, QGraphicsRectItem, QGraphicsTextItem
-from PyQt5.QtCore import pyqtSlot, Qt, QPointF, QRectF
+from PyQt5.QtCore import pyqtSlot, QTimer
 from PyQt5.QtChart import QChart, QChartView, QLineSeries, QBarSeries, QBarSet, QDateTimeAxis, QValueAxis
 from PyQt5.QtGui import QPainter, QColor, QPen, QFont, QBrush
 
@@ -30,7 +30,10 @@ class IndustryBoardWidget(QWidget):
     def init_ui(self):
         df_lastest_industry_data = AKStockDataProcessor().get_latest_ths_board_industry_data()
         self.logger.info(f"获取最新行业板块数据成功，数量: {len(df_lastest_industry_data)}")
-        for row in df_lastest_industry_data.itertuples():
+
+        
+        first_item_data = None  # 保存第一个item的数据
+        for index, row in enumerate(df_lastest_industry_data.itertuples()):
             # self.logger.info(row)
 
             # 创建 QListWidgetItem
@@ -54,9 +57,25 @@ class IndustryBoardWidget(QWidget):
             # 将自定义 widget 设置为 item 的 widget
             self.listWidget_card.setItemWidget(item, stock_card_widget)
 
+            # 保存第一个item的数据
+            if index == 0:
+                first_item_data = row
+
+
+        # 如果有数据，自动选择第一个item（使用定时器延迟执行）
+        if first_item_data is not None:
+            # 使用单次定时器确保UI完全初始化后再执行
+            QTimer.singleShot(100, lambda: self.select_first_item(first_item_data))
+
     def init_connect(self):
         pass
 
+    def select_first_item(self, first_item_data):
+        """选择第一个item的独立方法"""
+        # 设置列表选中第一个
+        self.listWidget_card.setCurrentRow(0)
+        # 调用槽函数
+        self.slot_stock_card_clicked(first_item_data)
 
     # ==============槽函数==============
     @pyqtSlot(object)
