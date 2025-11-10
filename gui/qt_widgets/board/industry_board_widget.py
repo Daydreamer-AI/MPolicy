@@ -119,8 +119,9 @@ class IndustryBoardWidget(QWidget):
         if hasattr(data, 'total_volume'):
             self.comboBox_bar_type.addItem('总成交量')
 
-        if hasattr(data, 'net_inflow'):
-            self.comboBox_bar_type.addItem('净流入')
+        # 净流入方副图展示
+        # if hasattr(data, 'net_inflow'):
+        #     self.comboBox_bar_type.addItem('净流入')
 
         if hasattr(data, 'rising_count'):
             self.comboBox_bar_type.addItem('上涨家数')
