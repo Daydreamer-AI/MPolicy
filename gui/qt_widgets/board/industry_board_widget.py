@@ -30,7 +30,6 @@ class IndustryBoardWidget(QWidget):
     def init_ui(self):
         df_lastest_industry_data = AKStockDataProcessor().get_latest_ths_board_industry_data()
         self.logger.info(f"获取最新行业板块数据成功，数量: {len(df_lastest_industry_data)}")
-
         
         first_item_data = None  # 保存第一个item的数据
         for index, row in enumerate(df_lastest_industry_data.itertuples()):
@@ -68,7 +67,7 @@ class IndustryBoardWidget(QWidget):
             QTimer.singleShot(100, lambda: self.select_first_item(first_item_data))
 
     def init_connect(self):
-        pass
+        self.comboBox_bar_type.currentTextChanged.connect(self.update_chart)
 
     def select_first_item(self, first_item_data):
         """选择第一个item的独立方法"""
@@ -77,30 +76,62 @@ class IndustryBoardWidget(QWidget):
         # 调用槽函数
         self.slot_stock_card_clicked(first_item_data)
 
+    def update_chart(self, bar_type='总成交额'):
+        # 1. 从传递的data中获取板块名称
+        # 注意：具体的属性名需要根据实际的data结构确定
+        # industry_name = getattr(self.current_data, 'industry_name', None)  # 假设属性名为industry_name
+        self.logger.info(f"当前选择的板块名称为：{self.current_industry_name}")
+        
+        if self.current_industry_name:
+            # 2. 从历史数据中筛选该行业的所有交易日数据
+            # 假设df_industry_board_data中有'industry_name'列
+            industry_history_data = self.df_industry_board_data[
+                self.df_industry_board_data['industry_name'] == self.current_industry_name
+            ]
+            
+            # 3. 对数据进行排序（按日期）
+            # 假设有一个'date'列表示交易日期
+            industry_history_data = industry_history_data.sort_values('data_date')
+            self.logger.info(f"获取行业 {self.current_industry_name} 的历史数据成功，数量: {len(industry_history_data)}")
+            
+            # 4. 调用绘图函数
+            default_field = "总成交额"  # 或从ComboBox获取当前选中项
+            if hasattr(self, 'comboBox_bar_type'):
+                default_field = self.comboBox_bar_type.currentText()
+
+            self.plot_industry_chart(self.current_industry_name, industry_history_data, default_field)
+
     # ==============槽函数==============
     @pyqtSlot(object)
     def slot_stock_card_clicked(self, data):
         self.logger.info("slot_stock_card_clicked")
         self.logger.info(data)
 
-        # 1. 从传递的data中获取板块名称
-        # 注意：具体的属性名需要根据实际的data结构确定
-        industry_name = getattr(data, 'industry_name', None)  # 假设属性名为industry_name
+        self.current_industry_name = getattr(data, 'industry_name', None)
+        # self.current_data = data
+
+        # 使用信号阻塞避免触发更新
+        self.comboBox_bar_type.blockSignals(True)
+        self.comboBox_bar_type.clear()
+        if hasattr(data, 'total_amount'):
+            self.comboBox_bar_type.addItem('总成交额')
+
+        if hasattr(data, 'total_volume'):
+            self.comboBox_bar_type.addItem('总成交量')
+
+        if hasattr(data, 'net_inflow'):
+            self.comboBox_bar_type.addItem('净流入')
+
+        if hasattr(data, 'rising_count'):
+            self.comboBox_bar_type.addItem('上涨家数')
+
+        if hasattr(data, 'falling_count'):
+            self.comboBox_bar_type.addItem('下跌家数')
         
-        if industry_name:
-            # 2. 从历史数据中筛选该行业的所有交易日数据
-            # 假设df_industry_board_data中有'industry_name'列
-            industry_history_data = self.df_industry_board_data[
-                self.df_industry_board_data['industry_name'] == industry_name
-            ]
-            
-            # 3. 对数据进行排序（按日期）
-            # 假设有一个'date'列表示交易日期
-            industry_history_data = industry_history_data.sort_values('data_date')
-            self.logger.info(f"获取行业 {industry_name} 的历史数据成功，数量: {len(industry_history_data)}")
-            
-            # 4. 调用绘图函数
-            self.plot_industry_chart(industry_name, industry_history_data)
+        # 恢复信号
+        self.comboBox_bar_type.blockSignals(False)
+
+        self.update_chart()
 
     @pyqtSlot()
     def slot_stock_card_hovered(self):
@@ -119,7 +150,7 @@ class IndustryBoardWidget(QWidget):
 
     # =================其他成员函数===============
     # QtChart 绘图
-    def plot_industry_chart(self, industry_name, data):
+    def plot_industry_chart(self, industry_name, data, bar_type):
         """
         使用封装的图表控件绘制行业数据图表
         :param industry_name: 行业名称
@@ -131,22 +162,21 @@ class IndustryBoardWidget(QWidget):
                 self.logger.warning(f"没有找到 {industry_name} 的历史数据")
                 return
             
-            layout = self.widget_view.layout()
-            if layout is None:
-                self.widget_view.setLayout(QVBoxLayout())
-
-            # 清除之前的图表（如果有）
-            for i in reversed(range(layout.count())): 
-                layout.itemAt(i).widget().setParent(None)
-
             # 创建图表控件实例
             chart_widget = BoardChartWidget()
             # chart_widget.resize(1366, 768)
             
             # 绘制图表
-            success = chart_widget.plot_chart(industry_name, data)
+            success = chart_widget.plot_chart(industry_name, data, bar_type)
             
             if success:
+                # 清除之前的图表（如果有）
+                layout = self.widget_view.layout()
+                if layout is None:
+                    self.widget_view.setLayout(QVBoxLayout())
+                for i in reversed(range(layout.count())): 
+                    layout.itemAt(i).widget().setParent(None)
+
                 # 添加到布局
                 layout.addWidget(chart_widget)
                 self.logger.info(f"成功绘制 {industry_name} 图表，数据量: {len(data)}")

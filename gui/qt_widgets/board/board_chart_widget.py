@@ -117,7 +117,26 @@ class BoardChartWidget(QWidget):
         self.h_line.hide()
         self.label.hide()
         
-    def plot_chart(self, industry_name, data):
+    def plot_chart(self, industry_name, data, field_name="总成交额"):
+        # 字段映射字典
+        field_mapping = {
+            '总成交量': 'total_volume',
+            '总成交额': 'total_amount',
+            '净流入': 'net_inflow',
+            '上涨家数': 'rising_count',
+            '下跌家数': 'falling_count'
+        }
+        
+        # 获取实际字段名
+        actual_field = field_mapping.get(field_name, 'total_amount')  # 默认使用总成交额
+        display_name = field_name  # 显示名称
+
+        # 检查字段是否存在（修复错误的检查方式）
+        if actual_field not in data.columns:
+            self.logger.error(f"{field_name}字段不存在于数据中！")
+            return False
+
+
         self.data = data
         # 清除之前的绘图
         self.plot_widget.clear()
@@ -147,15 +166,21 @@ class BoardChartWidget(QWidget):
         self.adjusted_timestamps = [ts - bar_width / 2 for ts in timestamps]
 
 
-        # 再创建柱状图（后添加的会显示在上层）
-        total_amount = data['total_amount'].values
+
+        # 创建柱状图（根据传入的字段名）
+        if actual_field in data.columns:
+            self.field_data = data[actual_field].values
+        else:
+            self.field_data = data['total_amount'].values  # 回退到默认字段
+            display_name = "总成交额"
+
         bargraph = pg.BarGraphItem(
             x0=self.adjusted_timestamps,
-            height=total_amount,
+            height=self.field_data ,
             width=bar_width,
             brush=pg.mkColor(31, 119, 180, 180),  # 添加alpha通道实现半透明
             pen={'color': '#0f4d8f', 'width': 1},
-            name="总成交额"
+            name=display_name 
         )
         self.plot_widget.addItem(bargraph)
 
@@ -204,13 +229,18 @@ class BoardChartWidget(QWidget):
         self.plot_widget.setXRange(x_min, x_max)
         
         # 设置左右两侧Y轴的范围
-        y_max_bar = max(total_amount) * 1.1
-        self.plot_widget.setYRange(0, y_max_bar)
+        y_max_bar = max(self.field_data) * 1.1
+        y_min_bar = min(self.field_data) * 1.1
+        if y_min_bar >=0:
+            y_min_bar = 0
+        self.plot_widget.setYRange(y_min_bar, y_max_bar)
 
         y_max_line = max(line_data) * 1.1
-        self.right_viewbox.setYRange(0, y_max_line)
+        direct = 0 if y_min_bar >= 0 else -1
+        y_min_line = min(line_data)  * direct * 1.1
+        self.right_viewbox.setYRange(y_min_line, y_max_line)
 
-        self.add_bar_value_labels(self.adjusted_timestamps, total_amount, bar_width)
+        self.add_bar_value_labels(self.adjusted_timestamps, self.field_data, bar_width)
 
         return True
 
@@ -244,7 +274,7 @@ class BoardChartWidget(QWidget):
         
         if visible_indices:
             # 获取可见数据点的高度值 - 使用 iloc 按位置访问
-            visible_data = [self.data['total_amount'].iloc[i] for i in visible_indices]
+            visible_data = [self.field_data[i] for i in visible_indices]
             if visible_data:
                 y_min, y_max = min(visible_data), max(visible_data)
                 # 设置Y轴范围，增加一些边距 (10%)
@@ -266,7 +296,7 @@ class BoardChartWidget(QWidget):
         
         if visible_indices:
             # 使用 iloc 按位置访问数据
-            return [self.data['total_amount'].iloc[i] for i in visible_indices]
+            return [self.field_data[i] for i in visible_indices]
         return []
 
     def fix_left_y_axis_ticks(self, data):
