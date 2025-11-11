@@ -1,7 +1,0 @@
-2025-10-21 20:51:00 [CRITICAL] global_exception:logging_manager.py:187 - 未处理的异常
-Traceback (most recent call last):
-  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 275, in slot_btn_daily_down_double_bottom_clicked
-    result = BaoStockProcessor().daily_down_double_bottom_filter(AKStockDataProcessor().get_stocks_eastmoney())
-  File "d:\PythonProject\MPolicy\processor\baostock_processor.py", line 921, in daily_down_double_bottom_filter
-    if pf.daily_down_double_bottom_filter(df_data):
-TypeError: daily_down_double_bottom_filter() missing 1 required positional argument: 'df_weekly_data'
