@@ -19,6 +19,25 @@ class ConceptBoardWidget(QWidget):
     def init_para(self):
         self.logger = get_logger(__name__)
         self.df_concept_board_data = AKStockDataProcessor().query_ths_board_concept_overview()
+        if 'board_change_percent' in self.df_concept_board_data.columns:
+            self.df_concept_board_data = self.df_concept_board_data.rename(columns={'board_change_percent': 'change_percent'})
+        else:
+            self.logger.warning("数据中不包含 board_change_percent 字段")
+
+        # 预处理数据
+        if 'chage_rank' in self.df_concept_board_data.columns:
+            # 使用正则表达式提取排名（格式为：10/389，提取第一个数字作为排名）
+            self.df_concept_board_data['rank'] = self.df_concept_board_data['chage_rank'].str.extract(r'(\d+)/\d+').astype(int)
+        else:
+            self.logger.warning("数据中不包含 chage_rank 字段")
+            
+        if 'rise_fall_count' in self.df_concept_board_data.columns:
+            # 使用正则表达式提取上涨家数和下跌家数（格式为：16/4，第一个数字是上涨家数，第二个是下跌家数）
+            rise_fall_split = self.df_concept_board_data['rise_fall_count'].str.extract(r'(\d+)/(\d+)')
+            self.df_concept_board_data['rising_count'] = rise_fall_split[0].astype(int)
+            self.df_concept_board_data['falling_count'] = rise_fall_split[1].astype(int)
+        else:
+            self.logger.warning("数据中不包含 rise_fall_count 字段")
 
     def init_ui(self):
         df_lastest_concept_data = AKStockDataProcessor().get_latest_ths_board_concept_overview()
@@ -28,7 +47,6 @@ class ConceptBoardWidget(QWidget):
         else:
             self.logger.warning("数据中不包含 board_change_percent 字段")
 
-        # 预处理数据
         if 'chage_rank' in df_lastest_concept_data.columns:
             # 使用正则表达式提取排名（格式为：10/389，提取第一个数字作为排名）
             df_lastest_concept_data['rank'] = df_lastest_concept_data['chage_rank'].str.extract(r'(\d+)/\d+').astype(int)
@@ -110,7 +128,7 @@ class ConceptBoardWidget(QWidget):
             QTimer.singleShot(100, lambda: self.select_first_item(first_item_data))
 
     def init_connect(self):
-        pass
+        self.comboBox_bar_type.currentTextChanged.connect(self.update_chart)
 
     def select_first_item(self, first_item_data):
         """选择第一个item的独立方法"""
@@ -202,7 +220,7 @@ class ConceptBoardWidget(QWidget):
                 return
             
             # 创建图表控件实例
-            chart_widget = BoardChartWidget()
+            chart_widget = BoardChartWidget(1)
             # chart_widget.resize(1366, 768)
             
             # 绘制图表

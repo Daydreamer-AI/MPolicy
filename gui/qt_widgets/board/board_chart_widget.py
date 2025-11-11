@@ -15,9 +15,11 @@ from gui.qt_widgets.MComponents.custom_date_axisItem import CustomDateAxisItem
 from common.logging_manager import get_logger
 
 class BoardChartWidget(QWidget):
-    def __init__(self):
+    def __init__(self, type=0):
         super().__init__()
         self.logger = get_logger(__name__)
+
+        self.board_type = type
         self.setup_ui()
         
     def setup_ui(self):
@@ -165,9 +167,9 @@ class BoardChartWidget(QWidget):
                 self.x_label_main.setPos(pos.x(), self.plot_widget.getViewBox().viewRange()[1][0])
             if self.x_label_bottom.isVisible():
                 self.x_label_bottom.setPos(pos.x(), self.bottom_plot_widget.getViewBox().viewRange()[1][0])
-    def plot_chart(self, board_name, data, field_name="总成交额", board_type=0):
+    def plot_chart(self, board_name, data, field_name="总成交额"):
 
-        if board_type == 0:
+        if self.board_type == 0:
             # 字段映射字典
             field_mapping = {
                 '总成交量': 'total_volume',
@@ -180,7 +182,6 @@ class BoardChartWidget(QWidget):
             # 获取实际字段名
             actual_field = field_mapping.get(field_name, 'total_amount')  # 默认使用总成交额
             display_name = field_name  # 显示名称
-
         else:
             field_mapping = {
                 '总成交量': 'volume',
@@ -229,9 +230,10 @@ class BoardChartWidget(QWidget):
         if actual_field in data.columns:
             self.field_data = data[actual_field].values
         else:
-            self.field_data = data['total_amount'].values  # 回退到默认字段
-            display_name = "总成交额"
+            return False
 
+
+        # =================================绘制主图柱状图=================================
         # 获取涨跌幅数据
         change_percent_data = data['change_percent'].values
 
@@ -286,41 +288,45 @@ class BoardChartWidget(QWidget):
             )
             self.plot_widget.addItem(down_bargraph)
 
-        # 先创建右侧Y轴和折线图（确保在柱状图之前添加）
-        # 创建右侧Y轴用于显示折线图
-        self.right_viewbox = pg.ViewBox()
-        self.right_axis = self.plot_widget.getAxis('right')
+        # ==============================绘制折线图===============================
 
-        # 链接右侧Y轴到主视图
-        self.plot_widget.scene().addItem(self.right_viewbox)
-        self.plot_widget.getAxis('right').linkToView(self.right_viewbox)
-        self.right_viewbox.setXLink(self.plot_widget)
-        
-        # 设置右侧Y轴标签
-        self.plot_widget.setLabel('right', '均价', units='元')
-        self.plot_widget.showAxis('right')
+        if self.board_type == 0:
+            # 先创建右侧Y轴和折线图（确保在柱状图之前添加）
+            # 创建右侧Y轴用于显示折线图
+            self.right_viewbox = pg.ViewBox()
+            self.right_axis = self.plot_widget.getAxis('right')
 
-        # 创建折线图（移动平均线）
-        line_x_positions = [ts + self.bar_width / 2 for ts in self.adjusted_timestamps]
-        line_data = data['avg_price'].values
-        self.line_plot = self.plot_widget.plot(
-            x=line_x_positions,
-            y=line_data,
-            pen=pg.mkPen(color='#0f4d8f', width=3),
-            symbol='o',
-            symbolSize=12,
-            symbolBrush='#ff7f0e',
-            name="均价"
-        )
-        self.right_viewbox.addItem(self.line_plot)
+            # 链接右侧Y轴到主视图
+            self.plot_widget.scene().addItem(self.right_viewbox)
+            self.plot_widget.getAxis('right').linkToView(self.right_viewbox)
+            self.right_viewbox.setXLink(self.plot_widget)
+            
+            # 设置右侧Y轴标签
+            self.plot_widget.setLabel('right', '均价', units='元')
+            self.plot_widget.showAxis('right')
 
-        # 绘制底部图表数据（示例：添加另一个指标）
+            # 创建折线图（移动平均线）
+            line_x_positions = [ts + self.bar_width / 2 for ts in self.adjusted_timestamps]
+            line_data = data['avg_price'].values
+            self.line_plot = self.plot_widget.plot(
+                x=line_x_positions,
+                y=line_data,
+                pen=pg.mkPen(color='#0f4d8f', width=3),
+                symbol='o',
+                symbolSize=12,
+                symbolBrush='#ff7f0e',
+                name="均价"
+            )
+            self.right_viewbox.addItem(self.line_plot)
+
+        # =====================绘制底部图表数据（示例：添加另一个指标）===============
         self.plot_bottom_chart(data)
 
         # 同步两个ViewBox的视图范围
         def update_views():
-            self.right_viewbox.setGeometry(self.plot_widget.getViewBox().sceneBoundingRect())
-            self.right_viewbox.linkedViewChanged(self.plot_widget.getViewBox(), self.right_viewbox.XAxis)
+            if self.board_type == 0 and self.right_viewbox:
+                self.right_viewbox.setGeometry(self.plot_widget.getViewBox().sceneBoundingRect())
+                self.right_viewbox.linkedViewChanged(self.plot_widget.getViewBox(), self.right_viewbox.XAxis)
         
         update_views()
         self.plot_widget.getViewBox().sigResized.connect(update_views)
@@ -337,10 +343,11 @@ class BoardChartWidget(QWidget):
             y_min_bar = 0
         self.plot_widget.setYRange(y_min_bar, y_max_bar)
 
-        y_max_line = max(line_data) * 1.1
-        direct = 0 if y_min_bar >= 0 else -1
-        y_min_line = min(line_data)  * direct * 1.1
-        self.right_viewbox.setYRange(y_min_line, y_max_line)
+        if self.board_type == 0:
+            y_max_line = max(line_data) * 1.1
+            direct = 0 if y_min_bar >= 0 else -1
+            y_min_line = min(line_data)  * direct * 1.1
+            self.right_viewbox.setYRange(y_min_line, y_max_line)
 
         self.add_bar_value_labels(self.adjusted_timestamps, self.field_data, self.bar_width)
 
@@ -635,21 +642,12 @@ class BoardChartWidget(QWidget):
                 
                 # 显示轴外标签
                 # 主图表左侧Y轴标签
-                # self.left_y_label_main.setText(f"{y_val:.2f}")
-                # self.left_y_label_main.setPos(self.plot_widget.getViewBox().viewRange()[0][0], y_val)
-                # self.left_y_label_main.show()
                 self.left_y_label_main.setText(f"{y_val:.2f}")
                 self.left_y_label_main.setPos(self.plot_widget.getViewBox().viewRange()[0][0] - 30, y_val)
-                self.left_y_label_main.show()
-                
-                # 主图表右侧Y轴标签（需要转换到右侧坐标系）
-                # if hasattr(self, 'right_viewbox'):
-                #     right_y_val = self.convert_y_to_right_axis(y_val)
-                #     self.right_y_label_main.setText(f"{right_y_val:.2f}")
-                #     self.right_y_label_main.setPos(self.plot_widget.getViewBox().viewRange()[0][1], y_val)
-                #     self.right_y_label_main.show()
-                # 右侧Y轴标签（主图）
-                if hasattr(self, 'right_viewbox'):
+                self.left_y_label_main.show() 
+
+                # 右侧Y轴标签（主图）（需要转换到右侧坐标系）
+                if hasattr(self, 'right_viewbox') and self.board_type == 0:
                     right_y_val = self.convert_y_to_right_axis(y_val)
                     self.right_y_label_main.setText(f"{right_y_val:.2f}")
                     self.right_y_label_main.setPos(self.plot_widget.getViewBox().viewRange()[0][1] + 30, y_val)
@@ -658,20 +656,12 @@ class BoardChartWidget(QWidget):
                 # X轴标签（两个图表都显示）
                 x_date_str = self.timestamp_to_date_str(closest_x)
                 x_pos = closest_x
-                
-                # 主图表X轴标签
-                # self.x_label_main.setText(x_date_str)
-                # self.x_label_main.setPos(x_pos, self.plot_widget.getViewBox().viewRange()[1][0])
-                # self.x_label_main.show()
+
                 # X轴标签（主图）
                 self.x_label_main.setText(x_date_str)
                 self.x_label_main.setPos(x_pos, self.plot_widget.getViewBox().viewRange()[1][0] - 30)
                 self.x_label_main.show()
-                
-                # 底部图表X轴标签
-                # self.x_label_bottom.setText(x_date_str)
-                # self.x_label_bottom.setPos(x_pos, self.bottom_plot_widget.getViewBox().viewRange()[1][0])
-                # self.x_label_bottom.show()
+
                 
                 # X轴标签（底部图）
                 self.x_label_bottom.setText(x_date_str)
@@ -794,29 +784,55 @@ class BoardChartWidget(QWidget):
     def update_label(self, index):
         """更新标签显示"""
         if hasattr(self, 'data') and len(self.data) > index:
-            row = self.data.iloc[index]
-            date_str = row['date']
-            change_percent = row['change_percent']
-            total_volume = row['total_volume']
-            total_amount = row['total_amount']
-            net_inflow = row['net_inflow']
-            rising_count = row['rising_count']
-            falling_count = row['falling_count']
-            avg_price = row['avg_price']
-            leading_stock = row['leading_stock']
-            leading_stock_price = row['leading_stock_price']
-            leading_stock_change_percent = row['leading_stock_change_percent']
 
-            # label_text = f"日期: {date_str}\n涨跌幅：{change_percent}%\n成交量：{total_volume} 万\n成交额: {total_amount} 亿\n净流入: {net_inflow} 亿\n上涨家数: {rising_count}\n下跌家数: {falling_count}\n均价: {avg_price}"
-            # self.label_main.setText(label_text)
+            if self.board_type == 0:
+                self.update_label_industry(index)
+            else:
+                self.update_label_concept(index)
+            
 
-            label_text = f"日期: {date_str}<br>涨跌幅：{change_percent}%<br>成交量：{total_volume} 万<br>成交额: {total_amount} 亿\
-                <br>净流入: {net_inflow} 亿<br>上涨家数: {rising_count}<br>下跌家数: {falling_count}<br>均价: {avg_price}<br>领涨股：{leading_stock}<br>领涨股价格：{leading_stock_price}<br>领涨股涨跌幅：{leading_stock_change_percent}%"
-            text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(label_text)
-            self.label_main.setHtml(text_with_style)
+    def update_label_industry(self, index):
+        row = self.data.iloc[index]
+        date_str = row['date']
+        change_percent = row['change_percent']
+        total_volume = row['total_volume']
+        total_amount = row['total_amount']
+        net_inflow = row['net_inflow']
+        rising_count = row['rising_count']
+        falling_count = row['falling_count']
+        avg_price = row['avg_price']
+        leading_stock = row['leading_stock']
+        leading_stock_price = row['leading_stock_price']
+        leading_stock_change_percent = row['leading_stock_change_percent']
 
-            self.label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
-            self.label_main.show()
+        # label_text = f"日期: {date_str}\n涨跌幅：{change_percent}%\n成交量：{total_volume} 万\n成交额: {total_amount} 亿\n净流入: {net_inflow} 亿\n上涨家数: {rising_count}\n下跌家数: {falling_count}\n均价: {avg_price}"
+        # self.label_main.setText(label_text)
+
+        label_text = f"日期: {date_str}<br>涨跌幅：{change_percent}%<br>成交量：{total_volume} 万<br>成交额: {total_amount} 亿\
+            <br>净流入: {net_inflow} 亿<br>上涨家数: {rising_count}<br>下跌家数: {falling_count}<br>均价: {avg_price}<br>领涨股：{leading_stock}<br>领涨股价格：{leading_stock_price}<br>领涨股涨跌幅：{leading_stock_change_percent}%"
+        text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(label_text)
+        self.label_main.setHtml(text_with_style)
+
+        self.label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
+        self.label_main.show()
+
+    def update_label_concept(self, index):
+        row = self.data.iloc[index]
+        date_str = row['date']
+        change_percent = row['change_percent']
+        total_volume = row['volume']
+        total_amount = row['turnover']
+        net_inflow = row['net_inflow']
+        rising_count = row['rising_count']
+        falling_count = row['falling_count']
+
+        label_text = f"日期: {date_str}<br>涨跌幅：{change_percent}%<br>成交量：{total_volume} 万<br>成交额: {total_amount} 亿\
+            <br>净流入: {net_inflow} 亿<br>上涨家数: {rising_count}<br>下跌家数: {falling_count}"
+        text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(label_text)
+        self.label_main.setHtml(text_with_style)
+
+        self.label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
+        self.label_main.show()
 
     def get_row_by_date(self, date_str):
         """根据日期字符串获取对应的行数据"""

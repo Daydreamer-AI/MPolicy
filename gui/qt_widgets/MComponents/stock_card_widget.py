@@ -61,7 +61,7 @@ class StockCardWidget(QWidget):
                     self.label_price.setText("N/A")
             else:
                 self.label_stock_name.setText(self.data.concept_name)
-                self.label_price.hide()
+                self.label_price.setText("N/A")
 
             
             
