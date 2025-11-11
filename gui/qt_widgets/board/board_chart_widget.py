@@ -182,6 +182,10 @@ class BoardChartWidget(QWidget):
             # 获取实际字段名
             actual_field = field_mapping.get(field_name, 'total_amount')  # 默认使用总成交额
             display_name = field_name  # 显示名称
+
+            right_y_field = 'avg_price'
+            right_y_name = '均价'
+            right_y_unit = '元'
         else:
             field_mapping = {
                 '总成交量': 'volume',
@@ -194,6 +198,10 @@ class BoardChartWidget(QWidget):
             # 获取实际字段名
             actual_field = field_mapping.get(field_name, 'turnover')  # 默认使用总成交额
             display_name = field_name  # 显示名称
+
+            right_y_field = 'open_price'
+            right_y_name = '今开'
+            right_y_unit = '元'
 
         # 检查字段是否存在（修复错误的检查方式）
         if actual_field not in data.columns:
@@ -290,43 +298,41 @@ class BoardChartWidget(QWidget):
 
         # ==============================绘制折线图===============================
 
-        if self.board_type == 0:
-            # 先创建右侧Y轴和折线图（确保在柱状图之前添加）
-            # 创建右侧Y轴用于显示折线图
-            self.right_viewbox = pg.ViewBox()
-            self.right_axis = self.plot_widget.getAxis('right')
+        # 先创建右侧Y轴和折线图（确保在柱状图之前添加）
+        # 创建右侧Y轴用于显示折线图
+        self.right_viewbox = pg.ViewBox()
+        self.right_axis = self.plot_widget.getAxis('right')
 
-            # 链接右侧Y轴到主视图
-            self.plot_widget.scene().addItem(self.right_viewbox)
-            self.plot_widget.getAxis('right').linkToView(self.right_viewbox)
-            self.right_viewbox.setXLink(self.plot_widget)
-            
-            # 设置右侧Y轴标签
-            self.plot_widget.setLabel('right', '均价', units='元')
-            self.plot_widget.showAxis('right')
+        # 链接右侧Y轴到主视图
+        self.plot_widget.scene().addItem(self.right_viewbox)
+        self.plot_widget.getAxis('right').linkToView(self.right_viewbox)
+        self.right_viewbox.setXLink(self.plot_widget)
+        
+        # 设置右侧Y轴标签
+        self.plot_widget.setLabel('right', right_y_name, units=right_y_unit)
+        self.plot_widget.showAxis('right')
 
-            # 创建折线图（移动平均线）
-            line_x_positions = [ts + self.bar_width / 2 for ts in self.adjusted_timestamps]
-            line_data = data['avg_price'].values
-            self.line_plot = self.plot_widget.plot(
-                x=line_x_positions,
-                y=line_data,
-                pen=pg.mkPen(color='#0f4d8f', width=3),
-                symbol='o',
-                symbolSize=12,
-                symbolBrush='#ff7f0e',
-                name="均价"
-            )
-            self.right_viewbox.addItem(self.line_plot)
+        # 创建折线图（移动平均线）
+        line_x_positions = [ts + self.bar_width / 2 for ts in self.adjusted_timestamps]
+        line_data = data[right_y_field].values
+        self.line_plot = self.plot_widget.plot(
+            x=line_x_positions,
+            y=line_data,
+            pen=pg.mkPen(color='#0f4d8f', width=3),
+            symbol='o',
+            symbolSize=12,
+            symbolBrush='#ff7f0e',
+            name=right_y_name
+        )
+        self.right_viewbox.addItem(self.line_plot)
 
         # =====================绘制底部图表数据（示例：添加另一个指标）===============
         self.plot_bottom_chart(data)
 
         # 同步两个ViewBox的视图范围
         def update_views():
-            if self.board_type == 0 and self.right_viewbox:
-                self.right_viewbox.setGeometry(self.plot_widget.getViewBox().sceneBoundingRect())
-                self.right_viewbox.linkedViewChanged(self.plot_widget.getViewBox(), self.right_viewbox.XAxis)
+            self.right_viewbox.setGeometry(self.plot_widget.getViewBox().sceneBoundingRect())
+            self.right_viewbox.linkedViewChanged(self.plot_widget.getViewBox(), self.right_viewbox.XAxis)
         
         update_views()
         self.plot_widget.getViewBox().sigResized.connect(update_views)
@@ -343,11 +349,12 @@ class BoardChartWidget(QWidget):
             y_min_bar = 0
         self.plot_widget.setYRange(y_min_bar, y_max_bar)
 
-        if self.board_type == 0:
-            y_max_line = max(line_data) * 1.1
-            direct = 0 if y_min_bar >= 0 else -1
-            y_min_line = min(line_data)  * direct * 1.1
-            self.right_viewbox.setYRange(y_min_line, y_max_line)
+
+        y_max_line = max(line_data) * 1.1
+        direct = 0 if y_min_bar >= 0 else -1
+        y_min_line = min(line_data)  * direct * 1.1
+        self.logger.info(f"board_type: {self.board_type}, y_min_line: {y_min_line}, y_max_line: {y_max_line}")
+        self.right_viewbox.setYRange(y_min_line, y_max_line)
 
         self.add_bar_value_labels(self.adjusted_timestamps, self.field_data, self.bar_width)
 
@@ -475,8 +482,10 @@ class BoardChartWidget(QWidget):
                 tick_interval = 500
             elif data_range > 500:
                 tick_interval = 100
-            else:
+            elif data_range > 100:
                 tick_interval = 50
+            else:
+                tick_interval = 10
                 
             # 设置Y轴刻度
             y_max = data_max * 1.1
@@ -647,7 +656,7 @@ class BoardChartWidget(QWidget):
                 self.left_y_label_main.show() 
 
                 # 右侧Y轴标签（主图）（需要转换到右侧坐标系）
-                if hasattr(self, 'right_viewbox') and self.board_type == 0:
+                if hasattr(self, 'right_viewbox'):
                     right_y_val = self.convert_y_to_right_axis(y_val)
                     self.right_y_label_main.setText(f"{right_y_val:.2f}")
                     self.right_y_label_main.setPos(self.plot_widget.getViewBox().viewRange()[0][1] + 30, y_val)
@@ -818,6 +827,12 @@ class BoardChartWidget(QWidget):
 
     def update_label_concept(self, index):
         row = self.data.iloc[index]
+
+        open_price = row['open_price']
+        previous_close_price = row['previous_close']
+        low_price = row['low_price']
+        high_price = row['high_price']
+
         date_str = row['date']
         change_percent = row['change_percent']
         total_volume = row['volume']
@@ -825,8 +840,10 @@ class BoardChartWidget(QWidget):
         net_inflow = row['net_inflow']
         rising_count = row['rising_count']
         falling_count = row['falling_count']
+        rank = row['rank']
 
-        label_text = f"日期: {date_str}<br>涨跌幅：{change_percent}%<br>成交量：{total_volume} 万<br>成交额: {total_amount} 亿\
+        label_text = f"日期: {date_str}<br>排名：{rank}<br>昨收：{previous_close_price}<br>今开：{open_price}<br>最高：{high_price}\
+            <br>最低：{low_price}<br>涨跌幅：{change_percent}%<br>成交量：{total_volume} 万<br>成交额: {total_amount} 亿\
             <br>净流入: {net_inflow} 亿<br>上涨家数: {rising_count}<br>下跌家数: {falling_count}"
         text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(label_text)
         self.label_main.setHtml(text_with_style)

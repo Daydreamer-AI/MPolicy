@@ -25,11 +25,11 @@ class ConceptBoardWidget(QWidget):
             self.logger.warning("数据中不包含 board_change_percent 字段")
 
         # 预处理数据
-        if 'chage_rank' in self.df_concept_board_data.columns:
+        if 'change_rank' in self.df_concept_board_data.columns:
             # 使用正则表达式提取排名（格式为：10/389，提取第一个数字作为排名）
-            self.df_concept_board_data['rank'] = self.df_concept_board_data['chage_rank'].str.extract(r'(\d+)/\d+').astype(int)
+            self.df_concept_board_data['rank'] = self.df_concept_board_data['change_rank'].str.extract(r'(\d+)/\d+').astype(int)
         else:
-            self.logger.warning("数据中不包含 chage_rank 字段")
+            self.logger.warning("数据中不包含 change_rank 字段")
             
         if 'rise_fall_count' in self.df_concept_board_data.columns:
             # 使用正则表达式提取上涨家数和下跌家数（格式为：16/4，第一个数字是上涨家数，第二个是下跌家数）
@@ -47,11 +47,11 @@ class ConceptBoardWidget(QWidget):
         else:
             self.logger.warning("数据中不包含 board_change_percent 字段")
 
-        if 'chage_rank' in df_lastest_concept_data.columns:
+        if 'change_rank' in df_lastest_concept_data.columns:
             # 使用正则表达式提取排名（格式为：10/389，提取第一个数字作为排名）
-            df_lastest_concept_data['rank'] = df_lastest_concept_data['chage_rank'].str.extract(r'(\d+)/\d+').astype(int)
+            df_lastest_concept_data['rank'] = df_lastest_concept_data['change_rank'].str.extract(r'(\d+)/\d+').astype(int)
         else:
-            self.logger.warning("数据中不包含 chage_rank 字段")
+            self.logger.warning("数据中不包含 change_rank 字段")
             
         if 'rise_fall_count' in df_lastest_concept_data.columns:
             # 使用正则表达式提取上涨家数和下跌家数（格式为：16/4，第一个数字是上涨家数，第二个是下跌家数）
