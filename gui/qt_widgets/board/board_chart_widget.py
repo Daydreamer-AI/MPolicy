@@ -14,21 +14,6 @@ from gui.qt_widgets.MComponents.custom_date_axisItem import CustomDateAxisItem
 
 from common.logging_manager import get_logger
 
-# class CustomDateAxisItem(DateAxisItem):
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-    
-#     def tickStrings(self, values, scale, spacing):
-#         """重写此方法来自定义日期显示格式为'YYYY-MM-DD'"""
-#         strings = []
-#         for value in values:
-#             # 将时间戳转换为QDateTime对象
-#             qdt = QDateTime.fromMSecsSinceEpoch(value * 1000)
-#             # 格式化为'2025-10-10'这样的字符串
-#             date_str = qdt.toString('yyyy-MM-dd')
-#             strings.append(date_str)
-#         return strings
-
 class BoardChartWidget(QWidget):
     def __init__(self):
         super().__init__()
@@ -58,7 +43,7 @@ class BoardChartWidget(QWidget):
     def setup_plot_style(self):
         # 主图表样式设置
         self.plot_widget.setBackground('w')
-        self.plot_widget.setLabel('left', '总成交量')
+        self.plot_widget.setLabel('left', '总成交额')
         self.plot_widget.setLabel('bottom', '日期')
         self.plot_widget.showGrid(x=True, y=True, alpha=0.3)
         self.plot_widget.addLegend()
@@ -596,111 +581,6 @@ class BoardChartWidget(QWidget):
         visible_bottom_y_data = self.get_bottom_visible_y_data()
         if visible_bottom_y_data:
             self.fix_bottom_y_axis_ticks(visible_bottom_y_data)
-
-    # def on_mouse_move(self, pos):
-    #     """处理主图表鼠标移动事件"""
-    #     if self.plot_widget.sceneBoundingRect().contains(pos):
-    #         mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
-    #         x_val = mouse_point.x()
-            
-    #         # 找到最近的数据点
-    #         bar_width = 0.8 * 24 * 60 * 60
-    #         bar_centers = [ts + bar_width / 2 for ts in self.adjusted_timestamps]
-            
-    #         closest_index = None
-    #         min_distance = float('inf')
-            
-    #         for i, center in enumerate(bar_centers):
-    #             distance = abs(center - x_val)
-    #             if distance <= bar_width / 2:
-    #                 if distance < min_distance:
-    #                     min_distance = distance
-    #                     closest_index = i
-            
-    #         if closest_index is not None:
-    #             closest_x = bar_centers[closest_index]
-                
-    #             # 更新主图表垂直线位置
-    #             self.v_line_main.setPos(closest_x)
-    #             self.v_line_main.show()
-                
-    #             # 更新主图表水平线位置（根据数据点的Y值）
-    #             # y_value = self.field_data[closest_index]
-    #             y_value = mouse_point.y()
-    #             self.h_line_main.setPos(y_value)
-    #             self.h_line_main.show()
-                
-    #             # 同步到底部坐标系（只显示垂直线）
-    #             self.v_line_bottom.setPos(closest_x)
-    #             self.v_line_bottom.show()
-    #             self.h_line_bottom.hide()  # 隐藏底部水平线
-                
-    #             # 更新标签
-    #             self.update_label(closest_index)
-    #         else:
-    #             self.v_line_main.hide()
-    #             self.h_line_main.hide()
-    #             self.v_line_bottom.hide()
-    #             self.h_line_bottom.hide()
-    #     else:
-    #         self.v_line_main.hide()
-    #         self.h_line_main.hide()
-    #         self.v_line_bottom.hide()
-    #         self.h_line_bottom.hide()
-
-
-    # def on_mouse_move_bottom(self, pos):
-    #     """处理底部图表鼠标移动事件"""
-    #     if self.bottom_plot_widget.sceneBoundingRect().contains(pos):
-    #         mouse_point = self.bottom_plot_widget.getViewBox().mapSceneToView(pos)
-    #         x_val = mouse_point.x()
-            
-    #         # 找到最近的数据点
-    #         bar_width = 0.8 * 24 * 60 * 60
-    #         bar_centers = [ts + bar_width / 2 for ts in self.adjusted_timestamps]
-            
-    #         closest_index = None
-    #         min_distance = float('inf')
-            
-    #         for i, center in enumerate(bar_centers):
-    #             distance = abs(center - x_val)
-    #             if distance <= bar_width / 2:
-    #                 if distance < min_distance:
-    #                     min_distance = distance
-    #                     closest_index = i
-            
-    #         if closest_index is not None:
-    #             closest_x = bar_centers[closest_index]
-                
-    #             # 更新底部图表垂直线位置
-    #             self.v_line_bottom.setPos(closest_x)
-    #             self.v_line_bottom.show()
-                
-    #             # 更新底部图表水平线位置（根据净流入数据的Y值）
-    #             if 'net_inflow' in self.data.columns:
-    #                 # bottom_y_value = self.data['net_inflow'].iloc[closest_index]
-    #                 bottom_y_value = mouse_point.y()
-    #                 self.h_line_bottom.setPos(bottom_y_value)
-    #                 self.h_line_bottom.show()
-                
-    #             # 同步到主图表（只显示垂直线）
-    #             self.v_line_main.setPos(closest_x)
-    #             self.v_line_main.show()
-    #             self.h_line_main.hide()  # 隐藏主图表水平线
-                
-    #             # 更新标签
-    #             self.update_label(closest_index)
-    #         else:
-    #             self.v_line_main.hide()
-    #             self.h_line_main.hide()
-    #             self.v_line_bottom.hide()
-    #             self.h_line_bottom.hide()
-    #     else:
-    #         self.v_line_main.hide()
-    #         self.h_line_main.hide()
-    #         self.v_line_bottom.hide()
-    #         self.h_line_bottom.hide()
-    
     def on_mouse_move(self, pos):
         """处理主图表鼠标移动事件"""
         if self.plot_widget.sceneBoundingRect().contains(pos):

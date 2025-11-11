@@ -14,7 +14,7 @@ class StockCardWidget(QWidget):
     hoverLeft = pyqtSignal()  # 悬浮离开信号
     doubleClicked = pyqtSignal()  # 双击信号
 
-    def __init__(self):
+    def __init__(self, type=0):
         super().__init__()
         # uic.loadUi('.gui/qt_widgets/MComponents/StockCardWidget.ui', self)
         # 使用 pathlib 确保跨平台兼容性
@@ -28,6 +28,8 @@ class StockCardWidget(QWidget):
             )
         
         uic.loadUi(str(ui_file), self)
+
+        self.board_type = type  # 0: 行业板块，1: 概念板块
         
         self.init_para()
         self.init_ui()
@@ -49,14 +51,19 @@ class StockCardWidget(QWidget):
 
     def update_ui(self):
         if self.data:
-            self.label_stock_name.setText(self.data.industry_name)
-
-            # 设置均价，保留2位小数
-            avg_price = getattr(self.data, 'avg_price', None)
-            if avg_price is not None and not (isinstance(avg_price, float) and pd.isna(avg_price)):
-                self.label_price.setText(f"{float(avg_price):.2f}")
+            if self.board_type == 0:
+                self.label_stock_name.setText(self.data.industry_name)
+                # 设置均价，保留2位小数
+                avg_price = getattr(self.data, 'avg_price', None)
+                if avg_price is not None and not (isinstance(avg_price, float) and pd.isna(avg_price)):
+                    self.label_price.setText(f"{float(avg_price):.2f}")
+                else:
+                    self.label_price.setText("N/A")
             else:
-                self.label_price.setText("N/A")
+                self.label_stock_name.setText(self.data.concept_name)
+                self.label_price.hide()
+
+            
             
             # 设置涨跌幅，保留2位小数并添加百分号
             change_percent = getattr(self.data, 'change_percent', None)
