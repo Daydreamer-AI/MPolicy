@@ -195,7 +195,6 @@ class ConceptBoardWidget(QWidget):
         :param concept_name: 概念名称
         :param data: 该行业的历史数据
         """
-        return
         try:
             # 检查数据是否为空
             if data.empty:

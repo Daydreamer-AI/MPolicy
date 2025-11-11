@@ -120,7 +120,7 @@ class IndustryBoardWidget(QWidget):
             
             # 3. 对数据进行排序（按日期）
             # 假设有一个'date'列表示交易日期
-            industry_history_data = industry_history_data.sort_values('data_date')
+            industry_history_data = industry_history_data.sort_values('date')
             self.logger.info(f"获取行业 {self.current_industry_name} 的历史数据成功，数量: {len(industry_history_data)}")
             
             # 4. 调用绘图函数
@@ -249,9 +249,9 @@ class IndustryBoardWidget(QWidget):
     #         plot_item.showGrid(x=True, y=True, alpha=0.3)
             
     #         # 处理日期数据
-    #         if 'data_date' in data.columns:
+    #         if 'date' in data.columns:
     #             data = data.copy()
-    #             data['date'] = pd.to_datetime(data['data_date'])
+    #             data['date'] = pd.to_datetime(data['date'])
     #             data = data.sort_values('date')
     #             # 转换为时间戳用于绘图
     #             timestamps = [d.timestamp() for d in data['date']]

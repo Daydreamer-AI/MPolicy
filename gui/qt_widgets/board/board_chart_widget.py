@@ -165,19 +165,34 @@ class BoardChartWidget(QWidget):
                 self.x_label_main.setPos(pos.x(), self.plot_widget.getViewBox().viewRange()[1][0])
             if self.x_label_bottom.isVisible():
                 self.x_label_bottom.setPos(pos.x(), self.bottom_plot_widget.getViewBox().viewRange()[1][0])
-    def plot_chart(self, industry_name, data, field_name="总成交额"):
-        # 字段映射字典
-        field_mapping = {
-            '总成交量': 'total_volume',
-            '总成交额': 'total_amount',
-            '净流入': 'net_inflow',
-            '上涨家数': 'rising_count',
-            '下跌家数': 'falling_count'
-        }
-        
-        # 获取实际字段名
-        actual_field = field_mapping.get(field_name, 'total_amount')  # 默认使用总成交额
-        display_name = field_name  # 显示名称
+    def plot_chart(self, board_name, data, field_name="总成交额", board_type=0):
+
+        if board_type == 0:
+            # 字段映射字典
+            field_mapping = {
+                '总成交量': 'total_volume',
+                '总成交额': 'total_amount',
+                '净流入': 'net_inflow',
+                '上涨家数': 'rising_count',
+                '下跌家数': 'falling_count'
+            }
+            
+            # 获取实际字段名
+            actual_field = field_mapping.get(field_name, 'total_amount')  # 默认使用总成交额
+            display_name = field_name  # 显示名称
+
+        else:
+            field_mapping = {
+                '总成交量': 'volume',
+                '总成交额': 'turnover',
+                '净流入': 'net_inflow',
+                '上涨家数': 'rising_count',
+                '下跌家数': 'falling_count'
+            }
+            
+            # 获取实际字段名
+            actual_field = field_mapping.get(field_name, 'turnover')  # 默认使用总成交额
+            display_name = field_name  # 显示名称
 
         # 检查字段是否存在（修复错误的检查方式）
         if actual_field not in data.columns:
@@ -188,13 +203,13 @@ class BoardChartWidget(QWidget):
         # 清除之前的绘图
         self.plot_widget.clear()
 
-        self.plot_widget.setTitle(f"{industry_name}趋势", color='#008080', size='12pt')
+        self.plot_widget.setTitle(f"{board_name}趋势", color='#008080', size='12pt')
         
         # 处理数据
-        if 'data_date' in data.columns:
+        if 'date' in data.columns:
             date_list = []
             for row in data.itertuples():
-                date_object = datetime.strptime(row.data_date, "%Y-%m-%d")
+                date_object = datetime.strptime(row.date, "%Y-%m-%d")
                 date_list.append(date_object)
         else:
             timestamps = list(range(len(data)))
@@ -780,7 +795,7 @@ class BoardChartWidget(QWidget):
         """更新标签显示"""
         if hasattr(self, 'data') and len(self.data) > index:
             row = self.data.iloc[index]
-            date_str = row['data_date']
+            date_str = row['date']
             change_percent = row['change_percent']
             total_volume = row['total_volume']
             total_amount = row['total_amount']
@@ -810,9 +825,9 @@ class BoardChartWidget(QWidget):
         
         try:
             # 确保日期列存在
-            if 'data_date' in self.data.columns:
+            if 'date' in self.data.columns:
                 # 查找匹配的行
-                matching_rows = self.data[self.data['data_date'] == date_str]
+                matching_rows = self.data[self.data['date'] == date_str]
                 if not matching_rows.empty:
                     return matching_rows.iloc[0]  # 返回第一行匹配的数据
             elif 'date' in self.data.columns:

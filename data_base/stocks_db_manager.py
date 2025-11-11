@@ -157,9 +157,9 @@ class StockDBManager(CommonDBManager):
                 leading_stock TEXT NOT NULL,
                 leading_stock_price REAL NOT NULL,
                 leading_stock_change_percent REAL NOT NULL,
-                data_date TEXT NOT NULL,
+                date TEXT NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE(industry_name, data_date)  -- 关键：基于行业名称和日期的唯一约束
+                UNIQUE(industry_name, date)  -- 关键：基于行业名称和日期的唯一约束
             )
         ''')
 
@@ -232,7 +232,7 @@ class StockDBManager(CommonDBManager):
         try:
             with self._get_connection() as cur:
                 # 同花顺行业板块索引
-                cur.execute('CREATE INDEX IF NOT EXISTS idx_board_industry_data_date ON board_industry(data_date)')
+                cur.execute('CREATE INDEX IF NOT EXISTS idx_board_industry_date ON board_industry(date)')
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_board_industry_industry_name ON board_industry(industry_name)')
                 cur.execute('CREATE INDEX IF NOT EXISTS idx_board_industry_change_percent ON board_industry(change_percent)')
 
@@ -283,10 +283,10 @@ class StockDBManager(CommonDBManager):
                 '领涨股': 'leading_stock',
                 '领涨股-最新价': 'leading_stock_price',
                 '领涨股-涨跌幅': 'leading_stock_change_percent',
-                '日期': 'data_date'
+                '日期': 'date'
             })
             
-            # 使用 replace 模式，配合 UNIQUE(industry_name, data_date) 约束实现更新
+            # 使用 replace 模式，配合 UNIQUE(industry_name, date) 约束实现更新
             # 问题：会删除掉旧数据，不适用
             # inserted_count = self.insert_dataframe_to_table(
             #     'board_industry', df, 'replace',  # 使用 replace 模式
@@ -300,7 +300,7 @@ class StockDBManager(CommonDBManager):
             upserted_count = self.upsert_data(
                 'board_industry',
                 df.to_dict('records'),
-                conflict_columns=['industry_name', 'data_date']  # 明确指定冲突检测列
+                conflict_columns=['industry_name', 'date']  # 明确指定冲突检测列
             )
             
             self.logger.info(f"数据upsert完成，处理了 {upserted_count} 条记录")
@@ -317,7 +317,7 @@ class StockDBManager(CommonDBManager):
         params = []
         
         if date:
-            conditions.append("data_date = ?")
+            conditions.append("date = ?")
             params.append(date)
         
         if industry_name:
@@ -327,7 +327,7 @@ class StockDBManager(CommonDBManager):
         query = "SELECT * FROM board_industry"
         if conditions:
             query += " WHERE " + " AND ".join(conditions)
-        query += " ORDER BY data_date DESC, change_percent DESC"
+        query += " ORDER BY date DESC, change_percent DESC"
         
         try:
             with self._get_connection() as cur:
@@ -345,7 +345,7 @@ class StockDBManager(CommonDBManager):
             with self._get_connection() as cur:
                 cur.execute('''
                     SELECT * FROM board_industry 
-                    WHERE data_date = (SELECT MAX(data_date) FROM board_industry)
+                    WHERE date = (SELECT MAX(date) FROM board_industry)
                     ORDER BY change_percent DESC
                 ''')
                 
