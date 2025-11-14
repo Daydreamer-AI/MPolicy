@@ -1,5 +1,5 @@
 import pyqtgraph as pg
-from pyqtgraph import DateAxisItem
+from pyqtgraph import DateAxisItem, AxisItem
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 from PyQt5.QtCore import QDateTime, Qt
 import numpy as np
@@ -426,10 +426,77 @@ class MainWindow(QMainWindow):
             self.label.hide()
 
 
+class NoLabelAxis(AxisItem):
+    def tickStrings(self, values, scale, spacing):
+        # 返回空字符串列表，隐藏所有刻度值
+        return [""] * len(values)
+
+class MWidget(QWidget):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.setWindowTitle("日期轴柱状图示例")
+        self.resize(1366, 768)
+
+        layout = QVBoxLayout(self)
+
+        # self.plot_widget = pg.PlotWidget()      # 默认自带X、Y轴，默认x、y轴鼠标交互。
+        # 使用自定义的无标签轴
+        x_axis = NoLabelAxis(orientation='bottom')
+        self.plot_widget = pg.PlotWidget(axisItems={'bottom': x_axis})
+        self.plot_widget.setMouseEnabled(x=True, y=False)
+
+        # self.plot_widget.showAxis('bottom', show=False)   # 隐藏X轴
+
+        # x_axis = self.plot_widget.getAxis('bottom')
+        # x_axis.setTicks([[]])  # 设置空的主刻度标签
+
+        layout.addWidget(self.plot_widget)
+
+        # 更细粒度的控制
+        # view_box = self.plot_widget.getViewBox()
+        # view_box.setLimits(yMin=0, yMax=10)  # 限制y轴的范围，禁止y方向平移
+        # view_box.setMouseEnabled(x=True, y=True)    # 允许y轴缩放
+
+        # 初始化十字线
+        self.v_line = pg.InfiniteLine(angle=90, movable=False, pen=pg.mkPen('r', width=1, style=Qt.DashLine))
+        self.h_line = pg.InfiniteLine(angle=0, movable=False, pen=pg.mkPen('r', width=1, style=Qt.DashLine))
+        self.plot_widget.addItem(self.v_line, ignoreBounds=True)
+        self.plot_widget.addItem(self.h_line, ignoreBounds=True)
+
+        # 初始隐藏十字线
+        self.v_line.hide()
+        self.h_line.hide()
+
+        self.plot_chart()
+
+
+    def plot_chart(self):
+        """绘制图表"""
+        self.sales_data = np.random.randint(1000, 5000, size=30)
+        self.plot_widget.plot(self.sales_data)
+
+        # 创建柱状图
+        # bargraph = pg.BarGraphItem(
+        #     x0=self.adjusted_timestamps,
+        #     height=self.sales_data,
+        #     width=bar_width,
+        #     brush='#1f77b4',
+        #     pen={'color': '#0f4d8f', 'width': 1},
+        #     name="日销售额"
+        # )
+        
+        # self.plot_widget.addItem(bargraph)
+
+
+
 def main():
     app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
+    # window = MainWindow()
+    # window.show()
+
+    widget = MWidget(None)
+    widget.show()
+
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
