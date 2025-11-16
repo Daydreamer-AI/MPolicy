@@ -1,4 +1,4 @@
-from pyqtgraph import DateAxisItem
+from pyqtgraph import DateAxisItem, AxisItem
 from PyQt5.QtCore import QDateTime
 
 class CustomDateAxisItem(DateAxisItem):
@@ -15,3 +15,11 @@ class CustomDateAxisItem(DateAxisItem):
             date_str = qdt.toString('yyyy-MM-dd')
             strings.append(date_str)
         return strings
+    
+
+class NoLabelAxis(AxisItem):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+    def tickStrings(self, values, scale, spacing):
+        # 返回空字符串列表，隐藏所有刻度值
+        return [""] * len(values)

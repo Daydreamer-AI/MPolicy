@@ -1,6 +1,6 @@
 import pyqtgraph as pg
 from pyqtgraph import DateAxisItem, AxisItem
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QGraphicsItem
 from PyQt5.QtCore import QDateTime, Qt
 import numpy as np
 from datetime import datetime, timedelta
@@ -445,48 +445,270 @@ class MWidget(QWidget):
         self.plot_widget = pg.PlotWidget(axisItems={'bottom': x_axis})
         self.plot_widget.setMouseEnabled(x=True, y=False)
 
-        # self.plot_widget.showAxis('bottom', show=False)   # 隐藏X轴
-
-        # x_axis = self.plot_widget.getAxis('bottom')
-        # x_axis.setTicks([[]])  # 设置空的主刻度标签
+        # self.plot_widget.showAxis('bottom', show=False)   # 隐藏X轴，效果不好
 
         layout.addWidget(self.plot_widget)
-
-        # 更细粒度的控制
-        # view_box = self.plot_widget.getViewBox()
-        # view_box.setLimits(yMin=0, yMax=10)  # 限制y轴的范围，禁止y方向平移
-        # view_box.setMouseEnabled(x=True, y=True)    # 允许y轴缩放
 
         # 初始化十字线
         self.v_line = pg.InfiniteLine(angle=90, movable=False, pen=pg.mkPen('r', width=1, style=Qt.DashLine))
         self.h_line = pg.InfiniteLine(angle=0, movable=False, pen=pg.mkPen('r', width=1, style=Qt.DashLine))
+        self.v_line.setZValue(1000)
+        self.h_line.setZValue(1000)
         self.plot_widget.addItem(self.v_line, ignoreBounds=True)
         self.plot_widget.addItem(self.h_line, ignoreBounds=True)
 
-        # 初始隐藏十字线
-        self.v_line.hide()
-        self.h_line.hide()
+        # 初始化标签
+        self.label = pg.TextItem("", anchor=(0, 1))
+        self.label.setZValue(1000)
+        self.plot_widget.addItem(self.label, ignoreBounds=True)
+
+        # 主图x轴标签
+        self.x_label_main = pg.TextItem("", anchor=(0.5, 0.5))
+        self.x_label_main.setFont(pg.QtGui.QFont("Arial", 9))
+        self.x_label_main.setColor(pg.QtGui.QColor(255, 0, 0))  # 红色
+        self.x_label_main.setZValue(1000)
+        self.plot_widget.addItem(self.x_label_main, ignoreBounds=True)
+
+        # 主图表左y轴标签
+        self.left_y_label_main = pg.TextItem("", anchor=(1, 0.5))  # 左侧Y轴标签
+        self.left_y_label_main.setFont(pg.QtGui.QFont("Arial", 9))
+        self.left_y_label_main.setColor(pg.QtGui.QColor(255, 0, 0))  # 红色
+        self.left_y_label_main.setZValue(1000)
+        self.plot_widget.addItem(self.left_y_label_main, ignoreBounds=True)
+
+        # 主图右y轴标签
+        self.right_y_label_main = pg.TextItem("", anchor=(0, 0.5))  # 左侧Y轴标签
+        self.right_y_label_main.setFont(pg.QtGui.QFont("Arial", 9))
+        self.right_y_label_main.setColor(pg.QtGui.QColor(255, 0, 0))  # 红色
+        self.right_y_label_main.setZValue(1000)
+        self.plot_widget.addItem(self.right_y_label_main, ignoreBounds=True)
+
+        # 初始隐藏十字线及标签
+        self.hide_all_labels()
 
         self.plot_chart()
+
+        self.plot_widget.sigRangeChanged.connect(self.on_range_changed)
+        
+        # 连接鼠标移动信号
+        self.plot_widget.scene().sigMouseMoved.connect(self.on_mouse_move)
 
 
     def plot_chart(self):
         """绘制图表"""
-        self.sales_data = np.random.randint(1000, 5000, size=30)
-        self.plot_widget.plot(self.sales_data)
+        x_list = [0+i for i in range(500)]
+        self.bar_width = 0.8
+        self.adjusted_x_list = [ts - self.bar_width/2 for ts in x_list]
+
+        self.data = np.random.randint(100, 5000, size=len(self.adjusted_x_list))
+
+        self.line_data = np.random.randint(100, 500, size=len(self.adjusted_x_list))
 
         # 创建柱状图
-        # bargraph = pg.BarGraphItem(
-        #     x0=self.adjusted_timestamps,
-        #     height=self.sales_data,
-        #     width=bar_width,
-        #     brush='#1f77b4',
-        #     pen={'color': '#0f4d8f', 'width': 1},
-        #     name="日销售额"
-        # )
+        bargraph = pg.BarGraphItem(
+            x0=self.adjusted_x_list,
+            height=self.data,
+            width=self.bar_width,
+            brush='#1f77b4',
+            pen={'color': '#0f4d8f', 'width': 1},
+            name="股价"
+        )
         
-        # self.plot_widget.addItem(bargraph)
+        self.plot_widget.addItem(bargraph)
 
+        # ==============================绘制折线图===============================
+        # 创建右侧Y轴用于显示折线图
+        self.right_viewbox = pg.ViewBox()
+        self.right_axis = self.plot_widget.getAxis('right')
+
+        # 链接右侧Y轴到主视图
+        self.plot_widget.scene().addItem(self.right_viewbox)
+        self.plot_widget.getAxis('right').linkToView(self.right_viewbox)
+        self.right_viewbox.setXLink(self.plot_widget)
+        
+        # 设置右侧Y轴标签
+        self.plot_widget.setLabel('right', "涨跌幅")
+        self.plot_widget.showAxis('right')
+
+        # 创建折线图（移动平均线）
+        line_x_positions = [ts + self.bar_width / 2 for ts in self.adjusted_x_list]
+        self.line_plot = self.plot_widget.plot(
+            x=line_x_positions,
+            y=self.line_data,
+            pen=pg.mkPen(color='#0f4d8f', width=3),
+            symbol='o',
+            symbolSize=12,
+            symbolBrush='#ff7f0e',
+            name="涨跌幅"
+        )
+        self.line_plot.setZValue(1000)
+        self.right_viewbox.addItem(self.line_plot)
+
+        # 同步两个ViewBox的视图范围
+        def update_views():
+            self.right_viewbox.setGeometry(self.plot_widget.getViewBox().sceneBoundingRect())
+            self.right_viewbox.linkedViewChanged(self.plot_widget.getViewBox(), self.right_viewbox.XAxis)
+        
+        update_views()
+        self.plot_widget.getViewBox().sigResized.connect(update_views)
+
+
+        # 设置坐标轴范围
+        # 考虑柱子宽度，使柱子居中显示
+        x_min = min(self.adjusted_x_list) - self.bar_width / 2
+        x_max = max(self.adjusted_x_list) + self.bar_width * 1.5
+        self.plot_widget.setXRange(x_min, x_max)
+        
+        # 设置左右两侧Y轴的范围
+        y_max_bar = max(self.data) * 1.1
+        y_min_bar = min(self.data) * 1.1
+        if y_min_bar >=0:
+            y_min_bar = 0
+        self.plot_widget.setYRange(y_min_bar, y_max_bar)
+
+
+        y_max_line = max(self.line_data) * 1.1
+        direct = 0 if y_min_bar >= 0 else -1
+        y_min_line = min(self.line_data)  * direct * 1.1
+        # self.logger.info(f"board_type: {self.board_type}, y_min_line: {y_min_line}, y_max_line: {y_max_line}")
+        self.right_viewbox.setYRange(y_min_line, y_max_line)
+
+    def on_range_changed(self):
+        """图表范围改变时触发"""
+        # x_range = view_range[0]
+        # x_min, x_max = x_range
+        # print(f"X Range Changed: {x_min:.2f} - {x_max:.2f}")
+
+        # # 获取图表数据范围
+        # data_range = self.plot_widget.getViewBox().viewRange()[0]
+
+    def on_mouse_move(self, pos):
+        """鼠标移动时触发"""
+        # mouse_point = pos
+        # vb = self.plot_widget.getViewBox()
+        # x_range = vb.viewRange()[0]  # 获取X轴范围
+        
+        # # 找到鼠标位置最接近的柱子
+        # closest_index = np.argmin(np.abs(self.x_list - mouse_point.x()))
+
+        if self.plot_widget.sceneBoundingRect().contains(pos):
+            # 确保有数据存在
+            if (hasattr(self, 'adjusted_x_list') and hasattr(self, 'data') and 
+                len(self.adjusted_x_list) > 0 and len(self.data) > 0):
+
+                # 主视图：将场景坐标转换为视图坐标
+                mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
+                x_val = mouse_point.x()
+
+                # 右视图：将场景坐标转换为视图坐标
+                mouse_point_right = self.right_viewbox.mapSceneToView(pos)
+                
+                # 计算柱子中心位置
+                bar_centers = [ts + self.bar_width / 2 for ts in self.adjusted_x_list]
+                
+                # 找到鼠标位置附近的柱子
+                closest_index = None
+                min_distance = float('inf')
+                
+                for i, center in enumerate(bar_centers):
+                    distance = abs(center - x_val)
+                    # 只有当鼠标在柱子宽度范围内时才考虑该柱子
+                    if distance <= self.bar_width / 2:
+                        if distance < min_distance:
+                            min_distance = distance
+                            closest_index = i
+
+                if closest_index is not None:
+                    closest_x = bar_centers[closest_index]
+                    closest_y = self.data[closest_index]
+
+                    view_range = self.plot_widget.getViewBox().viewRange()
+                    right_view_range = self.right_viewbox.viewRange()
+                    
+                    # 更新垂直线位置（对齐到最近的数据节点）
+                    self.v_line.setPos(closest_x)
+                    # 水平线仍然跟随鼠标y坐标
+                    self.h_line.setPos(mouse_point.y())
+                    
+                    # 显示十字线和标签
+                    self.v_line.show()
+                    self.h_line.show()
+                    self.label.show()
+
+                    self.x_label_main.show()
+                    self.left_y_label_main.show()
+                    self.right_y_label_main.show()
+
+                    try:
+                        # 获取对应的移动平均值
+                        line_left_y_value = self.data[closest_index] if hasattr(self, 'data') else 0
+                        line_right_y_value = self.line_data[closest_index] if hasattr(self, 'line_data') else 0
+                        
+                        # 格式化标签文本
+                        label_text = f"索引: {closest_index}\n股价: {line_left_y_value}，涨跌幅：{line_right_y_value}\n鼠标Y: {mouse_point.y():.2f}"
+                        self.label.setText(label_text)
+                        
+                        # 将标签定位在图表上部，避免遮挡
+                        # y_range = self.plot_widget.getViewBox().viewRange()[1]
+                        # label_y = y_range[1] * 0.95
+                        # self.label.setPos(closest_x, label_y)
+                        self.label.setPos(closest_x, mouse_point.y())
+
+                        label_x_main_y = view_range[1][0] + (view_range[1][1] - view_range[1][0]) * 0.01    # 下侧3%位置
+
+                        # 无用
+                        # x_axis_height = self.plot_widget.getAxis('bottom').height()  # 获取X轴高度
+                        # label_x_main_y = view_range[1][0] - x_axis_height - 20  # 在X轴下方20像素处
+                        
+                        # 无用
+                        # x_axis = self.plot_widget.getAxis('bottom')
+                        # axis_rect = x_axis.boundingRect()
+                        # # 获取X轴的底部Y坐标
+                        # x_axis_bottom = axis_rect.bottom()
+                        # # 设置标签位置
+                        # label_x_main_y = x_axis_bottom + 10  # 在X轴下方10像素
+
+                        self.x_label_main.setPos(closest_x, label_x_main_y)
+                        label_main_x_text = "2025-11-16"
+                        label_main_x_text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(label_main_x_text)
+                        self.x_label_main.setHtml(label_main_x_text_with_style)
+
+                        left_y_label_main_x = view_range[0][0] + (view_range[0][1] - view_range[0][0]) * 0.03  # 左侧3%位置
+                        self.left_y_label_main.setPos(left_y_label_main_x, mouse_point.y())
+
+                        left_y_label_main_text = f"{mouse_point.y():.2f}"
+                        left_y_label_text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(left_y_label_main_text)
+                        self.left_y_label_main.setHtml(left_y_label_text_with_style)
+
+                        right_y_label_main_x = view_range[0][1] - (view_range[0][1] - view_range[0][0]) * 0.03
+                        self.right_y_label_main.setPos(right_y_label_main_x, mouse_point.y())
+
+                        right_y_label_main_text = f"{mouse_point_right.y():.2f}"
+                        right_y_label_text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(right_y_label_main_text)
+                        self.right_y_label_main.setHtml(right_y_label_text_with_style)
+
+                    except Exception as e:
+                        print(f"Error in mouse move: {e}")
+                        pass
+                else:
+                    # 没有靠近任何柱子时隐藏十字线
+                    self.hide_all_labels()
+            else:
+                # 没有数据时隐藏十字线
+                self.hide_all_labels()
+        else:
+            # 鼠标移出绘图区域时隐藏十字线
+            self.hide_all_labels()
+
+    def hide_all_labels(self):
+        """隐藏所有标签和十字线"""
+        self.v_line.hide()
+        self.h_line.hide()
+        self.label.hide()
+
+        self.x_label_main.hide()
+        self.left_y_label_main.hide()
+        self.right_y_label_main.hide()
 
 
 def main():
