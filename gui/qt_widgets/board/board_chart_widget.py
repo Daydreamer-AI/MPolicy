@@ -27,14 +27,15 @@ class BoardChartWidget(QWidget):
         
         # 创建使用日期轴的绘图窗口
         # 使用自定义的日期轴类
-        self.date_axis_main = CustomDateAxisItem(orientation='bottom')
-        self.plot_widget = pg.PlotWidget(axisItems={'bottom': self.date_axis_main})
-        # self.plot_widget = pg.PlotWidget()
+        # self.date_axis_main = CustomDateAxisItem(orientation='bottom')
+        # self.plot_widget = pg.PlotWidget(axisItems={'bottom': self.date_axis_main})
+        self.plot_widget = pg.PlotWidget()
         layout.addWidget(self.plot_widget)
 
         # 添加底部坐标系容器
-        self.date_axis_bottom = CustomDateAxisItem(orientation='bottom')
-        self.bottom_plot_widget = pg.PlotWidget(axisItems={'bottom': self.date_axis_bottom})
+        # self.date_axis_bottom = CustomDateAxisItem(orientation='bottom')
+        # self.bottom_plot_widget = pg.PlotWidget(axisItems={'bottom': self.date_axis_bottom})
+        self.bottom_plot_widget = pg.PlotWidget()
         layout.addWidget(self.bottom_plot_widget)
         
         layout.setStretchFactor(self.plot_widget, 2)
@@ -45,25 +46,29 @@ class BoardChartWidget(QWidget):
     def setup_plot_style(self):
         # 主图表样式设置
         self.plot_widget.setBackground('w')
-        self.plot_widget.setLabel('left', '总成交额')
-        self.plot_widget.setLabel('bottom', '日期')
+        # self.plot_widget.setLabel('left', '总成交额')
+        # self.plot_widget.setLabel('bottom', '日期')
         self.plot_widget.showGrid(x=True, y=True, alpha=0.3)
         self.plot_widget.addLegend()
         self.plot_widget.setMouseEnabled(x=True, y=False)
         
         # 初始化主图表十字线
-        self.v_line_main = pg.InfiniteLine(angle=90, movable=True, pen=pg.mkPen('#808286', width=2, style=Qt.DashLine))
+        self.v_line_main = pg.InfiniteLine(angle=90, movable=False, pen=pg.mkPen('#808286', width=2, style=Qt.DashLine))
         self.h_line_main = pg.InfiniteLine(angle=0, movable=False, pen=pg.mkPen('#808286', width=2, style=Qt.DashLine))
         self.v_line_main.setZValue(1000)
         self.h_line_main.setZValue(1000)
         
         main_viewbox = self.plot_widget.getViewBox()
+        # 明确添加到主视图
         main_viewbox.addItem(self.v_line_main, ignoreBounds=True)
         main_viewbox.addItem(self.h_line_main, ignoreBounds=True)
+        # self.plot_widget.addItem(self.v_line_main, ignoreBounds=True)
+        # self.plot_widget.addItem(self.h_line_main, ignoreBounds=True)
+        
         
         # 初始化主图表标签（优化样式）
         self.label_main = pg.TextItem("", anchor=(0, 1))
-        self.label_main.setZValue(1001)
+        self.label_main.setZValue(1000)
         
         # 预设标签样式
         font = pg.QtGui.QFont("Arial", 10, pg.QtGui.QFont.Bold)
@@ -71,27 +76,26 @@ class BoardChartWidget(QWidget):
         
         main_viewbox.addItem(self.label_main, ignoreBounds=True)
         
-        # 初始化主图表轴外标签
-        self.left_y_label_main = pg.TextItem("", anchor=(1, 0.5))  # 左侧Y轴标签
-        self.left_y_label_main.setZValue(1001)
-        # 设置轴外标签样式
+        # 主图表左y轴标签
+        self.left_y_label_main = pg.TextItem("", anchor=(0, 0.5))  # 左侧Y轴标签
+        self.left_y_label_main.setZValue(1000)
         self.left_y_label_main.setFont(pg.QtGui.QFont("Arial", 9))
         self.left_y_label_main.setColor(pg.QtGui.QColor(255, 0, 0))  # 红色
         
         main_viewbox.addItem(self.left_y_label_main, ignoreBounds=True)
         
-        self.right_y_label_main = pg.TextItem("", anchor=(0, 0.5))  # 右侧Y轴标签
-        self.right_y_label_main.setZValue(1001)
+        # 主图右y轴标签
+        self.right_y_label_main = pg.TextItem("", anchor=(1, 0.5))  # 右侧Y轴标签
+        self.right_y_label_main.setZValue(1000)
 
-        # 设置轴外标签样式
         self.right_y_label_main.setFont(pg.QtGui.QFont("Arial", 9))
         self.right_y_label_main.setColor(pg.QtGui.QColor(0, 0, 255))  # 蓝色
         
         main_viewbox.addItem(self.right_y_label_main, ignoreBounds=True)
         
-        self.x_label_main = pg.TextItem("", anchor=(0.5, 0))  # X轴标签
-        self.x_label_main.setZValue(1001)
-        # 设置轴外标签样式
+        # 主图x轴标签
+        self.x_label_main = pg.TextItem("", anchor=(0.5, 1))  # X轴标签
+        self.x_label_main.setZValue(1000)
         self.x_label_main.setFont(pg.QtGui.QFont("Arial", 9))
         self.x_label_main.setColor(pg.QtGui.QColor(0, 0, 0))  # 黑色
         
@@ -107,13 +111,13 @@ class BoardChartWidget(QWidget):
         
         # 底部图表样式设置
         self.bottom_plot_widget.setBackground('w')
-        self.bottom_plot_widget.setLabel('left', '净流入')
-        self.bottom_plot_widget.setLabel('bottom', '日期')
+        # self.bottom_plot_widget.setLabel('left', '净流入')
+        # self.bottom_plot_widget.setLabel('bottom', '日期')
         self.bottom_plot_widget.showGrid(x=True, y=True, alpha=0.3)
         self.bottom_plot_widget.setMouseEnabled(x=True, y=False)
         
         # 初始化底部图表十字线
-        self.v_line_bottom = pg.InfiniteLine(angle=90, movable=True, pen=pg.mkPen('#808286', width=2, style=Qt.DashLine))
+        self.v_line_bottom = pg.InfiniteLine(angle=90, movable=False, pen=pg.mkPen('#808286', width=2, style=Qt.DashLine))
         self.h_line_bottom = pg.InfiniteLine(angle=0, movable=False, pen=pg.mkPen('#808286', width=2, style=Qt.DashLine))
         self.v_line_bottom.setZValue(1000)
         self.h_line_bottom.setZValue(1000)
@@ -122,18 +126,17 @@ class BoardChartWidget(QWidget):
         bottom_viewbox.addItem(self.v_line_bottom, ignoreBounds=True)
         bottom_viewbox.addItem(self.h_line_bottom, ignoreBounds=True)
         
-        # 初始化底部图表轴外标签
-        self.left_y_label_bottom = pg.TextItem("", anchor=(1, 0.5))  # 左侧Y轴标签
-        self.left_y_label_bottom.setZValue(1001)
-        # 设置轴外标签样式
+        # 底部图表左y轴标签
+        self.left_y_label_bottom = pg.TextItem("", anchor=(0, 0.5))  # 左侧Y轴标签
+        self.left_y_label_bottom.setZValue(1000)
         self.left_y_label_bottom.setFont(pg.QtGui.QFont("Arial", 9))
         self.left_y_label_bottom.setColor(pg.QtGui.QColor(0, 128, 0))  # 绿色
         
         bottom_viewbox.addItem(self.left_y_label_bottom, ignoreBounds=True)
         
-        self.x_label_bottom = pg.TextItem("", anchor=(0.5, 0))  # X轴标签
-        self.x_label_bottom.setZValue(1001)
-        # 设置轴外标签样式
+        # 底部图表x轴标签
+        self.x_label_bottom = pg.TextItem("", anchor=(0.5, 1))  # X轴标签
+        self.x_label_bottom.setZValue(1000)
         self.x_label_bottom.setFont(pg.QtGui.QFont("Arial", 9))
         self.x_label_bottom.setColor(pg.QtGui.QColor(0, 0, 0))  # 黑色
         
@@ -168,7 +171,6 @@ class BoardChartWidget(QWidget):
             if self.x_label_bottom.isVisible():
                 self.x_label_bottom.setPos(pos.x(), self.bottom_plot_widget.getViewBox().viewRange()[1][0])
     def plot_chart(self, board_name, data, field_name="总成交额"):
-
         if self.board_type == 0:
             # 字段映射字典
             field_mapping = {
@@ -225,14 +227,14 @@ class BoardChartWidget(QWidget):
 
         
         # 将日期转换为时间戳
-        timestamps = [date.timestamp() for date in date_list]
+        # timestamps = [date.timestamp() for date in date_list]
+        x_list = [0+i for i in range(len(date_list))]
 
         # 计算合适的柱子宽度
-        day_seconds = 24 * 60 * 60
-        self.bar_width = 0.8 * day_seconds
+        self.bar_width = 0.8
 
         # 将柱子的中心对准日期时间点，而不是起始位置
-        self.adjusted_timestamps = [ts - self.bar_width / 2 for ts in timestamps]
+        self.adjusted_timestamps = [ts - self.bar_width / 2 for ts in x_list]
 
         # 创建柱状图（根据传入的字段名）
         if actual_field in data.columns:
@@ -338,8 +340,8 @@ class BoardChartWidget(QWidget):
         self.plot_widget.getViewBox().sigResized.connect(update_views)
 
         # 考虑柱子宽度，使柱子居中显示
-        x_min = min(timestamps) - self.bar_width / 2
-        x_max = max(timestamps) + self.bar_width * 1.5
+        x_min = min(self.adjusted_timestamps) - self.bar_width / 2
+        x_max = max(self.adjusted_timestamps) + self.bar_width * 1.5
         self.plot_widget.setXRange(x_min, x_max)
         
         # 设置左右两侧Y轴的范围
@@ -365,11 +367,11 @@ class BoardChartWidget(QWidget):
         # 示例：绘制净流入数据
         if 'net_inflow' in data.columns:
             net_inflow_data = data['net_inflow'].values
-            change_percent_data = data['change_percent'].values
+            # change_percent_data = data['change_percent'].values
             
             # 分别创建上涨和下跌的柱子
-            up_indices = [i for i, pct in enumerate(change_percent_data) if pct >= 0]
-            down_indices = [i for i, pct in enumerate(change_percent_data) if pct < 0]
+            up_indices = [i for i, pct in enumerate(net_inflow_data) if pct >= 0]
+            down_indices = [i for i, pct in enumerate(net_inflow_data) if pct < 0]
 
             # 绘制上涨柱子（#FF5656实心柱）
             if up_indices:
@@ -427,11 +429,10 @@ class BoardChartWidget(QWidget):
         
         # 找到在当前X轴范围内的数据点
         visible_indices = []
-        bar_width = 0.8 * 24 * 60 * 60  # 一天的秒数 * 0.8
         
         for i, ts in enumerate(self.adjusted_timestamps):
             # 柱子的范围是从 ts 到 ts+bar_width
-            bar_center = ts + bar_width / 2  # bar_width/2
+            bar_center = ts + self.bar_width / 2  # bar_width/2
             if x_range[0] <= bar_center <= x_range[1]:
                 visible_indices.append(i)
         
@@ -450,10 +451,9 @@ class BoardChartWidget(QWidget):
         
         # 找到在当前X轴范围内的数据点
         visible_indices = []
-        bar_width = 0.8 * 24 * 60 * 60  # 一天的秒数 * 0.8
         
         for i, ts in enumerate(self.adjusted_timestamps):
-            bar_center = ts + bar_width / 2
+            bar_center = ts + self.bar_width / 2
             if x_range[0] <= bar_center <= x_range[1]:
                 visible_indices.append(i)
         
@@ -508,11 +508,10 @@ class BoardChartWidget(QWidget):
         
         # 找到在当前X轴范围内的数据点
         visible_indices = []
-        bar_width = 0.8 * 24 * 60 * 60  # 一天的秒数 * 0.8
         
         for i, ts in enumerate(self.adjusted_timestamps):
             # 柱子的范围是从 ts 到 ts+bar_width
-            bar_center = ts + bar_width / 2  # bar_width/2
+            bar_center = ts + self.bar_width / 2  # bar_width/2
             if x_range[0] <= bar_center <= x_range[1]:
                 visible_indices.append(i)
         
@@ -539,10 +538,9 @@ class BoardChartWidget(QWidget):
         
         # 找到在当前X轴范围内的数据点
         visible_indices = []
-        bar_width = 0.8 * 24 * 60 * 60  # 一天的秒数 * 0.8
         
         for i, ts in enumerate(self.adjusted_timestamps):
-            bar_center = ts + bar_width / 2
+            bar_center = ts + self.bar_width / 2
             if x_range[0] <= bar_center <= x_range[1]:
                 visible_indices.append(i)
         
@@ -575,8 +573,10 @@ class BoardChartWidget(QWidget):
                 tick_interval = 100
             elif data_range > 100:
                 tick_interval = 50
-            else:
+            elif data_range > 50:
                 tick_interval = 10
+            else:
+                tick_interval = 5
                 
             # 设置Y轴刻度
             y_max = data_max * 1.1
@@ -618,23 +618,38 @@ class BoardChartWidget(QWidget):
             mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
             x_val = mouse_point.x()
             y_val = mouse_point.y()
+
+            # 右视图：将场景坐标转换为视图坐标
+            mouse_point_right = self.right_viewbox.mapSceneToView(pos)
+            x_val_right = mouse_point_right.x()
+            y_val_right = mouse_point_right.y()
+
+            # self.logger.info(f"鼠标位置: x={x_val:.2f}, y={y_val:.2f}")
             
             # 找到最近的数据点
-            bar_width = 0.8 * 24 * 60 * 60
-            bar_centers = [ts + bar_width / 2 for ts in self.adjusted_timestamps]
+            bar_centers = [ts + self.bar_width / 2 for ts in self.adjusted_timestamps]
+            # self.logger.info(f"柱子宽度: {self.bar_width:.2f}")
             
             closest_index = None
             min_distance = float('inf')
             
             for i, center in enumerate(bar_centers):
                 distance = abs(center - x_val)
-                if distance <= bar_width / 2:
+
+                # if i == 0:
+                #     self.logger.info(f"索引：{i}，中心：{center}，距离: {distance:.2f}")
+
+                if distance <= self.bar_width / 2:
                     if distance < min_distance:
                         min_distance = distance
                         closest_index = i
             
             if closest_index is not None:
+                view_range = self.plot_widget.getViewBox().viewRange()
+                bottom_view_range = self.bottom_plot_widget.getViewBox().viewRange()
                 closest_x = bar_centers[closest_index]
+
+                # self.logger.info(f"最接近的索引: {closest_index}")
                 
                 # 更新主图表垂直线位置
                 self.v_line_main.setPos(closest_x)
@@ -651,35 +666,49 @@ class BoardChartWidget(QWidget):
                 
                 # 显示轴外标签
                 # 主图表左侧Y轴标签
-                self.left_y_label_main.setText(f"{y_val:.2f}")
-                self.left_y_label_main.setPos(self.plot_widget.getViewBox().viewRange()[0][0] - 30, y_val)
+                left_y_label_main_x = view_range[0][0]  # + (view_range[0][1] - view_range[0][0]) * 0.03  # 左侧3%位置
+                self.left_y_label_main.setPos(left_y_label_main_x, y_val)
+
+                left_y_label_main_text = f"{y_val:.2f}"
+                left_y_label_text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(left_y_label_main_text)
+                self.left_y_label_main.setHtml(left_y_label_text_with_style)
                 self.left_y_label_main.show() 
 
                 # 右侧Y轴标签（主图）（需要转换到右侧坐标系）
                 if hasattr(self, 'right_viewbox'):
-                    right_y_val = self.convert_y_to_right_axis(y_val)
-                    self.right_y_label_main.setText(f"{right_y_val:.2f}")
-                    self.right_y_label_main.setPos(self.plot_widget.getViewBox().viewRange()[0][1] + 30, y_val)
+                    right_y_label_main_x = view_range[0][1] # - (view_range[0][1] - view_range[0][0]) * 0.03
+                    self.right_y_label_main.setPos(right_y_label_main_x, mouse_point.y())
+
+                    right_y_label_main_text = f"{mouse_point_right.y():.2f}"
+                    right_y_label_text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(right_y_label_main_text)
+                    self.right_y_label_main.setHtml(right_y_label_text_with_style)
                     self.right_y_label_main.show()
                 
                 # X轴标签（两个图表都显示）
-                x_date_str = self.timestamp_to_date_str(closest_x)
-                x_pos = closest_x
-
+                x_date_str = self.get_date_str(closest_index)
+                label_x_main_x = closest_x
+                
                 # X轴标签（主图）
-                self.x_label_main.setText(x_date_str)
-                self.x_label_main.setPos(x_pos, self.plot_widget.getViewBox().viewRange()[1][0] - 30)
-                self.x_label_main.show()
+                label_main_x_text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(x_date_str)
+                self.x_label_main.setHtml(label_main_x_text_with_style)
 
+                label_x_main_y = view_range[1][0]    # (view_range[1][1] - view_range[1][0]) * 0.03
+                self.x_label_main.setPos(label_x_main_x, label_x_main_y)
+                self.x_label_main.show()
                 
                 # X轴标签（底部图）
-                self.x_label_bottom.setText(x_date_str)
-                self.x_label_bottom.setPos(x_pos, self.bottom_plot_widget.getViewBox().viewRange()[1][0] - 30)
+                label_x_bottom_x = closest_x
+                label_x_bottom_y = bottom_view_range[1][0]  #  + (bottom_view_range[1][1] - bottom_view_range[1][0]) * 0.03 
+                self.x_label_bottom.setPos(label_x_bottom_x, label_x_bottom_y)
+
+                label_bottom_x_text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(x_date_str)
+                self.x_label_bottom.setHtml(label_bottom_x_text_with_style)
                 self.x_label_bottom.show()
                                 
                 # 更新数据标签
                 self.update_label(closest_index)
             else:
+                # self.logger.info("closest_index is None")
                 self.hide_all_labels()
         else:
             self.hide_all_labels()
@@ -692,15 +721,14 @@ class BoardChartWidget(QWidget):
             y_val = mouse_point.y()
             
             # 找到最近的数据点
-            bar_width = 0.8 * 24 * 60 * 60
-            bar_centers = [ts + bar_width / 2 for ts in self.adjusted_timestamps]
+            bar_centers = [ts + self.bar_width / 2 for ts in self.adjusted_timestamps]
             
             closest_index = None
             min_distance = float('inf')
             
             for i, center in enumerate(bar_centers):
                 distance = abs(center - x_val)
-                if distance <= bar_width / 2:
+                if distance <= self.bar_width / 2:
                     if distance < min_distance:
                         min_distance = distance
                         closest_index = i
@@ -723,12 +751,14 @@ class BoardChartWidget(QWidget):
                 
                 # 显示轴外标签
                 # 底部图表左侧Y轴标签
-                self.left_y_label_bottom.setText(f"{y_val:.2f}")
+                left_y_label_bottom_text = f"{y_val:.2f}"
+                left_y_label_text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(left_y_label_bottom_text)
+                self.left_y_label_bottom.setHtml(left_y_label_text_with_style)
                 self.left_y_label_bottom.setPos(self.bottom_plot_widget.getViewBox().viewRange()[0][0], y_val)
                 self.left_y_label_bottom.show()
                 
                 # X轴标签（两个图表都显示）
-                x_date_str = self.timestamp_to_date_str(closest_x)
+                x_date_str = self.get_date_str(closest_index)
                 x_pos = closest_x
                 
                 # 主图表X轴标签
@@ -769,6 +799,11 @@ class BoardChartWidget(QWidget):
             return qdt.toString('yyyy-MM-dd')
         except:
             return ""
+
+    def get_date_str(self, index):
+        row = self.data.iloc[index]
+        date_str = row['date']
+        return date_str
 
     def convert_y_to_right_axis(self, y_val):
         """将左侧Y轴值转换为右侧Y轴值"""
@@ -822,7 +857,7 @@ class BoardChartWidget(QWidget):
         text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(label_text)
         self.label_main.setHtml(text_with_style)
 
-        self.label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
+        self.label_main.setPos(self.adjusted_timestamps[index] + self.bar_width, 0)
         self.label_main.show()
 
     def update_label_concept(self, index):
@@ -848,7 +883,7 @@ class BoardChartWidget(QWidget):
         text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(label_text)
         self.label_main.setHtml(text_with_style)
 
-        self.label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
+        self.label_main.setPos(self.adjusted_timestamps[index] + self.bar_width, 0)
         self.label_main.show()
 
     def get_row_by_date(self, date_str):

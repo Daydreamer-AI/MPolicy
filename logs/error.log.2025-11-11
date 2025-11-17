@@ -1,0 +1,2916 @@
+2025-11-11 09:56:27 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:27 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:27 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:27 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:27 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:27 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:27 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:27 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:27 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:27 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:27 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:27 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:27 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:27 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:28 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:28 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:28 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:28 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:28 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:28 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:29 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:29 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:29 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:29 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:29 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:29 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:29 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:29 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:29 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:29 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setHtml(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:56:47 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1126, in update_label
+    self.q_label_main.setText(label_text)
+AttributeError: 'QLabel' object has no attribute 'setHtml'
+2025-11-11 09:57:01 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1129, in update_label
+    self.q_label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
+AttributeError: 'QLabel' object has no attribute 'setPos'
+2025-11-11 09:57:01 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1129, in update_label
+    self.q_label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
+AttributeError: 'QLabel' object has no attribute 'setPos'
+2025-11-11 09:57:01 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1129, in update_label
+    self.q_label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
+AttributeError: 'QLabel' object has no attribute 'setPos'
+2025-11-11 09:57:01 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1129, in update_label
+    self.q_label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
+AttributeError: 'QLabel' object has no attribute 'setPos'
+2025-11-11 09:57:01 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1129, in update_label
+    self.q_label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
+AttributeError: 'QLabel' object has no attribute 'setPos'
+2025-11-11 09:57:01 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1129, in update_label
+    self.q_label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
+AttributeError: 'QLabel' object has no attribute 'setPos'
+2025-11-11 09:57:01 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1129, in update_label
+    self.q_label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
+AttributeError: 'QLabel' object has no attribute 'setPos'
+2025-11-11 09:57:01 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1129, in update_label
+    self.q_label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
+AttributeError: 'QLabel' object has no attribute 'setPos'
+2025-11-11 09:57:02 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1129, in update_label
+    self.q_label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
+AttributeError: 'QLabel' object has no attribute 'setPos'
+2025-11-11 09:57:02 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1129, in update_label
+    self.q_label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
+AttributeError: 'QLabel' object has no attribute 'setPos'
+2025-11-11 09:57:02 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1129, in update_label
+    self.q_label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
+AttributeError: 'QLabel' object has no attribute 'setPos'
+2025-11-11 09:57:02 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1129, in update_label
+    self.q_label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
+AttributeError: 'QLabel' object has no attribute 'setPos'
+2025-11-11 09:57:02 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1129, in update_label
+    self.q_label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
+AttributeError: 'QLabel' object has no attribute 'setPos'
+2025-11-11 09:57:03 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1129, in update_label
+    self.q_label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
+AttributeError: 'QLabel' object has no attribute 'setPos'
+2025-11-11 09:57:04 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1129, in update_label
+    self.q_label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
+AttributeError: 'QLabel' object has no attribute 'setPos'
+2025-11-11 09:57:04 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1129, in update_label
+    self.q_label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
+AttributeError: 'QLabel' object has no attribute 'setPos'
+2025-11-11 09:57:04 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1129, in update_label
+    self.q_label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
+AttributeError: 'QLabel' object has no attribute 'setPos'
+2025-11-11 09:57:04 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1129, in update_label
+    self.q_label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
+AttributeError: 'QLabel' object has no attribute 'setPos'
+2025-11-11 09:57:04 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 969, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 1129, in update_label
+    self.q_label_main.setPos(self.adjusted_timestamps[index] + 0.8 * 24 * 60 * 60, 0)
+AttributeError: 'QLabel' object has no attribute 'setPos'
+2025-11-11 14:43:34 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 85, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 34, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 19, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 28, in init_ui
+    self.board_home_page = BoardHomeWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_home_widget.py", line 15, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_home_widget.py", line 23, in init_ui
+    self.concept_board_widget = ConceptBoardWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\concept_board_widget.py", line 16, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\concept_board_widget.py", line 98, in init_ui
+    self.listWidget_card.addItem(item)
+AttributeError: 'ConceptBoardWidget' object has no attribute 'listWidget_card'
+2025-11-11 14:47:17 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 85, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 34, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 19, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 28, in init_ui
+    self.board_home_page = BoardHomeWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_home_widget.py", line 15, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_home_widget.py", line 23, in init_ui
+    self.concept_board_widget = ConceptBoardWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\concept_board_widget.py", line 16, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\concept_board_widget.py", line 87, in init_ui
+    stock_card_widget.update_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\MComponents\stock_card_widget.py", line 64, in update_ui
+    self.label_price.setText.hide()
+AttributeError: 'builtin_function_or_method' object has no attribute 'hide'
+2025-11-11 15:20:42 [ERROR   ] gui.qt_widgets.board.concept_board_widget:concept_board_widget.py:226 - 绘制图表时出错: 'change_percent'
+2025-11-11 15:22:50 [ERROR   ] gui.qt_widgets.board.concept_board_widget:concept_board_widget.py:230 - 绘制图表时出错: 'BoardChartWidget' object has no attribute 'right_viewbox'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:09 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:10 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:10 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:10 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:10 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:10 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:10 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:10 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:10 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:10 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:10 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:10 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:10 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:10 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:10 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:10 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:10 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:10 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:10 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:10 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:12 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:12 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:12 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:12 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:12 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:14 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:14 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:14 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:16 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:16 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:16 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:16 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:16 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:16 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:16 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:16 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:16 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:16 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:16 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:16 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:16 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:25:16 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rising_count'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 672, in on_mouse_move
+    self.update_label(closest_index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 791, in update_label
+    self.update_label_concept(index)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\board\board_chart_widget.py", line 826, in update_label_concept
+    rising_count = row['rising_count']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rising_count'
+2025-11-11 15:39:28 [ERROR   ] gui.qt_widgets.board.concept_board_widget:concept_board_widget.py:244 - 绘制图表时出错: 'rank'
+2025-11-11 15:50:50 [ERROR   ] gui.qt_widgets.board.concept_board_widget:concept_board_widget.py:244 - 绘制图表时出错: 'rprevious_closeank'
