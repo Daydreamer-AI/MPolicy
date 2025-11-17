@@ -6,10 +6,13 @@ from PyQt5.QtGui import QColor, QPen, QBrush, QPainter, QFont
 import pyqtgraph as pg
 import numpy as np
 
+from common.logging_manager import get_logger
+
 class MPieChartItem(pg.GraphicsObject):
     """自定义饼图项"""
     def __init__(self, data, labels, parent=None):
         pg.GraphicsObject.__init__(self, parent)
+        self.logger = get_logger(__name__)
         self.data = data
         self.labels = labels
         self.generate_picture()
@@ -66,3 +69,150 @@ class MPieChartItem(pg.GraphicsObject):
     
     def boundingRect(self):
         return QRectF(-110, -110, 220, 220)
+    
+
+
+class InteractiveMPieChartItem(MPieChartItem):
+    """支持交互的饼图项"""
+    
+    def __init__(self, data, labels, parent=None):
+        super().__init__(data, labels, parent)
+        self.labels = labels
+        self.data = data
+        self.tooltip = None
+        self.setup_interactive_features()
+    
+    def setup_interactive_features(self):
+        """设置交互功能"""
+        # 创建提示框
+        self.tooltip = pg.TextItem("", anchor=(0.5, 0.5))
+        self.tooltip.setZValue(10)
+        self.tooltip.setVisible(False)
+        
+        # 连接事件
+        self.mouseMoveEvent = self.on_mouse_move
+        self.mouseLeaveEvent = self.on_mouse_leave
+        
+        # 设置鼠标样式
+        self.setCursor(Qt.PointingHandCursor)
+    
+    def on_mouse_move(self, event):
+        """处理鼠标移动"""
+        # 获取鼠标位置
+        pos = event.pos()
+        self.logger.info(f"Mouse moved to ({pos.x()}, {pos.y()})")
+        
+        # 计算扇形索引
+        sector_index = self.get_sector_at_position(pos)
+        
+        if sector_index >= 0 and sector_index < len(self.labels):
+            label = self.labels[sector_index]
+            value = self.data[sector_index]
+            total = sum(self.data)
+            percentage = (value / total) * 100
+            
+            # 显示提示
+            text = f"{label}\n{value:,}亿\n{percentage:.1f}%"
+            self.tooltip.setText(text)
+            self.tooltip.setVisible(True)
+            self.tooltip.setPos(pos.x(), pos.y() - 30)
+        else:
+            self.tooltip.setVisible(False)
+    
+    def on_mouse_leave(self, event):
+        """处理鼠标离开"""
+        if self.tooltip:
+            self.tooltip.setVisible(False)
+    
+    def get_sector_at_position(self, pos):
+        """根据位置获取扇形索引"""
+        # 这里需要根据具体的饼图实现来计算
+        # 示例实现：
+        total = sum(self.data)
+        if total == 0:
+            return -1
+            
+        # 计算角度
+        angle = np.arctan2(pos.y(), pos.x()) * 180 / np.pi
+        
+        # 找到对应的扇形
+        current_angle = 0
+        for i in range(len(self.data)):
+            sector_angle = (self.data[i] / total) * 360
+            if current_angle <= angle <= current_angle + sector_angle:
+                return i
+            current_angle += sector_angle
+        
+        return -1
+
+# class InteractiveMPieChartItem(MPieChartItem):
+#     """支持交互的饼图项"""
+    
+#     def __init__(self, data, labels, parent=None):
+#         super().__init__(data, labels, parent)
+#         self.labels = labels
+#         self.data = data
+#         self.tooltip = None
+#         self.setup_interactive_features()
+    
+#     def setup_interactive_features(self):
+#         """设置交互功能"""
+#         # 创建提示框
+#         self.tooltip = pg.TextItem("", anchor=(0.5, 0.5))
+#         self.tooltip.setZValue(10)
+#         self.tooltip.setVisible(False)
+        
+#         # 连接事件
+#         self.mouseMoveEvent = self.on_mouse_move
+#         self.mouseLeaveEvent = self.on_mouse_leave
+        
+#         # 设置鼠标样式
+#         self.setCursor(Qt.PointingHandCursor)
+    
+#     def on_mouse_move(self, event):
+#         """处理鼠标移动"""
+#         # 获取鼠标位置
+#         pos = event.pos()
+        
+#         # 计算扇形索引
+#         sector_index = self.get_sector_at_position(pos)
+        
+#         if sector_index >= 0 and sector_index < len(self.labels):
+#             label = self.labels[sector_index]
+#             value = self.data[sector_index]
+#             total = sum(self.data)
+#             percentage = (value / total) * 100
+            
+#             # 显示提示
+#             text = f"{label}\n{value:,}亿\n{percentage:.1f}%"
+#             self.tooltip.setText(text)
+#             self.tooltip.setVisible(True)
+#             self.tooltip.setPos(pos.x(), pos.y() - 30)
+#         else:
+#             self.tooltip.setVisible(False)
+    
+#     def on_mouse_leave(self, event):
+#         """处理鼠标离开"""
+#         if self.tooltip:
+#             self.tooltip.setVisible(False)
+    
+#     def get_sector_at_position(self, pos):
+#         """根据位置获取扇形索引"""
+#         # 这里需要根据具体的饼图实现来计算
+#         # 示例实现：
+#         total = sum(self.data)
+#         if total == 0:
+#             return -1
+            
+#         # 计算角度
+#         angle = np.arctan2(pos.y(), pos.x()) * 180 / np.pi
+        
+#         # 找到对应的扇形
+#         current_angle = 0
+#         for i in range(len(self.data)):
+#             sector_angle = (self.data[i] / total) * 360
+#             if current_angle <= angle <= current_angle + sector_angle:
+#                 return i
+#             current_angle += sector_angle
+        
+#         return -1

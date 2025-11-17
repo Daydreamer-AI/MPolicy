@@ -8,7 +8,9 @@ import numpy as np
 
 from common.logging_manager import get_logger
 from processor.ak_stock_data_processor import AKStockDataProcessor
-from gui.qt_widgets.MComponents.MPieChartItem import MPieChartItem
+from gui.qt_widgets.MComponents.MPieChartItem import MPieChartItem, InteractiveMPieChartItem
+from gui.qt_widgets.MComponents.custom_date_axisItem import NoLabelAxis
+from gui.qt_widgets.board.board_change_percent_chart_widget import BoardChangePercentChartWidget
 
 
 class IndustryBoardOverviewWidget(QWidget):
@@ -29,15 +31,24 @@ class IndustryBoardOverviewWidget(QWidget):
     def init_ui(self):
         uic.loadUi('gui/qt_widgets/board/IndustryBoardOverviewWidget.ui', self)
 
-        self.graph_widget = pg.GraphicsLayoutWidget()
-        
         layout = self.layout()
         if layout is None:
             self.setLayout(QVBoxLayout())
-        layout.addWidget(self.graph_widget)
 
-        self.draw_pie_chart()
+        # self.graph_widget = pg.GraphicsLayoutWidget()
+        # self.graph_widget.setBackground(pg.QtGui.QColor('white'))
+        
 
+        # layout.addWidget(self.graph_widget)
+
+        # self.draw_pie_chart()
+
+        self.industry_change_percent_chart_widget = BoardChangePercentChartWidget(type=0)
+        layout.addWidget(self.industry_change_percent_chart_widget)
+        df = AKStockDataProcessor().get_latest_ths_board_industry_data()
+        self.industry_change_percent_chart_widget.draw_chart(df)
+
+    # ----------------------------------------------------------
     def draw_pie_chart(self):
         """
         使用 PyQtGraph 绘制行业板块成交额饼图，突出前10大成交额行业
@@ -68,9 +79,13 @@ class IndustryBoardOverviewWidget(QWidget):
             # 添加绘图区域
             plot_item = self.graph_widget.addPlot()
             plot_item.setAspectLocked(True)
+
+            # 设置背景颜色为白色
+            # plot_item.setBackground(pg.QtGui.QColor('white'))
             
             # 创建饼图项
-            pie_item = MPieChartItem(sizes, labels)
+            # pie_item = MPieChartItem(sizes, labels)
+            pie_item = InteractiveMPieChartItem(sizes, labels)
             
             # 添加到场景
             plot_item.addItem(pie_item)
@@ -84,6 +99,14 @@ class IndustryBoardOverviewWidget(QWidget):
             
             # 添加图例
             self.add_legend(plot_item, labels, len(sizes))
+
+            # 保存引用以便后续访问
+            self.plot_item = plot_item
+            self.pie_item = pie_item
+
+            # 将提示框添加到绘图项中
+            if hasattr(pie_item, 'tooltip') and pie_item.tooltip:
+                plot_item.addItem(pie_item.tooltip)
             
         except Exception as e:
             self.logger.error(f"使用 PyQtGraph 绘制行业板块成交额饼图时发生错误: {e}")

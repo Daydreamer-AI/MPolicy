@@ -10,7 +10,7 @@ import numpy as np
 from datetime import datetime, timedelta
 from PyQt5.QtCore import QDateTime, Qt, pyqtSlot, QPointF, QTimer
 
-from gui.qt_widgets.MComponents.custom_date_axisItem import CustomDateAxisItem
+from gui.qt_widgets.MComponents.custom_date_axisItem import CustomDateAxisItem, NoLabelAxis
 
 from common.logging_manager import get_logger
 
@@ -29,13 +29,23 @@ class BoardChartWidget(QWidget):
         # 使用自定义的日期轴类
         # self.date_axis_main = CustomDateAxisItem(orientation='bottom')
         # self.plot_widget = pg.PlotWidget(axisItems={'bottom': self.date_axis_main})
-        self.plot_widget = pg.PlotWidget()
+
+        # self.plot_widget = pg.PlotWidget()
+
+        self.date_axis_main = NoLabelAxis(orientation='bottom')
+        self.plot_widget = pg.PlotWidget(axisItems={'bottom': self.date_axis_main})
         layout.addWidget(self.plot_widget)
 
         # 添加底部坐标系容器
         # self.date_axis_bottom = CustomDateAxisItem(orientation='bottom')
         # self.bottom_plot_widget = pg.PlotWidget(axisItems={'bottom': self.date_axis_bottom})
-        self.bottom_plot_widget = pg.PlotWidget()
+        # self.bottom_plot_widget = pg.PlotWidget()
+
+        self.date_axis_bottom = NoLabelAxis(orientation='bottom')
+        self.bottom_plot_widget = pg.PlotWidget(axisItems={'bottom': self.date_axis_bottom})
+
+        #self.bottom_plot_widget = pg.PlotWidget()
+
         layout.addWidget(self.bottom_plot_widget)
         
         layout.setStretchFactor(self.plot_widget, 2)
@@ -228,13 +238,13 @@ class BoardChartWidget(QWidget):
         
         # 将日期转换为时间戳
         # timestamps = [date.timestamp() for date in date_list]
-        x_list = [0+i for i in range(len(date_list))]
+        x_list = list(range(len(date_list)))
 
         # 计算合适的柱子宽度
         self.bar_width = 0.8
 
         # 将柱子的中心对准日期时间点，而不是起始位置
-        self.adjusted_timestamps = [ts - self.bar_width / 2 for ts in x_list]
+        self.adjusted_timestamps = x_list   # [ts - self.bar_width / 2 for ts in x_list]
 
         # 创建柱状图（根据传入的字段名）
         if actual_field in data.columns:
@@ -274,7 +284,7 @@ class BoardChartWidget(QWidget):
             up_values = [self.field_data[i] for i in up_indices]
             
             up_bargraph = pg.BarGraphItem(
-                x0=up_timestamps,
+                x=up_timestamps,
                 height=up_values,
                 width=self.bar_width,
                 pen={'color': 'r', 'width': 2},  # 红色边框
@@ -289,7 +299,7 @@ class BoardChartWidget(QWidget):
             down_values = [self.field_data[i] for i in down_indices]
             
             down_bargraph = pg.BarGraphItem(
-                x0=down_timestamps,
+                x=down_timestamps,
                 height=down_values,
                 width=self.bar_width,
                 pen={'color': '#0ACC5A', 'width': 1}, # 绿色边框
@@ -315,7 +325,7 @@ class BoardChartWidget(QWidget):
         self.plot_widget.showAxis('right')
 
         # 创建折线图（移动平均线）
-        line_x_positions = [ts + self.bar_width / 2 for ts in self.adjusted_timestamps]
+        line_x_positions = [ts for ts in self.adjusted_timestamps]
         line_data = data[right_y_field].values
         self.line_plot = self.plot_widget.plot(
             x=line_x_positions,
@@ -340,8 +350,8 @@ class BoardChartWidget(QWidget):
         self.plot_widget.getViewBox().sigResized.connect(update_views)
 
         # 考虑柱子宽度，使柱子居中显示
-        x_min = min(self.adjusted_timestamps) - self.bar_width / 2
-        x_max = max(self.adjusted_timestamps) + self.bar_width * 1.5
+        x_min = min(self.adjusted_timestamps) 
+        x_max = max(self.adjusted_timestamps) 
         self.plot_widget.setXRange(x_min, x_max)
         
         # 设置左右两侧Y轴的范围
@@ -379,7 +389,7 @@ class BoardChartWidget(QWidget):
                 up_values = [net_inflow_data[i] for i in up_indices]
                 
                 up_bargraph = pg.BarGraphItem(
-                    x0=up_timestamps,
+                    x=up_timestamps,
                     height=up_values,
                     width=self.bar_width,
                     pen={'color': '#FF5656', 'width': 1},
@@ -394,7 +404,7 @@ class BoardChartWidget(QWidget):
                 down_values = [net_inflow_data[i] for i in down_indices]
                 
                 down_bargraph = pg.BarGraphItem(
-                    x0=down_timestamps,
+                    x=down_timestamps,
                     height=down_values,
                     width=self.bar_width,
                     pen={'color': '#2AD672', 'width': 1},
@@ -414,7 +424,7 @@ class BoardChartWidget(QWidget):
         """在柱子顶部添加数值标签"""
         for i, (ts, val) in enumerate(zip(timestamps, values)):
             # 计算标签位置（柱子中心顶部）
-            x_pos = ts + bar_width/2
+            x_pos = ts
             y_pos = val + 0.05  # 稍微高于柱子顶部
             
             # 创建文本项
@@ -432,7 +442,7 @@ class BoardChartWidget(QWidget):
         
         for i, ts in enumerate(self.adjusted_timestamps):
             # 柱子的范围是从 ts 到 ts+bar_width
-            bar_center = ts + self.bar_width / 2  # bar_width/2
+            bar_center = ts
             if x_range[0] <= bar_center <= x_range[1]:
                 visible_indices.append(i)
         
@@ -453,7 +463,7 @@ class BoardChartWidget(QWidget):
         visible_indices = []
         
         for i, ts in enumerate(self.adjusted_timestamps):
-            bar_center = ts + self.bar_width / 2
+            bar_center = ts
             if x_range[0] <= bar_center <= x_range[1]:
                 visible_indices.append(i)
         
@@ -511,7 +521,7 @@ class BoardChartWidget(QWidget):
         
         for i, ts in enumerate(self.adjusted_timestamps):
             # 柱子的范围是从 ts 到 ts+bar_width
-            bar_center = ts + self.bar_width / 2  # bar_width/2
+            bar_center = ts
             if x_range[0] <= bar_center <= x_range[1]:
                 visible_indices.append(i)
         
@@ -540,7 +550,7 @@ class BoardChartWidget(QWidget):
         visible_indices = []
         
         for i, ts in enumerate(self.adjusted_timestamps):
-            bar_center = ts + self.bar_width / 2
+            bar_center = ts
             if x_range[0] <= bar_center <= x_range[1]:
                 visible_indices.append(i)
         
@@ -627,7 +637,7 @@ class BoardChartWidget(QWidget):
             # self.logger.info(f"鼠标位置: x={x_val:.2f}, y={y_val:.2f}")
             
             # 找到最近的数据点
-            bar_centers = [ts + self.bar_width / 2 for ts in self.adjusted_timestamps]
+            bar_centers = [ts for ts in self.adjusted_timestamps]
             # self.logger.info(f"柱子宽度: {self.bar_width:.2f}")
             
             closest_index = None
@@ -721,7 +731,7 @@ class BoardChartWidget(QWidget):
             y_val = mouse_point.y()
             
             # 找到最近的数据点
-            bar_centers = [ts + self.bar_width / 2 for ts in self.adjusted_timestamps]
+            bar_centers = [ts for ts in self.adjusted_timestamps]
             
             closest_index = None
             min_distance = float('inf')
