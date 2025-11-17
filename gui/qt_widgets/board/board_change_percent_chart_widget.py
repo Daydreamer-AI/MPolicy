@@ -22,9 +22,9 @@ class BoardChangePercentChartWidget(QWidget):
     def setup_ui(self):
         layout = QVBoxLayout(self)
         
-        # self.date_axis_main = NoLabelAxis(orientation='bottom')
-        # self.plot_widget = pg.PlotWidget(axisItems={'bottom': self.date_axis_main})
-        self.plot_widget = pg.PlotWidget()
+        self.date_axis_main = NoLabelAxis(orientation='bottom')
+        self.plot_widget = pg.PlotWidget(axisItems={'bottom': self.date_axis_main})
+        # self.plot_widget = pg.PlotWidget()
         layout.addWidget(self.plot_widget)
         
         self.setup_plot_style()
@@ -88,19 +88,32 @@ class BoardChangePercentChartWidget(QWidget):
         # self.right_y_label_main.hide()
         self.x_label_main.hide()
 
-    def draw_chart(self, data):
+    def draw_chart(self, data, top=20):
+        # 正确获取数据中的日期信息
+        if 'date' in data.columns and not data.empty:
+            # 获取数据中的唯一日期
+            self.data_dates = data['date'].unique().tolist()
+            # 或者获取第一条数据的日期
+            self.chart_date = data['date'].iloc[0]
+            self.logger.info(f"获取唯一日期成功：{self.chart_date}")
+        else:
+            self.chart_date = None
+            self.data_dates = []
+            self.logger.error(f"未获取到唯一日期！")
+            return False
+
         if self.board_type == 0:
             s_board_name = "industry_name"
             field_name = "change_percent"
             display_name = "涨跌幅"
-            self.top_10 = data.nlargest(10, 'change_percent')      # 涨幅前十
-            self.bottom_10 = data.nsmallest(10, 'change_percent')  # 跌幅前十
+            self.top_10 = data.nlargest(top, 'change_percent')      # 涨幅前十
+            self.bottom_10 = data.nsmallest(top, 'change_percent')  # 跌幅前十
         else:
             s_board_name = "concept_name"
             field_name = "board_change_percent"
             display_name = "涨跌幅"
-            self.top_10 = data.nlargest(10, 'board_change_percent')      # 涨幅前十
-            self.bottom_10 = data.nsmallest(10, 'board_change_percent')  # 跌幅前十
+            self.top_10 = data.nlargest(top, 'board_change_percent')      # 涨幅前十
+            self.bottom_10 = data.nsmallest(top, 'board_change_percent')  # 跌幅前十
 
         if field_name not in data.columns:
             self.logger.error(f"{field_name}字段不存在于数据中！")
@@ -110,10 +123,10 @@ class BoardChangePercentChartWidget(QWidget):
         # 清除之前的绘图
         self.plot_widget.clear()
         # board_name = getattr(data, s_board_name, None)
-        self.plot_widget.setTitle(f"涨跌幅Top 10", color='#008080', size='12pt')
+        self.plot_widget.setTitle(f"涨跌幅 Top {top}", color='#008080', size='12pt')
 
         # 创建x轴位置（共10个位置，每个位置绘制两个柱子）
-        self.x_positions = list(range(10))
+        self.x_positions = list(range(top))
         self.bar_width = 0.6
         
         # 获取涨幅和跌幅数据
@@ -151,16 +164,16 @@ class BoardChangePercentChartWidget(QWidget):
 
 
         # 添加行业名称标签
-        top_names = self.top_10[s_board_name].tolist()  # 假设字段名为industry_name
-        bottom_names = self.bottom_10[s_board_name].tolist()
-        self.add_bar_value_labels(top_names, top_values, bottom_names, bottom_values)
+        self.top_names = self.top_10[s_board_name].tolist()  # 假设字段名为industry_name
+        self.bottom_names = self.bottom_10[s_board_name].tolist()
+        self.add_bar_value_labels(top_values, bottom_values)
 
-    def add_bar_value_labels(self, top_names, top_values, bottom_names, bottom_values):
+    def add_bar_value_labels(self, top_values, bottom_values):
         y_range = self.plot_widget.viewRange()[1]  # 获取y轴范围
         y_span = y_range[1] - y_range[0]
         offset = y_span * 0.03
         
-        for i, (top_name, bottom_name) in enumerate(zip(top_names, bottom_names)):
+        for i, (top_name, bottom_name) in enumerate(zip(self.top_names, self.bottom_names)):
             # 涨幅行业名称（上方）
             top_text = pg.TextItem(top_name[:8] + '...' if len(top_name) > 8 else top_name, anchor=(0.5, 1))
             top_text.setPos(i, top_values[i] + offset)
@@ -197,26 +210,140 @@ class BoardChangePercentChartWidget(QWidget):
                 bottom_text.setFont(font)
                 self.plot_widget.addItem(bottom_text)
 
+    def get_date_str(self, index):
+        row = self.data.iloc[index]
+        date_str = row['date']
+        return date_str
+    
+    def get_row_by_board_and_date(self, board_name, date):
+        """根据板块名称和日期获取对应的行数据"""
+        if not hasattr(self, 'data') or self.data is None:
+            return None
+        
+        try:
+            # 查找同时匹配板块名称和日期的行
+            if self.board_type == 0:
+                # 行业板块
+                matching_rows = self.data[
+                    (self.data['industry_name'] == board_name) & 
+                    (self.data['date'] == date)
+                ]
+            else:
+                # 概念板块
+                matching_rows = self.data[
+                    (self.data['concept_name'] == board_name) & 
+                    (self.data['date'] == date)
+                ]
+            
+            if not matching_rows.empty:
+                return matching_rows.iloc[0]  # 返回第一行匹配的数据
+            else:
+                # 如果没有精确匹配，尝试只按日期查找
+                date_rows = self.data[self.data['date'] == date]
+                if not date_rows.empty:
+                    return date_rows.iloc[0]
+        except Exception as e:
+            self.logger.error(f"查找板块数据时发生错误: {e}")
+        
+        return None
+    
+    def get_industry_board_tip_text(self, row, board_name):
+        date_str = row['date']
+        change_percent = row['change_percent']
+        total_volume = row['total_volume']
+        total_amount = row['total_amount']
+        net_inflow = row['net_inflow']
+        rising_count = row['rising_count']
+        falling_count = row['falling_count']
+        avg_price = row['avg_price']
+        leading_stock = row['leading_stock']
+        leading_stock_price = row['leading_stock_price']
+        leading_stock_change_percent = row['leading_stock_change_percent']
+
+        label_text = f"板块：{board_name}<br>日期: {date_str}<br>涨跌幅：{change_percent}%<br>成交量：{total_volume} 万<br>成交额: {total_amount} 亿\
+            <br>净流入: {net_inflow} 亿<br>上涨家数: {rising_count}<br>下跌家数: {falling_count}<br>均价: {avg_price}<br>领涨股：{leading_stock}<br>领涨股价格：{leading_stock_price}<br>领涨股涨跌幅：{leading_stock_change_percent}%"
+    
+        return label_text
+    
+    def get_concept_board_tip_text(self, row, board_name):
+        open_price = row['open_price']
+        previous_close_price = row['previous_close']
+        low_price = row['low_price']
+        high_price = row['high_price']
+
+        date_str = row['date']
+        change_percent = row['change_percent']
+        total_volume = row['volume']
+        total_amount = row['turnover']
+        net_inflow = row['net_inflow']
+        rising_count = row['rising_count']
+        falling_count = row['falling_count']
+        rank = row['rank']
+
+        label_text = f"板块：{board_name}<br>日期: {date_str}<br>排名：{rank}<br>昨收：{previous_close_price}<br>今开：{open_price}<br>最高：{high_price}\
+            <br>最低：{low_price}<br>涨跌幅：{change_percent}%<br>成交量：{total_volume} 万<br>成交额: {total_amount} 亿\
+            <br>净流入: {net_inflow} 亿<br>上涨家数: {rising_count}<br>下跌家数: {falling_count}"
+        
+        return label_text
+
+
+    def update_label(self, index):
+        """更新标签显示"""
+        if hasattr(self, 'data'):
+            if self.board_type == 0:
+                self.update_label_industry(index)
+            else:
+                self.update_label_concept(index)
+            
+
+    def update_label_industry(self, index):
+        top_name = self.top_names[index]
+        top_row = self.get_row_by_board_and_date(top_name, self.chart_date)
+
+        bottom_name = self.bottom_names[index]
+        bottom_row = self.get_row_by_board_and_date(bottom_name, self.chart_date)
+        if top_row is None or bottom_row is None:
+            return
+
+        top_tip = self.get_industry_board_tip_text(top_row, top_name)
+        top_tip_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(top_tip)
+
+        bottom_tip = self.get_industry_board_tip_text(bottom_row, bottom_name) 
+        bottom_tip_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(bottom_tip)
+
+        tip_with_style = '<div style="display: flex;">' + top_tip_with_style + '<br>' + '</div>' + '<div style="display: flex;">' + bottom_tip_with_style + '</div>'
+
+        self.label_main.setHtml(tip_with_style)
+
+    def update_label_concept(self, board_name):
+        row = self.get_row_by_board_and_date(board_name, self.chart_date)
+        if row is None:
+            return
+
+        tip_text = self.get_concept_board_tip_text(row, board_name)
+        text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(tip_text)
+        self.label_main.setHtml(text_with_style)
+
+        # self.label_main.setPos(self.adjusted_timestamps[index] + self.bar_width, 0)
+        # self.label_main.show()
+
 
     def on_range_changed(self):
         pass
 
     def on_mouse_move(self, pos):
-        return
         if self.plot_widget.sceneBoundingRect().contains(pos):
             mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
             x_val = mouse_point.x()
             y_val = mouse_point.y()
 
-            bar_centers = [ts + self.bar_width / 2 for ts in self.x_positions]
+            bar_centers = self.x_positions
             
             closest_index = None
             min_distance = float('inf')
             
             for i, center in enumerate(bar_centers):
                 distance = abs(center - x_val)
-
-
                 if distance <= self.bar_width / 2:
                     if distance < min_distance:
                         min_distance = distance
@@ -224,5 +351,52 @@ class BoardChangePercentChartWidget(QWidget):
             
             if closest_index is not None:
                 view_range = self.plot_widget.getViewBox().viewRange()
-                bottom_view_range = self.bottom_plot_widget.getViewBox().viewRange()
                 closest_x = bar_centers[closest_index]
+
+                # 更新主图表垂直线位置
+                self.v_line_main.setPos(closest_x)
+                self.v_line_main.show()
+                
+                # 更新主图表水平线位置
+                self.h_line_main.setPos(y_val)
+                self.h_line_main.show()
+
+                # 主图表左侧Y轴标签
+                left_y_label_main_x = view_range[0][0]
+                self.left_y_label_main.setPos(left_y_label_main_x, y_val)
+
+                left_y_label_main_text = f"{y_val:.2f}"
+                left_y_label_text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(left_y_label_main_text)
+                self.left_y_label_main.setHtml(left_y_label_text_with_style)
+                self.left_y_label_main.show() 
+
+
+                # 主图X轴标签
+                x_rank_str = f"Top {closest_index + 1}"
+                label_x_main_x = closest_x
+                
+                
+                label_main_x_text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(x_rank_str)
+                self.x_label_main.setHtml(label_main_x_text_with_style)
+
+                label_x_main_y = view_range[1][0]
+                self.x_label_main.setPos(label_x_main_x, label_x_main_y)
+                self.x_label_main.show()
+
+                self.update_label(closest_index)
+                y_center = (view_range[1][0]) * 3 / 4
+                label_main_y = y_center
+                # self.logger.info(f"view range: {view_range}")
+                # self.logger.info(f"label_main_y: {label_main_y}, y_val: {y_val}")
+                if closest_x >= len(bar_centers) - 3:
+                    self.label_main.setPos(closest_x - 3, y_val)
+                else:
+                    self.label_main.setPos(closest_x, y_val)
+                
+                self.label_main.show()
+
+            else:
+                self.hide_all_labels()
+
+        else:
+            self.hide_all_labels()
