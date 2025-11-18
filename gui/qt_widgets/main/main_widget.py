@@ -6,6 +6,7 @@ from common.logging_manager import get_logger
 
 from gui.qt_widgets.main.home_widget import HomeWidget
 from gui.qt_widgets.board.board_home_widget import BoardHomeWidget
+from gui.qt_widgets.market.market_widget import MarketWidget
 
 class MainWidget(QWidget):
     def __init__(self):
@@ -25,20 +26,28 @@ class MainWidget(QWidget):
 
     def init_ui(self):
         self.home_page = HomeWidget()
+        self.market_page = MarketWidget()
         self.board_home_page = BoardHomeWidget()
 
         self.stackedWidget.addWidget(self.home_page)
+        self.stackedWidget.addWidget(self.market_page)
         self.stackedWidget.addWidget(self.board_home_page)
         self.stackedWidget.setCurrentWidget(self.home_page)
 
     def init_connect(self):
         self.btn_home.clicked.connect(self.slot_btn_home_clicked)
+        self.btn_market.clicked.connect(self.slot_btn_market_clicked)
         self.btn_board.clicked.connect(self.slot_btn_board_clicked)
         self.btn_setting.clicked.connect(self.slot_btn_setting_clicked)
 
     @pyqtSlot()
     def slot_btn_home_clicked(self):
         self.stackedWidget.setCurrentWidget(self.home_page)
+
+
+    @pyqtSlot()
+    def slot_btn_market_clicked(self):
+        self.stackedWidget.setCurrentWidget(self.market_page)
 
     @pyqtSlot()
     def slot_btn_board_clicked(self):
