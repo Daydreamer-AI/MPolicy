@@ -678,7 +678,7 @@ class BaoStockProcessor:
                 continue
 
             self.process_and_save_daily_stock_data(value)
-            # if i > 1:
+            # if i > 3:
             #     self.logger.info(f"已获取到所有沪市股票日线数据, i: {i}")
             #     break
         
@@ -691,7 +691,7 @@ class BaoStockProcessor:
             i += 1
             self.process_and_save_weekly_stock_data(value)
 
-            # if i > 1:
+            # if i > 3:
             #     self.logger.info(f"已获取到所有沪市股票周线数据, i: {i}")
             #     break
 
@@ -729,7 +729,7 @@ class BaoStockProcessor:
             i += 1
             self.process_and_save_daily_stock_data(value)
 
-            # if i > 1:
+            # if i > 3:
             #     self.logger.info(f"已获取到所有创业板股票日线数据, i: {i}")
             #     break
 
@@ -740,7 +740,7 @@ class BaoStockProcessor:
             i += 1
             self.process_and_save_weekly_stock_data(value)
 
-            # if i > 1:
+            # if i > 3:
             #     self.logger.info(f"已获取到所有创业板股票周线数据, i: {i}")
             #     break
 
