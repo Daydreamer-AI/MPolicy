@@ -1,10 +1,15 @@
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, Qt
+from PyQt5.QtGui import QIntValidator
 
 from common.logging_manager import get_logger
 
 from gui.qt_widgets.board.industry_board_overview_widget import IndustryBoardOverviewWidget
+from processor.ak_stock_data_processor import AKStockDataProcessor
+from gui.qt_widgets.board.board_change_percent_chart_widget import BoardChangePercentChartWidget
+from gui.qt_widgets.MComponents.MRangeValidator import MRangeValidator
+
 
 class BoardOverviewWidget(QWidget):
     def __init__(self):
@@ -18,19 +23,92 @@ class BoardOverviewWidget(QWidget):
     def init_ui(self):
         uic.loadUi('gui/qt_widgets/board/BoardOverViewWidget.ui', self)
 
-        self.industry_board_overview_widget = IndustryBoardOverviewWidget()
-        # item = QtWidgets.QListWidgetItem()
-        # item.setSizeHint(self.industry_board_overview_widget.sizeHint())
-        # self.listWidget.addItem(item) 
-        # self.listWidget.setItemWidget(item, self.industry_board_overview_widget)
-        
-        layout = self.layout()
-        if layout is None:
-            self.setLayout(QVBoxLayout())
-        layout.addWidget(self.industry_board_overview_widget)
+        validator = MRangeValidator(10, 30, self.lineEdit_top)
+        self.lineEdit_top.setValidator(validator)
+        self.lineEdit_top.setText('20')
 
+        self.industry_change_percent_chart_widget = BoardChangePercentChartWidget(type=0)
+        self.concept_change_percent_chart_widget = BoardChangePercentChartWidget(type=1)
+        self.industry_change_percent_chart_widget.setMinimumHeight(768)
+        self.concept_change_percent_chart_widget.setMinimumHeight(768)
+
+        container_layout = self.widget.layout()
+        if container_layout is None:
+            self.setLayout(QVBoxLayout())
+
+        container_layout.addWidget(self.industry_change_percent_chart_widget)
+        container_layout.addWidget(self.concept_change_percent_chart_widget)
+        self.widget.setMinimumHeight(
+            self.industry_change_percent_chart_widget.sizeHint().height() +
+            self.concept_change_percent_chart_widget.sizeHint().height() + 30
+        )
+
+        self.update_chart()
+
+        
     def init_para(self):
         pass
 
     def init_connect(self):
-        pass
+        self.lineEdit_top.returnPressed.connect(self.slot_lineEdit_top_returnPressed)
+
+    def update_chart(self, top=20):
+        df_lastest_industry_data = AKStockDataProcessor().get_latest_ths_board_industry_data()
+        df_lastest_concept_data = AKStockDataProcessor().get_latest_ths_board_concept_overview()
+
+        # 判断日期是否匹配
+        s_industry_date = df_lastest_industry_data['date'].iloc[-1]
+        s_concept_date = df_lastest_concept_data['date'].iloc[-1]
+        if s_industry_date != s_concept_date:
+            self.logger.warning(f"行业板块数据日期和概念板块数据日期不一致，请检查数据！")
+            return
+        
+        self.label.setText(f"{s_industry_date} 板块概览")
+        self.industry_change_percent_chart_widget.draw_chart(df_lastest_industry_data, top)
+
+        # if 'board_change_percent' in df_lastest_concept_data.columns:
+        #     df_lastest_concept_data = df_lastest_concept_data.rename(columns={'board_change_percent': 'change_percent'})
+        # else:
+        #     self.logger.warning("数据中不包含 board_change_percent 字段")
+        # 预处理数据
+        if 'change_rank' in df_lastest_concept_data.columns:
+            # 使用正则表达式提取排名（格式为：10/389，提取第一个数字作为排名）
+            df_lastest_concept_data['rank'] = df_lastest_concept_data['change_rank'].str.extract(r'(\d+)/\d+').astype(int)
+        else:
+            self.logger.warning("数据中不包含 change_rank 字段")
+            
+        if 'rise_fall_count' in df_lastest_concept_data.columns:
+            # 使用正则表达式提取上涨家数和下跌家数（格式为：16/4，第一个数字是上涨家数，第二个是下跌家数）
+            rise_fall_split = df_lastest_concept_data['rise_fall_count'].str.extract(r'(\d+)/(\d+)')
+            df_lastest_concept_data['rising_count'] = rise_fall_split[0].astype(int)
+            df_lastest_concept_data['falling_count'] = rise_fall_split[1].astype(int)
+        else:
+            self.logger.warning("数据中不包含 rise_fall_count 字段")
+
+        self.concept_change_percent_chart_widget.draw_chart(df_lastest_concept_data, top)
+
+    def slot_lineEdit_top_returnPressed(self):
+        text = self.lineEdit_top.text()
+        self.logger.info(f"输入的top值为：{text}")
+        if not text:  # 空输入处理
+            self.lineEdit_top.setText('20')
+            self.update_chart(20)
+            self.lineEdit_top.clearFocus()
+            return
+        
+        try:
+            top = int(text)
+            # 虽然验证器已限制范围，但仍做一次检查
+            if 10 <= top <= 30:
+                self.update_chart(top)
+            else:
+                # 自动修正到有效范围
+                corrected = max(10, min(30, top))
+                self.lineEdit_top.setText(str(corrected))
+                self.update_chart(corrected)
+        except ValueError:
+            # 异常情况恢复默认值
+            self.lineEdit_top.setText('20')
+            self.update_chart(20)
+
+        self.lineEdit_top.clearFocus()

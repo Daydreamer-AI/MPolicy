@@ -20,6 +20,7 @@ class BoardChangePercentChartWidget(QWidget):
         self.setup_ui()
         
     def setup_ui(self):
+        self.setMinimumSize(1366, 768)
         layout = QVBoxLayout(self)
         
         self.date_axis_main = NoLabelAxis(orientation='bottom')
@@ -50,12 +51,15 @@ class BoardChangePercentChartWidget(QWidget):
         # 初始化主图表标签（优化样式）
         self.label_main = pg.TextItem("", anchor=(0, 1))
         self.label_main.setZValue(1000)
-        
-        # 预设标签样式
         font = pg.QtGui.QFont("Arial", 10, pg.QtGui.QFont.Bold)
         self.label_main.setFont(font)
-        
         main_viewbox.addItem(self.label_main, ignoreBounds=True)
+
+        self.label_main_2 = pg.TextItem("", anchor=(0, 1))
+        self.label_main_2.setZValue(1000)
+        font = pg.QtGui.QFont("Arial", 10, pg.QtGui.QFont.Bold)
+        self.label_main_2.setFont(font)
+        main_viewbox.addItem(self.label_main_2, ignoreBounds=True)
         
         # 主图表左y轴标签
         self.left_y_label_main = pg.TextItem("", anchor=(0, 0.5))  # 左侧Y轴标签
@@ -84,6 +88,7 @@ class BoardChangePercentChartWidget(QWidget):
         self.v_line_main.hide()
         self.h_line_main.hide()
         self.label_main.hide()
+        self.label_main_2.hide()
         self.left_y_label_main.hide()
         # self.right_y_label_main.hide()
         self.x_label_main.hide()
@@ -106,12 +111,14 @@ class BoardChangePercentChartWidget(QWidget):
             s_board_name = "industry_name"
             field_name = "change_percent"
             display_name = "涨跌幅"
+            s_board_type = "行业板块"
             self.top_10 = data.nlargest(top, 'change_percent')      # 涨幅前十
             self.bottom_10 = data.nsmallest(top, 'change_percent')  # 跌幅前十
         else:
             s_board_name = "concept_name"
             field_name = "board_change_percent"
             display_name = "涨跌幅"
+            s_board_type = "概念板块"
             self.top_10 = data.nlargest(top, 'board_change_percent')      # 涨幅前十
             self.bottom_10 = data.nsmallest(top, 'board_change_percent')  # 跌幅前十
 
@@ -123,7 +130,8 @@ class BoardChangePercentChartWidget(QWidget):
         # 清除之前的绘图
         self.plot_widget.clear()
         # board_name = getattr(data, s_board_name, None)
-        self.plot_widget.setTitle(f"涨跌幅 Top {top}", color='#008080', size='12pt')
+        
+        self.plot_widget.setTitle(f"{s_board_type}涨跌幅 Top {top}", color='#008080', size='12pt')
 
         # 创建x轴位置（共10个位置，每个位置绘制两个柱子）
         self.x_positions = list(range(top))
@@ -272,7 +280,7 @@ class BoardChangePercentChartWidget(QWidget):
         high_price = row['high_price']
 
         date_str = row['date']
-        change_percent = row['change_percent']
+        change_percent = row['board_change_percent']
         total_volume = row['volume']
         total_amount = row['turnover']
         net_inflow = row['net_inflow']
@@ -307,22 +315,31 @@ class BoardChangePercentChartWidget(QWidget):
 
         top_tip = self.get_industry_board_tip_text(top_row, top_name)
         top_tip_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(top_tip)
+        self.label_main.setHtml(top_tip_with_style)
 
         bottom_tip = self.get_industry_board_tip_text(bottom_row, bottom_name) 
         bottom_tip_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(bottom_tip)
+        self.label_main_2.setHtml(bottom_tip_with_style)
 
-        tip_with_style = '<div style="display: flex;">' + top_tip_with_style + '<br>' + '</div>' + '<div style="display: flex;">' + bottom_tip_with_style + '</div>'
+        #tip_with_style = '<div style="display: flex;">' + top_tip_with_style + '<br>' + '</div>' + '<div style="display: flex;">' + bottom_tip_with_style + '</div>'
+        #self.label_main.setHtml(tip_with_style)
 
-        self.label_main.setHtml(tip_with_style)
+    def update_label_concept(self, index):
+        top_name = self.top_names[index]
+        top_row = self.get_row_by_board_and_date(top_name, self.chart_date)
 
-    def update_label_concept(self, board_name):
-        row = self.get_row_by_board_and_date(board_name, self.chart_date)
-        if row is None:
+        bottom_name = self.bottom_names[index]
+        bottom_row = self.get_row_by_board_and_date(bottom_name, self.chart_date)
+        if top_row is None or bottom_row is None:
             return
 
-        tip_text = self.get_concept_board_tip_text(row, board_name)
+        tip_text = self.get_concept_board_tip_text(top_row, top_name)
         text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(tip_text)
         self.label_main.setHtml(text_with_style)
+
+        bottom_tip = self.get_concept_board_tip_text(bottom_row, bottom_name) 
+        bottom_tip_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(bottom_tip)
+        self.label_main_2.setHtml(bottom_tip_with_style)
 
         # self.label_main.setPos(self.adjusted_timestamps[index] + self.bar_width, 0)
         # self.label_main.show()
@@ -388,15 +405,31 @@ class BoardChangePercentChartWidget(QWidget):
                 label_main_y = y_center
                 # self.logger.info(f"view range: {view_range}")
                 # self.logger.info(f"label_main_y: {label_main_y}, y_val: {y_val}")
-                if closest_x >= len(bar_centers) - 3:
-                    self.label_main.setPos(closest_x - 3, y_val)
+                if closest_x >= len(bar_centers) - 5:
+                    self.label_main.setPos(closest_x - 5, y_val)
+                    self.label_main_2.setPos(closest_x - 2, y_val)
                 else:
                     self.label_main.setPos(closest_x, y_val)
+                    self.label_main_2.setPos(closest_x + 3, y_val)
                 
                 self.label_main.show()
+                self.label_main_2.show()
 
             else:
                 self.hide_all_labels()
 
         else:
             self.hide_all_labels()
+
+    def enterEvent(self, event):
+        """
+        当鼠标进入控件时的处理
+        """
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):
+        """
+        当鼠标离开控件时，隐藏所有标签和十字线
+        """
+        self.hide_all_labels()
+        super().leaveEvent(event)
