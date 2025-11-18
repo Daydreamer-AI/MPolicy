@@ -384,6 +384,7 @@ class StockDbBase:
             Path: 数据库文件路径
         """
         s_board_name = identify_stock_board(stock_code)
+        # self.logger.info(f"股票 {stock_code} 的板块名称为 {s_board_name}")
         return self.db_dir / s_board_name / f"{stock_code}.db"
 
     def check_stock_db_exists(self, stock_code):
@@ -446,8 +447,11 @@ class StockDbBase:
             self.logger.info(f"股票 {stock_code} 的数据库不存在")
             return None
         
-        allowed_tables = {"stock_data", "user_info", "transaction_log"}  # 合法表名白名单
-        if table_name not in allowed_tables:
+        if not self.check_table_exists(stock_code, table_name):
+            self.logger.info(f"股票 {stock_code} 的表 {table_name} 不存在")
+            return None
+        
+        if not self.is_valid_table_name(table_name):
             # raise ValueError("非法表名！")
             return None
         
@@ -461,6 +465,59 @@ class StockDbBase:
         except Exception as e:
             self.logger.info(f"获取股票 {stock_code} 数据库表结构时出错: {str(e)}")
             return None
+        
+    def is_valid_table_name(self, table_name):
+        """
+        检查表名是否合法
+        
+        参数:
+            table_name (str): 表名
+            
+        返回:
+            bool: 合法返回True，否则返回False
+
+        使用方式
+            if not is_valid_table_name(table_name):
+                raise ValueError("非法表名！")
+        """
+        allowed_tables = {"stock_data", "user_info", "transaction_log"}
+        
+        # 直接匹配基础表名
+        if table_name in allowed_tables:
+            return True
+        
+        # 检查是否为stock_data的周期数据表
+        if table_name.startswith("stock_data_"):
+            # 允许的周期格式：数字+时间单位(d/w/m/y) 或 数字+m
+            import re
+            if re.match(r'^stock_data_(\d+[dwmy]|\d+m)$', table_name):
+                return True
+        
+        return False
+
+    def check_table_exists(self, stock_code, table_name):
+        """
+        检查指定股票数据库中的表是否存在
+        
+        参数:
+            stock_code (str): 股票代码
+            table_name (str): 表名
+            
+        返回:
+            bool: 表存在返回True，否则返回False
+        """
+        if not self.check_stock_db_exists(stock_code):
+            return False
+        
+        db_path = self.get_db_path(stock_code)
+        self
+        try:
+            with self._get_connection(db_path) as cur:
+                cur.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?", (table_name,))
+                return cur.fetchone()[0] > 0
+        except Exception as e:
+            self.logger.info(f"检查表 {table_name} 存在性时出错: {str(e)}")
+            return False
 
     def check_column_exists(self, stock_code, column_name, table_name="stock_data"):
         """
@@ -475,8 +532,7 @@ class StockDbBase:
             bool: 字段存在返回True，否则返回False
         """
 
-        allowed_tables = {"stock_data", "user_info", "transaction_log"}  # 合法表名白名单
-        if table_name not in allowed_tables:
+        if not self.is_valid_table_name(table_name):
             # raise ValueError("非法表名！")
             return False
 
@@ -508,8 +564,11 @@ class StockDbBase:
             self.logger.info(f"股票 {stock_code} 的数据库不存在")
             return False
         
-        allowed_tables = {"stock_data", "user_info", "transaction_log"}  # 合法表名白名单
-        if table_name not in allowed_tables:
+        if not self.check_table_exists(stock_code, table_name):
+            self.logger.info(f"股票 {stock_code} 的表 {table_name} 不存在")
+            return None
+        
+        if not self.is_valid_table_name(table_name):
             # raise ValueError("非法表名！")
             return False
         
@@ -558,8 +617,11 @@ class StockDbBase:
             self.logger.info(f"股票 {stock_code} 的数据库不存在")
             return {}
         
-        allowed_tables = {"stock_data", "user_info", "transaction_log"}  # 合法表名白名单
-        if table_name not in allowed_tables:
+        if not self.check_table_exists(stock_code, table_name):
+            self.logger.info(f"股票 {stock_code} 的表 {table_name} 不存在")
+            return {}
+        
+        if not self.is_valid_table_name(table_name):
             # raise ValueError("非法表名！")
             return False
         
@@ -594,8 +656,7 @@ class StockDbBase:
             self.logger.info(f"无法获取股票 {stock_code} 的数据")
             return False
         
-        allowed_tables = {"stock_data", "user_info", "transaction_log"}  # 合法表名白名单
-        if table_name not in allowed_tables:
+        if not self.is_valid_table_name(table_name):
             # raise ValueError("非法表名！")
             return False
         
@@ -674,7 +735,7 @@ class StockDbBase:
             high REAL,
             low REAL,
             volume INTEGER,
-            amout REAL,
+            amount REAL,
             amplitude REAL,
             change_percent REAL,
             turnover_rate REAL,
@@ -700,9 +761,13 @@ class StockDbBase:
             self.logger.info(f"股票 {stock_code} 的数据库不存在")
             return None
         
-        allowed_tables = {"stock_data", "user_info", "transaction_log"}  # 合法表名白名单
-        if table_name not in allowed_tables:
-            raise ValueError("非法表名！")
+        # if not self.check_table_exists(stock_code, table_name):
+        #     self.logger.info(f"股票 {stock_code} 的表 {table_name} 不存在")
+        #     return None
+        
+        if not self.is_valid_table_name(table_name):
+            # raise ValueError("非法表名！")
+            return None
 
         try:
             conn = sqlite3.connect(str(self.get_db_path(stock_code)))
@@ -854,6 +919,10 @@ class StockDbBase:
         if not self.check_stock_db_exists(code):
             return pd.DataFrame()
         
+        # if not self.check_table_exists(code, table_name):
+        #     self.logger.info(f"股票 {stock_code} 的表 {table_name} 不存在")
+        #     return None
+        
         db_path = self.get_db_path(code)
         return self.get_table_data(db_path, 'stock_chip_distribution_data_eastmoney')
 
@@ -861,6 +930,10 @@ class StockDbBase:
     def get_latest_eastmoney_stock_chip_distribution_data(self, code):
         if not self.check_stock_db_exists(code):
             return pd.DataFrame()
+        
+        # if not self.check_table_exists(code, table_name):
+        #     self.logger.info(f"股票 {stock_code} 的表 {table_name} 不存在")
+        #     return None
         
         db_path = self.get_db_path(code)
 
@@ -891,9 +964,9 @@ class StockDbBase:
 
 
     # ===================================================================Baostock表数据相关====================================================================
-    def create_baostock_table(self, db_path):
-        create_table_sql = """
-        CREATE TABLE IF NOT EXISTS stock_data (
+    def create_baostock_table(self, db_path, table_name='stock_data'):
+        create_table_sql = f"""
+        CREATE TABLE IF NOT EXISTS {table_name} (
             date DATE NOT NULL,
             code TEXT NOT NULL,
             open REAL,
@@ -901,25 +974,27 @@ class StockDbBase:
             low REAL,
             close REAL,
             volume INTEGER,
-            amout REAL,
+            amount REAL,
             change_percent REAL,
             turnover_rate REAL,
             adjustflag INTEGER,
-            isST BOOLEAN,
             PRIMARY KEY (date, code)
         )
         """
-        self.create_table(db_path, 'stock_data', create_table_sql)
+        self.create_table(db_path, table_name, create_table_sql)
 
-    def get_bao_stock_data(self, stock_code, start_date=None, end_date=None, table_name="stock_data"):
+    def get_bao_stock_data(self, stock_code, table_name="stock_data", start_date=None, end_date=None):
         db_path = self.get_db_path(stock_code)
         # self.logger.info("db_path:", db_path)
         if not self.check_stock_db_exists(stock_code):
             self.logger.info(f"股票 {stock_code} 的数据库不存在")
             return None
         
-        allowed_tables = {"stock_data", "user_info", "transaction_log"}  # 合法表名白名单
-        if table_name not in allowed_tables:
+        if not self.check_table_exists(stock_code, table_name):
+            self.logger.info(f"股票 {stock_code} 的表 {table_name} 不存在, 数据库路径：{db_path}")
+            return None
+        
+        if not self.is_valid_table_name(table_name):
             raise ValueError("非法表名！")
         
         return self.get_table_data(db_path, table_name)
@@ -927,8 +1002,12 @@ class StockDbBase:
     def save_bao_stock_data_to_db(self, stock_code, stock_data, writeWay="replace", table_name="stock_data"):
         db_path = self.get_db_path(stock_code)
         if not self.check_stock_db_exists(stock_code):
-            # self.logger.info(f"股票 {stock_code} 的数据库不存在，自动创建")
-            self.create_baostock_table(db_path)
+            self.logger.info(f"股票 {stock_code} 的数据库不存在，自动创建：{db_path}")
+            self.create_baostock_table(db_path, table_name)
+
+        if not self.check_table_exists(stock_code, table_name):
+            self.logger.info(f"股票 {stock_code} 的表 {table_name} 不存在, 自动创建")
+            self.create_baostock_table(db_path, table_name)
 
         self.insert_dataframe_to_table(db_path, table_name, stock_data, writeWay)
         
