@@ -7,29 +7,29 @@ import pandas as pd
 class KLine():
     def __init__(self, stock_data):
         self.stock_data = stock_data
-        self.open = stock_data['开盘']
-        self.high = stock_data['最高']
-        self.low = stock_data['最低']
-        self.close = stock_data['收盘']
-        self.volume = stock_data['成交量']
-        self.amount = stock_data['成交额']
-        self.turnover = stock_data['换手率']
+        self.open = stock_data['open']
+        self.high = stock_data['high']
+        self.low = stock_data['low']
+        self.close = stock_data['close']
+        self.volume = stock_data['volume']
+        self.amount = stock_data['amount']
+        self.turnover = stock_data['turnover_rate']
         
 
 # 历史数据≤2年 → 全量计算
 def macd(stock_data):
-    close = stock_data['收盘']
+    close = stock_data['close']
     ema12 = close.ewm(span=12, adjust=False).mean()
     ema26 = close.ewm(span=26, adjust=False).mean()
     dif = ema12 - ema26
     dea = dif.ewm(span=9, adjust=False).mean()
     macd = 2 * (dif - dea)
-    stock_data['DIF'] = dif
-    stock_data['DEA'] = dea
-    stock_data['MACD'] = macd
+    stock_data['diff'] = dif
+    stock_data['dea'] = dea
+    stock_data['macd'] = macd
 
 def ma(stock_data, column='5', cycle=5):
-    close = stock_data['收盘']
+    close = stock_data['close']
     # stock_data['MA24'] = close.rolling(window=24, min_periods=1).mean()
     stock_data[column] = close.rolling(window=cycle, min_periods=1).mean()
 
@@ -74,8 +74,8 @@ def macd_deviation(stock_data):
         if cur_index == -1:
             cur_index = index
 
-        cur_dea = row['DEA']
-        cur_diff = row['DIF']
+        cur_dea = row['dea']
+        cur_diff = row['diff']
         if cur_dea > 0:
             return
 
@@ -95,10 +95,10 @@ def macd_deviation(stock_data):
 
     selected_rows = df.iloc[first_diff_down_cross_zero_index:cur_index+1]
     for index, row in selected_rows.iterrows():
-        cur_lowest_price = row['最低']
-        cur_diff = row['DIF']
-        cur_close_price = row['收盘']
-        cur_top_price = row['最高']
+        cur_lowest_price = row['low']
+        cur_diff = row['diff']
+        cur_close_price = row['close']
+        cur_top_price = row['high']
 
         # 更新周期内的最低价和最低diff
         if cur_lowest_price < lowest_price:
@@ -108,8 +108,8 @@ def macd_deviation(stock_data):
             lowset_diff = cur_diff
 
         # 判断周期是否走完
-        ma24_price = row['MA24']
-        ma52_price = row['MA52']
+        ma24_price = row['ma24']
+        ma52_price = row['ma52']
 
         if cur_diff >= lowest_price * 0.03:
             # lowest_price = 9999

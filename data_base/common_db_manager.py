@@ -275,7 +275,7 @@ class CommonDBManager:
         with self._get_connection() as cur:
             try:
                 cur.execute(create_table_sql)
-                self.logger.info(f"表 {table_name} 创建成功或已存在")
+                # self.logger.info(f"表 {table_name} 创建成功或已存在")
                 return True
             except sqlite3.Error as e:
                 self.logger.info(f"创建表 {table_name} 失败: {str(e)}")

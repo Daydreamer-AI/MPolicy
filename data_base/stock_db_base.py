@@ -120,7 +120,7 @@ class StockDbBase:
         with self._get_connection(db_path) as cur:
             try:
                 cur.execute(create_table_sql)
-                self.logger.info(f"表 {table_name} 创建成功或已存在")
+                # self.logger.info(f"表 {table_name} 创建成功或已存在")
                 return True
             except sqlite3.Error as e:
                 self.logger.info(f"创建表 {table_name} 失败: {str(e)}")
@@ -1002,11 +1002,11 @@ class StockDbBase:
     def save_bao_stock_data_to_db(self, stock_code, stock_data, writeWay="replace", table_name="stock_data"):
         db_path = self.get_db_path(stock_code)
         if not self.check_stock_db_exists(stock_code):
-            # self.logger.info(f"股票 {stock_code} 的数据库不存在，自动创建：{db_path}")
+            self.logger.info(f"股票 {stock_code} 的数据库不存在，自动创建：{db_path}")
             self.create_baostock_table(db_path, table_name)
 
         if not self.check_table_exists(stock_code, table_name):
-            # self.logger.info(f"股票 {stock_code} 的表 {table_name} 不存在, 自动创建")
+            self.logger.info(f"股票 {stock_code} 的表 {table_name} 不存在, 自动创建")
             self.create_baostock_table(db_path, table_name)
 
         self.insert_dataframe_to_table(db_path, table_name, stock_data, writeWay)
