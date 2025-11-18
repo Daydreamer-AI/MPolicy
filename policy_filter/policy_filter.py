@@ -128,13 +128,13 @@ def daily_ma52_filter(df_daily_data):
     day_lb = 0.0
 
     # 检查列是否存在
-    if columns_check(df_daily_data, ('日期', '收盘', 'MA52', '换手率', '量比5日')):
-    # if '收盘' in df_daily_data.columns and 'MA52' in df_daily_data.columns and '换手率' in df_daily_data.columns and '量比5日' in df_daily_data.columns:
+    if columns_check(df_daily_data, ('date', 'close', 'ma52', 'turnover_rate', 'volume_ratio')):
+    # if 'close' in df_daily_data.columns and 'ma52' in df_daily_data.columns and 'turnover_rate' in df_daily_data.columns and 'volume_ratio' in df_daily_data.columns:
         last_day_row = df_daily_data.tail(1)
-        day_close = last_day_row['收盘'].item()
-        day_ma52 = last_day_row['MA52'].item()
-        day_turn = last_day_row['换手率'].item()
-        day_lb = last_day_row['量比5日'].item()
+        day_close = last_day_row['close'].item()
+        day_ma52 = last_day_row['ma52'].item()
+        day_turn = last_day_row['turnover_rate'].item()
+        day_lb = last_day_row['volume_ratio'].item()
     else:
         logger.info("错误：日线数据必要的列不存在")
         logger.info("可用列：", df_daily_data.columns.tolist())
@@ -146,7 +146,7 @@ def daily_ma52_filter(df_daily_data):
     # 修改后条件判断
     if (abs(day_close - day_ma52) < day_diff) and (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb):
     # 执行逻辑
-    # if (week_stock_data.tail(1)['收盘'] > week_stock_data.tail(1)['MA52']) and (abs(day_stock_data.tail(1)['收盘'] - day_stock_data.tail(1)['MA52']) < day_stock_data.tail(1)['MA52'] * 1.1):
+    # if (week_stock_data.tail(1)['close'] > week_stock_data.tail(1)['ma52']) and (abs(day_stock_data.tail(1)['close'] - day_stock_data.tail(1)['ma52']) < day_stock_data.tail(1)['ma52'] * 1.1):
         # logger.info("符合日线MA52筛选")
         return True
     else:
@@ -166,22 +166,22 @@ def daily_and_weekly_ma52_filter(df_daily_data, df_weekly_data):
     day_turn = 0.0
     day_lb = 0.0
 
-    if columns_check(df_daily_data, ('日期', '收盘', 'MA52', '换手率', '量比5日')):
+    if columns_check(df_daily_data, ('date', 'close', 'ma52', 'turnover_rate', 'volume_ratio')):
         last_day_row = df_daily_data.tail(1)
-        day_close = last_day_row['收盘'].item()
-        day_ma52 = last_day_row['MA52'].item()
-        day_turn = last_day_row['换手率'].item()
-        day_lb = last_day_row['量比5日'].item()
+        day_close = last_day_row['close'].item()
+        day_ma52 = last_day_row['ma52'].item()
+        day_turn = last_day_row['turnover_rate'].item()
+        day_lb = last_day_row['volume_ratio'].item()
     else:
         logger.info("错误：【日线】数据必要的列不存在")
         return False
 
     week_close = 0.0
     week_ma52 = 0.0
-    if columns_check(df_weekly_data, ('日期', '收盘', 'MA52')):
+    if columns_check(df_weekly_data, ('date', 'close', 'ma52')):
         last_week_row = df_weekly_data.tail(1)
-        week_close = last_week_row['收盘'].item()
-        week_ma52 = last_week_row['MA52'].item()
+        week_close = last_week_row['close'].item()
+        week_ma52 = last_week_row['ma52'].item()
     else:
         logger.info("错误：【周线】数据必要的列不存在")
         return False
@@ -206,23 +206,23 @@ def daily_ma52_ma24_filter(df_daily_data, df_weekly_data, isUp=False):
     day_ma52 = 0.0
     day_turn = 0.0
     day_lb = 0.0
-    if columns_check(df_daily_data, ('日期', '收盘', 'DEA', 'MA24', 'MA52', '换手率', '量比5日')):
+    if columns_check(df_daily_data, ('date', 'close', 'dea', 'ma24', 'ma52', 'turnover_rate', 'volume_ratio')):
         last_day_row = df_daily_data.tail(1)
-        day_close = last_day_row['收盘'].item()
-        day_dea = last_day_row['DEA'].item()
-        day_ma24 = last_day_row['MA24'].item()
-        day_ma52 = last_day_row['MA52'].item()
-        day_turn = last_day_row['换手率'].item()
-        day_lb = last_day_row['量比5日'].item()
+        day_close = last_day_row['close'].item()
+        day_dea = last_day_row['dea'].item()
+        day_ma24 = last_day_row['ma24'].item()
+        day_ma52 = last_day_row['ma52'].item()
+        day_turn = last_day_row['turnover_rate'].item()
+        day_lb = last_day_row['volume_ratio'].item()
     else:
         return False
 
     week_close = 0.0
     week_ma52 = 0.0
-    if columns_check(df_weekly_data, ('日期', '收盘', 'MA52')):
+    if columns_check(df_weekly_data, ('date', 'close', 'ma52')):
         last_week_row = df_weekly_data.tail(1)
-        week_close = last_week_row['收盘'].item()
-        week_ma52 = last_week_row['MA52'].item()
+        week_close = last_week_row['close'].item()
+        week_ma52 = last_week_row['ma52'].item()
     else:
         return False
 
@@ -262,33 +262,33 @@ def daily_up_ma52_filter(df_daily_data, df_weekly_data):
         logger.info("日线或周线数据为空！")
         return False
 
-    if not columns_check(df_daily_data, ('日期', '收盘', 'DIF', 'DEA', 'MA5', 'MA10', 'MA24', 'MA30',  'MA52', 'MA60', '换手率', '量比5日')):
+    if not columns_check(df_daily_data, ('date', 'close', 'diff', 'dea', 'ma5', 'ma10', 'ma24', 'ma30',  'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
         logger.info("日线列名不存在！")
         return False
 
     last_day_row = df_daily_data.tail(1)
-    day_close = last_day_row['收盘'].item()
-    day_dif = last_day_row['DIF'].item()
-    day_dea = last_day_row['DEA'].item()
-    day_ma5 = last_day_row['MA5'].item()
-    day_ma10 = last_day_row['MA10'].item()
-    # day_ma20 = last_day_row['MA20'].item()
-    day_ma24 = last_day_row['MA24'].item()
-    day_ma30 = last_day_row['MA30'].item()
-    day_ma52 = last_day_row['MA52'].item()
-    day_ma60 = last_day_row['MA60'].item()
-    day_turn = last_day_row['换手率'].item()
-    day_lb = last_day_row['量比5日'].item()
+    day_close = last_day_row['close'].item()
+    day_dif = last_day_row['diff'].item()
+    day_dea = last_day_row['dea'].item()
+    day_ma5 = last_day_row['ma5'].item()
+    day_ma10 = last_day_row['ma10'].item()
+    # day_ma20 = last_day_row['ma20'].item()
+    day_ma24 = last_day_row['ma24'].item()
+    day_ma30 = last_day_row['ma30'].item()
+    day_ma52 = last_day_row['ma52'].item()
+    day_ma60 = last_day_row['ma60'].item()
+    day_turn = last_day_row['turnover_rate'].item()
+    day_lb = last_day_row['volume_ratio'].item()
 
 
-    if not columns_check(df_weekly_data, ('日期', '收盘', 'DEA', 'MA52')):
+    if not columns_check(df_weekly_data, ('date', 'close', 'dea', 'ma52')):
         logger.info("周线列名不存在！")
         return False
     
     last_week_row = df_weekly_data.tail(1)
-    week_close = last_week_row['收盘'].item()
-    week_dea = last_week_row['DEA'].item()
-    week_ma52 = last_week_row['MA52'].item()
+    week_close = last_week_row['close'].item()
+    week_dea = last_week_row['dea'].item()
+    week_ma52 = last_week_row['ma52'].item()
 
 
     # day_diff = day_ma52 * policy_filter_ma52_diff
@@ -327,29 +327,29 @@ def daily_up_ma24_filter(df_daily_data, df_weekly_data):
         return False
     
     
-    if not columns_check(df_daily_data, ('日期', '收盘', 'DIF', 'DEA', 'MA5', 'MA10', 'MA20', 'MA24', 'MA30', 'MA52', '换手率', '量比5日')):
+    if not columns_check(df_daily_data, ('date', 'close', 'diff', 'dea', 'ma5', 'ma10', 'ma20', 'ma24', 'ma30', 'ma52', 'turnover_rate', 'volume_ratio')):
         return False
     
     last_day_row = df_daily_data.tail(1)
-    day_close = last_day_row['收盘'].item()
-    day_dif = last_day_row['DIF'].item()
-    day_dea = last_day_row['DEA'].item()
-    day_ma5 = last_day_row['MA5'].item()
-    day_ma10 = last_day_row['MA10'].item()
-    day_ma20 = last_day_row['MA20'].item()
-    day_ma24 = last_day_row['MA24'].item()
-    day_ma30 = last_day_row['MA30'].item()
-    day_ma52 = last_day_row['MA52'].item()
-    day_turn = last_day_row['换手率'].item()
-    day_lb = last_day_row['量比5日'].item()
+    day_close = last_day_row['close'].item()
+    day_dif = last_day_row['diff'].item()
+    day_dea = last_day_row['dea'].item()
+    day_ma5 = last_day_row['ma5'].item()
+    day_ma10 = last_day_row['ma10'].item()
+    day_ma20 = last_day_row['ma20'].item()
+    day_ma24 = last_day_row['ma24'].item()
+    day_ma30 = last_day_row['ma30'].item()
+    day_ma52 = last_day_row['ma52'].item()
+    day_turn = last_day_row['turnover_rate'].item()
+    day_lb = last_day_row['volume_ratio'].item()
 
 
-    if not columns_check(df_weekly_data, ('日期', '收盘', 'MA52')):
+    if not columns_check(df_weekly_data, ('date', 'close', 'ma52')):
         return False
     
     last_week_row = df_weekly_data.tail(1)
-    week_close = last_week_row['收盘'].item()
-    week_ma52 = last_week_row['MA52'].item()
+    week_close = last_week_row['close'].item()
+    week_ma52 = last_week_row['ma52'].item()
 
     # day_diff = day_ma52 * policy_filter_ma52_diff
     # logger.info(f"day_close: {day_close}, day_dea: {day_dea}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
@@ -383,18 +383,18 @@ def daily_up_ma10_filter(df_daily_data):
     if df_daily_data.empty:
         return False
 
-    if not columns_check(df_daily_data, ('日期', '收盘', 'DEA', 'MA5', 'MA10', 'MA24', 'MA52', '换手率', '量比5日')):
+    if not columns_check(df_daily_data, ('date', 'close', 'dea', 'ma5', 'ma10', 'ma24', 'ma52', 'turnover_rate', 'volume_ratio')):
         return False
     
     last_day_row = df_daily_data.tail(1)
-    day_close = last_day_row['收盘'].item()
-    day_dea = last_day_row['DEA'].item()
-    day_ma5 = last_day_row['MA5'].item()
-    day_ma10 = last_day_row['MA10'].item()
-    day_ma24 = last_day_row['MA24'].item()
-    day_ma52 = last_day_row['MA52'].item()
-    day_turn = last_day_row['换手率'].item()
-    day_lb = last_day_row['量比5日'].item()
+    day_close = last_day_row['close'].item()
+    day_dea = last_day_row['dea'].item()
+    day_ma5 = last_day_row['ma5'].item()
+    day_ma10 = last_day_row['ma10'].item()
+    day_ma24 = last_day_row['ma24'].item()
+    day_ma52 = last_day_row['ma52'].item()
+    day_turn = last_day_row['turnover_rate'].item()
+    day_lb = last_day_row['volume_ratio'].item()
 
     b_ret = (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
     b_ret_2 = day_dea > 0
@@ -428,19 +428,19 @@ def daily_up_ma20_filter(df_daily_data):
     day_ma52 = 0.0
     day_turn = 0.0
     day_lb = 0.0
-    if not columns_check(df_daily_data, ('日期', '收盘', 'DEA', 'MA5', 'MA10', 'MA20', 'MA24', 'MA52', '换手率', '量比5日')):
+    if not columns_check(df_daily_data, ('date', 'close', 'dea', 'ma5', 'ma10', 'ma20', 'ma24', 'ma52', 'turnover_rate', 'volume_ratio')):
         return False
     
     last_day_row = df_daily_data.tail(1)
-    day_close = last_day_row['收盘'].item()
-    day_dea = last_day_row['DEA'].item()
-    day_ma5 = last_day_row['MA5'].item()
-    day_ma10 = last_day_row['MA10'].item()
-    day_ma20 = last_day_row['MA20'].item()
-    day_ma24 = last_day_row['MA24'].item()
-    day_ma52 = last_day_row['MA52'].item()
-    day_turn = last_day_row['换手率'].item()
-    day_lb = last_day_row['量比5日'].item()
+    day_close = last_day_row['close'].item()
+    day_dea = last_day_row['dea'].item()
+    day_ma5 = last_day_row['ma5'].item()
+    day_ma10 = last_day_row['ma10'].item()
+    day_ma20 = last_day_row['ma20'].item()
+    day_ma24 = last_day_row['ma24'].item()
+    day_ma52 = last_day_row['ma52'].item()
+    day_turn = last_day_row['turnover_rate'].item()
+    day_lb = last_day_row['volume_ratio'].item()
 
     b_ret = (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
     b_ret_2 = day_dea > 0
@@ -469,56 +469,56 @@ def daily_down_between_ma24_ma52_filter(df_daily_data, df_weekly_data):
     if df_daily_data.empty or df_weekly_data.empty:
         return False
     
-    if not columns_check(df_daily_data, ('日期', '收盘', 'DEA', 'MA24', 'MA52', 'MA60', '换手率', '量比5日')):
+    if not columns_check(df_daily_data, ('date', 'close', 'dea', 'ma24', 'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
         return False
     
     if s_filter_date == '':
         last_day_row = df_daily_data.tail(1)
     else:
         # 直接筛选出指定日期的数据并取最后一行
-        filtered_data = df_daily_data[df_daily_data['日期'] == s_filter_date]
+        filtered_data = df_daily_data[df_daily_data['date'] == s_filter_date]
         if not filtered_data.empty:
             last_day_row = filtered_data.tail(1)
             # 然后可以安全地访问具体值
-            # day_close = last_day_row['收盘'].item()
+            # day_close = last_day_row['close'].item()
         else:
             # 处理找不到指定日期的情况
             logger.info(f"未找到日期 {s_filter_date} 的数据")
             return False  # 或其他适当的处理
     
-    day_close = last_day_row['收盘'].item()
-    day_dea = last_day_row['DEA'].item()
-    # day_ma5 = last_day_row['MA5'].item()
-    # day_ma10 = last_day_row['MA10'].item()
-    # day_ma20 = last_day_row['MA20'].item()
-    day_ma24 = last_day_row['MA24'].item()
-    # day_ma30 = last_day_row['MA30'].item()
-    day_ma52 = last_day_row['MA52'].item()
-    day_ma60 = last_day_row['MA60'].item()
-    day_turn = last_day_row['换手率'].item()
-    day_lb = last_day_row['量比5日'].item()
+    day_close = last_day_row['close'].item()
+    day_dea = last_day_row['dea'].item()
+    # day_ma5 = last_day_row['ma5'].item()
+    # day_ma10 = last_day_row['ma10'].item()
+    # day_ma20 = last_day_row['ma20'].item()
+    day_ma24 = last_day_row['ma24'].item()
+    # day_ma30 = last_day_row['ma30'].item()
+    day_ma52 = last_day_row['ma52'].item()
+    day_ma60 = last_day_row['ma60'].item()
+    day_turn = last_day_row['turnover_rate'].item()
+    day_lb = last_day_row['volume_ratio'].item()
 
 
-    if not columns_check(df_weekly_data, ('日期', '收盘', 'DEA', 'MA52')):
+    if not columns_check(df_weekly_data, ('date', 'close', 'dea', 'ma52')):
         return False
     
     if s_filter_date == '':
         last_week_row = df_weekly_data.tail(1)
     else:
         # 筛选出日期小于等于s_filter_date的所有行，然后取最后一行（因为日期是升序排列）
-        filtered_data = df_weekly_data[df_weekly_data['日期'] <= s_filter_date]
+        filtered_data = df_weekly_data[df_weekly_data['date'] <= s_filter_date]
         if not filtered_data.empty:
             last_week_row = filtered_data.iloc[-1]  # 获取最后一行，即最接近s_filter_date的那一行
-            # logger.info(f"last_week_row的日期: {last_week_row['日期']}")
+            # logger.info(f"last_week_row的日期: {last_week_row['date']}")
         else:
             # 处理没有找到符合条件的行的情况
             last_week_row = None
             logger.info(f"未找到日期 {s_filter_date} 前的周线数据")
             return False
 
-    week_close = last_week_row['收盘'].item()
-    week_dea = last_week_row['DEA'].item()
-    week_ma52 = last_week_row['MA52'].item()
+    week_close = last_week_row['close'].item()
+    week_dea = last_week_row['dea'].item()
+    week_ma52 = last_week_row['ma52'].item()
 
 
 
@@ -561,30 +561,30 @@ def daily_down_between_ma5_ma52_filter(df_daily_data, df_weekly_data):
     if df_daily_data.empty or df_weekly_data.empty:
         return False
     
-    if not columns_check(df_daily_data, ('日期', '收盘', 'DEA', 'MA5', 'MA10', 'MA52', 'MA60', '换手率', '量比5日')):
+    if not columns_check(df_daily_data, ('date', 'close', 'dea', 'ma5', 'ma10', 'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
         return False
 
     last_day_row = df_daily_data.tail(1)
-    day_close = last_day_row['收盘'].item()
-    day_dea = last_day_row['DEA'].item()
-    day_ma5 = last_day_row['MA5'].item()
-    day_ma10 = last_day_row['MA10'].item()
-    # day_ma20 = last_day_row['MA20'].item()
-    # day_ma24 = last_day_row['MA24'].item()
-    # day_ma30 = last_day_row['MA30'].item()
-    day_ma52 = last_day_row['MA52'].item()
-    day_ma60 = last_day_row['MA60'].item()
-    day_turn = last_day_row['换手率'].item()
-    day_lb = last_day_row['量比5日'].item()
+    day_close = last_day_row['close'].item()
+    day_dea = last_day_row['dea'].item()
+    day_ma5 = last_day_row['ma5'].item()
+    day_ma10 = last_day_row['ma10'].item()
+    # day_ma20 = last_day_row['ma20'].item()
+    # day_ma24 = last_day_row['ma24'].item()
+    # day_ma30 = last_day_row['ma30'].item()
+    day_ma52 = last_day_row['ma52'].item()
+    day_ma60 = last_day_row['ma60'].item()
+    day_turn = last_day_row['turnover_rate'].item()
+    day_lb = last_day_row['volume_ratio'].item()
 
 
-    if not columns_check(df_weekly_data, ('日期', '收盘', 'DEA', 'MA52')):
+    if not columns_check(df_weekly_data, ('date', 'close', 'dea', 'ma52')):
         return False
 
     last_week_row = df_weekly_data.tail(1)
-    week_close = last_week_row['收盘'].item()
-    week_dea = last_week_row['DEA'].item()
-    week_ma52 = last_week_row['MA52'].item()
+    week_close = last_week_row['close'].item()
+    week_dea = last_week_row['dea'].item()
+    week_ma52 = last_week_row['ma52'].item()
         
     # day_diff = day_ma52 * policy_filter_ma52_diff
     # logger.info(f"day_close: {day_close}, day_dea: {day_dea}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
@@ -614,22 +614,22 @@ def daily_down_breakthrough_ma24_filter(df_daily_data):
     if df_daily_data.empty:
         return False
     
-    if not columns_check(df_daily_data, ('日期', '收盘', 'DIF', 'DEA', 'MA5', 'MA10', 'MA24', 'MA52', 'MA60', '换手率', '量比5日')):
+    if not columns_check(df_daily_data, ('date', 'close', 'diff', 'dea', 'ma5', 'ma10', 'ma24', 'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
         return False
     
     last_day_row = df_daily_data.tail(1)
-    day_close = last_day_row['收盘'].item()
-    day_diff = last_day_row['DIF'].item()
-    day_dea = last_day_row['DEA'].item()
-    day_ma5 = last_day_row['MA5'].item()
-    day_ma10 = last_day_row['MA10'].item()
-    # day_ma20 = last_day_row['MA20'].item()
-    day_ma24 = last_day_row['MA24'].item()
-    # day_ma30 = last_day_row['MA30'].item()
-    day_ma52 = last_day_row['MA52'].item()
-    day_ma60 = last_day_row['MA60'].item()
-    day_turn = last_day_row['换手率'].item()
-    day_lb = last_day_row['量比5日'].item()
+    day_close = last_day_row['close'].item()
+    day_diff = last_day_row['diff'].item()
+    day_dea = last_day_row['dea'].item()
+    day_ma5 = last_day_row['ma5'].item()
+    day_ma10 = last_day_row['ma10'].item()
+    # day_ma20 = last_day_row['ma20'].item()
+    day_ma24 = last_day_row['ma24'].item()
+    # day_ma30 = last_day_row['ma30'].item()
+    day_ma52 = last_day_row['ma52'].item()
+    day_ma60 = last_day_row['ma60'].item()
+    day_turn = last_day_row['turnover_rate'].item()
+    day_lb = last_day_row['volume_ratio'].item()
 
     b_ret = day_diff < 0 and day_dea < 0
     b_ret_2 = day_close >= day_ma24 and day_close <= day_ma60
@@ -652,22 +652,22 @@ def daily_down_breakthrough_ma52_filter(df_daily_data):
     if df_daily_data.empty:
         return False
     
-    if not columns_check(df_daily_data, ('日期', '收盘', 'DIF', 'DEA', 'MA5', 'MA10', 'MA24', 'MA52', 'MA60', '换手率', '量比5日')):
+    if not columns_check(df_daily_data, ('date', 'close', 'diff', 'dea', 'ma5', 'ma10', 'ma24', 'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
         return False
     
     last_day_row = df_daily_data.tail(1)
-    day_close = last_day_row['收盘'].item()
-    day_diff = last_day_row['DIF'].item()
-    day_dea = last_day_row['DEA'].item()
-    day_ma5 = last_day_row['MA5'].item()
-    day_ma10 = last_day_row['MA10'].item()
-    # day_ma20 = last_day_row['MA20'].item()
-    day_ma24 = last_day_row['MA24'].item()
-    # day_ma30 = last_day_row['MA30'].item()
-    day_ma52 = last_day_row['MA52'].item()
-    day_ma60 = last_day_row['MA60'].item()
-    day_turn = last_day_row['换手率'].item()
-    day_lb = last_day_row['量比5日'].item()
+    day_close = last_day_row['close'].item()
+    day_diff = last_day_row['diff'].item()
+    day_dea = last_day_row['dea'].item()
+    day_ma5 = last_day_row['ma5'].item()
+    day_ma10 = last_day_row['ma10'].item()
+    # day_ma20 = last_day_row['ma20'].item()
+    day_ma24 = last_day_row['ma24'].item()
+    # day_ma30 = last_day_row['ma30'].item()
+    day_ma52 = last_day_row['ma52'].item()
+    day_ma60 = last_day_row['ma60'].item()
+    day_turn = last_day_row['turnover_rate'].item()
+    day_lb = last_day_row['volume_ratio'].item()
 
     b_ret = day_dea <= 0
     b_ret_2 = day_close >= day_ma52 and (day_close - day_ma52) <= day_ma52 * 0.1
@@ -699,34 +699,34 @@ def daily_down_double_bottom_filter(df_daily_data, df_weekly_data, b_weekly_filt
     
     # logger.info(df_daily_data.tail(10))
     
-    if not columns_check(df_daily_data, ('日期', '收盘', 'DIF', 'DEA', 'MA5', 'MA10', 'MA24', 'MA52', 'MA60', '换手率', '量比5日')):
+    if not columns_check(df_daily_data, ('date', 'code', 'close', 'diff', 'dea', 'ma5', 'ma10', 'ma24', 'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
         return False
     
     last_day_row = df_daily_data.tail(1)
-    day_close = last_day_row['收盘'].item()
-    day_diff = last_day_row['DIF'].item()
-    day_dea = last_day_row['DEA'].item()
-    day_ma5 = last_day_row['MA5'].item()
-    day_ma10 = last_day_row['MA10'].item()
-    # day_ma20 = last_day_row['MA20'].item()
-    day_ma24 = last_day_row['MA24'].item()
-    # day_ma30 = last_day_row['MA30'].item()
-    day_ma52 = last_day_row['MA52'].item()
-    day_ma60 = last_day_row['MA60'].item()
-    day_turn = last_day_row['换手率'].item()
-    day_lb = last_day_row['量比5日'].item()
+    day_close = last_day_row['close'].item()
+    day_diff = last_day_row['diff'].item()
+    day_dea = last_day_row['dea'].item()
+    day_ma5 = last_day_row['ma5'].item()
+    day_ma10 = last_day_row['ma10'].item()
+    # day_ma20 = last_day_row['ma20'].item()
+    day_ma24 = last_day_row['ma24'].item()
+    # day_ma30 = last_day_row['ma30'].item()
+    day_ma52 = last_day_row['ma52'].item()
+    day_ma60 = last_day_row['ma60'].item()
+    day_turn = last_day_row['turnover_rate'].item()
+    day_lb = last_day_row['volume_ratio'].item()
 
     if day_diff >= 0 or day_dea >= 0 and day_ma24 >= day_ma52:
         return False
     
-    if not columns_check(df_weekly_data, ('日期', '收盘', 'DEA', 'MA52')):
+    if not columns_check(df_weekly_data, ('date', 'close', 'dea', 'ma52')):
         return False
     
     last_week_row = df_weekly_data.tail(1)
-    week_close = last_week_row['收盘'].item()
-    week_dea = last_week_row['DEA'].item()
-    week_ma52 = last_week_row['MA52'].item()
-    # week_ma60 = last_week_row['MA52'].item()  # 周线没有维护MA60
+    week_close = last_week_row['close'].item()
+    week_dea = last_week_row['dea'].item()
+    week_ma52 = last_week_row['ma52'].item()
+    # week_ma60 = last_week_row['ma52'].item()  # 周线没有维护MA60
         
 
     # logger.info("find_lowest_after_dea_cross_below_zero")
@@ -743,7 +743,7 @@ def daily_down_double_bottom_filter(df_daily_data, df_weekly_data, b_weekly_filt
     b_ret_5 = (week_dea >= 0) if b_weekly_condition else True
 
     if b_ret and b_ret_2 and b_ret_3 and b_ret_4 and b_ret_5:
-        code = last_day_row['股票代码'].item()
+        code = last_day_row['code'].item()
         logger.info(f"股票代码【{code}】符合【日线零轴下方双底】筛选, 最低点：{lowest_value}, 最低点日期：{lowest_date}, 局部高点：{neck_line}")
         return True
     
@@ -781,7 +781,7 @@ def find_lowest_after_dea_cross_below_zero(df_daily_data):
         return result
     
     # 检查是否包含必要的列
-    if not columns_check(df_daily_data, ('股票代码', 'DEA', '最低')):
+    if not columns_check(df_daily_data, ('code', 'dea', 'low')):
         logger.info("缺少必要的列：股票代码 或 DEA 或 最低")
         return result
     
@@ -791,8 +791,8 @@ def find_lowest_after_dea_cross_below_zero(df_daily_data):
     # 从最后的日期开始往前遍历，找到DEA最近一次下穿零轴的位置
     cross_index = -1
     for i in range(len(df_data) - 1, 0, -1):  # 从倒数第二个开始，避免索引越界
-        current_dea = df_data.iloc[i]['DEA']
-        previous_dea = df_data.iloc[i-1]['DEA']
+        current_dea = df_data.iloc[i]['dea']
+        previous_dea = df_data.iloc[i-1]['dea']
         
         # 判断是否为下穿零轴：当前DEA<=0 且 前一个DEA>0
         if current_dea <= 0 and previous_dea > 0:
@@ -809,13 +809,13 @@ def find_lowest_after_dea_cross_below_zero(df_daily_data):
     lowest_index = -1
     
     for i in range(cross_index, len(df_data)):
-        low_price = df_data.iloc[i]['最低']
+        low_price = df_data.iloc[i]['low']
         if low_price < lowest_value:
             lowest_value = low_price
             lowest_index = i
 
     # 寻找两个底部之间的高点(颈线)
-    intermediate_high = max(df_data['收盘'][lowest_index:len(df_data)])
+    intermediate_high = max(df_data['close'][lowest_index:len(df_data)])
             
     # 检查颈线是否明显高于底部
     if (intermediate_high - lowest_value) / lowest_value < 0.03:  # 至少3%的颈线高度
@@ -830,7 +830,7 @@ def find_lowest_after_dea_cross_below_zero(df_daily_data):
     result['lowest_date'] = df_data.index[lowest_index] if lowest_index >= 0 else None
     result['neckline'] = intermediate_high
     
-    # code = df_data.iloc[-1]['股票代码']
+    # code = df_data.iloc[-1]['code']
     # logger.info(f"找到 {code} DEA下穿零轴位置: {cross_index}, 区间最低值: {lowest_value}, 最低值位置: {lowest_index}")
     
     return result
@@ -856,20 +856,20 @@ def daily_down_double_bottom_filter_old(df_daily_data):
     if df_daily_data.empty:
         return False
     
-    if not columns_check(df_daily_data, ('日期', '收盘', 'DIF', 'DEA', 'MA5', 'MA10', 'MA24', 'MA52', 'MA60', '换手率', '量比5日')):
+    if not columns_check(df_daily_data, ('date', 'close', 'diff', 'dea', 'ma5', 'ma10', 'ma24', 'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
         return False
     
     last_day_row = df_daily_data.tail(1)
-    day_close = last_day_row['收盘'].item()
-    day_diff = last_day_row['DIF'].item()
-    day_dea = last_day_row['DEA'].item()
-    day_ma5 = last_day_row['MA5'].item()
-    day_ma10 = last_day_row['MA10'].item()
-    day_ma24 = last_day_row['MA24'].item()
-    day_ma52 = last_day_row['MA52'].item()
-    day_ma60 = last_day_row['MA60'].item()
-    day_turn = last_day_row['换手率'].item()
-    day_lb = last_day_row['量比5日'].item()
+    day_close = last_day_row['close'].item()
+    day_diff = last_day_row['diff'].item()
+    day_dea = last_day_row['dea'].item()
+    day_ma5 = last_day_row['ma5'].item()
+    day_ma10 = last_day_row['ma10'].item()
+    day_ma24 = last_day_row['ma24'].item()
+    day_ma52 = last_day_row['ma52'].item()
+    day_ma60 = last_day_row['ma60'].item()
+    day_turn = last_day_row['turnover_rate'].item()
+    day_lb = last_day_row['volume_ratio'].item()
 
     # 基本条件检查
     if day_dea >= 0 or day_ma24 >= day_ma52:
@@ -897,7 +897,7 @@ def daily_down_double_bottom_filter_old(df_daily_data):
     # b_ret_4 = day_turn > policy_filter_turn and day_lb > policy_filter_lb
     
     if b_ret_1 and b_ret_2 and b_ret_3:
-        code = df_daily_data.iloc[-1]['股票代码']
+        code = df_daily_data.iloc[-1]['code']
         logger.info(f"日线零轴下方双底筛选通过：{code}, 第一个低点：{first_low}， 索引：{first_idx}, 第二个低点：{second_low}，索引：{second_idx}")
         return True
     
@@ -930,8 +930,8 @@ def detect_double_bottom(df_data, min_distance=10, max_distance=120):
     # 从最后的日期开始往前遍历，找到DEA最近一次下穿零轴的位置
     cross_index = -1
     for i in range(len(df_data) - 1, 0, -1):  # 从倒数第二个开始，避免索引越界
-        current_dea = df_data.iloc[i]['DEA']
-        previous_dea = df_data.iloc[i-1]['DEA']
+        current_dea = df_data.iloc[i]['dea']
+        previous_dea = df_data.iloc[i-1]['dea']
         
         # 判断是否为下穿零轴：当前DEA<=0 且 前一个DEA>0
         if current_dea <= 0 and previous_dea > 0:
@@ -943,8 +943,8 @@ def detect_double_bottom(df_data, min_distance=10, max_distance=120):
         # logger.info("未找到DEA下穿零轴的情况")
         return result
     
-    close_prices = df_data['收盘'].values
-    low_prices = df_data['最低'].values
+    close_prices = df_data['close'].values
+    low_prices = df_data['low'].values
     
     # 寻找局部低点
     local_lows = []

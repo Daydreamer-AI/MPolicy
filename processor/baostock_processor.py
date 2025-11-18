@@ -336,7 +336,7 @@ class BaoStockProcessor:
         result = pd.DataFrame()
 
         if not self.stock_db_base.check_stock_db_exists(code) or not self.stock_db_base.check_table_exists(code, "stock_data_1d"):
-            self.logger.info(f"{code}.db 不存在，即将从Baostock获取")
+            # self.logger.info(f"{code}.db 不存在，即将从Baostock获取")
             result = self.process_daily_stock_data(code)
 
             # 指标不再入库，使用时按需计算
@@ -352,7 +352,7 @@ class BaoStockProcessor:
             #     sdi.quantity_ratio(result)
                 self.stock_db_base.save_bao_stock_data_to_db(code, result, 'replace', "stock_data_1d")
         else:
-            self.logger.info(f"{code}.db 存在，即将从本地数据库更新")
+            # self.logger.info(f"{code}.db 存在，即将从本地数据库更新")
             result = self.update_daily_stock_data(code)
         
         # if result.empty:
@@ -418,7 +418,7 @@ class BaoStockProcessor:
 
         now_date = datetime.datetime.now().strftime("%Y-%m-%d")
         if now_date in day_stock_data['date'].values:
-            self.logger.info("已是最新日线数据")
+            # self.logger.info("已是最新日线数据")
             return day_stock_data
         
         last_date = None
@@ -562,7 +562,7 @@ class BaoStockProcessor:
                 # sdi.quantity_ratio(result)
                 self.stock_db_base.save_bao_stock_data_to_db(code, result, 'replace', "stock_data_1w")
         else:
-            self.logger.info(f"周线 {code}.db 存在，即将从本地数据库更新")
+            # self.logger.info(f"周线 {code}.db 存在，即将从本地数据库更新")
             result = self.update_weekly_stock_data(code)
 
         # if result.empty:
@@ -606,7 +606,7 @@ class BaoStockProcessor:
         last_date = parsed_date + datetime.timedelta(days=1)
         num_fridays = self.count_fridays_since(last_date.strftime("%Y-%m-%d"))
         if not num_fridays > 0:
-            self.logger.info("已是最新周线数据")
+            # self.logger.info("已是最新周线数据")
             return week_stock_data
         
         if self.is_trading_day_today():
