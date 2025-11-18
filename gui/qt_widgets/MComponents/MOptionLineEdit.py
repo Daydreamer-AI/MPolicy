@@ -1,4 +1,4 @@
-# gui/qt_widgets/MComponents/m_option_line_edit.py
+# gui/qt_widgets/MComponents/MOptionLineEdit.py
 
 from PyQt5.QtWidgets import QLineEdit, QListWidget, QWidget
 from PyQt5.QtCore import pyqtSignal, QTimer, Qt
@@ -17,7 +17,13 @@ class MOptionLineEdit(QLineEdit):
         
         # 初始化选项列表
         self.options_list_widget = QListWidget()
-        self.options_list_widget.setParent(self.parent() if self.parent() else None)
+        # 使用更可靠的父窗口设置方式
+        if parent:
+            self.options_list_widget.setParent(parent)
+            self.options_list_widget.setWindowFlags(Qt.Widget)
+        else:
+            # 如果没有父窗口，将其设为弹出窗口
+            self.options_list_widget.setWindowFlags(Qt.Popup)
         self.options_list_widget.hide()
         self.options_list_widget.setMinimumSize(300, 150)
         
@@ -46,7 +52,11 @@ class MOptionLineEdit(QLineEdit):
         """
         处理文本变化
         """
-        self.logger.debug(f"输入的搜索值为：{text}")
+        try:
+            self.logger.debug(f"输入的搜索值为：{text}")
+        except:
+            pass  # 忽略日志初始化问题
+            
         if not text:
             # 显示所有选项
             self.filtered_options = self.all_options[:]
@@ -78,36 +88,58 @@ class MOptionLineEdit(QLineEdit):
             
     def position_options_list(self):
         """
-        动态计算并设置选项列表的位置，确保其在输入框下方
+        动态计算并设置选项列表的位置，确保其在输入框下方且不被遮挡
         """
-        if not self.parent():
+        # 更可靠地获取父窗口
+        if not self.parent() and not self.window():
             return
             
-        # 获取输入框在父窗口中的位置
-        line_edit_pos = self.pos()
+        # 计算相对于主窗口的位置
+        global_pos = self.mapToGlobal(self.rect().bottomLeft())
         
-        # 设置选项列表的位置在输入框正下方
-        x_pos = line_edit_pos.x()
-        y_pos = line_edit_pos.y() + self.height()
-        
-        self.options_list_widget.move(x_pos, y_pos)
+        if self.parent():
+            # 如果有父窗口，转换为父窗口坐标系
+            parent_global_pos = self.parent().mapToGlobal(self.parent().rect().topLeft())
+            relative_pos = global_pos - parent_global_pos
+            self.options_list_widget.move(relative_pos.x(), relative_pos.y())
+        else:
+            # 否则使用全局坐标
+            self.options_list_widget.move(global_pos)
         
         # 设置宽度与输入框一致
         self.options_list_widget.setFixedWidth(self.width())
+        
+        # 确保选项列表在最上层
+        self.options_list_widget.raise_()
+        
+        # 设置合适的z值，确保在最前面
+        # self.options_list_widget.setZValue(1000)
+        self.options_list_widget.activateWindow()
         
     def on_option_selected(self, item):
         """
         处理选项被点击
         """
         selected_text = item.text()
-        self.logger.debug(f"选中的选项为：{selected_text}")
+        try:
+            self.logger.debug(f"选中的选项为：{selected_text}")
+        except:
+            pass  # 忽略日志初始化问题
         
         # 发出信号
         self.optionSelected.emit(selected_text)
         
+        # 阻止在设置文本时触发on_text_changed
+        self.blockSignals(True)
+        
         # 设置文本并隐藏选项列表
-        self.setText(selected_text)
+        self.setText("")
         self.options_list_widget.hide()
+        
+        # 恢复信号
+        self.blockSignals(False)
+        
+        # 最后清除焦点
         self.clearFocus()
         
     def hide_options_list(self):
@@ -115,7 +147,7 @@ class MOptionLineEdit(QLineEdit):
         隐藏选项列表
         """
         # 使用定时器延迟隐藏，以便处理点击事件
-        QTimer.singleShot(100, self.options_list_widget.hide)
+        QTimer.singleShot(100, lambda: self.options_list_widget.hide() if self.options_list_widget else None)
         
     def eventFilter(self, obj, event):
         """
@@ -156,8 +188,13 @@ class MOptionLineEdit(QLineEdit):
         检查焦点状态并决定是否隐藏选项列表
         """
         # 如果输入框和选项列表都不拥有焦点，则隐藏选项列表
-        if not (self.hasFocus() or self.options_list_widget.hasFocus()):
-            self.options_list_widget.hide()
+        try:
+            if not (self.hasFocus() or (self.options_list_widget and self.options_list_widget.hasFocus())):
+                if self.options_list_widget:
+                    self.options_list_widget.hide()
+        except RuntimeError:
+            # 处理对象已被删除的情况
+            pass
             
     def show_options(self):
         """
@@ -171,7 +208,8 @@ class MOptionLineEdit(QLineEdit):
         """
         隐藏选项列表
         """
-        self.options_list_widget.hide()
+        if self.options_list_widget:
+            self.options_list_widget.hide()
         
     def get_selected_option(self):
         """
@@ -184,7 +222,8 @@ class MOptionLineEdit(QLineEdit):
         清除选择
         """
         self.clear()
-        self.options_list_widget.hide()
+        if self.options_list_widget:
+            self.options_list_widget.hide()
         
     def resizeEvent(self, event):
         """
@@ -192,5 +231,5 @@ class MOptionLineEdit(QLineEdit):
         """
         super().resizeEvent(event)
         # 当输入框大小变化时，重新定位选项列表
-        if self.options_list_widget.isVisible():
+        if self.options_list_widget and self.options_list_widget.isVisible():
             self.position_options_list()

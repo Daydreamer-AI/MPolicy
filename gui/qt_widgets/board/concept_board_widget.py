@@ -122,6 +122,10 @@ class ConceptBoardWidget(QWidget):
             if index == 0:
                 first_item_data = row
 
+
+        self.all_concepts = df_lastest_concept_data['concept_name'].tolist()
+        self.lineEdit_search.set_options(self.all_concepts)
+
         # 如果有数据，自动选择第一个item（使用定时器延迟执行）
         if first_item_data is not None:
             # 使用单次定时器确保UI完全初始化后再执行
@@ -129,6 +133,8 @@ class ConceptBoardWidget(QWidget):
 
     def init_connect(self):
         self.comboBox_bar_type.currentTextChanged.connect(self.update_chart)
+
+        self.lineEdit_search.optionSelected.connect(self.slot_concept_selected)
 
     def select_first_item(self, first_item_data):
         """选择第一个item的独立方法"""
@@ -181,6 +187,15 @@ class ConceptBoardWidget(QWidget):
     def slot_stock_card_double_clicked(self):
         self.logger.info("slot_stock_card_double_clicked")
 
+    def slot_concept_selected(self, concept_name):
+        self.logger.info(f"选中的行业为：{concept_name}")
+        # 找到对应行业并选中
+        for i in range(self.listWidget_card.count()):
+            card_widget = self.listWidget_card.itemWidget(self.listWidget_card.item(i))
+            if card_widget and getattr(card_widget.data, 'concept_name', '') == concept_name:
+                self.listWidget_card.setCurrentRow(i)
+                self.slot_stock_card_clicked(card_widget.data)
+                break
 
     # ================其他成员函数===============
     def update_chart(self, bar_type='总成交额'):

@@ -1,14 +1,27 @@
 import sys
+import os
 from PyQt5.QtCore import QObject, QT_VERSION_STR, PYQT_VERSION_STR
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QIcon
 from gui.qt_widgets.main.main_widget import MainWidget
 from resources import resources_rc
 from common.logging_manager import get_logger, setup_logging
+from gui.qt_widgets.MComponents.MOptionLineEdit import MOptionLineEdit
 
 # qml
 from PyQt5.QtQml import QQmlApplicationEngine
 from gui.qml.main.main_bridge import MainBridge 
+
+
+# 添加项目根目录到Python路径
+project_root = os.path.dirname(os.path.abspath(__file__))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+    
+# 确保能导入自定义组件
+components_path = os.path.join(project_root, 'gui', 'qt_widgets', 'MComponents')
+if components_path not in sys.path:
+    sys.path.insert(0, components_path)
 
 def main():
     # 初始化日志系统

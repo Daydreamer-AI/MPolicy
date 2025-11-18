@@ -28,11 +28,6 @@ class IndustryBoardWidget(QWidget):
         self.df_industry_board_data = AKStockDataProcessor().query_ths_board_industry_data()
 
     def init_ui(self):
-        self.options_list_widget = QListWidget(self)
-        self.options_list_widget.setMinimumSize(500, 200)
-        # self.options_list_widget.move(self.listWidget_card.x(), self.listWidget_card.y())
-        self.options_list_widget.hide()
-
         df_lastest_industry_data = AKStockDataProcessor().get_latest_ths_board_industry_data()
         
         # 获取更详细的统计信息
@@ -99,6 +94,7 @@ class IndustryBoardWidget(QWidget):
 
 
         self.all_industries = df_lastest_industry_data['industry_name'].tolist()
+        self.lineEdit_search.set_options(self.all_industries)
 
         # 如果有数据，自动选择第一个item（使用定时器延迟执行）
         if first_item_data is not None:
@@ -107,11 +103,7 @@ class IndustryBoardWidget(QWidget):
 
     def init_connect(self):
         self.comboBox_bar_type.currentTextChanged.connect(self.update_chart)
-        self.lineEdit_search.textChanged.connect(self.slot_search_text_changed)
-
-        self.options_list_widget.itemClicked.connect(self.slot_search_item_clicked)
-
-        self.lineEdit_search.editingFinished.connect(self.hide_options_list)
+        self.lineEdit_search.optionSelected.connect(self.slot_industry_selected)
 
     def select_first_item(self, first_item_data):
         """选择第一个item的独立方法"""
@@ -119,17 +111,6 @@ class IndustryBoardWidget(QWidget):
         self.listWidget_card.setCurrentRow(0)
         # 调用槽函数
         self.slot_stock_card_clicked(first_item_data)
-
-    def update_options_list_widget(self, options):
-        """
-        更新选项列表显示
-        """
-        # 清空现有选项
-        self.options_list_widget.clear()
-        
-        # 添加新选项
-        for option in options:
-            self.options_list_widget.addItem(option)
 
     def update_chart(self, bar_type='总成交额'):
         # 1. 从传递的data中获取板块名称
@@ -204,52 +185,19 @@ class IndustryBoardWidget(QWidget):
         self.logger.info("slot_stock_card_double_clicked")
 
 
-    def slot_search_text_changed(self, text):
+    def slot_industry_selected(self, industry_name):
         """
-        处理搜索文本变化
+        处理行业被选中
         """
-        self.logger.info(f"输入的搜索值为：{text}")
-        if not text:
-            # 显示所有行业
-            filtered_industries = self.all_industries
-        else:
-            # 根据输入过滤行业
-            filtered_industries = [industry for industry in self.all_industries 
-                                if text.lower() in industry.lower()]
-        
-        # 更新搜索结果列表
-        self.options_list_widget.clear()
-        for industry in filtered_industries:  # 限制显示数量
-            self.options_list_widget.addItem(industry)
-
-        # 动态定位和显示控制
-        if filtered_industries and self.options_list_widget.isHidden():
-            self.position_options_list()
-            self.options_list_widget.show()
-        else:
-            self.options_list_widget.hide()
-
-    def slot_search_item_clicked(self, item):
-        """
-        处理搜索项点击事件
-        """
-        selected_industry = item.text()
-        self.logger.info(f"点击的搜索项为：{selected_industry}")
+        self.logger.info(f"选中的行业为：{industry_name}")
         # 找到对应行业并选中
         for i in range(self.listWidget_card.count()):
             card_widget = self.listWidget_card.itemWidget(self.listWidget_card.item(i))
-            if card_widget and getattr(card_widget.data, 'industry_name', '') == selected_industry:
+            if card_widget and getattr(card_widget.data, 'industry_name', '') == industry_name:
                 self.listWidget_card.setCurrentRow(i)
                 self.slot_stock_card_clicked(card_widget.data)
                 break
 
-        # 点击后隐藏选项列表并清空搜索框
-        self.options_list_widget.hide()
-        self.lineEdit_search.textChanged.disconnect(self.slot_search_text_changed)
-        self.lineEdit_search.clear()
-        self.lineEdit_search.textChanged.connect(self.slot_search_text_changed)
-        self.lineEdit_search.clearFocus()
-        
     # =================其他成员函数===============
     # QtChart 绘图
     def plot_industry_chart(self, industry_name, data, bar_type):
@@ -288,29 +236,3 @@ class IndustryBoardWidget(QWidget):
         except Exception as e:
             self.logger.error(f"绘制图表时出错: {e}")
             QMessageBox.warning(self, "绘图错误", f"绘制图表时出现错误:\n{str(e)}")
-    
-    def position_options_list(self):
-        """
-        动态计算并设置选项列表的位置，确保其在搜索框下方
-        """
-        # 获取搜索框的全局坐标
-        search_global_pos = self.lineEdit_search.mapToGlobal(self.lineEdit_search.pos())
-        
-        # 计算搜索框在父窗口中的位置
-        search_pos_in_parent = self.lineEdit_search.pos()
-        
-        # 设置选项列表的位置在搜索框正下方
-        # X坐标与搜索框对齐，Y坐标在搜索框下方
-        x_pos = search_pos_in_parent.x()
-        y_pos = search_pos_in_parent.y() + self.lineEdit_search.height()
-        
-        self.options_list_widget.move(x_pos, y_pos)
-        
-        # 可选：设置宽度与搜索框一致
-        self.options_list_widget.setFixedWidth(self.lineEdit_search.width())
-    def hide_options_list(self):
-        """
-        隐藏选项列表
-        """
-        # 使用定时器延迟隐藏，以便处理点击事件
-        QTimer.singleShot(100, self.options_list_widget.hide)

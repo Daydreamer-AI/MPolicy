@@ -17,7 +17,7 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
-      <widget class="QLineEdit" name="lineEdit_search">
+      <widget class="MOptionLineEdit" name="lineEdit_search">
        <property name="minimumSize">
         <size>
          <width>300</width>
@@ -137,6 +137,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MOptionLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>MOptionLineEdit</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
