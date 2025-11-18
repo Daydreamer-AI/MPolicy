@@ -23,7 +23,15 @@ class StockDbBase:
         初始化数据库管理器
         
         参数:
-            db_dir (str, optional): 数据库目录路径，默认为./stocks/db/day
+            db_dir (str, optional): 数据库目录路径，默认为./stocks/db/baostock
+            对应各个板块目录：
+                baostock(or akshare)/
+                    sh_main/
+                    sz_main/
+                    gem/
+                    star/
+                    bse/
+                    other/
             
         """
         self.logger = get_logger(__name__)
@@ -305,6 +313,14 @@ class StockDbBase:
 
 
     # =====================================================================数据库文件相关接口======================================================
+    def get_stock_list_by_path(self, path):
+        stock_codes = []
+
+        for file in path.glob("*.db"):
+            stock_code = file.stem  # 获取文件名（不含扩展名）
+            stock_codes.append(stock_code)
+
+        return stock_codes
     def list_all_stocks(self):
         """
         列出所有已存在的股票数据库
@@ -313,10 +329,23 @@ class StockDbBase:
             list: 股票代码列表
         """
         stock_codes = []
-        for file in self.db_dir.glob("*.db"):
-            stock_code = file.stem  # 获取文件名（不含扩展名）
-            stock_codes.append(stock_code)
-        return stock_codes
+    
+        # 定义所有板块目录
+        board_dirs = ["sh_main", "sz_main", "gem", "star", "other"]
+        
+        for board_dir in board_dirs:
+            dir_path = self.db_dir / board_dir
+            # 确保主板块目录存在，其他板块目录可选
+            if board_dir != "other":
+                dir_path.mkdir(parents=True, exist_ok=True)
+            
+            # 只处理存在的目录
+            if dir_path.exists():
+                code_list = self.get_stock_list_by_path(dir_path)
+                stock_codes.extend(code_list)
+        
+        # 去重并返回
+        return list(dict.fromkeys(stock_codes))  # 保持顺序的去重
 
     def get_src_db_dir(self):
         """
@@ -354,7 +383,8 @@ class StockDbBase:
         返回:
             Path: 数据库文件路径
         """
-        return self.db_dir / f"{stock_code}.db"
+        s_board_name = identify_stock_board(stock_code)
+        return self.db_dir / s_board_name / f"{stock_code}.db"
 
     def check_stock_db_exists(self, stock_code):
         """
@@ -637,23 +667,18 @@ class StockDbBase:
         # SQL语句 - 根据图片中的表结构
         create_table_sql = """
         CREATE TABLE IF NOT EXISTS stock_data (
-            日期 DATE NOT NULL,
-            股票代码 TEXT NOT NULL,
-            开盘 REAL,
-            收盘 REAL,
-            最高 REAL,
-            最低 REAL,
-            成交量 INTEGER,
-            成交额 REAL,
-            振幅 REAL,
-            涨跌幅 REAL,
-            换手率 REAL,
-            DIF REAL,
-            DEA REAL,
-            MACD REAL,
-            MA24 REAL,
-            MA52 REAL,
-            PRIMARY KEY (日期, 股票代码)
+            date DATE NOT NULL,
+            code TEXT NOT NULL,
+            open REAL,
+            close REAL,
+            high REAL,
+            low REAL,
+            volume INTEGER,
+            amout REAL,
+            amplitude REAL,
+            change_percent REAL,
+            turnover_rate REAL,
+            PRIMARY KEY (date, code)
         )
         """
         self.create_table(create_table_sql)
@@ -687,15 +712,15 @@ class StockDbBase:
             if start_date or end_date:
                 conditions = []
                 if start_date:
-                    conditions.append(f"日期 >= '{start_date}'")
+                    conditions.append(f"date >= '{start_date}'")
                 if end_date:
-                    conditions.append(f"日期 <= '{end_date}'")
+                    conditions.append(f"date <= '{end_date}'")
                 
                 if conditions:
                     query += " WHERE " + " AND ".join(conditions)
             
             # 按日期排序
-            query += " ORDER BY 日期"
+            query += " ORDER BY date DESC"
             
             df = pd.read_sql_query(query, conn)
             conn.close()
@@ -715,11 +740,7 @@ class StockDbBase:
         返回:
             DataFrame: 最近几天的股票数据
         """
-        df = self.get_stock_data(stock_code)
-        if df is None or df.empty:
-            return None
-        
-        return df.tail(count)
+        pass
 
 
     def update_stock_data(self, stock_code, stock_data):
@@ -752,35 +773,14 @@ class StockDbBase:
         pass
 
     def save_akshare_stock_data_to_db(self, stock_code, stock_data, writeWay="replace", table_name="stock_data"):
-        db_path = self.get_db_path(stock_code)
-        if not self.check_stock_db_exists(stock_code):
-            # self.logger.info(f"股票 {stock_code} 的数据库不存在，自动创建")
-            self.create_akshare_table(db_path)
-        
-        conn = sqlite3.connect(str(db_path))
-        stock_data.to_sql(table_name, conn, if_exists=writeWay, index=False)
-        conn.close()
-        return True
+        pass
 
     def insert_dict_to_table(self, data_dict, table_name="stock_data"):
-        db_path = self.get_db_path()
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        
-        # 提取字典的键（列名）和值（数据）
-        columns = ', '.join(data_dict.keys())
-        placeholders = ', '.join(['?'] * len(data_dict))
-        values = tuple(data_dict.values())
-        
-        # 构建并执行 SQL
-        sql = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
-        cursor.execute(sql, values)
-        
-        conn.commit()
-        conn.close()
+        pass
 
 
     # ------------------------------------------------------------东方财富股票筹码分布表stock_chip_distribution_data_eastmoney接口-----------------------------------------
+    # 待优化
     def insert_eastmoney_stock_chip_distribution_data_to_db(self, code, df_data, table_name="stock_chip_distribution_data_eastmoney"):
         db_path = self.get_db_path(code)
         self.logger.info("insert_eastmoney_stock_chip_distribution_data_to_db--db_path:", db_path)
@@ -849,7 +849,7 @@ class StockDbBase:
             self.logger.info(f"插入筹码分布数据失败: {e}")
             return False
 
-
+    # 待优化
     def query_eastmoney_stock_chip_distribution_data(self, code):
         if not self.check_stock_db_exists(code):
             return pd.DataFrame()
@@ -857,6 +857,7 @@ class StockDbBase:
         db_path = self.get_db_path(code)
         return self.get_table_data(db_path, 'stock_chip_distribution_data_eastmoney')
 
+    # 待优化
     def get_latest_eastmoney_stock_chip_distribution_data(self, code):
         if not self.check_stock_db_exists(code):
             return pd.DataFrame()
@@ -893,29 +894,19 @@ class StockDbBase:
     def create_baostock_table(self, db_path):
         create_table_sql = """
         CREATE TABLE IF NOT EXISTS stock_data (
-            日期 DATE NOT NULL,
-            股票代码 TEXT NOT NULL,
-            开盘 REAL,
-            最高 REAL,
-            最低 REAL,
-            收盘 REAL,
-            成交量 INTEGER,
-            成交额 REAL,
-            涨跌幅 REAL,
-            换手率 REAL,
-            复权方式 INTEGER,
-            是否ST BOOLEAN,
-            DIF REAL,
-            DEA REAL,
-            MACD REAL,
-            MA5 REAL,
-            MA10 REAL,
-            MA20 REAL,
-            MA24 REAL,
-            MA30 REAL,
-            MA52 REAL,
-            MA60 REAL,
-            PRIMARY KEY (日期, 股票代码)
+            date DATE NOT NULL,
+            code TEXT NOT NULL,
+            open REAL,
+            high REAL,
+            low REAL,
+            close REAL,
+            volume INTEGER,
+            amout REAL,
+            change_percent REAL,
+            turnover_rate REAL,
+            adjustflag INTEGER,
+            isST BOOLEAN,
+            PRIMARY KEY (date, code)
         )
         """
         self.create_table(db_path, 'stock_data', create_table_sql)
@@ -932,31 +923,6 @@ class StockDbBase:
             raise ValueError("非法表名！")
         
         return self.get_table_data(db_path, table_name)
-
-        # try:
-        #     conn = sqlite3.connect(str(self.get_db_path(stock_code)))
-        #     query = f"SELECT * FROM {table_name}"
-            
-        #     # 添加日期过滤条件
-        #     if start_date or end_date:
-        #         conditions = []
-        #         if start_date:
-        #             conditions.append(f"日期 >= '{start_date}'")
-        #         if end_date:
-        #             conditions.append(f"日期 <= '{end_date}'")
-                
-        #         if conditions:
-        #             query += " WHERE " + " AND ".join(conditions)
-            
-        #     # 按日期排序
-        #     query += " ORDER BY 日期"
-            
-        #     df = pd.read_sql_query(query, conn)
-        #     conn.close()
-        #     return df
-        # except Exception as e:
-        #     self.logger.info(f"获取股票 {stock_code} 数据时出错: {str(e)}")
-        #     return None
 
     def save_bao_stock_data_to_db(self, stock_code, stock_data, writeWay="replace", table_name="stock_data"):
         db_path = self.get_db_path(stock_code)
@@ -983,7 +949,7 @@ class StockDbBase:
         try:
             db_path = self.get_db_path(code)
             with self._get_connection(db_path) as cur:
-                sql = f"DELETE FROM {table_name} WHERE 日期 >= '{cutoff_date}'"
+                sql = f"DELETE FROM {table_name} WHERE date >= '{cutoff_date}'"
                 cur.execute(sql)
 
                 row_count = cur.rowcount

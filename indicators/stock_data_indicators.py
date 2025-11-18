@@ -34,9 +34,8 @@ def ma(stock_data, column='5', cycle=5):
     stock_data[column] = close.rolling(window=cycle, min_periods=1).mean()
 
 def quantity_ratio(stock_data, cycle='5'):
-    volume = stock_data['成交量']
-    stock_data['量比5日'] = volume / volume.rolling(window=5, min_periods=1).mean()
-
+    volume = stock_data['volume']
+    stock_data['volume_ratio'] = volume / volume.rolling(window=5, min_periods=1).mean()
 
 
 def macd_deviation(stock_data):
