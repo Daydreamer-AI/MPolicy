@@ -117,5 +117,14 @@ def macd_deviation(stock_data):
             if cur_close_price < ma24_price:
                 return True
 
-
+def default_indicators_auto_calculate(stock_data):
+    macd(stock_data)
+    ma(stock_data, 'ma5', 5)
+    ma(stock_data, 'ma10', 10)
+    ma(stock_data, 'ma20', 20)
+    ma(stock_data, 'ma24', 24)
+    ma(stock_data, 'ma30', 30)
+    ma(stock_data, 'ma52', 52)
+    ma(stock_data, 'ma60', 60)
+    quantity_ratio(stock_data)
 

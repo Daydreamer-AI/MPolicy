@@ -363,6 +363,9 @@ class BaoStockProcessor:
         
         # 优化：策略筛选只需要最后一行数据即可
         self.dict_daily_stock_data[code] = result
+        # 对内存数据进行指标计算
+        sdi.default_indicators_auto_calculate(self.dict_daily_stock_data[code])
+
         return result
        
     # 增量维护，收盘后调用
@@ -415,7 +418,7 @@ class BaoStockProcessor:
 
         now_date = datetime.datetime.now().strftime("%Y-%m-%d")
         if now_date in day_stock_data['date'].values:
-            self.logger.info("已是最新日线数据")
+            # self.logger.info("已是最新日线数据")
             return day_stock_data
         
         last_date = None
@@ -572,6 +575,9 @@ class BaoStockProcessor:
         # 优化：策略筛选只需要最后一行数据即可
         self.dict_weekly_stock_data[code] = result
 
+        # 对内存数据进行指标计算
+        sdi.default_indicators_auto_calculate(self.dict_weekly_stock_data[code])
+
         return result
 
     # 增量维护，周线数据不好增量维护，追加后原表中还会存在周中数据。建议：每周末（或本周收盘后）调用一次更新本周周线数据
@@ -600,7 +606,7 @@ class BaoStockProcessor:
         last_date = parsed_date + datetime.timedelta(days=1)
         num_fridays = self.count_fridays_since(last_date.strftime("%Y-%m-%d"))
         if not num_fridays > 0:
-            self.logger.info("已是最新周线数据")
+            # self.logger.info("已是最新周线数据")
             return week_stock_data
         
         if self.is_trading_day_today():
@@ -672,9 +678,9 @@ class BaoStockProcessor:
                 continue
 
             self.process_and_save_daily_stock_data(value)
-            if i > 1:
-                self.logger.info(f"已获取到所有沪市股票日线数据, i: {i}")
-                break
+            # if i > 1:
+            #     self.logger.info(f"已获取到所有沪市股票日线数据, i: {i}")
+            #     break
         
         self.logger.info("沪市主板股票日线数据获取完成")
 
@@ -685,11 +691,14 @@ class BaoStockProcessor:
             i += 1
             self.process_and_save_weekly_stock_data(value)
 
-            if i > 1:
-                self.logger.info(f"已获取到所有沪市股票周线数据, i: {i}")
-                break
+            # if i > 1:
+            #     self.logger.info(f"已获取到所有沪市股票周线数据, i: {i}")
+            #     break
 
         self.logger.info("沪市主板股票周线数据获取完成")
+
+    def save_sh_main_stock_data_to_db(self):
+        
 
     def process_sz_main_stock_daily_data(self):
         i = 1
@@ -698,9 +707,9 @@ class BaoStockProcessor:
             i += 1
             self.process_and_save_daily_stock_data(value)
 
-            if i > 1:
-                self.logger.info(f"已获取到所有深市股票日线数据, i: {i}")
-                break
+            # if i > 1:
+            #     self.logger.info(f"已获取到所有深市股票日线数据, i: {i}")
+            #     break
 
         self.logger.info("深市主板股票日线数据获取完成")
     def process_sz_main_stock_weekly_data(self):
@@ -710,9 +719,9 @@ class BaoStockProcessor:
             i += 1
             self.process_and_save_weekly_stock_data(value)
 
-            if i > 1:
-                self.logger.info(f"已获取到所有深市股票周线数据, i: {i}")
-                break
+            # if i > 1:
+            #     self.logger.info(f"已获取到所有深市股票周线数据, i: {i}")
+            #     break
 
         self.logger.info("深市主板股票周线数据获取完成")
 
@@ -723,9 +732,9 @@ class BaoStockProcessor:
             i += 1
             self.process_and_save_daily_stock_data(value)
 
-            if i > 1:
-                self.logger.info(f"已获取到所有创业板股票日线数据, i: {i}")
-                break
+            # if i > 1:
+            #     self.logger.info(f"已获取到所有创业板股票日线数据, i: {i}")
+            #     break
 
     def process_gem_stock_weekly_data(self):
         i = 1
@@ -734,9 +743,9 @@ class BaoStockProcessor:
             i += 1
             self.process_and_save_weekly_stock_data(value)
 
-            if i > 1:
-                self.logger.info(f"已获取到所有创业板股票周线数据, i: {i}")
-                break
+            # if i > 1:
+            #     self.logger.info(f"已获取到所有创业板股票周线数据, i: {i}")
+            #     break
 
     def process_star_stock_daily_data(self):
         i = 1
@@ -744,9 +753,9 @@ class BaoStockProcessor:
             self.logger.info(f"获取第 {i} 只科创板股票 {value} 【日线】数据")
             i += 1
             self.process_and_save_daily_stock_data(value)
-            if i > 1:
-                self.logger.info(f"已获取到所有科创板股票日线数据, i: {i}")
-                break
+            # if i > 1:
+            #     self.logger.info(f"已获取到所有科创板股票日线数据, i: {i}")
+            #     break
 
     def process_star_stock_weekly_data(self):
         i = 1
@@ -755,9 +764,9 @@ class BaoStockProcessor:
             i += 1
             self.process_and_save_weekly_stock_data(value)
 
-            if i > 1:
-                self.logger.info(f"已获取到所有科创板股票周线数据, i: {i}")
-                break
+            # if i > 1:
+            #     self.logger.info(f"已获取到所有科创板股票周线数据, i: {i}")
+            #     break
 
 
     def get_and_save_all_stocks_from_bao(self):
