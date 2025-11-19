@@ -67,6 +67,9 @@ class BaoStockProcessor:
             self.logger.info(f"沪A主板股票数量：{sh_main_count}")
             self.logger.info(f"深A主板股票数量：{sz_main_count}")
 
+            # 读取本地k线数据
+            self.load_all_local_stock_data()
+
             config_manager = ConfigManager()
             config_manager.set_config_path("./resources/config/config.ini")
             policy_filter_turn_config = config_manager.get('PolicyFilter', 'turn')
@@ -130,6 +133,118 @@ class BaoStockProcessor:
                 self.logger.info(f"Baostock logout encountered an error (may be during shutdown): {e}")
             finally:
                 self._is_initialized = False
+
+    def load_all_local_stock_data(self):
+        """
+        遍历所有股票代码并进行处理
+        """
+        total_count = 0
+        
+        # 遍历所有板块
+        for board_name, board_data in self.dict_all_stocks.items():
+            self.logger.info(f"处理 {board_name} 板块...")
+            
+            # 遍历该板块的每一行数据
+            for index, row in board_data.iterrows():
+                stock_code = row['证券代码']
+                stock_name = row['证券名称'] if '证券名称' in row else '未知'
+                
+                # 在这里处理每个股票代码
+                self.logger.info(f"处理股票: {stock_code} - {stock_name}")
+                
+                self.dict_daily_stock_data[stock_code] = self.stock_db_base.get_bao_stock_data(stock_code, table_name="stock_data_1d")
+                self.dict_weekly_stock_data[stock_code] = self.stock_db_base.get_bao_stock_data(stock_code, table_name="stock_data_1w")
+
+                sdi.default_indicators_auto_calculate(self.dict_daily_stock_data[stock_code])
+                sdi.default_indicators_auto_calculate(self.dict_weekly_stock_data[stock_code])
+
+                total_count += 1
+                
+                # 为了测试，只处理前几个股票
+                if total_count > 10:
+                    break
+        
+        self.logger.info(f"总共处理了 {total_count} 只股票")
+
+    def get_daily_stock_data(self, code, start_date = None, end_date=None) -> pd.DataFrame:
+        '''
+            获取股票日K线数据
+            code: 股票代码
+            start_date: 开始日期
+            end_date: 结束日期
+
+            返回:
+                DataFrame: 股票日K线数据
+        '''
+        # 检查股票代码是否存在于字典中
+        if code not in self.dict_daily_stock_data:
+            self.logger.warning(f"股票代码 {code} 不存在于日线数据中")
+            return pd.DataFrame()
+        
+        # 获取该股票的所有日线数据
+        result = self.dict_daily_stock_data[code]
+        
+        # 如果没有数据，直接返回空DataFrame
+        if result.empty:
+            return result
+        
+        # 如果提供了日期范围，则进行过滤
+        if start_date is not None or end_date is not None:
+            # 确保'date'列是datetime类型
+            result = result.copy()  # 避免修改原始数据
+            result['date'] = pd.to_datetime(result['date'])
+            
+            # 应用开始日期过滤
+            if start_date is not None:
+                start_date = pd.to_datetime(start_date)
+                result = result[result['date'] >= start_date]
+            
+            # 应用结束日期过滤
+            if end_date is not None:
+                end_date = pd.to_datetime(end_date)
+                result = result[result['date'] <= end_date]
+        
+        return result
+    
+    def get_weekly_stock_data(self, code, start_date = None, end_date=None) -> pd.DataFrame:
+        '''
+            获取股票周K线数据
+            code: 股票代码
+            start_date: 开始日期
+            end_date: 结束日期
+
+            返回:
+                DataFrame: 股票周K线数据
+        '''
+        # 检查股票代码是否存在于字典中
+        if code not in self.dict_weekly_stock_data:
+            self.logger.warning(f"股票代码 {code} 不存在于周线数据中")
+            return pd.DataFrame()
+        
+        # 获取该股票的所有周线数据
+        result = self.dict_weekly_stock_data[code]
+        
+        # 如果没有数据，直接返回空DataFrame
+        if result.empty:
+            return result
+        
+        # 如果提供了日期范围，则进行过滤
+        if start_date is not None or end_date is not None:
+            # 确保'date'列是datetime类型
+            result = result.copy()  # 避免修改原始数据
+            result['date'] = pd.to_datetime(result['date'])
+            
+            # 应用开始日期过滤
+            if start_date is not None:
+                start_date = pd.to_datetime(start_date)
+                result = result[result['date'] >= start_date]
+            
+            # 应用结束日期过滤
+            if end_date is not None:
+                end_date = pd.to_datetime(end_date)
+                result = result[result['date'] <= end_date]
+        
+        return result
 
     def data_type_conversion(self, result):
         # 1. 转换日期列
