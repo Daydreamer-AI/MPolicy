@@ -94,16 +94,17 @@ class CandlestickItem(pg.GraphicsObject):
             high_price = self.data['high'][i]
             low_price = self.data['low'][i]
 
-            if close_price < open_price:#下跌－绿色
+            if close_price < open_price:
+                #下跌－绿色
                 p.setPen(pg.mkPen(color_table['line_desc']))
                 p.setBrush(pg.mkBrush(color_table['line_desc']))
                 p.drawLine(QtCore.QPointF(i, low_price), QtCore.QPointF(i, high_price))
                 p.drawRect(QtCore.QRectF(i - w, open_price, w * 2, close_price - open_price))
                 
             else:
-                #上涨－红色
+                #上涨－红色 空心蜡烛
                 p.setPen(pg.mkPen(color_table['line_asc']))
-                p.setBrush(pg.mkBrush(color_table['line_asc']))
+                p.setBrush(QtGui.QBrush(QtCore.Qt.NoBrush))  # 设置为空画刷，绘制空心矩形
                 
                 # 绘制上下影线
                 if high_price != close_price:
@@ -112,11 +113,12 @@ class CandlestickItem(pg.GraphicsObject):
                 if low_price != open_price:
                     p.drawLine(QtCore.QPointF(i, open_price), QtCore.QPointF(i, low_price))
                 
-                #绘制实体
+                #绘制实体（空心）
                 if close_price == open_price:
                     p.drawLine(QtCore.QPointF(i - w, open_price), QtCore.QPointF(i + w, open_price))
                 else:
                     p.drawRect(QtCore.QRectF(i - w, open_price, w * 2, close_price - open_price))
+                    
         p.end()
 
     def _get_quota_lines(self, data):
