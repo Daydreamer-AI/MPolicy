@@ -9,13 +9,13 @@ color_table = {
 'klines': (110, 110, 110)
 }
 
-class VolumeItem(pg.GraphicsObject):
+class AmountItem(pg.GraphicsObject):
     # …"交易量柱状图绘制类……
     def __init__(self, data):
         pg.GraphicsObject.__init__(self)
 
         # 数据验证
-        required_columns = ['open', 'close', 'volume'] # , 'low', 'ma5', 'ma10', 'ma20', 'ma24', 'ma30', 'ma52', 'ma60'
+        required_columns = ['open', 'close', 'amount'] # , 'low', 'ma5', 'ma10', 'ma20', 'ma24', 'ma30', 'ma52', 'ma60'
         if not all(col in data.columns for col in required_columns):
             raise ValueError(f"缺少必要的数据列，需要: {required_columns}")
         
@@ -29,23 +29,23 @@ class VolumeItem(pg.GraphicsObject):
         pg.setConfigOptions(leftButtonPan=False, antialias=False)
         w = 0.25
 
-        for i in range(len(self.data['volume'])):
+        for i in range(len(self.data['amount'])):
             open_price = self.data['open'][i]
             close_price = self.data['close'][i]
-            volume = self.data['volume'][i] / 10000     # 单位：万
+            amount = self.data['amount'][i]  / 100000000    # 单位：亿
             
             if close_price < open_price:
                 #下跌－ 绿色填充
                 p.setPen(pg.mkPen(color_table['line_desc']))
-                p.drawRect(QtCore.QRectF(i - w, 0, w * 2, volume))
+                p.drawRect(QtCore.QRectF(i - w, 0, w * 2, amount))
                 p.setBrush(pg.mkBrush(color_table['line_desc']))
             else:
                 #上涨－ 红色空心
                 p.setPen(pg.mkPen(color_table['line_asc']))
                 p.drawLines(
-                    QtCore.QLineF(QtCore.QPointF(i - w, 0), QtCore.QPointF(i - w, volume)),
-                    QtCore.QLineF(QtCore.QPointF(i - w, volume), QtCore.QPointF(i + w, volume)),
-                    QtCore.QLineF(QtCore.QPointF(i + w, volume), QtCore.QPointF(i + w, 0)),
+                    QtCore.QLineF(QtCore.QPointF(i - w, 0), QtCore.QPointF(i - w, amount)),
+                    QtCore.QLineF(QtCore.QPointF(i - w, amount), QtCore.QPointF(i + w, amount)),
+                    QtCore.QLineF(QtCore.QPointF(i + w, amount), QtCore.QPointF(i + w, 0)),
                     QtCore.QLineF(QtCore.QPointF(i + w, 0), QtCore.QPointF(i - w, 0))
                 )
         p.end()

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>VolumeWidget</class>
- <widget class="QWidget" name="VolumeWidget">
+ <class>AmountWidget</class>
+ <widget class="QWidget" name="AmountWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -66,16 +66,16 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QLabel" name="label_volume">
+       <widget class="QLabel" name="label_amount">
         <property name="text">
-         <string>成交量</string>
+         <string>成交额</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_total_volume">
+       <widget class="QLabel" name="label_total_amount">
         <property name="text">
-         <string>总量：</string>
+         <string>总金额：</string>
         </property>
        </widget>
       </item>
@@ -100,8 +100,8 @@
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>40</width>
-          <height>20</height>
+          <width>1161</width>
+          <height>19</height>
          </size>
         </property>
        </spacer>

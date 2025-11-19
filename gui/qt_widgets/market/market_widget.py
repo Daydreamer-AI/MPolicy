@@ -12,8 +12,10 @@ from gui.qt_widgets.MComponents.candlestick_item import CandlestickItem
 
 import numpy as np
 import pyqtgraph as pg
-from gui.qt_widgets.MComponents.custom_date_axisItem import CustomDateAxisItem, NoLabelAxis
+# from gui.qt_widgets.MComponents.custom_date_axisItem import CustomDateAxisItem, NoLabelAxis
 from gui.qt_widgets.market.volume_widget import VolumeWidget
+from gui.qt_widgets.market.amount_widget import AmountWidget
+from gui.qt_widgets.market.macd_widget import MacdWidget
 
 class MarketWidget(QWidget):
     def __init__(self, parent=None):
@@ -54,6 +56,10 @@ class MarketWidget(QWidget):
 
     def init_connect(self):
         self.btn_indicator_volume.clicked.connect(self.slot_btn_indicator_volume_clicked)
+        self.btn_indicator_amount.clicked.connect(self.slot_btn_indicator_amount_clicked)
+        self.btn_indicator_macd.clicked.connect(self.slot_btn_indicator_macd_clicked)
+        self.btn_indicator_kdj.clicked.connect(self.slot_btn_indicator_kdj_clicked)
+        self.btn_indicator_rsi.clicked.connect(self.slot_btn_indicator_rsi_clicked)
 
     def draw_charts(self):
         # ."绘制所有图表…
@@ -95,14 +101,16 @@ class MarketWidget(QWidget):
         self.kline_plot_widget.getAxis('bottom').setTextPen(QtGui.QColor(110, 110, 110))
 
     def draw_volume(self):
-        volume_widget = VolumeWidget(self.df_data, self)
-        return volume_widget
+        widget = VolumeWidget(self.df_data, self)
+        return widget
 
     def draw_amount(self):
-        pass
+        widget = AmountWidget(self.df_data, self)
+        return widget
 
     def draw_macd(self):
-        pass
+        widget = MacdWidget(self.df_data, self)
+        return widget
 
     def draw_kdj(self):
         pass
@@ -210,3 +218,31 @@ class MarketWidget(QWidget):
             self.add_indicator_chart('成交量')
         else:
             self.remove_indicator_chart('成交量')
+
+    def slot_btn_indicator_amount_clicked(self):
+        is_checked = self.btn_indicator_amount.isChecked()
+        if is_checked:
+            self.add_indicator_chart('成交额')
+        else:
+            self.remove_indicator_chart('成交额')
+
+    def slot_btn_indicator_macd_clicked(self):
+        is_checked = self.btn_indicator_macd.isChecked()
+        if is_checked:
+            self.add_indicator_chart('MACD')
+        else:
+            self.remove_indicator_chart('MACD')
+
+    def slot_btn_indicator_kdj_clicked(self):
+        is_checked = self.btn_indicator_kdj.isChecked()
+        if is_checked:
+            self.add_indicator_chart('KDJ')
+        else:
+            self.remove_indicator_chart('KDJ')
+
+    def slot_btn_indicator_rsi_clicked(self):
+        is_checked = self.btn_indicator_rsi.isChecked()
+        if is_checked:
+            self.add_indicator_chart('RSI')
+        else:
+            self.remove_indicator_chart('RSI')

@@ -1,3 +1,5 @@
+# file: gui/qt_widgets/market/macd_widget.py
+from PyQt5 import QtCore
 from PyQt5 import QtWidgets, uic, QtGui
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout
 from PyQt5.QtCore import pyqtSlot
@@ -7,18 +9,18 @@ import numpy as np
 
 from common.logging_manager import get_logger
 
-from gui.qt_widgets.MComponents.volume_item import VolumeItem
+from gui.qt_widgets.MComponents.macd_item import MACDItem
 
-class VolumeWidget(QWidget):
+class MacdWidget(QWidget):
     def __init__(self, data, parent=None):
-        super(VolumeWidget, self).__init__(parent)
+        super(MacdWidget, self).__init__(parent)
 
         self.init_para(data)
         self.init_ui()
         self.init_connect()
 
     def init_ui(self):
-        uic.loadUi('./gui/qt_widgets/market/VolumeWidget.ui', self)
+        uic.loadUi('./gui/qt_widgets/market/MacdWidget.ui', self)
 
         layout = self.layout()
         if layout is None:
@@ -39,13 +41,13 @@ class VolumeWidget(QWidget):
     def init_para(self, data):
         # 检查是否有数据
         if data is None or data.empty:
-            raise ValueError("数据为空，无法绘制成交量指标图")
+            raise ValueError("数据为空，无法绘制MACD指标图")
         
         # 确保数据列存在
-        required_columns = ['open', 'close', 'volume']
+        required_columns = ['diff', 'dea', 'macd']
         if not all(col in data.columns for col in required_columns):
-            self.logger.warning("缺少必要的数据列来绘制成交量指标图")
-            raise ValueError("缺少必要的数据列来绘制成交量指标图")
+            self.logger.warning("缺少必要的数据列来绘制MACD指标图")
+            raise ValueError("缺少必要的数据列来绘制MACD指标图")
         
         self.df_data = data
         self.logger = get_logger(__name__)
@@ -64,7 +66,7 @@ class VolumeWidget(QWidget):
         return self.plot_widget
 
     def draw(self):
-        # ""绘制交易量图
+        """绘制MACD指标图"""
         self.plot_widget.clear()
 
         # 检查是否有数据
@@ -72,24 +74,34 @@ class VolumeWidget(QWidget):
             return
         
         # 确保数据列存在
-        required_columns = ['open', 'close', 'volume']
+        required_columns = ['diff', 'dea', 'macd']
         if not all(col in self.df_data.columns for col in required_columns):
-            self.logger.warning("缺少必要的数据列来绘制成交量指标图")
+            self.logger.warning("缺少必要的数据列来绘制MACD指标图")
             return
 
-        # 创建交易量图
-        vol_item = VolumeItem(self.df_data)
+        # 创建MACD图
+        macd_item = MACDItem(self.df_data)
+        self.plot_widget.addItem(macd_item)
 
-        self.plot_widget.addItem(vol_item)
-
-        #设置坐标范围
+        # 设置坐标范围
         self.plot_widget.setXRange(-1, len(self.df_data) + 1, padding=0)
-        max_vol = np.max(self.df_data['volume'])
-        self.logger.info(f"最大成交量-max_vol: {max_vol}")
-        self.plot_widget.setYRange(0, max_vol / 10000 * 1.1, padding=0)   # 单位：万
+        
+        # 计算Y轴范围
+        diff_values = self.df_data['diff'].dropna()
+        dea_values = self.df_data['dea'].dropna()
+        macd_values = self.df_data['macd'].dropna()
+        
+        if len(diff_values) > 0 and len(dea_values) > 0 and len(macd_values) > 0:
+            y_max = max(np.max(np.abs(diff_values)), np.max(np.abs(dea_values)), np.max(np.abs(macd_values)))
+            y_max = y_max * 1.2 if y_max > 0 else 1
+            self.plot_widget.setYRange(-y_max, y_max, padding=0)
 
-        #设置坐标轴颜色
+        # 设置坐标轴颜色
         self.plot_widget.getAxis('left').setPen(QtGui.QColor(110, 110, 110))
         self.plot_widget.getAxis('bottom').setPen(QtGui.QColor(110, 110, 110))
         self.plot_widget.getAxis('left').setTextPen(QtGui.QColor(110, 110, 110))
         self.plot_widget.getAxis('bottom').setTextPen(QtGui.QColor(110, 110, 110))
+
+        # 添加零轴线，已有无需重复
+        # zero_line = pg.InfiniteLine(pos=0, angle=0, pen=pg.mkPen('k', width=0.5, style=QtCore.Qt.DashLine))
+        # self.plot_widget.addItem(zero_line)

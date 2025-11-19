@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>VolumeWidget</class>
- <widget class="QWidget" name="VolumeWidget">
+ <class>MacdWidget</class>
+ <widget class="QWidget" name="MacdWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>1366</width>
-    <height>300</height>
+    <height>289</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -49,9 +49,9 @@
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
       <property name="spacing">
-       <number>3</number>
+       <number>9</number>
       </property>
       <property name="leftMargin">
        <number>0</number>
@@ -66,30 +66,30 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QLabel" name="label_volume">
+       <widget class="QLabel" name="label_macd_title">
         <property name="text">
-         <string>成交量</string>
+         <string>MACD</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_total_volume">
+       <widget class="QLabel" name="label_macd">
         <property name="text">
-         <string>总量：</string>
+         <string>MACD: </string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_ma5">
+       <widget class="QLabel" name="label_diff">
         <property name="text">
-         <string>MA5: </string>
+         <string>DIFF: </string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_ma10">
+       <widget class="QLabel" name="label_dea">
         <property name="text">
-         <string>MA10: </string>
+         <string>DEA: </string>
         </property>
        </widget>
       </item>
@@ -100,49 +100,56 @@
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>40</width>
-          <height>20</height>
+          <width>1161</width>
+          <height>19</height>
          </size>
         </property>
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="btn_close">
-        <property name="minimumSize">
-         <size>
-          <width>16</width>
-          <height>16</height>
-         </size>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <property name="spacing">
+         <number>3</number>
         </property>
-        <property name="maximumSize">
-         <size>
-          <width>16</width>
-          <height>16</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>X</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btn_setting">
-        <property name="minimumSize">
-         <size>
-          <width>16</width>
-          <height>16</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16</width>
-          <height>16</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>S</string>
-        </property>
-       </widget>
+        <item>
+         <widget class="QPushButton" name="btn_close">
+          <property name="minimumSize">
+           <size>
+            <width>16</width>
+            <height>16</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16</width>
+            <height>16</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>X</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btn_setting">
+          <property name="minimumSize">
+           <size>
+            <width>16</width>
+            <height>16</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16</width>
+            <height>16</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>S</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
