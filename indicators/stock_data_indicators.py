@@ -57,6 +57,37 @@ def kdj(data, n=9, m1=3, m2=3):
     
     return data
 
+# 在你的指标计算模块中添加
+def rsi(data, period=14):
+    """
+    计算RSI指标
+    参数:
+    data: DataFrame，包含close列
+    period: 计算周期，默认14
+    """
+    if 'close' not in data.columns:
+        raise ValueError("缺少必要的数据列：close")
+    
+    # 计算价格变化
+    delta = data['close'].diff()
+    
+    # 分离上涨和下跌
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+    
+    # 计算平均上涨和下跌
+    avg_gain = gain.rolling(window=period, min_periods=1).mean()
+    avg_loss = loss.rolling(window=period, min_periods=1).mean()
+    
+    # 计算RS
+    rs = avg_gain / avg_loss
+    
+    # 计算RSI
+    rsi_name = f'rsi{period}'
+    data[rsi_name] = 100 - (100 / (1 + rs))
+    
+    return data
+
 def ma(stock_data, column='5', cycle=5):
     close = stock_data['close']
     # stock_data['MA24'] = close.rolling(window=24, min_periods=1).mean()

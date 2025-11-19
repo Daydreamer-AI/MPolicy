@@ -19,6 +19,7 @@ from gui.qt_widgets.market.volume_widget import VolumeWidget
 from gui.qt_widgets.market.amount_widget import AmountWidget
 from gui.qt_widgets.market.macd_widget import MacdWidget
 from gui.qt_widgets.market.kdj_widget import KdjWidget
+from gui.qt_widgets.market.rsi_widget import RsiWidget
 
 class MarketWidget(QWidget):
     def __init__(self, parent=None):
@@ -124,7 +125,16 @@ class MarketWidget(QWidget):
         return widget
 
     def draw_rsi(self):
-        pass
+        # 因源数据中没有自带RSI指标，需要手动计算
+        rsi_columns = ['rsi6', 'rsi12', 'rsi24']
+        missing_rsi = [col for col in rsi_columns if col not in self.df_data.columns]
+        if missing_rsi:
+            sdi.rsi(self.df_data, period=6)   # 计算RSI6
+            sdi.rsi(self.df_data, period=12)  # 计算RSI12
+            sdi.rsi(self.df_data, period=24)  # 计算RSI24
+            
+        widget = RsiWidget(self.df_data, self)
+        return widget
 
     def draw_boll(self):
         pass
