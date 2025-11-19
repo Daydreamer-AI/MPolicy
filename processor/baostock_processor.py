@@ -451,7 +451,7 @@ class BaoStockProcessor:
         result = pd.DataFrame()
 
         if not self.stock_db_base.check_stock_db_exists(code) or not self.stock_db_base.check_table_exists(code, "stock_data_1d"):
-            # self.logger.info(f"{code}.db 不存在，即将从Baostock获取")
+            self.logger.info(f"{code}.db 不存在，即将从Baostock获取")
             result = self.process_daily_stock_data(code)
 
             # 指标不再入库，使用时按需计算
@@ -467,7 +467,7 @@ class BaoStockProcessor:
             #     sdi.quantity_ratio(result)
                 self.stock_db_base.save_bao_stock_data_to_db(code, result, 'replace', "stock_data_1d")
         else:
-            # self.logger.info(f"{code}.db 存在，即将从本地数据库更新")
+            self.logger.info(f"{code}.db 存在，即将从本地数据库更新")
             result = self.update_daily_stock_data(code)
         
         # if result.empty:
@@ -624,7 +624,7 @@ class BaoStockProcessor:
             # end_date = (datetime.datetime.now() - datetime.timedelta(days=3)).strftime("%Y-%m-%d")
             start_date = (datetime.datetime.now() - datetime.timedelta(days=365*3)).strftime("%Y-%m-%d")
 
-        self.logger.info(f"获取股票 {code} 周线数据，时间范围：{start_date} 至 {end_date}")
+        # self.logger.info(f"获取股票 {code} 周线数据，时间范围：{start_date} 至 {end_date}")
         
         sleep_time = random.uniform(0, 1) # 等待时间可以设得稍长一些
         # time.sleep(sleep_time)
@@ -784,13 +784,13 @@ class BaoStockProcessor:
     def process_sh_main_stock_daily_data(self):
         i = 1
         for value in self.dict_all_stocks['sh_main']['证券代码']:
-            # self.logger.info(f"获取第 {i} 只沪市主板股票 {value} 【日线】数据")
+            self.logger.info(f"获取第 {i} 只沪市主板股票 {value} 【日线】数据")
             i += 1
 
             # 判断是否已加载到内存
-            if value in self.dict_daily_stock_data.keys():
-                self.logger.info(f"股票 {value} 数据已存在")
-                continue
+            # if value in self.dict_daily_stock_data.keys():
+            #     self.logger.info(f"股票 {value} 数据已存在")
+            #     continue
 
             self.process_and_save_daily_stock_data(value)
             # if i > 3:
@@ -802,7 +802,7 @@ class BaoStockProcessor:
     def process_sh_main_stock_weekly_data(self):
         i = 1
         for value in self.dict_all_stocks['sh_main']['证券代码']:
-            # self.logger.info(f"获取第 {i} 只沪市主板股票 {value} 【周线】数据")
+            self.logger.info(f"获取第 {i} 只沪市主板股票 {value} 【周线】数据")
             i += 1
             self.process_and_save_weekly_stock_data(value)
 
@@ -815,7 +815,7 @@ class BaoStockProcessor:
     def process_sz_main_stock_daily_data(self):
         i = 1
         for value in self.dict_all_stocks['sz_main']['证券代码']:
-            # self.logger.info(f"获取第 {i} 只深市主板股票 {value} 【日线】数据")
+            self.logger.info(f"获取第 {i} 只深市主板股票 {value} 【日线】数据")
             i += 1
             self.process_and_save_daily_stock_data(value)
 
@@ -827,7 +827,7 @@ class BaoStockProcessor:
     def process_sz_main_stock_weekly_data(self):
         i = 1
         for value in self.dict_all_stocks['sz_main']['证券代码']:
-            # self.logger.info(f"获取第 {i} 只深市主板股票 {value} 【周线】数据")
+            self.logger.info(f"获取第 {i} 只深市主板股票 {value} 【周线】数据")
             i += 1
             self.process_and_save_weekly_stock_data(value)
 
