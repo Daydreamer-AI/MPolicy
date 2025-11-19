@@ -203,6 +203,9 @@ def macd_deviation(stock_data):
                 return True
 
 def default_indicators_auto_calculate(stock_data):
+    if stock_data is None or stock_data.empty:
+        raise ValueError("数据为空，无法计算指标")
+
     macd(stock_data)
     ma(stock_data, 'ma5', 5)
     ma(stock_data, 'ma10', 10)

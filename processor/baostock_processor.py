@@ -14,6 +14,7 @@ from common.config_manager import ConfigManager
 import threading
 from common.common_api import *
 from common.logging_manager import get_logger
+import traceback
 
 def singleton(cls):
     """
@@ -68,7 +69,7 @@ class BaoStockProcessor:
             self.logger.info(f"深A主板股票数量：{sz_main_count}")
 
             # 读取本地k线数据
-            self.load_all_local_stock_data()
+            # self.load_all_local_stock_data()
 
             config_manager = ConfigManager()
             config_manager.set_config_path("./resources/config/config.ini")
@@ -120,6 +121,7 @@ class BaoStockProcessor:
                 return False
         except Exception as e:
             self.logger.info("An error occurred during Baostock login.")
+            self.logger.info(f"Traceback: {traceback.format_exc()}")
             return False
 
     def cleanup(self) -> None:
@@ -146,26 +148,49 @@ class BaoStockProcessor:
             
             # 遍历该板块的每一行数据
             for index, row in board_data.iterrows():
-                stock_code = row['证券代码']
-                stock_name = row['证券名称'] if '证券名称' in row else '未知'
-                
-                # 在这里处理每个股票代码
-                self.logger.info(f"处理股票: {stock_code} - {stock_name}")
-                
-                self.dict_daily_stock_data[stock_code] = self.stock_db_base.get_bao_stock_data(stock_code, table_name="stock_data_1d")
-                self.dict_weekly_stock_data[stock_code] = self.stock_db_base.get_bao_stock_data(stock_code, table_name="stock_data_1w")
+                try:
+                    stock_code = row['证券代码']
+                    stock_name = row['证券名称'] if '证券名称' in row else '未知'
+                    
+                    # 获取日线和周线数据
+                    daily_data = self.stock_db_base.get_bao_stock_data(stock_code, table_name="stock_data_1d")
+                    weekly_data = self.stock_db_base.get_bao_stock_data(stock_code, table_name="stock_data_1w")
+                    
+                    # 检查数据是否为None，如果是则创建空的DataFrame
+                    if daily_data is None or daily_data.empty:
+                        continue
+                        self.logger.warning(f"股票 {stock_code} 日线数据为None，创建空DataFrame")
+                        daily_data = pd.DataFrame()
+                    
+                    if weekly_data is None or weekly_data.empty:
+                        continue
+                        self.logger.warning(f"股票 {stock_code} 周线数据为None，创建空DataFrame")
+                        weekly_data = pd.DataFrame()
+                    
+                    # 存储数据
+                    self.dict_daily_stock_data[stock_code] = daily_data
+                    self.dict_weekly_stock_data[stock_code] = weekly_data
 
-                sdi.default_indicators_auto_calculate(self.dict_daily_stock_data[stock_code])
-                sdi.default_indicators_auto_calculate(self.dict_weekly_stock_data[stock_code])
+                    # 只对非空数据进行指标计算
+                    if not self.dict_daily_stock_data[stock_code].empty:
+                        sdi.default_indicators_auto_calculate(self.dict_daily_stock_data[stock_code])
+                    else:
+                        self.logger.debug(f"股票 {stock_code} 日线数据为空，跳过指标计算")
+                        
+                    if not self.dict_weekly_stock_data[stock_code].empty:
+                        sdi.default_indicators_auto_calculate(self.dict_weekly_stock_data[stock_code])
+                    else:
+                        self.logger.debug(f"股票 {stock_code} 周线数据为空，跳过指标计算")
 
-                total_count += 1
-                
-                # 为了测试，只处理前几个股票
-                # if total_count > 10:
-                #     break
+                    total_count += 1
+                    
+                except Exception as e:
+                    self.logger.error(f"处理股票 {stock_code} 时发生错误: {str(e)}")
+                    self.logger.error(traceback.format_exc())
+                    # 继续处理下一个股票
+                    continue
         
         self.logger.info(f"总共处理了 {total_count} 只股票")
-
     def get_daily_stock_data(self, code, start_date = None, end_date=None) -> pd.DataFrame:
         '''
             获取股票日K线数据

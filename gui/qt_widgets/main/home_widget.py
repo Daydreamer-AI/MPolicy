@@ -76,6 +76,7 @@ class HomeWidget(QWidget):
             success = BaoStockProcessor().initialize()
             if ak_success and success:
                 self.logger.info("所有处理器初始化成功")
+                BaoStockProcessor().load_all_local_stock_data()     # 待优化，放后台加载
             else:
                 self.logger.info("处理器初始化失败")
                 # 可以进行一些UI提示，例如设置label的文本为红色警告
