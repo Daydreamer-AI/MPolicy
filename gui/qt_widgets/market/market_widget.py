@@ -20,6 +20,7 @@ from gui.qt_widgets.market.amount_widget import AmountWidget
 from gui.qt_widgets.market.macd_widget import MacdWidget
 from gui.qt_widgets.market.kdj_widget import KdjWidget
 from gui.qt_widgets.market.rsi_widget import RsiWidget
+from gui.qt_widgets.market.boll_widget import BollWidget
 
 class MarketWidget(QWidget):
     def __init__(self, parent=None):
@@ -64,6 +65,7 @@ class MarketWidget(QWidget):
         self.btn_indicator_macd.clicked.connect(self.slot_btn_indicator_macd_clicked)
         self.btn_indicator_kdj.clicked.connect(self.slot_btn_indicator_kdj_clicked)
         self.btn_indicator_rsi.clicked.connect(self.slot_btn_indicator_rsi_clicked)
+        self.btn_indicator_boll.clicked.connect(self.slot_btn_indicator_boll_clicked)
 
     def draw_charts(self):
         # ."绘制所有图表…
@@ -132,12 +134,19 @@ class MarketWidget(QWidget):
             sdi.rsi(self.df_data, period=6)   # 计算RSI6
             sdi.rsi(self.df_data, period=12)  # 计算RSI12
             sdi.rsi(self.df_data, period=24)  # 计算RSI24
-            
+
         widget = RsiWidget(self.df_data, self)
         return widget
 
     def draw_boll(self):
-        pass
+        # 因源数据中没有自带BOLL指标，需要手动计算
+        boll_columns = ['boll_up', 'boll_mb', 'boll_dn']
+        missing_boll = [col for col in boll_columns if col not in self.df_data.columns]
+        if missing_boll:
+            sdi.boll(self.df_data)
+
+        widget = BollWidget(self.df_data, self)
+        return widget
 
     def update_info_labels(self):
         pass
@@ -264,3 +273,10 @@ class MarketWidget(QWidget):
             self.add_indicator_chart('RSI')
         else:
             self.remove_indicator_chart('RSI')
+
+    def slot_btn_indicator_boll_clicked(self):
+        is_checked = self.btn_indicator_boll.isChecked()
+        if is_checked:
+            self.add_indicator_chart('BOLL')
+        else:
+            self.remove_indicator_chart('BOLL')

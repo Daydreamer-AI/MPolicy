@@ -88,6 +88,31 @@ def rsi(data, period=14):
     
     return data
 
+def boll(data, n=20, m=2):
+    """
+    计算BOLL指标
+    参数:
+    data: DataFrame，包含close列
+    n: 周期，默认20
+    m: 标准差倍数，默认2
+    """
+    if 'close' not in data.columns:
+        raise ValueError("缺少必要的数据列：close")
+    
+    # 计算中轨线(MB)
+    data['boll_mb'] = data['close'].rolling(window=n).mean()
+    
+    # 计算标准差
+    std = data['close'].rolling(window=n).std()
+    
+    # 计算上轨线(UP)
+    data['boll_up'] = data['boll_mb'] + m * std
+    
+    # 计算下轨线(DN)
+    data['boll_dn'] = data['boll_mb'] - m * std
+    
+    return data
+
 def ma(stock_data, column='5', cycle=5):
     close = stock_data['close']
     # stock_data['MA24'] = close.rolling(window=24, min_periods=1).mean()
