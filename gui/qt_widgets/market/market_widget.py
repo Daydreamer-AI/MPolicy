@@ -10,12 +10,15 @@ from common.logging_manager import get_logger
 
 from gui.qt_widgets.MComponents.candlestick_item import CandlestickItem
 
+from indicators import stock_data_indicators as sdi
+
 import numpy as np
 import pyqtgraph as pg
 # from gui.qt_widgets.MComponents.custom_date_axisItem import CustomDateAxisItem, NoLabelAxis
 from gui.qt_widgets.market.volume_widget import VolumeWidget
 from gui.qt_widgets.market.amount_widget import AmountWidget
 from gui.qt_widgets.market.macd_widget import MacdWidget
+from gui.qt_widgets.market.kdj_widget import KdjWidget
 
 class MarketWidget(QWidget):
     def __init__(self, parent=None):
@@ -113,7 +116,12 @@ class MarketWidget(QWidget):
         return widget
 
     def draw_kdj(self):
-        pass
+        # 因源数据中没有自带KDJ指标，需要手动计算
+        if 'K' not in self.df_data.columns or 'D' not in self.df_data.columns or 'J' not in self.df_data.columns:
+            sdi.kdj(self.df_data) 
+
+        widget = KdjWidget(self.df_data, self)
+        return widget
 
     def draw_rsi(self):
         pass

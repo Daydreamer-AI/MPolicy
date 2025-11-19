@@ -28,6 +28,35 @@ def macd(stock_data):
     stock_data['dea'] = dea
     stock_data['macd'] = macd
 
+# 在你的指标计算模块中添加
+def kdj(data, n=9, m1=3, m2=3):
+    """
+    计算KDJ指标
+    参数:
+    data: DataFrame，包含high, low, close列
+    n: 周期，默认9
+    m1: K值平滑周期，默认3
+    m2: D值平滑周期，默认3
+    """
+    if 'high' not in data.columns or 'low' not in data.columns or 'close' not in data.columns:
+        raise ValueError("缺少必要的数据列：high, low, close")
+    
+    # 计算未成熟随机值RSV
+    low_min = data['low'].rolling(window=n).min()
+    high_max = data['high'].rolling(window=n).max()
+    data['RSV'] = (data['close'] - low_min) / (high_max - low_min) * 100
+    
+    # 计算K值
+    data['K'] = data['RSV'].ewm(alpha=1/m1, adjust=False).mean()
+    
+    # 计算D值
+    data['D'] = data['K'].ewm(alpha=1/m2, adjust=False).mean()
+    
+    # 计算J值
+    data['J'] = 3 * data['K'] - 2 * data['D']
+    
+    return data
+
 def ma(stock_data, column='5', cycle=5):
     close = stock_data['close']
     # stock_data['MA24'] = close.rolling(window=24, min_periods=1).mean()

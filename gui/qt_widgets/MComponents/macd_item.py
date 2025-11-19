@@ -59,7 +59,7 @@ class MACDItem(pg.GraphicsObject):
                 diff_points.append(QtCore.QPointF(i, diff_value))
         
         if len(diff_points) > 1:
-            p.setPen(pg.mkPen(color_table['macd_line'], width=1))
+            p.setPen(pg.mkPen(color_table['macd_line'], width=2))
             for i in range(len(diff_points) - 1):
                 p.drawLine(diff_points[i], diff_points[i + 1])
 
@@ -71,7 +71,7 @@ class MACDItem(pg.GraphicsObject):
                 dea_points.append(QtCore.QPointF(i, dea_value))
         
         if len(dea_points) > 1:
-            p.setPen(pg.mkPen(color_table['signal_line'], width=1))
+            p.setPen(pg.mkPen(color_table['signal_line'], width=2))
             for i in range(len(dea_points) - 1):
                 p.drawLine(dea_points[i], dea_points[i + 1])
 
