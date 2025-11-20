@@ -8,35 +8,12 @@ import pyqtgraph as pg
 import numpy as np
 
 from common.logging_manager import get_logger
-
+from gui.qt_widgets.market.base_indicator_widget import BaseIndicatorWidget
 from gui.qt_widgets.MComponents.kdj_item import KDJItem
 
-class KdjWidget(QWidget):
+class KdjWidget(BaseIndicatorWidget):
     def __init__(self, data, parent=None):
-        super(KdjWidget, self).__init__(parent)
-
-        self.init_para(data)
-        self.init_ui()
-        self.init_connect()
-
-    def init_ui(self):
-        uic.loadUi('./gui/qt_widgets/market/KdjWidget.ui', self)
-
-        layout = self.layout()
-        if layout is None:
-            self.logger.info("没有布局，创建一个")
-            self.setLayout(QVBoxLayout())
-            layout = self.layout()
-
-        self.plot_widget = pg.PlotWidget()
-        self.plot_widget.hideAxis('bottom')
-        self.plot_widget.getAxis('left').setWidth(60)
-        self.plot_widget.setBackground('w')
-        self.plot_widget.showGrid(x=True, y=True)
-        self.plot_widget.setMouseEnabled(x=True, y=False)
-        layout.addWidget(self.plot_widget)
-
-        self.draw()
+        super(KdjWidget, self).__init__(data, parent)
 
     def init_para(self, data):
         # 检查是否有数据
@@ -55,34 +32,21 @@ class KdjWidget(QWidget):
     def init_connect(self):
         pass
 
-    def update_data(self, data):
-        self.df_data = data
-        self.draw()
+    def get_ui_path(self):
+        return './gui/qt_widgets/market/KdjWidget.ui'
 
-    def get_data(self):
-        return self.df_data
-    
-    def get_plot_widget(self):
-        return self.plot_widget
-
-    def draw(self):
-        """绘制KDJ指标图"""
-        self.plot_widget.clear()
-
-        # 检查是否有数据
-        if self.df_data is None or self.df_data.empty:
-            return
-        
-        # 确保数据列存在
+    def validate_data(self):
         required_columns = ['K', 'D', 'J']
-        if not all(col in self.df_data.columns for col in required_columns):
-            self.logger.warning("缺少必要的数据列来绘制KDJ指标图")
-            return
+        return all(col in self.df_data.columns for col in required_columns)
 
-        # 创建KDJ图
-        kdj_item = KDJItem(self.df_data)
-        self.plot_widget.addItem(kdj_item)
+    def create_and_add_item(self):
+        if self.item is None:
+            self.item = KDJItem(self.df_data)
+            self.plot_widget.addItem(self.item)
+        else:
+            self.item.update_data(self.df_data)
 
+    def set_axis_ranges(self):
         # 设置坐标范围
         self.plot_widget.setXRange(-1, len(self.df_data) + 1, padding=0)
         
@@ -103,13 +67,11 @@ class KdjWidget(QWidget):
             padding = (y_max - y_min) * 0.1
             self.plot_widget.setYRange(y_min - padding, y_max + padding, padding=0)
 
-        # 设置坐标轴颜色
-        self.plot_widget.getAxis('left').setPen(QtGui.QColor(110, 110, 110))
-        self.plot_widget.getAxis('bottom').setPen(QtGui.QColor(110, 110, 110))
-        self.plot_widget.getAxis('left').setTextPen(QtGui.QColor(110, 110, 110))
-        self.plot_widget.getAxis('bottom').setTextPen(QtGui.QColor(110, 110, 110))
+    def get_chart_name(self):
+        return "KDJ"
 
-        # 添加参考线
+    def additional_draw(self):
+        """添加参考线"""
         # 超买线 (80)
         overbought_line = pg.InfiniteLine(pos=80, angle=0, pen=pg.mkPen('r', width=1, style=QtCore.Qt.DashLine))
         self.plot_widget.addItem(overbought_line)

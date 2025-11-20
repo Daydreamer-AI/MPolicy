@@ -8,35 +8,12 @@ import pyqtgraph as pg
 import numpy as np
 
 from common.logging_manager import get_logger
-
+from gui.qt_widgets.market.base_indicator_widget import BaseIndicatorWidget
 from gui.qt_widgets.MComponents.rsi_item import RSIItem
 
-class RsiWidget(QWidget):
+class RsiWidget(BaseIndicatorWidget):
     def __init__(self, data, parent=None):
-        super(RsiWidget, self).__init__(parent)
-
-        self.init_para(data)
-        self.init_ui()
-        self.init_connect()
-
-    def init_ui(self):
-        uic.loadUi('./gui/qt_widgets/market/RsiWidget.ui', self)
-
-        layout = self.layout()
-        if layout is None:
-            self.logger.info("没有布局，创建一个")
-            self.setLayout(QVBoxLayout())
-            layout = self.layout()
-
-        self.plot_widget = pg.PlotWidget()
-        self.plot_widget.hideAxis('bottom')
-        self.plot_widget.getAxis('left').setWidth(60)
-        self.plot_widget.setBackground('w')
-        self.plot_widget.showGrid(x=True, y=True)
-        self.plot_widget.setMouseEnabled(x=True, y=False)
-        layout.addWidget(self.plot_widget)
-
-        self.draw()
+        super(RsiWidget, self).__init__(data, parent)
 
     def init_para(self, data):
         # 检查是否有数据
@@ -56,35 +33,27 @@ class RsiWidget(QWidget):
     def init_connect(self):
         pass
 
-    def update_data(self, data):
-        self.df_data = data
-        self.draw()
+    def get_ui_path(self):
+        return './gui/qt_widgets/market/RsiWidget.ui'
 
-    def get_data(self):
-        return self.df_data
-    
-    def get_plot_widget(self):
-        return self.plot_widget
-
-    def draw(self):
-        """绘制RSI指标图"""
-        self.plot_widget.clear()
-
-        # 检查是否有数据
-        if self.df_data is None or self.df_data.empty:
-            return
-        
+    def validate_data(self):
         # 确保至少有一个RSI数据列存在
         rsi_columns = ['rsi6', 'rsi12', 'rsi24']
         available_rsi = [col for col in rsi_columns if col in self.df_data.columns]
-        if not available_rsi:
-            self.logger.warning("缺少必要的RSI数据列来绘制RSI指标图")
-            return
+        return len(available_rsi) > 0
 
-        # 创建RSI图
-        rsi_item = RSIItem(self.df_data)
-        self.plot_widget.addItem(rsi_item)
+    def create_and_add_item(self):
+        if self.item is None:
+            self.item = RSIItem(self.df_data)
+            self.plot_widget.addItem(self.item)
+        else:
+            self.item.update_data(self.df_data)
 
+    def set_axis_ranges(self):
+        # 确保至少有一个RSI数据列存在
+        rsi_columns = ['rsi6', 'rsi12', 'rsi24']
+        available_rsi = [col for col in rsi_columns if col in self.df_data.columns]
+        
         # 设置坐标范围
         self.plot_widget.setXRange(-1, len(self.df_data) + 1, padding=0)
         
@@ -107,13 +76,11 @@ class RsiWidget(QWidget):
             padding = (y_max - y_min) * 0.1
             self.plot_widget.setYRange(y_min - padding, y_max + padding, padding=0)
 
-        # 设置坐标轴颜色
-        self.plot_widget.getAxis('left').setPen(QtGui.QColor(110, 110, 110))
-        self.plot_widget.getAxis('bottom').setPen(QtGui.QColor(110, 110, 110))
-        self.plot_widget.getAxis('left').setTextPen(QtGui.QColor(110, 110, 110))
-        self.plot_widget.getAxis('bottom').setTextPen(QtGui.QColor(110, 110, 110))
+    def get_chart_name(self):
+        return "RSI"
 
-        # 添加参考线
+    def additional_draw(self):
+        """添加参考线"""
         # 超买线 (70)
         overbought_line = pg.InfiniteLine(pos=70, angle=0, pen=pg.mkPen('r', width=1, style=QtCore.Qt.DashLine))
         self.plot_widget.addItem(overbought_line)
