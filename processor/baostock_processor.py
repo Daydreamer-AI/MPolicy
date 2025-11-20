@@ -17,6 +17,8 @@ from common.logging_manager import get_logger
 import traceback
 from types import MappingProxyType
 
+from PyQt5.QtWidgets import QApplication
+
 def singleton(cls):
     """
     一个线程安全的单例装饰器。
@@ -871,7 +873,12 @@ class BaoStockProcessor:
             #     self.logger.info(f"已获取到所有沪市股票日线数据, i: {i}")
             #     break
 
-            self.logger.info(f"获取第 {i} 只沪市主板股票 {value} 【日线】数据完成")
+            
+            if i % 50 == 0:  # 每50只股票处理一次事件
+                QApplication.processEvents()
+            
+            if i % 100 == 0:  # 每100只股票打印一次日志
+                self.logger.info(f"已处理 {i} 只沪市股票【日线】数据")
         
         self.logger.info("沪市主板股票日线数据获取完成")
 
@@ -885,7 +892,12 @@ class BaoStockProcessor:
             # if i > 3:
             #     self.logger.info(f"已获取到所有沪市股票周线数据, i: {i}")
             #     break
-            self.logger.info(f"获取第 {i} 只沪市主板股票 {value} 【周线】数据完成")
+
+            if i % 50 == 0:  # 每50只股票处理一次事件
+                QApplication.processEvents()
+            
+            if i % 100 == 0:  # 每100只股票打印一次日志
+                self.logger.info(f"已处理 {i} 只沪市股票【周线】数据")
 
         self.logger.info("沪市主板股票周线数据获取完成")
 
@@ -900,7 +912,14 @@ class BaoStockProcessor:
             #     self.logger.info(f"已获取到所有深市股票日线数据, i: {i}")
             #     break
 
-            self.logger.info(f"获取第 {i} 只深市主板股票 {value} 【日线】数据完成")
+            if i % 50 == 0:  # 每50只股票处理一次事件
+                QApplication.processEvents()
+            
+            if i % 100 == 0:  # 每100只股票打印一次日志
+                self.logger.info(f"已处理 {i} 只深市股票【日线】数据")
+        
+        self.logger.info("沪市主板股票日线数据获取完成")
+
 
         self.logger.info("深市主板股票日线数据获取完成")
     def process_sz_main_stock_weekly_data(self):
@@ -914,7 +933,11 @@ class BaoStockProcessor:
             #     self.logger.info(f"已获取到所有深市股票周线数据, i: {i}")
             #     break
 
-            self.logger.info(f"获取第 {i} 只深市主板股票 {value} 【周线】数据完成")
+            if i % 50 == 0:  # 每50只股票处理一次事件
+                QApplication.processEvents()
+            
+            if i % 100 == 0:  # 每100只股票打印一次日志
+                self.logger.info(f"已处理 {i} 只深市股票【周线】数据")
 
         self.logger.info("深市主板股票周线数据获取完成")
 
@@ -929,6 +952,12 @@ class BaoStockProcessor:
             #     self.logger.info(f"已获取到所有创业板股票日线数据, i: {i}")
             #     break
 
+            if i % 50 == 0:  # 每50只股票处理一次事件
+                QApplication.processEvents()
+            
+            if i % 100 == 0:  # 每100只股票打印一次日志
+                self.logger.info(f"已处理 {i} 只创业板股票【日线】数据")
+
     def process_gem_stock_weekly_data(self):
         i = 1
         for value in self.dict_all_stocks['gem']['证券代码']:
@@ -940,6 +969,12 @@ class BaoStockProcessor:
             #     self.logger.info(f"已获取到所有创业板股票周线数据, i: {i}")
             #     break
 
+            if i % 50 == 0:  # 每50只股票处理一次事件
+                QApplication.processEvents()
+            
+            if i % 100 == 0:  # 每100只股票打印一次日志
+                self.logger.info(f"已处理 {i} 只创业板股票【周线】数据")
+
     def process_star_stock_daily_data(self):
         i = 1
         for value in self.dict_all_stocks['star']['证券代码']:
@@ -949,6 +984,12 @@ class BaoStockProcessor:
             # if i > 1:
             #     self.logger.info(f"已获取到所有科创板股票日线数据, i: {i}")
             #     break
+
+            if i % 50 == 0:  # 每50只股票处理一次事件
+                QApplication.processEvents()
+            
+            if i % 100 == 0:  # 每100只股票打印一次日志
+                self.logger.info(f"已处理 {i} 只科创板股票【日线】数据")
 
     def process_star_stock_weekly_data(self):
         i = 1
@@ -960,6 +1001,12 @@ class BaoStockProcessor:
             # if i > 1:
             #     self.logger.info(f"已获取到所有科创板股票周线数据, i: {i}")
             #     break
+
+            if i % 50 == 0:  # 每50只股票处理一次事件
+                QApplication.processEvents()
+            
+            if i % 100 == 0:  # 每100只股票打印一次日志
+                self.logger.info(f"已处理 {i} 只科创板股票【周线】数据")
 
 
     def get_and_save_all_stocks_from_bao(self):
