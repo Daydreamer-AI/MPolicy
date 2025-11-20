@@ -102,3 +102,43 @@ class BaseIndicatorWidget(QWidget):
     def init_connect(self):
         """初始化信号连接"""
         pass
+
+    def get_visible_data_range(self):
+        '''
+        获取当前视图范围内X轴对应的数据索引范围和数据
+        返回: (visible_data, x_min, x_max) 或 (None, None, None) 如果无效
+        '''
+        if self.plot_widget is None or self.df_data is None or self.df_data.empty:
+            return None, None, None
+        
+        # 获取当前X轴的视图范围
+        view_range = self.plot_widget.viewRange()
+        x_range = view_range[0]  # X轴范围 [min, max]
+        
+        # 确定可视范围内的数据索引
+        x_min, x_max = int(max(0, x_range[0])), int(min(len(self.df_data), x_range[1]))
+        
+        # 确保范围有效
+        if x_min >= len(self.df_data) or x_max <= 0 or x_min >= x_max:
+            return None, None, None
+            
+        # 获取可视范围内的数据
+        visible_data = self.df_data.iloc[x_min:x_max]
+        
+        if visible_data.empty:
+            return None, None, None
+            
+        return visible_data, x_min, x_max
+
+    def slot_range_changed(self):
+        '''当视图范围改变时调用'''
+        # y轴坐标值同步
+        # 获取当前x轴视图范围内的数据
+
+
+        # 根据当前可视范围内的数据的最大、最小值调整Y轴坐标值范围
+
+        # 重新设置Y轴刻度
+        pass
+
+

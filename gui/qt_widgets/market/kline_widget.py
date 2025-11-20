@@ -60,3 +60,38 @@ class KLineWidget(BaseIndicatorWidget):
     def show_ma(self, b_show=True):
         if self.item:
             self.item.show_ma(b_show)
+
+    def slot_range_changed(self):
+        '''当视图范围改变时调用'''
+        # y轴坐标值同步
+        # 获取可视范围内的数据
+        visible_data, x_min, x_max = self.get_visible_data_range()
+        
+        if visible_data is None or visible_data.empty:
+            return
+        
+        # 根据当前可视范围内的数据的最大、最小值调整Y轴坐标值范围
+        required_columns = []
+        if 'high' in visible_data.columns and 'low' in visible_data.columns:
+            required_columns.extend(['high', 'low'])
+        
+        # 如果MA线显示，也需要考虑MA线的值
+        ma_columns = ['ma5', 'ma10', 'ma20', 'ma30', 'ma60']
+        for col in ma_columns:
+            if col in visible_data.columns and self.is_ma_show():
+                required_columns.append(col)
+                
+        if not required_columns:
+            return
+        
+        # 计算可见范围内的最大值和最小值
+        max_val = visible_data[required_columns].max().max()
+        min_val = visible_data[required_columns].min().min()
+        
+        # 添加一些padding以确保K线不会触及边界
+        padding = (max_val - min_val) * 0.05  # 5%的padding
+        y_min = min_val - padding
+        y_max = max_val + padding
+        
+        # 重新设置Y轴刻度
+        self.plot_widget.setYRange(y_min, y_max, padding=0)

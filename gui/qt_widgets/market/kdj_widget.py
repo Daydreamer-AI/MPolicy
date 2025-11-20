@@ -83,3 +83,34 @@ class KdjWidget(BaseIndicatorWidget):
         # 中轴线 (50)
         mid_line = pg.InfiniteLine(pos=50, angle=0, pen=pg.mkPen('gray', width=1, style=QtCore.Qt.DashLine))
         self.plot_widget.addItem(mid_line)
+
+    def slot_range_changed(self):
+        '''当视图范围改变时调用'''
+        # y轴坐标值同步
+        # 获取当前x轴视图范围内的数据
+        visible_data, x_min, x_max = self.get_visible_data_range()
+        if visible_data is None:
+            return
+
+        # 根据当前可视范围内的数据的最大、最小值调整Y轴坐标值范围
+        # KDJ指标需要考虑K、D、J三列数据
+        required_columns = ['K', 'D', 'J']
+        # 检查所需列是否存在
+        if not all(col in visible_data.columns for col in required_columns):
+            return
+        
+        # 计算可视范围内的最大值和最小值
+        y_min = visible_data[required_columns].min().min()
+        y_max = visible_data[required_columns].max().max()
+        
+        # 确保显示范围包含0-100的重要参考线
+        y_min = min(y_min, 0)
+        y_max = max(y_max, 100)
+        
+        # 添加一些padding以确保线条不会触及边界
+        padding = (y_max - y_min) * 0.1  # 10%的padding
+        y_min -= padding
+        y_max += padding
+        
+        # 重新设置Y轴刻度
+        self.plot_widget.setYRange(y_min, y_max, padding=0)

@@ -43,3 +43,24 @@ class VolumeWidget(BaseIndicatorWidget):
     
     def get_chart_name(self):
         return "成交量"
+    
+    def slot_range_changed(self):
+        '''当视图范围改变时调用'''
+        # y轴坐标值同步
+        # 获取可视范围内的数据
+        visible_data, x_min, x_max = self.get_visible_data_range()
+        if visible_data is None or visible_data.empty:
+            return
+        
+        # 根据当前可视范围内的数据的最大、最小值调整Y轴坐标值范围
+        # 成交量图只需要考虑volume列的最大值，最小值始终为0
+        max_volume = visible_data['volume'].max()
+        max_volume = max_volume / 10000     # 单位：万
+        
+        # 添加一些padding以确保柱状图不会触及顶部边界
+        padding = max_volume * 0.05  # 5%的padding
+        y_min = 0  # 成交量最小值始终为0
+        y_max = max_volume + padding
+        
+        # 重新设置Y轴刻度
+        self.plot_widget.setYRange(y_min, y_max, padding=0)

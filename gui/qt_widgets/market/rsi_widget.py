@@ -92,3 +92,45 @@ class RsiWidget(BaseIndicatorWidget):
         # 中轴线 (50)
         mid_line = pg.InfiniteLine(pos=50, angle=0, pen=pg.mkPen('gray', width=1, style=QtCore.Qt.DashLine))
         self.plot_widget.addItem(mid_line)
+
+    def slot_range_changed(self):
+        '''当视图范围改变时调用'''
+        # y轴坐标值同步
+        # 获取当前x轴视图范围内的数据
+        visible_data, x_min, x_max = self.get_visible_data_range()
+        if visible_data is None:
+            return
+
+        # 根据当前可视范围内的数据的最大、最小值调整Y轴坐标值范围
+        # RSI指标需要考虑可用的RSI列（rsi6, rsi12, rsi24）
+        rsi_columns = ['rsi6', 'rsi12', 'rsi24']
+        available_rsi = [col for col in rsi_columns if col in visible_data.columns]
+        
+        # 确保至少有一个RSI数据列存在
+        if not available_rsi:
+            return
+        
+        # 计算可视范围内的最大值和最小值
+        all_rsi_values = []
+        for col in available_rsi:
+            values = visible_data[col].dropna()
+            if len(values) > 0:
+                all_rsi_values.extend(values.tolist())
+        
+        if not all_rsi_values:
+            return
+            
+        y_min = min(all_rsi_values)
+        y_max = max(all_rsi_values)
+        
+        # 确保显示范围包含0-100的重要参考线
+        y_min = min(y_min, 0)
+        y_max = max(y_max, 100)
+        
+        # 添加一些padding以确保线条不会触及边界
+        padding = (y_max - y_min) * 0.1  # 10%的padding
+        y_min -= padding
+        y_max += padding
+        
+        # 重新设置Y轴刻度
+        self.plot_widget.setYRange(y_min, y_max, padding=0)

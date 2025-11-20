@@ -57,6 +57,11 @@ class MarketWidget(QWidget):
 
         self.btn_indicator_ma.clicked.connect(self.slot_btn_indicator_ma_clicked)
 
+        kline_plot_widget = self.kline_widget.get_plot_widget()
+        if kline_plot_widget:
+            kline_plot_widget.sigRangeChanged.connect(self.slot_range_changed)
+
+
     def draw_volume(self):
         widget = VolumeWidget(self.df_data, self)
         return widget
@@ -150,7 +155,9 @@ class MarketWidget(QWidget):
         self.verticalLayout_2.addWidget(indicator_widget, 1)
 
         # 缩放同步
-        # self.plot_widget.sigRangeChanged.connect(self.on_range_changed)
+        plot_widget = indicator_widget.get_plot_widget()
+        if plot_widget:
+            plot_widget.sigRangeChanged.connect(self.slot_range_changed)
 
         # 保存图表引用
         self.indicator_widgets[indicator_name] = indicator_widget
@@ -240,3 +247,14 @@ class MarketWidget(QWidget):
     def slot_btn_indicator_ma_clicked(self):
         is_checked = self.btn_indicator_ma.isChecked()
         self.kline_widget.show_ma(is_checked)
+
+    def slot_range_changed(self):
+        '''
+            当任何指标图的plot_widget的X轴范围改变时调用
+        '''
+        self.kline_widget.slot_range_changed()
+
+        # 同步所有指标图表
+        for indicator_name, widget in self.indicator_widgets.items():
+            widget.slot_range_changed()
+

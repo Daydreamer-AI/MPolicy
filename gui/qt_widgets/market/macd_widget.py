@@ -68,3 +68,27 @@ class MacdWidget(BaseIndicatorWidget):
         # 添加零轴线
         zero_line = pg.InfiniteLine(pos=0, angle=0, pen=pg.mkPen('g', width=1, style=QtCore.Qt.DashLine))
         self.plot_widget.addItem(zero_line)
+
+    def slot_range_changed(self):
+        '''当视图范围改变时调用'''
+        # y轴坐标值同步
+        # 获取当前x轴视图范围内的数据
+        visible_data, x_min, x_max = self.get_visible_data_range()
+        if visible_data is None:
+            return
+
+        # 根据当前可视范围内的数据的最大、最小值调整Y轴坐标值范围
+        # MACD指标需要考虑diff、dea、macd三列数据
+        required_columns = ['diff', 'dea', 'macd']
+        # 检查所需列是否存在
+        if not all(col in visible_data.columns for col in required_columns):
+            return
+        
+        # 计算可视范围内的绝对值最大值（MACD通常围绕0轴对称）
+        y_max = visible_data[required_columns].abs().max().max()
+        
+        # 防止y_max为0的情况
+        y_max = y_max * 1.2 if y_max > 0 else 1
+        
+        # 重新设置Y轴刻度（保持对称）
+        self.plot_widget.setYRange(-y_max, y_max, padding=0)
