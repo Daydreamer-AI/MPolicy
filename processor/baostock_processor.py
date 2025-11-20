@@ -870,6 +870,8 @@ class BaoStockProcessor:
             # if i > 3:
             #     self.logger.info(f"已获取到所有沪市股票日线数据, i: {i}")
             #     break
+
+            self.logger.info(f"获取第 {i} 只沪市主板股票 {value} 【日线】数据完成")
         
         self.logger.info("沪市主板股票日线数据获取完成")
 
@@ -883,6 +885,7 @@ class BaoStockProcessor:
             # if i > 3:
             #     self.logger.info(f"已获取到所有沪市股票周线数据, i: {i}")
             #     break
+            self.logger.info(f"获取第 {i} 只沪市主板股票 {value} 【周线】数据完成")
 
         self.logger.info("沪市主板股票周线数据获取完成")
 
@@ -897,6 +900,8 @@ class BaoStockProcessor:
             #     self.logger.info(f"已获取到所有深市股票日线数据, i: {i}")
             #     break
 
+            self.logger.info(f"获取第 {i} 只深市主板股票 {value} 【日线】数据完成")
+
         self.logger.info("深市主板股票日线数据获取完成")
     def process_sz_main_stock_weekly_data(self):
         i = 1
@@ -908,6 +913,8 @@ class BaoStockProcessor:
             # if i > 1:
             #     self.logger.info(f"已获取到所有深市股票周线数据, i: {i}")
             #     break
+
+            self.logger.info(f"获取第 {i} 只深市主板股票 {value} 【周线】数据完成")
 
         self.logger.info("深市主板股票周线数据获取完成")
 
