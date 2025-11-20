@@ -45,6 +45,7 @@ class MarketWidget(QWidget):
         self.verticalLayout_2.addWidget(self.kline_widget, 3)
         self.btn_indicator_ma.setChecked(True)
         self.kline_widget.show_ma()
+        self.kline_widget.auto_scale_to_latest()
 
 
     def init_connect(self):
@@ -61,6 +62,8 @@ class MarketWidget(QWidget):
         if kline_plot_widget:
             kline_plot_widget.sigRangeChanged.connect(self.slot_range_changed)
 
+    def update_chart(self, data):
+        pass
 
     def draw_volume(self):
         widget = VolumeWidget(self.df_data, self)
@@ -202,6 +205,19 @@ class MarketWidget(QWidget):
 
 
     # ----------------------槽函数-------------------------
+    def slot_card_item_clicked(self, item):
+        '''
+            点击股票列表中的股票时，更新图表
+        '''
+        # # 获取股票代码
+        # stock_code = item.data(Qt.UserRole)
+        # self.logger.info(f"点击股票列表中的股票，股票代码为：{stock_code}")
+
+        # # 获取股票数据
+        # self.df_data = self.get_stock_data(stock_code)
+        pass
+
+
     def slot_btn_indicator_volume_clicked(self):
         is_checked = self.btn_indicator_volume.isChecked()
         if is_checked:

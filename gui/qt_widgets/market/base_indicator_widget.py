@@ -141,4 +141,31 @@ class BaseIndicatorWidget(QWidget):
         # 重新设置Y轴刻度
         pass
 
+    def set_default_view_range(self, visible_days=120):
+        """
+        设置默认视图范围，显示最新的数据
+        :param visible_days: 默认显示的天数
+        """
+        if self.plot_widget is None or self.df_data is None or self.df_data.empty:
+            return
+        
+        total_days = len(self.df_data)
+        if total_days <= visible_days:
+            # 数据量小于等于默认显示天数，显示所有数据
+            self.plot_widget.setXRange(-1, total_days + 1, padding=0)
+        else:
+            # 显示最新的visible_days天数据
+            start_index = total_days - visible_days
+            end_index = total_days
+            self.plot_widget.setXRange(start_index, end_index, padding=0)
+
+    def auto_scale_to_latest(self, visible_days=120):
+        """
+        自动缩放到最新数据并触发Y轴自适应
+        :param visible_days: 默认显示的天数
+        """
+        self.set_default_view_range(visible_days)
+        # 触发Y轴范围调整
+        self.slot_range_changed()
+
 
