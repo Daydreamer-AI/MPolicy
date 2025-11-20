@@ -15,6 +15,7 @@ import threading
 from common.common_api import *
 from common.logging_manager import get_logger
 import traceback
+from types import MappingProxyType
 
 def singleton(cls):
     """
@@ -143,11 +144,19 @@ class BaoStockProcessor:
         total_count = 0
         
         # 遍历所有板块
+        board_index = 0
         for board_name, board_data in self.dict_all_stocks.items():
+            if board_index > 0:
+                break
+            board_index += 1
+
             self.logger.info(f"处理 {board_name} 板块...")
             
             # 遍历该板块的每一行数据
             for index, row in board_data.iterrows():
+                if index > 100:
+                    break
+
                 try:
                     stock_code = row['证券代码']
                     stock_name = row['证券名称'] if '证券名称' in row else '未知'
@@ -270,6 +279,46 @@ class BaoStockProcessor:
                 result = result[result['date'] <= end_date]
         
         return result
+
+    def get_all_daily_stock_data_dict(self):
+        '''
+            获取所有股票日K线数据
+            返回:
+                dict: 所有股票日K线数据
+        '''
+        return self.dict_daily_stock_data
+    
+    def get_all_daily_stock_data_dict_copy(self):
+        '''返回浅拷贝'''
+        return self.dict_daily_stock_data.copy()
+    
+    def get_all_daily_stock_data_dict_readonly(self):
+        '''
+            获取所有股票日K线数据（只读）
+            返回:
+                MappingProxyType: 所有股票日K线数据的只读视图
+        '''
+        return MappingProxyType(self.dict_daily_stock_data)
+    
+    
+    def get_all_weekly_stock_data_dict(self):
+        '''
+            获取所有股票周K线数据
+            返回:
+                dict: 所有股票周K线数据
+        '''
+        return self.dict_weekly_stock_data
+    
+    def get_all_weekly_stock_data_dict_copy(self):
+        return self.dict_weekly_stock_data.copy()
+    
+    def get_all_weekly_stock_data_dict_readonly(self):
+        '''
+            获取所有股票周K线数据（只读）
+            返回:
+                MappingProxyType: 所有股票周K线数据的只读视图
+        '''
+        return MappingProxyType(self.dict_weekly_stock_data)
 
     def data_type_conversion(self, result):
         # 1. 转换日期列

@@ -44,36 +44,54 @@ class StockCardWidget(QWidget):
         # 设置焦点策略以便接收键盘事件（可选）
         self.setFocusPolicy(Qt.StrongFocus)
 
-        self.label_stock_code.hide()
-
     def init_connect(self):
         pass
 
+    def _get_data_attr(self, attr_name, default=None):
+        """安全获取数据属性的辅助函数"""
+        if self.data is None:
+            return default
+        
+        if hasattr(self.data, 'get'):  # pandas Series
+            return self.data.get(attr_name, default)
+        else:  # NamedTuple 或其他对象
+            return getattr(self.data, attr_name, default)
+
     def update_ui(self):
-        if self.data:
+        if self.data is not None:
             if self.board_type == 2:
-                # 个股
-                # self.label_stock_name.setText(self.data.name)
+                # 个股，data: pandas Series
                 self.label_stock_name.hide()
-                self.label_stock_code.setText(self.data.code)
-                self.label_price.setTex(self.data.close)
+                code = self._get_data_attr('code')
+                close = self._get_data_attr('close')
+                
+                if code is not None:
+                    self.label_stock_code.setText(str(code))
+                if close is not None:
+                    self.label_price.setText(str(close))
 
             else:
+                # data: namedtuple
+                self.label_stock_code.hide()
                 if self.board_type == 0:
-                    self.label_stock_name.setText(self.data.industry_name)
+                    industry_name = self._get_data_attr('industry_name')
+                    if industry_name is not None:
+                        self.label_stock_name.setText(str(industry_name))
+                    
                     # 设置均价，保留2位小数
-                    avg_price = getattr(self.data, 'avg_price', None)
+                    avg_price = self._get_data_attr('avg_price')
                     if avg_price is not None and not (isinstance(avg_price, float) and pd.isna(avg_price)):
                         self.label_price.setText(f"{float(avg_price):.2f}")
                     else:
                         self.label_price.setText("N/A")
                 else:
-                    self.label_stock_name.setText(self.data.concept_name)
+                    concept_name = self._get_data_attr('concept_name')
+                    if concept_name is not None:
+                        self.label_stock_name.setText(str(concept_name))
                     self.label_price.setText("N/A")
 
-                
             # 设置涨跌幅，保留2位小数并添加百分号
-            change_percent = getattr(self.data, 'change_percent', None)
+            change_percent = self._get_data_attr('change_percent')
             if change_percent is not None and not (isinstance(change_percent, float) and pd.isna(change_percent)):
                 self.label_change_percent.setText(f"{float(change_percent):.2f}%")
             else:

@@ -14,6 +14,7 @@ class VolumeWidget(BaseIndicatorWidget):
         super(VolumeWidget, self).__init__(data, parent)
 
     def init_para(self, data):
+        self.logger = get_logger(__name__)
         if data is None or data.empty:
             raise ValueError("数据为空，无法绘制成交量指标图")
         
@@ -22,7 +23,7 @@ class VolumeWidget(BaseIndicatorWidget):
             raise ValueError("缺少必要的数据列来绘制成交量指标图")
         
         self.df_data = data
-        self.logger = get_logger(__name__)
+        
 
     def get_ui_path(self):
         return './gui/qt_widgets/market/VolumeWidget.ui'
@@ -32,7 +33,11 @@ class VolumeWidget(BaseIndicatorWidget):
         return all(col in self.df_data.columns for col in required_columns)
     
     def create_and_add_item(self):
-        self.item = VolumeItem(self.df_data)
+        if self.item is None:
+            self.item = VolumeItem(self.df_data)
+        else:
+            self.item.update_data(self.df_data)
+            
         self.plot_widget.addItem(self.item)
     
     def set_axis_ranges(self):

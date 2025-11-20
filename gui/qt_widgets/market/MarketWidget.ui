@@ -42,7 +42,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QListWidget" name="listWidget_stock">
+      <widget class="QListWidget" name="listWidget_card">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
          <horstretch>0</horstretch>

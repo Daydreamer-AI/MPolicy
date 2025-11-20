@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets, uic, QtGui
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, QTimer
 
 from processor.baostock_processor import BaoStockProcessor
 
@@ -8,13 +8,10 @@ from common.common_api import *
 import datetime
 from common.logging_manager import get_logger
 
-from gui.qt_widgets.MComponents.candlestick_item import CandlestickItem
-
 from indicators import stock_data_indicators as sdi
 
 import numpy as np
 import pyqtgraph as pg
-# from gui.qt_widgets.MComponents.custom_date_axisItem import CustomDateAxisItem, NoLabelAxis
 
 from gui.qt_widgets.market.kline_widget import KLineWidget
 from gui.qt_widgets.market.volume_widget import VolumeWidget
@@ -23,6 +20,8 @@ from gui.qt_widgets.market.macd_widget import MacdWidget
 from gui.qt_widgets.market.kdj_widget import KdjWidget
 from gui.qt_widgets.market.rsi_widget import RsiWidget
 from gui.qt_widgets.market.boll_widget import BollWidget
+
+from gui.qt_widgets.MComponents.stock_card_widget import StockCardWidget
 
 class MarketWidget(QWidget):
     def __init__(self, parent=None):
@@ -35,11 +34,16 @@ class MarketWidget(QWidget):
     def init_para(self):
         self.logger = get_logger(__name__)
         self.indicator_widgets = {} 
+        self.kline_widget = None
 
         # self.df_data列结构：date, code, open, high, low, close, volume, amount, change_percent, turnover_rate, adjustflag, diff, dea, macd, ma5, ma10, ma20, ma24, ma30, ma52, ma60, volume_ratio
-        self.df_data = BaoStockProcessor().get_daily_stock_data('sh.600000')    
+        self.df_data = None #BaoStockProcessor().get_daily_stock_data('sh.600000')    
+        self.dict_daily_stock_data = BaoStockProcessor().get_all_daily_stock_data_dict_readonly()
+        self.dict_weekly_stock_data = BaoStockProcessor().get_all_weekly_stock_data_dict_readonly()
     def init_ui(self):
         uic.loadUi('./gui/qt_widgets/market/MarketWidget.ui', self)
+
+        self.init_stock_card_list()
 
         self.kline_widget = KLineWidget(self.df_data, self)
         self.verticalLayout_2.addWidget(self.kline_widget, 3)
@@ -47,6 +51,41 @@ class MarketWidget(QWidget):
         self.kline_widget.show_ma()
         self.kline_widget.auto_scale_to_latest()
 
+
+    def init_stock_card_list(self):
+        self.listWidget_card.clear()
+
+        first_item_data = None  # 保存第一个item的数据
+        for code, df_data in self.dict_daily_stock_data.items():
+            # 确保数据不为空
+            if df_data.empty:
+                continue
+
+            row = df_data.iloc[-1]
+            stock_card_widget = StockCardWidget(2)
+            stock_card_widget.set_data(row)
+            stock_card_widget.update_ui()
+
+            stock_card_widget.clicked.connect(self.slot_stock_card_clicked)
+            # stock_card_widget.hovered.connect(self.slot_stock_card_hovered)
+            # stock_card_widget.hoverLeft.connect(self.slot_stock_card_hover_left)
+            # stock_card_widget.doubleClicked.connect(self.slot_stock_card_double_clicked)
+
+            item = QtWidgets.QListWidgetItem()
+            item.setSizeHint(stock_card_widget.sizeHint())
+            
+            self.listWidget_card.addItem(item)
+
+            self.listWidget_card.setItemWidget(item, stock_card_widget)
+
+            # 保存第一个item的数据
+            if first_item_data is None:
+                first_item_data = row
+
+        # 如果有数据，自动选择第一个item（使用定时器延迟执行）
+        if first_item_data is not None:
+            # 使用单次定时器确保UI完全初始化后再执行
+            QTimer.singleShot(100, lambda: self.select_first_item(first_item_data))
 
     def init_connect(self):
         self.btn_indicator_volume.clicked.connect(self.slot_btn_indicator_volume_clicked)
@@ -58,12 +97,101 @@ class MarketWidget(QWidget):
 
         self.btn_indicator_ma.clicked.connect(self.slot_btn_indicator_ma_clicked)
 
-        kline_plot_widget = self.kline_widget.get_plot_widget()
-        if kline_plot_widget:
-            kline_plot_widget.sigRangeChanged.connect(self.slot_range_changed)
+        if self.kline_widget is not None:
+            kline_plot_widget = self.kline_widget.get_plot_widget()
+            if kline_plot_widget:
+                kline_plot_widget.sigRangeChanged.connect(self.slot_range_changed)
+
+    def select_first_item(self, first_item_data):
+        """选择第一个item的独立方法"""
+        # 设置列表选中第一个
+        self.listWidget_card.setCurrentRow(0)
+
+        # 调用槽函数
+        self.slot_stock_card_clicked(first_item_data)
 
     def update_chart(self, data):
-        pass
+
+        # self.df_data = BaoStockProcessor().get_daily_stock_data('sh.600004')  
+        # self.logger.info(f"更新数据：\n{self.df_data.tail(1)}")
+        # self.kline_widget.update_data(self.df_data)
+        # return  
+
+        code = data['code']
+        self.df_data = BaoStockProcessor().get_daily_stock_data(code)
+        self.logger.info(f"self.df_data类型：{type(self.df_data)}")
+
+        # if self.kline_widget is None:
+        #     self.kline_widget = KLineWidget(self.df_data, self)
+        #     self.verticalLayout_2.addWidget(self.kline_widget, 3)
+        #     self.btn_indicator_ma.setChecked(True)
+        #     self.kline_widget.show_ma()
+
+        #     kline_plot_widget = self.kline_widget.get_plot_widget()
+        #     if kline_plot_widget:
+        #         kline_plot_widget.sigRangeChanged.connect(self.slot_range_changed)
+        
+        self.kline_widget.update_data(self.df_data)
+
+        is_ma_checked = self.btn_indicator_ma.isChecked()
+        self.kline_widget.show_ma(is_ma_checked)
+
+        is_volume_checked = self.btn_indicator_volume.isChecked()
+        if is_volume_checked:
+            # self.add_indicator_chart('成交量')
+            volume_widget = self.indicator_widgets['成交量']
+            if volume_widget is None:
+                self.btn_indicator_volume.setChecked(False)
+            else:
+                volume_widget.update_data(self.df_data)
+            
+
+        is_amount_checked = self.btn_indicator_amount.isChecked()
+        if is_amount_checked:
+            # self.add_indicator_chart('成交额')
+            amount_widget = self.indicator_widgets['成交额']
+            if amount_widget is None:
+                self.btn_indicator_amount.setChecked(False)
+            else:
+                amount_widget.update_data(self.df_data)
+
+        is_macd_checked = self.btn_indicator_macd.isChecked()
+        if is_macd_checked:
+            # self.add_indicator_chart('MACD')
+            macd_widget = self.indicator_widgets['MACD']
+            if macd_widget is None:
+                self.btn_indicator_macd.setChecked(False)
+            else:
+                macd_widget.update_data(self.df_data)
+
+        is_kdj_checked = self.btn_indicator_kdj.isChecked()
+        if is_kdj_checked:
+            # self.add_indicator_chart('KDJ')
+            kdj_widget = self.indicator_widgets['KDJ']
+            if kdj_widget is None:
+                self.btn_indicator_kdj.setChecked(False)
+            else:
+                kdj_widget.update_data(self.df_data)
+
+        is_rsi_checked = self.btn_indicator_rsi.isChecked()
+        if is_rsi_checked:
+            # self.add_indicator_chart('RSI')
+            rsi_widget = self.indicator_widgets['RSI']
+            if rsi_widget is None:
+                self.btn_indicator_rsi.setChecked(False)
+            else:
+                rsi_widget.update_data(self.df_data)
+
+        is_boll_checked = self.btn_indicator_boll.isChecked()
+        if is_boll_checked:
+            # self.add_indicator_chart('BOLL')
+            boll_widget = self.indicator_widgets['BOLL']
+            if boll_widget is None:
+                self.btn_indicator_boll.setChecked(False)
+            else:
+                boll_widget.update_data(self.df_data)
+
+        self.kline_widget.auto_scale_to_latest()
 
     def draw_volume(self):
         widget = VolumeWidget(self.df_data, self)
@@ -205,18 +333,13 @@ class MarketWidget(QWidget):
 
 
     # ----------------------槽函数-------------------------
-    def slot_card_item_clicked(self, item):
+    def slot_stock_card_clicked(self, data):
         '''
             点击股票列表中的股票时，更新图表
+            data: pandas Series
         '''
-        # # 获取股票代码
-        # stock_code = item.data(Qt.UserRole)
-        # self.logger.info(f"点击股票列表中的股票，股票代码为：{stock_code}")
-
-        # # 获取股票数据
-        # self.df_data = self.get_stock_data(stock_code)
-        pass
-
+        # self.logger.info(f"点击的股票数据为：{data}")
+        self.update_chart(data)
 
     def slot_btn_indicator_volume_clicked(self):
         is_checked = self.btn_indicator_volume.isChecked()

@@ -22,6 +22,20 @@ class AmountItem(pg.GraphicsObject):
         self.data = data
         self.generatePicture()
 
+    def get_data(self):
+        return self.data
+    
+    def update_data(self, data):
+        # 数据验证
+        required_columns = ['open', 'close', 'amount'] 
+        if not all(col in data.columns for col in required_columns):
+            raise ValueError(f"缺少必要的数据列，需要: {required_columns}")
+
+        self.data = data
+        self.generatePicture()
+        self.prepareGeometryChange()  # 通知框架几何形状可能发生了变化
+        self.update()  # 触发重绘
+
     def generatePicture(self):
         # …生成交易量柱状图?…
         self.picture = QtGui.QPicture()

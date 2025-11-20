@@ -17,9 +17,12 @@ class KLineWidget(BaseIndicatorWidget):
         super(KLineWidget, self).__init__(data, parent)
 
     def init_para(self, data):
+        self.logger = get_logger(__name__)
         # 检查是否有数据
         if data is None or data.empty:
-            raise ValueError("数据为空，无法绘制k线图")
+            # raise ValueError("数据为空，无法绘制k线图")
+            self.logger.warning("数据为空，无法绘制k线图")
+            return
         
         # 确保数据列存在
         required_columns = ['open', 'high', 'low', 'close']
@@ -29,7 +32,6 @@ class KLineWidget(BaseIndicatorWidget):
         
         
         self.df_data = data
-        self.logger = get_logger(__name__)
 
     def get_ui_path(self):
         return './gui/qt_widgets/market/KLineWidget.ui'
@@ -41,9 +43,10 @@ class KLineWidget(BaseIndicatorWidget):
     def create_and_add_item(self):
         if self.item is None:
             self.item = CandlestickItem(self.df_data)
-            self.plot_widget.addItem(self.item)
         else:
             self.item.update_data(self.df_data)
+            
+        self.plot_widget.addItem(self.item)
 
     def set_axis_ranges(self):
         data_high = np.max(self.df_data['high'])

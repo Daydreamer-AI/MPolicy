@@ -15,6 +15,7 @@ class BollWidget(BaseIndicatorWidget):
         super(BollWidget, self).__init__(data, parent)
 
     def init_para(self, data):
+        self.logger = get_logger(__name__)
         # 检查是否有数据
         if data is None or data.empty:
             raise ValueError("数据为空，无法绘制BOLL指标图")
@@ -26,7 +27,7 @@ class BollWidget(BaseIndicatorWidget):
             raise ValueError("缺少必要的数据列来绘制BOLL指标图")
         
         self.df_data = data
-        self.logger = get_logger(__name__)
+        
 
     def init_connect(self):
         pass
@@ -41,9 +42,10 @@ class BollWidget(BaseIndicatorWidget):
     def create_and_add_item(self):
         if self.item is None:
             self.item = BOLLItem(self.df_data)
-            self.plot_widget.addItem(self.item)
         else:
             self.item.update_data(self.df_data)
+
+        self.plot_widget.addItem(self.item)
 
     def set_axis_ranges(self):
         # 设置坐标范围

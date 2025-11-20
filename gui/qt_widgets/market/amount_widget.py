@@ -15,6 +15,7 @@ class AmountWidget(BaseIndicatorWidget):
         super(AmountWidget, self).__init__(data, parent)
 
     def init_para(self, data):
+        self.logger = get_logger(__name__)
         # 检查是否有数据
         if data is None or data.empty:
             raise ValueError("数据为空，无法绘制成交额指标图")
@@ -31,7 +32,7 @@ class AmountWidget(BaseIndicatorWidget):
             raise ValueError("amount列必须是数值类型")
         
         self.df_data = data
-        self.logger = get_logger(__name__)
+        
 
     def get_ui_path(self):
         return './gui/qt_widgets/market/AmountWidget.ui'
@@ -54,9 +55,10 @@ class AmountWidget(BaseIndicatorWidget):
         # 创建或更新成交额图
         if self.item is None:
             self.item = AmountItem(self.df_data)
-            self.plot_widget.addItem(self.item)
         else:
             self.item.update_data(self.df_data)
+
+        self.plot_widget.addItem(self.item)
 
     def set_axis_ranges(self):
         # 设置坐标范围

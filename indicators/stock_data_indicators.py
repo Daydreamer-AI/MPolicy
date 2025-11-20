@@ -216,3 +216,12 @@ def default_indicators_auto_calculate(stock_data):
     ma(stock_data, 'ma60', 60)
     quantity_ratio(stock_data)
 
+    kdj(stock_data) 
+
+    rsi(stock_data, period=6)   # 计算RSI6
+    rsi(stock_data, period=12)  # 计算RSI12
+    rsi(stock_data, period=24)  # 计算RSI24
+
+    boll(stock_data)
+
+

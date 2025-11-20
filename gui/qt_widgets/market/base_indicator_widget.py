@@ -46,8 +46,10 @@ class BaseIndicatorWidget(QWidget):
         self.plot_widget.getAxis('bottom').setTextPen(QtGui.QColor(110, 110, 110))
     
     def update_data(self, data):
+        self.logger.info(f"更新数据{self.get_chart_name()}, data长度：{len(data)}")
         self.df_data = data
         self.draw()
+        self.update()
     
     def get_data(self):
         return self.df_data
@@ -56,15 +58,16 @@ class BaseIndicatorWidget(QWidget):
         return self.plot_widget
     
     def draw(self):
-        self.plot_widget.clear()
-        
         if self.df_data is None or self.df_data.empty:
+            self.logger.info(f"数据为空，无法绘制{self.get_chart_name()}")
             return
             
         if not self.validate_data():
             self.logger.warning(f"缺少必要的数据列来绘制{self.get_chart_name()}")
             return
-            
+        
+        self.plot_widget.clear()
+        
         self.create_and_add_item()
         self.set_axis_ranges()
 
