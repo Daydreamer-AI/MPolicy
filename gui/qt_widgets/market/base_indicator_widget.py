@@ -1,4 +1,5 @@
 # base_chart_widget.py
+from PyQt5.QtCore import Qt
 from PyQt5 import QtWidgets, uic, QtGui
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 import pyqtgraph as pg
@@ -44,6 +45,20 @@ class BaseIndicatorWidget(QWidget):
         self.plot_widget.getAxis('bottom').setPen(QtGui.QColor(110, 110, 110))
         self.plot_widget.getAxis('left').setTextPen(QtGui.QColor(110, 110, 110))
         self.plot_widget.getAxis('bottom').setTextPen(QtGui.QColor(110, 110, 110))
+
+        self.v_line = pg.InfiniteLine(angle=90, movable=False, pen=pg.mkPen('#808286', width=2, style=Qt.DashLine))
+        self.h_line = pg.InfiniteLine(angle=0, movable=False, pen=pg.mkPen('#808286', width=2, style=Qt.DashLine))
+        self.v_line.setZValue(1000)
+        self.h_line.setZValue(1000)
+
+        main_viewbox = self.plot_widget.getViewBox()
+        main_viewbox.addItem(self.v_line, ignoreBounds=True)
+        main_viewbox.addItem(self.h_line, ignoreBounds=True)
+
+        self.hide_all_labels()
+
+        self.plot_widget.scene().sigMouseMoved.connect(self.slot_mouse_move)
+
     
     def update_data(self, data):
         self.logger.info(f"更新数据{self.get_chart_name()}, data长度：{len(data)}")
@@ -170,5 +185,13 @@ class BaseIndicatorWidget(QWidget):
         self.set_default_view_range(visible_days)
         # 触发Y轴范围调整
         self.slot_range_changed()
+
+    def slot_mouse_move(self, pos):
+        """鼠标移动事件处理"""
+        pass
+
+    def hide_all_labels(self):
+        self.v_line.hide()
+        self.h_line.hide()
 
 

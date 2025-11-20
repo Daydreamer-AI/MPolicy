@@ -148,16 +148,16 @@ class BaoStockProcessor:
         # 遍历所有板块
         board_index = 0
         for board_name, board_data in self.dict_all_stocks.items():
-            # if board_index > 0:
-            #     break
+            if board_index > 0:
+                break
             board_index += 1
 
             self.logger.info(f"处理 {board_name} 板块...")
             
             # 遍历该板块的每一行数据
             for index, row in board_data.iterrows():
-                # if index > 100:
-                #     break
+                if index > 100:
+                    break
 
                 try:
                     stock_code = row['证券代码']

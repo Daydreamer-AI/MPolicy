@@ -98,3 +98,41 @@ class KLineWidget(BaseIndicatorWidget):
         
         # 重新设置Y轴刻度
         self.plot_widget.setYRange(y_min, y_max, padding=0)
+
+    def slot_mouse_move(self, pos):
+        if self.plot_widget.sceneBoundingRect().contains(pos):
+            mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
+            x_val = mouse_point.x()
+            y_val = mouse_point.y()
+
+            # self.logger.info(f"鼠标位置：x={x_val}, y={y_val}")
+
+            bar_centers = list(range(len(self.df_data)))
+            
+            closest_index = None
+            min_distance = float('inf')
+            
+            for i, center in enumerate(bar_centers):
+                distance = abs(center - x_val)
+                if distance <= 0.25 / 2:
+                    if distance < min_distance:
+                        min_distance = distance
+                        closest_index = i
+            
+            if closest_index is not None:
+                view_range = self.plot_widget.getViewBox().viewRange()
+                closest_x = bar_centers[closest_index]
+
+                self.v_line.setPos(closest_x)
+                self.v_line.show()
+
+                self.h_line.setPos(y_val)
+                self.h_line.show()
+
+            else:
+                self.hide_all_labels()
+        else:
+            self.hide_all_labels()
+
+            
+
