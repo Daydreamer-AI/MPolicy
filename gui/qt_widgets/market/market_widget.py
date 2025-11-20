@@ -15,6 +15,8 @@ from indicators import stock_data_indicators as sdi
 import numpy as np
 import pyqtgraph as pg
 # from gui.qt_widgets.MComponents.custom_date_axisItem import CustomDateAxisItem, NoLabelAxis
+
+from gui.qt_widgets.market.kline_widget import KLineWidget
 from gui.qt_widgets.market.volume_widget import VolumeWidget
 from gui.qt_widgets.market.amount_widget import AmountWidget
 from gui.qt_widgets.market.macd_widget import MacdWidget
@@ -30,8 +32,6 @@ class MarketWidget(QWidget):
         self.init_ui()
         self.init_connect()
 
-        self.draw_charts()
-
     def init_para(self):
         self.logger = get_logger(__name__)
         self.indicator_widgets = {} 
@@ -41,22 +41,10 @@ class MarketWidget(QWidget):
     def init_ui(self):
         uic.loadUi('./gui/qt_widgets/market/MarketWidget.ui', self)
 
-        widget_k_line_layout = self.widget_k_line.layout()
-        if widget_k_line_layout is None:
-            self.widget_k_line.setLayout(QVBoxLayout())
-
-
-        # self.date_axis_main = NoLabelAxis(orientation='bottom')
-        # self.plot_widget = pg.PlotWidget(axisItems={'bottom': self.date_axis_main})
-        self.kline_plot_widget = pg.PlotWidget()
-        self.kline_plot_widget.hideAxis('bottom')
-        self.kline_plot_widget.getAxis('left').setWidth(60)
-        self.kline_plot_widget.setBackground('w')
-        # self.kline_plot_widget.setLabel('left', 'Price')
-        # self.kline_plot_widget.setLabel('bottom', 'Time')
-        self.kline_plot_widget.showGrid(x=True, y=True)
-        self.kline_plot_widget.setMouseEnabled(x=True, y=False)
-        widget_k_line_layout.addWidget(self.kline_plot_widget)
+        self.kline_widget = KLineWidget(self.df_data, self)
+        self.verticalLayout_2.addWidget(self.kline_widget, 3)
+        self.btn_indicator_ma.setChecked(True)
+        self.kline_widget.show_ma()
 
 
     def init_connect(self):
@@ -67,44 +55,7 @@ class MarketWidget(QWidget):
         self.btn_indicator_rsi.clicked.connect(self.slot_btn_indicator_rsi_clicked)
         self.btn_indicator_boll.clicked.connect(self.slot_btn_indicator_boll_clicked)
 
-    def draw_charts(self):
-        # ."绘制所有图表…
-        self.draw_kline()
-        # self.draw_volume()
-        # self.draw_macd()
-        # self.update_info_labels()
-
-
-    def draw_kline(self):
-        self.kline_plot_widget.clear()
-        
-        # 检查是否有数据
-        if self.df_data is None or self.df_data.empty:
-            return
-        
-        # 确保数据列存在
-        required_columns = ['high', 'low', 'open', 'close', 'date']
-        if not all(col in self.df_data.columns for col in required_columns):
-            self.logger.warning("缺少必要的数据列来绘制K线图")
-            return
-        
-        # 计算数据范围
-        data_high = np.max(self.df_data['high'])
-        data_low = np.min(self.df_data['low'])
-        
-        # 创建蜡烛图
-        candle_item = CandlestickItem(self.df_data)
-        self.kline_plot_widget.addItem(candle_item)
-        
-        # 设置样式
-        self.kline_plot_widget.setXRange(-1, len(self.df_data) + 1, padding=0)
-        self.kline_plot_widget.setYRange(data_low * 0.95, data_high * 1.05, padding=0)
-        
-        # 设置坐标轴颜色
-        self.kline_plot_widget.getAxis('left').setPen(QtGui.QColor(110, 110, 110))
-        self.kline_plot_widget.getAxis('bottom').setPen(QtGui.QColor(110, 110, 110))
-        self.kline_plot_widget.getAxis('left').setTextPen(QtGui.QColor(110, 110, 110))
-        self.kline_plot_widget.getAxis('bottom').setTextPen(QtGui.QColor(110, 110, 110))
+        self.btn_indicator_ma.clicked.connect(self.slot_btn_indicator_ma_clicked)
 
     def draw_volume(self):
         widget = VolumeWidget(self.df_data, self)
@@ -192,9 +143,14 @@ class MarketWidget(QWidget):
             plot_widget = indicator_widget.get_plot_widget()
             if plot_widget:
                 plot_widget.getAxis('left').setWidth(60)
-                plot_widget.setXLink(self.kline_plot_widget)
+                kline_plot_widget = self.kline_widget.get_plot_widget()
+                if kline_plot_widget:
+                    plot_widget.setXLink(kline_plot_widget)
         
         self.verticalLayout_2.addWidget(indicator_widget, 1)
+
+        # 缩放同步
+        # self.plot_widget.sigRangeChanged.connect(self.on_range_changed)
 
         # 保存图表引用
         self.indicator_widgets[indicator_name] = indicator_widget
@@ -280,3 +236,7 @@ class MarketWidget(QWidget):
             self.add_indicator_chart('BOLL')
         else:
             self.remove_indicator_chart('BOLL')
+
+    def slot_btn_indicator_ma_clicked(self):
+        is_checked = self.btn_indicator_ma.isChecked()
+        self.kline_widget.show_ma(is_checked)

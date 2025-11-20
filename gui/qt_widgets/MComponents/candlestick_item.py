@@ -28,7 +28,34 @@ class CandlestickItem(pg.GraphicsObject):
             raise ValueError(f"缺少必要的数据列，需要: {required_columns}")
 
         self.data = data            # data should be a list or Pandas.DataFrame (date, code, open, high, low, close...)
+        self.ma_visible = True
         self.generatePicture()
+
+    def get_data(self):
+        return self.data
+    
+    def update_data(self, data):
+        # 数据验证
+        required_columns = ['open', 'close', 'high', 'low'] # , 'ma5', 'ma10', 'ma20', 'ma24', 'ma30', 'ma52', 'ma60'
+        if not all(col in data.columns for col in required_columns):
+            raise ValueError(f"缺少必要的数据列，需要: {required_columns}")
+
+        self.data = data
+        self.generatePicture()
+        self.prepareGeometryChange()  # 通知框架几何形状可能发生了变化
+        self.update()  # 触发重绘
+
+    def is_ma_show(self):
+        return self.ma_visible
+    
+    def show_ma(self, b_show=True):
+        if self.ma_visible == b_show:
+            return
+        
+        self.ma_visible = b_show
+        self.generatePicture()
+        self.prepareGeometryChange()
+        self.update()
 
     def generatePicture(self):
         # 生成蜡烛图
@@ -43,48 +70,50 @@ class CandlestickItem(pg.GraphicsObject):
             return
 
         #绘制移动平均线
-        if 'ma5' in self.data.columns and len(self.data) > 5:
-            ma5 = self.data['ma5']
-            ma5_lines = self._get_quota_lines(ma5)
-            if ma5_lines:  # 确保有线段可绘制
-                p.setPen(pg.mkPen(color_table['black'], width=2))
-                p.drawLines(*tuple(ma5_lines))
+        if self.ma_visible:
+            
+            if 'ma5' in self.data.columns and len(self.data) > 5:
+                ma5 = self.data['ma5']
+                ma5_lines = self._get_quota_lines(ma5)
+                if ma5_lines:  # 确保有线段可绘制
+                    p.setPen(pg.mkPen(color_table['black'], width=2))
+                    p.drawLines(*tuple(ma5_lines))
 
-        if 'ma10' in self.data.columns and len(self.data) > 10:
-            ma10 = self.data['ma10']
-            ma10_lines = self._get_quota_lines(ma10)
-            if ma10_lines:
-                p.setPen(pg.mkPen(color_table['ma_yellow'], width=2))
-                p.drawLines(*tuple(ma10_lines))
+            if 'ma10' in self.data.columns and len(self.data) > 10:
+                ma10 = self.data['ma10']
+                ma10_lines = self._get_quota_lines(ma10)
+                if ma10_lines:
+                    p.setPen(pg.mkPen(color_table['ma_yellow'], width=2))
+                    p.drawLines(*tuple(ma10_lines))
 
-        # if 'ma20' in self.data.columns and len(self.data) > 20:
-        #     ma20 = self.data['ma20']
-        #     ma20_lines = self._get_quota_lines(ma20)
-        #     if ma20_lines:
-        #         p.setPen(pg.mkPen(color_table['pink'], width=1))
-        #         p.drawLines(*tuple(ma20_lines))
+            # if 'ma20' in self.data.columns and len(self.data) > 20:
+            #     ma20 = self.data['ma20']
+            #     ma20_lines = self._get_quota_lines(ma20)
+            #     if ma20_lines:
+            #         p.setPen(pg.mkPen(color_table['pink'], width=1))
+            #         p.drawLines(*tuple(ma20_lines))
 
-        if 'ma24' in self.data.columns and len(self.data) > 24:
-            ma24 = self.data['ma24']
-            ma24_lines = self._get_quota_lines(ma24)
-            if ma24_lines:
-                p.setPen(pg.mkPen(color_table['ma_purple'], width=2))
-                p.drawLines(*tuple(ma24_lines))
+            if 'ma24' in self.data.columns and len(self.data) > 24:
+                ma24 = self.data['ma24']
+                ma24_lines = self._get_quota_lines(ma24)
+                if ma24_lines:
+                    p.setPen(pg.mkPen(color_table['ma_purple'], width=2))
+                    p.drawLines(*tuple(ma24_lines))
 
-        
-        # if 'ma30' in self.data.columns and len(self.data) > 30:
-        #     ma30 = self.data['ma30']
-        #     ma30_lines = self._get_quota_lines(ma30)
-        #     if ma30_lines:
-        #         p.setPen(pg.mkPen(color_table['pink'], width=1))
-        #         p.drawLines(*tuple(ma30_lines))
+            
+            # if 'ma30' in self.data.columns and len(self.data) > 30:
+            #     ma30 = self.data['ma30']
+            #     ma30_lines = self._get_quota_lines(ma30)
+            #     if ma30_lines:
+            #         p.setPen(pg.mkPen(color_table['pink'], width=1))
+            #         p.drawLines(*tuple(ma30_lines))
 
-        if 'ma52' in self.data.columns and len(self.data) > 52:
-            ma52 = self.data['ma52']
-            ma52_lines = self._get_quota_lines(ma52)
-            if ma52_lines:
-                p.setPen(pg.mkPen(color_table['ma_green'], width=2))
-                p.drawLines(*tuple(ma52_lines))
+            if 'ma52' in self.data.columns and len(self.data) > 52:
+                ma52 = self.data['ma52']
+                ma52_lines = self._get_quota_lines(ma52)
+                if ma52_lines:
+                    p.setPen(pg.mkPen(color_table['ma_green'], width=2))
+                    p.drawLines(*tuple(ma52_lines))
         
 
         #绘制蜡烛图

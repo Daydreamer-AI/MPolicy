@@ -1,0 +1,228 @@
+2025-11-19 11:22:56 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'ma5'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 98, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 47, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 20, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 29, in init_ui
+    self.market_page = MarketWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 24, in __init__
+    self.draw_charts()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 56, in draw_charts
+    self.draw_kline()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 80, in draw_kline
+    candle_item = CandlestickItem(self.df_data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\MComponents\candlestick_item.py", line 27, in __init__
+    self.generatePicture()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\MComponents\candlestick_item.py", line 43, in generatePicture
+    ma5 = self.data['ma5']
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\frame.py", line 4107, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'ma5'
+2025-11-19 11:30:25 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 98, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 47, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 20, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 29, in init_ui
+    self.market_page = MarketWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 24, in __init__
+    self.draw_charts()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 56, in draw_charts
+    self.draw_kline()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 80, in draw_kline
+    candle_item = CandlestickItem(self.df_data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\MComponents\candlestick_item.py", line 27, in __init__
+    self.generatePicture()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\MComponents\candlestick_item.py", line 46, in generatePicture
+    p.setPen(pg.mkPen(color_table['knight'], width=1))  # 使用颜色表中的黄色
+KeyError: 'knight'
+2025-11-19 11:31:11 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 98, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 47, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 20, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 29, in init_ui
+    self.market_page = MarketWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 24, in __init__
+    self.draw_charts()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 56, in draw_charts
+    self.draw_kline()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 80, in draw_kline
+    candle_item = CandlestickItem(self.df_data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\MComponents\candlestick_item.py", line 27, in __init__
+    self.generatePicture()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\MComponents\candlestick_item.py", line 46, in generatePicture
+    p.setPen(pg.mkPen(color_table['k'], width=1))
+KeyError: 'k'
+2025-11-19 11:32:29 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 98, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 47, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 20, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 29, in init_ui
+    self.market_page = MarketWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 24, in __init__
+    self.draw_charts()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 56, in draw_charts
+    self.draw_kline()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 80, in draw_kline
+    candle_item = CandlestickItem(self.df_data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\MComponents\candlestick_item.py", line 27, in __init__
+    self.generatePicture()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\MComponents\candlestick_item.py", line 46, in generatePicture
+    p.setPen(pg.mkPen(color_table['black'], width=1))
+KeyError: 'black'
+2025-11-19 14:12:32 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 98, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 47, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 20, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 29, in init_ui
+    self.market_page = MarketWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 25, in __init__
+    self.draw_charts()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 64, in draw_charts
+    self.draw_volume()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 124, in draw_volume
+    vol_item = VolumeItem(self.data_list)
+AttributeError: 'MarketWidget' object has no attribute 'data_list'
+2025-11-19 15:18:05 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 98, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 47, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 20, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 29, in init_ui
+    self.market_page = MarketWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 25, in __init__
+    self.draw_charts()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 75, in draw_charts
+    self.draw_macd()
+TypeError: MarketWidget.draw_macd() missing 1 required positional argument: 'plot_widget'
+2025-11-19 15:36:25 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 98, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 47, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 20, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 29, in init_ui
+    self.market_page = MarketWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 27, in __init__
+    self.add_indicator_chart('成交量')
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 145, in add_indicator_chart
+    indicator_widget = self.draw_volume()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 99, in draw_volume
+    volume_widget = VolumeWidget(self.df_data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 14, in __init__
+    self.init_para(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 35, in init_para
+    if self.df_data is None or self.df_data.empty:
+AttributeError: 'VolumeWidget' object has no attribute 'df_data'
+2025-11-19 15:37:14 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 98, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 47, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 20, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 29, in init_ui
+    self.market_page = MarketWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 27, in __init__
+    self.add_indicator_chart('成交量')
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 145, in add_indicator_chart
+    indicator_widget = self.draw_volume()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 99, in draw_volume
+    volume_widget = VolumeWidget(self.df_data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 15, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 19, in init_ui
+    layout = self.VolumeWidget.layout()
+AttributeError: 'VolumeWidget' object has no attribute 'VolumeWidget'
+2025-11-19 15:38:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 98, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 47, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 20, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 29, in init_ui
+    self.market_page = MarketWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 27, in __init__
+    self.add_indicator_chart('成交量')
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 145, in add_indicator_chart
+    indicator_widget = self.draw_volume()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 99, in draw_volume
+    volume_widget = VolumeWidget(self.df_data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 15, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 21, in init_ui
+    self.VolumeWidget.setLayout(QVBoxLayout())
+AttributeError: 'VolumeWidget' object has no attribute 'VolumeWidget'
+2025-11-19 15:38:35 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 98, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 47, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 20, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 29, in init_ui
+    self.market_page = MarketWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 27, in __init__
+    self.add_indicator_chart('成交量')
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 145, in add_indicator_chart
+    indicator_widget = self.draw_volume()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 99, in draw_volume
+    volume_widget = VolumeWidget(self.df_data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 15, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 29, in init_ui
+    layout.addWidget(self.plot_widget)
+AttributeError: 'NoneType' object has no attribute 'addWidget'
+2025-11-19 16:26:13 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 223, in slot_btn_indicator_amount_clicked
+    self.add_indicator_chart('成交额')
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 144, in add_indicator_chart
+    indicator_widget = self.draw_amount()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 107, in draw_amount
+    widget = AmountWidget(self.df_data, self)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\amount_widget.py", line 16, in __init__
+    self.init_para(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\amount_widget.py", line 51, in init_para
+    if not pd.api.types.is_numeric_dtype(data['amount']):
+NameError: name 'pd' is not defined
