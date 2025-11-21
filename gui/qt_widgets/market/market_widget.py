@@ -13,6 +13,7 @@ from indicators import stock_data_indicators as sdi
 import numpy as np
 import pyqtgraph as pg
 
+from gui.qt_widgets.market.base_indicator_widget import BaseIndicatorWidget
 from gui.qt_widgets.market.kline_widget import KLineWidget
 from gui.qt_widgets.market.volume_widget import VolumeWidget
 from gui.qt_widgets.market.amount_widget import AmountWidget
@@ -101,6 +102,10 @@ class MarketWidget(QWidget):
             kline_plot_widget = self.kline_widget.get_plot_widget()
             if kline_plot_widget:
                 kline_plot_widget.sigRangeChanged.connect(self.slot_range_changed)
+                # kline_plot_widget.scene().sigMouseMoved.connect(self.slot_mouse_moved)
+                kline_plot_widget.scene().sigMouseMoved.connect(
+                    lambda pos, widget_source=self.kline_widget: self.slot_mouse_moved(pos, widget_source)
+                )
 
     def select_first_item(self, first_item_data):
         """选择第一个item的独立方法"""
@@ -282,13 +287,18 @@ class MarketWidget(QWidget):
                 kline_plot_widget = self.kline_widget.get_plot_widget()
                 if kline_plot_widget:
                     plot_widget.setXLink(kline_plot_widget)
+                    kline_plot_widget.setXLink(plot_widget)
         
         self.verticalLayout_2.addWidget(indicator_widget, 1)
 
-        # 缩放同步
+        # 缩放同步和鼠标移动
         plot_widget = indicator_widget.get_plot_widget()
         if plot_widget:
             plot_widget.sigRangeChanged.connect(self.slot_range_changed)
+            # plot_widget.scene().sigMouseMoved.connect(self.slot_mouse_moved)
+            plot_widget.scene().sigMouseMoved.connect(
+                lambda pos, widget_source=indicator_widget: self.slot_mouse_moved(pos, widget_source)
+            )
 
         # 保存图表引用
         self.indicator_widgets[indicator_name] = indicator_widget
@@ -397,3 +407,22 @@ class MarketWidget(QWidget):
         for indicator_name, widget in self.indicator_widgets.items():
             widget.slot_range_changed()
 
+    def slot_mouse_moved(self, pos, widget_source=None):
+        if widget_source:
+            # 检查 widget_source 是否是 BaseIndicatorWidget 或其子类的实例
+            if isinstance(widget_source, BaseIndicatorWidget):
+                # self.logger.info(f"鼠标移动事件来自图表: {widget_source.get_chart_name()}")
+                pass
+            else:
+                self.logger.info(f"鼠标移动事件来自非指标组件: {type(widget_source).__name__}")
+                return
+
+
+        self.kline_widget.slot_mouse_moved(pos, widget_source)
+
+        # 同步所有指标图表
+        # self.logger.info(f"当前指标图数量：{len(self.indicator_widgets)}")
+        for indicator_name, widget in self.indicator_widgets.items():
+            # self.logger.info(f"开始执行{indicator_name}的鼠标移动响应")
+            if widget_source == widget:
+                widget.slot_mouse_moved(pos, widget_source)

@@ -1,0 +1,2031 @@
+2025-11-20 10:25:12 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 98, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 47, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 20, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 29, in init_ui
+    self.market_page = MarketWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 32, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 57, in init_ui
+    kline_widget = KLineWidget(self.df_data, self)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 18, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 38, in init_ui
+    self.draw()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 91, in draw
+    self.kline_plot_widget.setXRange(-1, len(self.df_data) + 1, padding=0)
+AttributeError: 'KLineWidget' object has no attribute 'kline_plot_widget'
+2025-11-20 10:48:03 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 98, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 47, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 20, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 29, in init_ui
+    self.market_page = MarketWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 32, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 60, in init_ui
+    self.kline_widget.show_ma()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 74, in show_ma
+    self.candlestick_item.show_ma(b_show)
+TypeError: 'bool' object is not callable
+2025-11-20 14:21:37 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:37 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:37 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:37 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:38 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:38 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:38 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:38 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:38 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:38 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:38 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:38 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:38 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:38 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:38 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:39 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:39 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:39 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:39 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:39 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:39 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:39 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:39 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:39 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:39 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:39 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:39 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:40 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:41 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:41 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:41 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:41 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:41 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:41 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:41 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:41 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:41 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:41 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:41 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:41 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:43 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:43 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:43 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:43 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:43 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:43 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:43 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:43 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 14:21:43 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 263, in slot_range_changed
+    plot_widget.slot_range_changed()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pyqtgraph\widgets\PlotWidget.py", line 85, in __getattr__
+    raise AttributeError(attr)
+AttributeError: slot_range_changed
+2025-11-20 15:23:18 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 98, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 47, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 20, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 29, in init_ui
+    self.market_page = MarketWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 31, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 45, in init_ui
+    self.init_stock_card_list()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 65, in init_stock_card_list
+    stock_card_widget.update_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\MComponents\stock_card_widget.py", line 53, in update_ui
+    if self.data:
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\generic.py", line 1577, in __nonzero__
+    raise ValueError(
+ValueError: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2025-11-20 16:16:57 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 98, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 47, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 20, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 29, in init_ui
+    self.market_page = MarketWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 31, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 47, in init_ui
+    self.kline_widget = KLineWidget(self.df_data, self)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 17, in __init__
+    super(KLineWidget, self).__init__(data, parent)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 16, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 32, in init_ui
+    self.draw()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 62, in draw
+    self.logger.warning(f"数据为空，无法绘制{self.get_chart_name()}")
+AttributeError: 'NoneType' object has no attribute 'warning'
+2025-11-20 16:19:48 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 98, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 47, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 20, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 29, in init_ui
+    self.market_page = MarketWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 31, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 47, in init_ui
+    self.kline_widget = KLineWidget(self.df_data, self)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 17, in __init__
+    super(KLineWidget, self).__init__(data, parent)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 16, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 32, in init_ui
+    self.draw()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 62, in draw
+    self.logger.info(f"数据为空，无法绘制{self.get_chart_name()}")
+AttributeError: 'NoneType' object has no attribute 'info'
+2025-11-20 16:31:31 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 319, in slot_stock_card_clicked
+    self.update_chart(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 125, in update_chart
+    volume_widget.update_data(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 51, in update_data
+    self.draw()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 65, in draw
+    if not self.validate_data():
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 32, in validate_data
+    return all(col in self.df_data.columns for col in required_columns)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 32, in <genexpr>
+    return all(col in self.df_data.columns for col in required_columns)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\generic.py", line 6318, in __getattr__
+    return object.__getattribute__(self, name)
+AttributeError: 'Series' object has no attribute 'columns'
+2025-11-20 16:42:04 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 320, in slot_stock_card_clicked
+    self.update_chart(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 126, in update_chart
+    volume_widget.update_data(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 51, in update_data
+    self.draw()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 65, in draw
+    if not self.validate_data():
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 32, in validate_data
+    return all(col in self.df_data.columns for col in required_columns)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 32, in <genexpr>
+    return all(col in self.df_data.columns for col in required_columns)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\generic.py", line 6318, in __getattr__
+    return object.__getattribute__(self, name)
+AttributeError: 'Series' object has no attribute 'columns'
+2025-11-20 16:42:10 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 320, in slot_stock_card_clicked
+    self.update_chart(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 126, in update_chart
+    volume_widget.update_data(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 51, in update_data
+    self.draw()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 65, in draw
+    if not self.validate_data():
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 32, in validate_data
+    return all(col in self.df_data.columns for col in required_columns)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 32, in <genexpr>
+    return all(col in self.df_data.columns for col in required_columns)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\generic.py", line 6318, in __getattr__
+    return object.__getattribute__(self, name)
+AttributeError: 'Series' object has no attribute 'columns'
+2025-11-20 16:42:14 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 320, in slot_stock_card_clicked
+    self.update_chart(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 126, in update_chart
+    volume_widget.update_data(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 51, in update_data
+    self.draw()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 65, in draw
+    if not self.validate_data():
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 32, in validate_data
+    return all(col in self.df_data.columns for col in required_columns)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 32, in <genexpr>
+    return all(col in self.df_data.columns for col in required_columns)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\generic.py", line 6318, in __getattr__
+    return object.__getattribute__(self, name)
+AttributeError: 'Series' object has no attribute 'columns'
+2025-11-20 16:42:16 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 376, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 57, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 16:42:16 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 376, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 57, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 16:42:16 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 376, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 57, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 16:42:20 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 320, in slot_stock_card_clicked
+    self.update_chart(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 126, in update_chart
+    volume_widget.update_data(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 51, in update_data
+    self.draw()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 65, in draw
+    if not self.validate_data():
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 32, in validate_data
+    return all(col in self.df_data.columns for col in required_columns)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 32, in <genexpr>
+    return all(col in self.df_data.columns for col in required_columns)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\generic.py", line 6318, in __getattr__
+    return object.__getattribute__(self, name)
+AttributeError: 'Series' object has no attribute 'columns'
+2025-11-20 16:48:23 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 98, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 47, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 20, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 29, in init_ui
+    self.market_page = MarketWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 32, in __init__
+    self.init_connect()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 100, in init_connect
+    kline_plot_widget = self.kline_widget.get_plot_widget()
+AttributeError: 'NoneType' object has no attribute 'get_plot_widget'
+2025-11-20 16:54:25 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 331, in slot_stock_card_clicked
+    self.update_chart(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 135, in update_chart
+    volume_widget.update_data(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 51, in update_data
+    self.draw()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 65, in draw
+    if not self.validate_data():
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 32, in validate_data
+    return all(col in self.df_data.columns for col in required_columns)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 32, in <genexpr>
+    return all(col in self.df_data.columns for col in required_columns)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\generic.py", line 6318, in __getattr__
+    return object.__getattribute__(self, name)
+AttributeError: 'Series' object has no attribute 'columns'
+2025-11-20 16:54:26 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 387, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 57, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 16:54:26 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 387, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 57, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 16:54:26 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 387, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 57, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 16:54:26 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 387, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 57, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 16:54:26 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 387, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 57, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 16:54:26 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 387, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 57, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 16:54:37 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 331, in slot_stock_card_clicked
+    self.update_chart(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 135, in update_chart
+    volume_widget.update_data(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 51, in update_data
+    self.draw()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 65, in draw
+    if not self.validate_data():
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 32, in validate_data
+    return all(col in self.df_data.columns for col in required_columns)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 32, in <genexpr>
+    return all(col in self.df_data.columns for col in required_columns)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\generic.py", line 6318, in __getattr__
+    return object.__getattribute__(self, name)
+AttributeError: 'Series' object has no attribute 'columns'
+2025-11-20 16:54:38 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 387, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 57, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 16:54:38 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 387, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 57, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 16:54:38 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 387, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 57, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 16:54:38 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 387, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 57, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 16:54:38 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 387, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 57, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 16:54:38 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 387, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 57, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 16:54:39 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 331, in slot_stock_card_clicked
+    self.update_chart(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 135, in update_chart
+    volume_widget.update_data(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 51, in update_data
+    self.draw()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 65, in draw
+    if not self.validate_data():
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 32, in validate_data
+    return all(col in self.df_data.columns for col in required_columns)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 32, in <genexpr>
+    return all(col in self.df_data.columns for col in required_columns)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\generic.py", line 6318, in __getattr__
+    return object.__getattribute__(self, name)
+AttributeError: 'Series' object has no attribute 'columns'
+2025-11-20 16:54:44 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 387, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 57, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 16:54:44 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 387, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 57, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 16:54:44 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 387, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 57, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 16:54:55 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 331, in slot_stock_card_clicked
+    self.update_chart(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 135, in update_chart
+    volume_widget.update_data(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 51, in update_data
+    self.draw()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 65, in draw
+    if not self.validate_data():
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 32, in validate_data
+    return all(col in self.df_data.columns for col in required_columns)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 32, in <genexpr>
+    return all(col in self.df_data.columns for col in required_columns)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\generic.py", line 6318, in __getattr__
+    return object.__getattribute__(self, name)
+AttributeError: 'Series' object has no attribute 'columns'
+2025-11-20 16:54:59 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 331, in slot_stock_card_clicked
+    self.update_chart(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 135, in update_chart
+    volume_widget.update_data(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 51, in update_data
+    self.draw()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 65, in draw
+    if not self.validate_data():
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 32, in validate_data
+    return all(col in self.df_data.columns for col in required_columns)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 32, in <genexpr>
+    return all(col in self.df_data.columns for col in required_columns)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\generic.py", line 6318, in __getattr__
+    return object.__getattribute__(self, name)
+AttributeError: 'Series' object has no attribute 'columns'
+2025-11-20 16:55:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 331, in slot_stock_card_clicked
+    self.update_chart(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 135, in update_chart
+    volume_widget.update_data(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 51, in update_data
+    self.draw()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 65, in draw
+    if not self.validate_data():
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 32, in validate_data
+    return all(col in self.df_data.columns for col in required_columns)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 32, in <genexpr>
+    return all(col in self.df_data.columns for col in required_columns)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\generic.py", line 6318, in __getattr__
+    return object.__getattribute__(self, name)
+AttributeError: 'Series' object has no attribute 'columns'
+2025-11-20 16:55:08 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 387, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 57, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 16:55:08 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 387, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 57, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 16:55:08 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 387, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 57, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 17:17:23 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 337, in slot_stock_card_clicked
+    self.update_chart(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 112, in update_chart
+    self.kline_widget.update_data(self.df_data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 52, in update_data
+    self.prepareGeometryChange()
+AttributeError: 'KLineWidget' object has no attribute 'prepareGeometryChange'
+2025-11-20 17:24:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 337, in slot_stock_card_clicked
+    self.update_chart(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 129, in update_chart
+    self.kline_widget.update_data(self.df_data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 51, in update_data
+    self.draw()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 71, in draw
+    self.create_and_add_item()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 51, in create_and_add_item
+    if self.item not in self.plot_widget.items:
+TypeError: argument of type 'builtin_function_or_method' is not iterable
+2025-11-20 17:32:33 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 337, in slot_stock_card_clicked
+    self.update_chart(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 141, in update_chart
+    volume_widget.update_data(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 51, in update_data
+    self.draw()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 65, in draw
+    if not self.validate_data():
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 33, in validate_data
+    return all(col in self.df_data.columns for col in required_columns)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 33, in <genexpr>
+    return all(col in self.df_data.columns for col in required_columns)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\generic.py", line 6318, in __getattr__
+    return object.__getattribute__(self, name)
+AttributeError: 'Series' object has no attribute 'columns'
+2025-11-20 17:32:34 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 337, in slot_stock_card_clicked
+    self.update_chart(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 141, in update_chart
+    volume_widget.update_data(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 51, in update_data
+    self.draw()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 65, in draw
+    if not self.validate_data():
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 33, in validate_data
+    return all(col in self.df_data.columns for col in required_columns)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 33, in <genexpr>
+    return all(col in self.df_data.columns for col in required_columns)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\generic.py", line 6318, in __getattr__
+    return object.__getattribute__(self, name)
+AttributeError: 'Series' object has no attribute 'columns'
+2025-11-20 17:32:35 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 337, in slot_stock_card_clicked
+    self.update_chart(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 141, in update_chart
+    volume_widget.update_data(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 51, in update_data
+    self.draw()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 65, in draw
+    if not self.validate_data():
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 33, in validate_data
+    return all(col in self.df_data.columns for col in required_columns)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 33, in <genexpr>
+    return all(col in self.df_data.columns for col in required_columns)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\generic.py", line 6318, in __getattr__
+    return object.__getattribute__(self, name)
+AttributeError: 'Series' object has no attribute 'columns'
+2025-11-20 17:32:42 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 337, in slot_stock_card_clicked
+    self.update_chart(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 141, in update_chart
+    volume_widget.update_data(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 51, in update_data
+    self.draw()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 65, in draw
+    if not self.validate_data():
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 33, in validate_data
+    return all(col in self.df_data.columns for col in required_columns)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 33, in <genexpr>
+    return all(col in self.df_data.columns for col in required_columns)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\generic.py", line 6318, in __getattr__
+    return object.__getattribute__(self, name)
+AttributeError: 'Series' object has no attribute 'columns'
+2025-11-20 17:32:46 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 337, in slot_stock_card_clicked
+    self.update_chart(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 141, in update_chart
+    volume_widget.update_data(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 51, in update_data
+    self.draw()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 65, in draw
+    if not self.validate_data():
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 33, in validate_data
+    return all(col in self.df_data.columns for col in required_columns)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 33, in <genexpr>
+    return all(col in self.df_data.columns for col in required_columns)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\generic.py", line 6318, in __getattr__
+    return object.__getattribute__(self, name)
+AttributeError: 'Series' object has no attribute 'columns'
+2025-11-20 17:32:47 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 393, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 62, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 17:32:47 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 393, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 62, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 17:32:47 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 393, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 62, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 17:32:47 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'volume'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 393, in slot_range_changed
+    widget.slot_range_changed()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 62, in slot_range_changed
+    max_volume = visible_data['volume'].max()
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1130, in __getitem__
+    return self._get_value(key)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\series.py", line 1246, in _get_value
+    loc = self.index.get_loc(label)
+  File "D:\PythonProject\MPolicy\.venv\lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'volume'
+2025-11-20 17:38:53 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 342, in slot_stock_card_clicked
+    self.update_chart(data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 146, in update_chart
+    volume_widget.update_data(self.df_data)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 51, in update_data
+    self.draw()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 71, in draw
+    self.create_and_add_item()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\volume_widget.py", line 39, in create_and_add_item
+    self.item.update_data(self.df_data)
+AttributeError: 'VolumeItem' object has no attribute 'update_data'
+2025-11-20 20:06:15 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\main.py", line 98, in <module>
+    main()
+  File "d:\PythonProject\MPolicy\main.py", line 47, in main
+    widget = MainWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 20, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\main\main_widget.py", line 29, in init_ui
+    self.market_page = MarketWidget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 31, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\market_widget.py", line 48, in init_ui
+    self.kline_widget = KLineWidget(self.df_data, self)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 17, in __init__
+    super(KLineWidget, self).__init__(data, parent)
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 16, in __init__
+    self.init_ui()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 30, in init_ui
+    self.setup_plot_widget()
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\base_indicator_widget.py", line 48, in setup_plot_widget
+    self.v_line = pg.InfiniteLine(angle=90, movable=False, pen=pg.mkPen('#808286', width=2, style=Qt.DashLine))
+NameError: name 'Qt' is not defined
+2025-11-20 20:09:06 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:06 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:06 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:06 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:06 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:06 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:06 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:06 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:06 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:06 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:06 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:06 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:06 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:07 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:08 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:08 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:08 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:08 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:08 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:08 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:08 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:08 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:08 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:08 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:08 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given
+2025-11-20 20:09:08 [CRITICAL] global_exception:logging_manager.py:212 - 未处理的异常
+Traceback (most recent call last):
+  File "d:\PythonProject\MPolicy\gui\qt_widgets\market\kline_widget.py", line 108, in slot_mouse_move
+    self.v_line.setPos(x_val, y_val)
+TypeError: InfiniteLine.setPos() takes 2 positional arguments but 3 were given

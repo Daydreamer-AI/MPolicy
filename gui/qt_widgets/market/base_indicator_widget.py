@@ -6,6 +6,9 @@ import pyqtgraph as pg
 import numpy as np
 
 class BaseIndicatorWidget(QWidget):
+    # 类变量，用于存储所有实例的垂直线引用
+    _shared_v_lines = {}
+    _shared_h_lines = {}
     def __init__(self, data, parent=None):
         super(BaseIndicatorWidget, self).__init__(parent)
         self.item = None
@@ -16,6 +19,16 @@ class BaseIndicatorWidget(QWidget):
         self.init_para(data)
         self.init_ui()
         self.init_connect()
+
+    # 清理资源
+    def __del__(self):
+        # 从共享字典中移除
+        chart_name = self.get_chart_name()
+        self.logger.info(f"开始清理{chart_name}及其资源")
+        if chart_name in BaseIndicatorWidget._shared_v_lines:
+            del BaseIndicatorWidget._shared_v_lines[chart_name]
+        if chart_name in BaseIndicatorWidget._shared_h_lines:
+            del BaseIndicatorWidget._shared_h_lines[chart_name]
     
     def init_ui(self):
         # 加载UI文件（子类需提供）
@@ -51,13 +64,17 @@ class BaseIndicatorWidget(QWidget):
         self.v_line.setZValue(1000)
         self.h_line.setZValue(1000)
 
+        # 将垂直线添加到共享列表
+        BaseIndicatorWidget._shared_v_lines[self.get_chart_name()] = self.v_line
+        BaseIndicatorWidget._shared_h_lines[self.get_chart_name()] = self.h_line
+
         main_viewbox = self.plot_widget.getViewBox()
         main_viewbox.addItem(self.v_line, ignoreBounds=True)
         main_viewbox.addItem(self.h_line, ignoreBounds=True)
 
         self.hide_all_labels()
 
-        self.plot_widget.scene().sigMouseMoved.connect(self.slot_mouse_move)
+        # self.plot_widget.scene().sigMouseMoved.connect(self.slot_mouse_moved)
 
     
     def update_data(self, data):
@@ -186,12 +203,97 @@ class BaseIndicatorWidget(QWidget):
         # 触发Y轴范围调整
         self.slot_range_changed()
 
-    def slot_mouse_move(self, pos):
+    def slot_mouse_moved(self, pos, widget_source=None):
         """鼠标移动事件处理"""
+        if widget_source is not None:
+            # self.logger.info(f"正在处理{self.get_chart_name()}鼠标移动响应，来源：{widget_source.get_chart_name()}")
+            pass
+        else:
+            # self.logger.info(f"widget_source is not None")
+            return
+
+        if self.plot_widget.sceneBoundingRect().contains(pos):
+            mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
+            x_val = mouse_point.x()
+            y_val = mouse_point.y()
+
+            # self.logger.info(f"鼠标位置：x={x_val}, y={y_val}")
+
+            bar_centers = list(range(len(self.df_data)))
+            
+            closest_index = None
+            min_distance = float('inf')
+            
+            for i, center in enumerate(bar_centers):
+                distance = abs(center - x_val)
+                if distance <= 0.25 / 2:
+                    if distance < min_distance:
+                        min_distance = distance
+                        closest_index = i
+            
+            if closest_index is not None:
+                view_range = self.plot_widget.getViewBox().viewRange()
+                closest_x = bar_centers[closest_index]
+
+                # 默认全显示。问题：只会显示当前移动图表的十字线，其他图表无法通过上面的位置判断。
+                # self.h_line.setPos(y_val)
+                # self.h_line.show()
+
+                # self.v_line.setPos(closest_x)
+                # self.v_line.show()
+
+                
+                # 方式一：子类中显示十字线。问题：只会显示当前移动图表的十字线，其他图表无法通过上面的位置判断。
+                # widget_source_plot_widget = widget_source.get_plot_widget()
+                # if widget_source_plot_widget is not None and widget_source_plot_widget == self.plot_widget:
+                #     self.h_line.setPos(y_val)
+                #     self.h_line.show()
+
+                
+                # self.additional_mouse_moved(closest_x)
+
+                # 方式二：统一在父类中显示十字线。问题：
+                # 同步更新所有视图中的十字线
+                # self.logger.info(f"当前存储的垂直线：\n{BaseIndicatorWidget._shared_v_lines.keys()}")
+                for chart_name, v_line in BaseIndicatorWidget._shared_v_lines.items():
+                    # self.logger.info(f"正在显示{chart_name}的垂直线")
+                    v_line.setPos(closest_x)
+                    v_line.show()
+
+                # self.logger.info(f"当前存储的水平线：\n{BaseIndicatorWidget._shared_h_lines.keys()}")
+                for chart_name, h_line in BaseIndicatorWidget._shared_h_lines.items():
+                    if chart_name == widget_source.get_chart_name():
+                        h_line.setPos(y_val)
+                        h_line.show()
+                    # else:
+                    #     h_line.hide()
+
+            # else:
+            #     self.hide_all_labels()
+        # else:
+            # self.logger.info(f"鼠标位置超出图表范围")
+            # self.hide_all_labels()
+
+    def additional_mouse_moved(self, closest_x):
+        """钩子方法：子类可以重写此方法添加鼠标移动处理"""
         pass
 
     def hide_all_labels(self):
         self.v_line.hide()
         self.h_line.hide()
+        pass
+
+    def enterEvent(self, event):
+        """
+        当鼠标进入控件时的处理
+        """
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):
+        """
+        当鼠标离开控件时，隐藏所有标签和十字线
+        """
+        self.hide_all_labels()
+        super().leaveEvent(event)
 
 
