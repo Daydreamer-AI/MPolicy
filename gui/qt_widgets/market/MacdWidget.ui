@@ -51,7 +51,7 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <property name="spacing">
-       <number>9</number>
+       <number>12</number>
       </property>
       <property name="leftMargin">
        <number>0</number>
@@ -69,6 +69,13 @@
        <widget class="QLabel" name="label_macd_title">
         <property name="text">
          <string>MACD</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_param">
+        <property name="text">
+         <string>(12,26,9)</string>
         </property>
        </widget>
       </item>

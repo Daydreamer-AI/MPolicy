@@ -136,3 +136,12 @@ class RsiWidget(BaseIndicatorWidget):
         
         # 重新设置Y轴刻度
         self.plot_widget.setYRange(y_min, y_max, padding=0)
+
+    def slot_golbal_update_labels(self, closest_index):
+        rsi_6 = self.df_data.iloc[closest_index]['rsi6']
+        rsi_12 = self.df_data.iloc[closest_index]['rsi12']
+        rsi_24 = self.df_data.iloc[closest_index]['rsi24']
+
+        self.label_rsi6.setText(f"RSI6:{rsi_6:.2f}")
+        self.label_rsi12.setText(f"RSI12:{rsi_12:.2f}")
+        self.label_rsi24.setText(f"RSI24:{rsi_24:.2f}")

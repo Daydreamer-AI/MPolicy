@@ -93,3 +93,12 @@ class BollWidget(BaseIndicatorWidget):
         
         # 重新设置Y轴刻度
         self.plot_widget.setYRange(y_min, y_max, padding=0)
+
+    def slot_golbal_update_labels(self, closest_index):
+        mid = self.df_data.iloc[closest_index]['boll_mb']
+        upper = self.df_data.iloc[closest_index]['boll_up']
+        lower = self.df_data.iloc[closest_index]['boll_dn']
+
+        self.label_mid.setText(f"MID:{mid:.2f}")
+        self.label_upper.setText(f"UPPER:{upper:.2f}")
+        self.label_lower.setText(f"LOWER:{lower:.2f}")

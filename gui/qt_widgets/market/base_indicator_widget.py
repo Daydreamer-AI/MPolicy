@@ -1,11 +1,21 @@
 # base_chart_widget.py
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal, QObject
 from PyQt5 import QtWidgets, uic, QtGui
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 import pyqtgraph as pg
 import numpy as np
 
+class SignalManager(QObject):
+    # 全局信号管理器
+    global_update_labels = pyqtSignal(int)
+
+# 创建全局信号管理器实例
+signal_manager = SignalManager()
+
 class BaseIndicatorWidget(QWidget):
+    # 定义自定义信号
+    # sig_update_labels = pyqtSignal(int)  # 点击信号
+
     # 类变量，用于存储所有实例的垂直线引用
     _shared_v_lines = {}
     _shared_h_lines = {}
@@ -13,6 +23,10 @@ class BaseIndicatorWidget(QWidget):
     _shared_left_y_labels = {}
     def __init__(self, data, parent=None):
         super(BaseIndicatorWidget, self).__init__(parent)
+
+        # 连接到全局信号
+        signal_manager.global_update_labels.connect(self.slot_golbal_update_labels)
+
         self.item = None
         self.df_data = None
         self.logger = None
@@ -106,8 +120,13 @@ class BaseIndicatorWidget(QWidget):
     def update_data(self, data):
         self.logger.info(f"更新数据{self.get_chart_name()}, data长度：{len(data)}")
         self.df_data = data
+        self.update_widget_labels()
         self.draw()
         self.update()
+
+    def update_widget_labels(self):
+        """钩子方法：子类可以重写此方法添加额外的标签更新"""
+        pass
     
     def get_data(self):
         return self.df_data
@@ -265,13 +284,6 @@ class BaseIndicatorWidget(QWidget):
 
             # self.logger.info(f"鼠标位置：x={x_val}, y={y_val}")
 
-            # 同步更新所有视图中的十字线
-            # self.logger.info(f"当前存储的垂直线：\n{BaseIndicatorWidget._shared_v_lines.keys()}")
-            # for chart_name, v_line in BaseIndicatorWidget._shared_v_lines.items():
-            #     # self.logger.info(f"正在显示{chart_name}的垂直线")
-            #     v_line.setPos(x_val)
-            #     v_line.show()
-
             # self.logger.info(f"当前存储的水平线：\n{BaseIndicatorWidget._shared_h_lines.keys()}")
             for chart_name, h_line in BaseIndicatorWidget._shared_h_lines.items():
                 if chart_name == widget_source_chart_name:
@@ -280,6 +292,7 @@ class BaseIndicatorWidget(QWidget):
                 # else:
                 #     h_line.hide()
 
+            # 只显示鼠标所在图表的左y轴标签
             for chart_name, left_y_label in BaseIndicatorWidget._shared_left_y_labels.items():
                 if chart_name == widget_source_chart_name:
                     # self.logger.info(f"正在显示{chart_name}的左边Y轴标签, y_val={y_val}")
@@ -302,19 +315,23 @@ class BaseIndicatorWidget(QWidget):
             if closest_index is not None:
                 
                 closest_x = bar_centers[closest_index]
+
+                # 显示所有图表的垂直线
                 for chart_name, v_line in BaseIndicatorWidget._shared_v_lines.items():
                     v_line.setPos(closest_x)
                     v_line.show()
 
-
+                # 只显示鼠标所在图表的X轴标签
                 for chart_name, v_line in BaseIndicatorWidget._shared_x_labels.items():
                     if chart_name == widget_source_chart_name:
                         x_label = BaseIndicatorWidget._shared_x_labels[chart_name]
                         x_label.setHtml(self.get_date_text_with_style(closest_index))
                         x_label.setPos(closest_x, view_range[1][0])
                         x_label.show()
-
-                
+                        
+                # 更新所有图表父控件的指标标签值
+                # self.sig_update_labels.emit(closest_index)
+                signal_manager.global_update_labels.emit(closest_index)
 
 
 
@@ -346,5 +363,8 @@ class BaseIndicatorWidget(QWidget):
         """
         self.hide_all_labels()
         super().leaveEvent(event)
+
+    def slot_golbal_update_labels(self, closest_index):
+        pass
 
 

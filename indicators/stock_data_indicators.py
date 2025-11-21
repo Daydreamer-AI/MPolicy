@@ -57,12 +57,40 @@ def kdj(data, n=9, m1=3, m2=3):
     
     return data
 
-# 在你的指标计算模块中添加
+# def rsi(data, period=14):
+#     """
+#     计算RSI指标
+#     参数:
+#     data: DataFrame，包含close列
+#     period: 计算周期，默认14
+#     """
+#     if 'close' not in data.columns:
+#         raise ValueError("缺少必要的数据列：close")
+    
+#     # 计算价格变化
+#     delta = data['close'].diff()
+    
+#     # 分离上涨和下跌
+#     gain = delta.where(delta > 0, 0)
+#     loss = -delta.where(delta < 0, 0)
+    
+#     # 计算平均上涨和下跌
+#     avg_gain = gain.rolling(window=period, min_periods=1).mean()
+#     avg_loss = loss.rolling(window=period, min_periods=1).mean()
+    
+#     # 计算RS
+#     rs = avg_gain / avg_loss
+    
+#     # 计算RSI
+#     rsi_name = f'rsi{period}'
+#     data[rsi_name] = 100 - (100 / (1 + rs))
+    
+#     return data
 def rsi(data, period=14):
     """
-    计算RSI指标
+    计算RSI指标（修正版，使用指数移动平均以接近同花顺等软件的结果）
     参数:
-    data: DataFrame，包含close列
+    data: DataFrame，包含'close'列
     period: 计算周期，默认14
     """
     if 'close' not in data.columns:
@@ -75,9 +103,10 @@ def rsi(data, period=14):
     gain = delta.where(delta > 0, 0)
     loss = -delta.where(delta < 0, 0)
     
-    # 计算平均上涨和下跌
-    avg_gain = gain.rolling(window=period, min_periods=1).mean()
-    avg_loss = loss.rolling(window=period, min_periods=1).mean()
+    # 核心修正：使用指数移动平均 (EMA) 替代简单移动平均 (SMA)
+    # 使用span参数，其等于周期period
+    avg_gain = gain.ewm(span=period, min_periods=period, adjust=False).mean()
+    avg_loss = loss.ewm(span=period, min_periods=period, adjust=False).mean()
     
     # 计算RS
     rs = avg_gain / avg_loss

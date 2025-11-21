@@ -16,6 +16,10 @@ class KLineWidget(BaseIndicatorWidget):
         # 调用父类初始化，这会自动调用init_para, init_ui, init_connect
         super(KLineWidget, self).__init__(data, parent)
 
+        self.label_ma20.hide()
+        self.label_ma30.hide()
+        self.label_ma60.hide()
+
     def init_para(self, data):
         self.logger = get_logger(__name__)
         # 检查是否有数据
@@ -35,6 +39,26 @@ class KLineWidget(BaseIndicatorWidget):
 
     def get_ui_path(self):
         return './gui/qt_widgets/market/KLineWidget.ui'
+    
+    def reset_labels(self):
+        # self.label_ma_period.setText("")      # 选中周期时设置
+        self.label_stock_name.setText("")   # 点击卡片Item时，根据当前选中的股票设置
+        self.label_ma5.setText(f"MA5: ")
+        self.label_ma10.setText(f"MA10: ")
+        self.label_ma20.setText(f"MA20: ")
+        self.label_ma24.setText(f"MA24: ")
+        self.label_ma30.setText(f"MA30: ")
+        self.label_ma52.setText(f"MA52: ")
+        self.label_ma60.setText(f"MA60: ")
+
+    # def update_labels(self, closest_index):
+    #     self.label_ma5.setText(f"MA5:{self.df_data.iloc[closest_index]['ma5']:.2f}")
+    #     self.label_ma10.setText(f"MA10:{self.df_data.iloc[closest_index]['ma10']:.2f}")
+    #     self.label_ma20.setText(f"MA20:{self.df_data.iloc[closest_index]['ma20']:.2f}")
+    #     self.label_ma24.setText(f"MA24:{self.df_data.iloc[closest_index]['ma24']:.2f}")
+    #     self.label_ma30.setText(f"MA30:{self.df_data.iloc[closest_index]['ma30']:.2f}")
+    #     self.label_ma52.setText(f"MA52:{self.df_data.iloc[closest_index]['ma52']:.2f}")
+    #     self.label_ma60.setText(f"MA60:{self.df_data.iloc[closest_index]['ma60']:.2f}")
     
     def validate_data(self):
         required_columns = ['open', 'high', 'low', 'close']
@@ -63,6 +87,15 @@ class KLineWidget(BaseIndicatorWidget):
     def show_ma(self, b_show=True):
         if self.item:
             self.item.show_ma(b_show)
+
+    def set_period(self, period):
+        self.label_ma_period.setText(period)
+
+    def set_stock_name(self, stock_name):
+        self.label_stock_name.setText(stock_name)
+
+    def set_indicator_name(self, indicator_name):
+        self.label_indicator.setText(indicator_name)
 
     def slot_range_changed(self):
         '''当视图范围改变时调用'''
@@ -140,9 +173,16 @@ class KLineWidget(BaseIndicatorWidget):
     #     else:
     #         self.hide_all_labels()
 
-    def additional_mouse_moved(self, closest_x):
-        self.v_line.setPos(closest_x)
-        self.v_line.show()
-
+    def slot_golbal_update_labels(self, closest_index):
+        # 设置MA值
+        # self.label_ma_period.setText("日线")      # 点击卡片Item时，根据当前选中的周期设置
+        # self.label_stock_name.setText("股票名称")   # 点击卡片Item时，根据当前选中的股票设置
+        self.label_ma5.setText(f"MA5:{self.df_data.iloc[closest_index]['ma5']:.2f}")
+        self.label_ma10.setText(f"MA10:{self.df_data.iloc[closest_index]['ma10']:.2f}")
+        self.label_ma20.setText(f"MA20:{self.df_data.iloc[closest_index]['ma20']:.2f}")
+        self.label_ma24.setText(f"MA24:{self.df_data.iloc[closest_index]['ma24']:.2f}")
+        self.label_ma30.setText(f"MA30:{self.df_data.iloc[closest_index]['ma30']:.2f}")
+        self.label_ma52.setText(f"MA52:{self.df_data.iloc[closest_index]['ma52']:.2f}")
+        self.label_ma60.setText(f"MA60:{self.df_data.iloc[closest_index]['ma60']:.2f}")
             
 

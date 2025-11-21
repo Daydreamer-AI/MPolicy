@@ -13,6 +13,9 @@ class VolumeWidget(BaseIndicatorWidget):
     def __init__(self, data, parent=None):
         super(VolumeWidget, self).__init__(data, parent)
 
+        self.label_ma5.hide()
+        self.label_ma10.hide()
+
     def init_para(self, data):
         self.logger = get_logger(__name__)
         if data is None or data.empty:
@@ -23,7 +26,6 @@ class VolumeWidget(BaseIndicatorWidget):
             raise ValueError("缺少必要的数据列来绘制成交量指标图")
         
         self.df_data = data
-        
 
     def get_ui_path(self):
         return './gui/qt_widgets/market/VolumeWidget.ui'
@@ -114,6 +116,10 @@ class VolumeWidget(BaseIndicatorWidget):
     #         self.logger.info(f"鼠标位置超出图表范围")
     #         self.hide_all_labels()
 
-    def additional_mouse_moved(self, closest_x):
-        self.v_line.setPos(closest_x)
-        self.v_line.show()
+    def slot_golbal_update_labels(self, closest_index):
+        # self.v_line.setPos(closest_x)
+        # self.v_line.show()
+        volume = self.df_data.iloc[closest_index]['volume'] / 10000
+        self.label_total_volume.setText(f"总量：{volume:.2f}万")
+        
+        

@@ -44,12 +44,27 @@ class MarketWidget(QWidget):
     def init_ui(self):
         uic.loadUi('./gui/qt_widgets/market/MarketWidget.ui', self)
 
+        self.period_button_group = QtWidgets.QButtonGroup(self)
+        self.period_button_group.addButton(self.btn_time)
+        self.period_button_group.addButton(self.btn_1d)
+        self.period_button_group.addButton(self.btn_1w)
+        self.period_button_group.addButton(self.btn_1m)
+        self.period_button_group.addButton(self.btn_5m)
+        self.period_button_group.addButton(self.btn_10m)
+        self.period_button_group.addButton(self.btn_15m)
+        self.period_button_group.addButton(self.btn_30m)
+        self.period_button_group.addButton(self.btn_60m)
+        self.period_button_group.addButton(self.btn_120m)
+
+
         self.init_stock_card_list()
 
         self.kline_widget = KLineWidget(self.df_data, self)
         self.verticalLayout_2.addWidget(self.kline_widget, 3)
         self.btn_indicator_ma.setChecked(True)
         self.kline_widget.show_ma()
+        self.kline_widget.set_period("日线")
+        self.kline_widget.set_indicator_name("均线")
         self.kline_widget.auto_scale_to_latest()
 
 
@@ -89,6 +104,7 @@ class MarketWidget(QWidget):
             QTimer.singleShot(100, lambda: self.select_first_item(first_item_data))
 
     def init_connect(self):
+        self.period_button_group.buttonClicked.connect(self.slot_period_button_clicked)
         self.btn_indicator_volume.clicked.connect(self.slot_btn_indicator_volume_clicked)
         self.btn_indicator_amount.clicked.connect(self.slot_btn_indicator_amount_clicked)
         self.btn_indicator_macd.clicked.connect(self.slot_btn_indicator_macd_clicked)
@@ -106,6 +122,8 @@ class MarketWidget(QWidget):
                 kline_plot_widget.scene().sigMouseMoved.connect(
                     lambda pos, widget_source=self.kline_widget: self.slot_mouse_moved(pos, widget_source)
                 )
+
+        
 
     def select_first_item(self, first_item_data):
         """选择第一个item的独立方法"""
@@ -349,7 +367,11 @@ class MarketWidget(QWidget):
             data: pandas Series
         '''
         # self.logger.info(f"点击的股票数据为：{data}")
+        self.kline_widget.set_stock_name(data['code'])
         self.update_chart(data)
+
+    def slot_period_button_clicked(self, btn):
+        self.kline_widget.set_period(btn.text())
 
     def slot_btn_indicator_volume_clicked(self):
         is_checked = self.btn_indicator_volume.isChecked()

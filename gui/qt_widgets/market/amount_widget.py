@@ -14,6 +14,9 @@ class AmountWidget(BaseIndicatorWidget):
     def __init__(self, data, parent=None):
         super(AmountWidget, self).__init__(data, parent)
 
+        self.label_ma5.hide()
+        self.label_ma10.hide()
+
     def init_para(self, data):
         self.logger = get_logger(__name__)
         # 检查是否有数据
@@ -90,3 +93,7 @@ class AmountWidget(BaseIndicatorWidget):
         
         # 重新设置Y轴刻度
         self.plot_widget.setYRange(y_min, y_max, padding=0)
+
+    def slot_golbal_update_labels(self, closest_index):
+        amount = self.df_data.iloc[closest_index]['amount'] / 100000000
+        self.label_total_amount.setText(f"总金额：{amount:.2f}亿")

@@ -94,3 +94,12 @@ class MacdWidget(BaseIndicatorWidget):
         
         # 重新设置Y轴刻度（保持对称）
         self.plot_widget.setYRange(-y_max, y_max, padding=0)
+
+    def slot_golbal_update_labels(self, closest_index):
+        macd = self.df_data.iloc[closest_index]['macd']
+        diff = self.df_data.iloc[closest_index]['diff']
+        dea = self.df_data.iloc[closest_index]['dea']
+
+        self.label_macd.setText(f"MACD:{macd:.3f}")
+        self.label_diff.setText(f"DIFF:{diff:.3f}")
+        self.label_dea.setText(f"DEA:{dea:.3f}")

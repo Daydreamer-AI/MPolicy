@@ -116,3 +116,12 @@ class KdjWidget(BaseIndicatorWidget):
         
         # 重新设置Y轴刻度
         self.plot_widget.setYRange(y_min, y_max, padding=0)
+
+    def slot_golbal_update_labels(self, closest_index):
+        k = self.df_data.iloc[closest_index]['K']
+        d = self.df_data.iloc[closest_index]['D']
+        j = self.df_data.iloc[closest_index]['J']
+
+        self.label_k.setText(f"K:{k:.2f}")
+        self.label_d.setText(f"D:{d:.2f}")
+        self.label_j.setText(f"J:{j:.2f}")
