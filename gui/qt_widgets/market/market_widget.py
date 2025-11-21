@@ -417,8 +417,8 @@ class MarketWidget(QWidget):
                 self.logger.info(f"鼠标移动事件来自非指标组件: {type(widget_source).__name__}")
                 return
 
-
-        self.kline_widget.slot_mouse_moved(pos, widget_source)
+        if widget_source == self.kline_widget:
+            self.kline_widget.slot_mouse_moved(pos, widget_source)
 
         # 同步所有指标图表
         # self.logger.info(f"当前指标图数量：{len(self.indicator_widgets)}")

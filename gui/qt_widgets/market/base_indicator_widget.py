@@ -219,6 +219,21 @@ class BaseIndicatorWidget(QWidget):
 
             # self.logger.info(f"鼠标位置：x={x_val}, y={y_val}")
 
+            # 同步更新所有视图中的十字线
+            # self.logger.info(f"当前存储的垂直线：\n{BaseIndicatorWidget._shared_v_lines.keys()}")
+            # for chart_name, v_line in BaseIndicatorWidget._shared_v_lines.items():
+            #     # self.logger.info(f"正在显示{chart_name}的垂直线")
+            #     v_line.setPos(x_val)
+            #     v_line.show()
+
+            # self.logger.info(f"当前存储的水平线：\n{BaseIndicatorWidget._shared_h_lines.keys()}")
+            for chart_name, h_line in BaseIndicatorWidget._shared_h_lines.items():
+                if chart_name == widget_source.get_chart_name():
+                    h_line.setPos(y_val)
+                    h_line.show()
+                # else:
+                #     h_line.hide()
+
             bar_centers = list(range(len(self.df_data)))
             
             closest_index = None
@@ -234,39 +249,10 @@ class BaseIndicatorWidget(QWidget):
             if closest_index is not None:
                 view_range = self.plot_widget.getViewBox().viewRange()
                 closest_x = bar_centers[closest_index]
-
-                # 默认全显示。问题：只会显示当前移动图表的十字线，其他图表无法通过上面的位置判断。
-                # self.h_line.setPos(y_val)
-                # self.h_line.show()
-
-                # self.v_line.setPos(closest_x)
-                # self.v_line.show()
-
-                
-                # 方式一：子类中显示十字线。问题：只会显示当前移动图表的十字线，其他图表无法通过上面的位置判断。
-                # widget_source_plot_widget = widget_source.get_plot_widget()
-                # if widget_source_plot_widget is not None and widget_source_plot_widget == self.plot_widget:
-                #     self.h_line.setPos(y_val)
-                #     self.h_line.show()
-
-                
-                # self.additional_mouse_moved(closest_x)
-
-                # 方式二：统一在父类中显示十字线。问题：
-                # 同步更新所有视图中的十字线
-                # self.logger.info(f"当前存储的垂直线：\n{BaseIndicatorWidget._shared_v_lines.keys()}")
                 for chart_name, v_line in BaseIndicatorWidget._shared_v_lines.items():
-                    # self.logger.info(f"正在显示{chart_name}的垂直线")
                     v_line.setPos(closest_x)
                     v_line.show()
 
-                # self.logger.info(f"当前存储的水平线：\n{BaseIndicatorWidget._shared_h_lines.keys()}")
-                for chart_name, h_line in BaseIndicatorWidget._shared_h_lines.items():
-                    if chart_name == widget_source.get_chart_name():
-                        h_line.setPos(y_val)
-                        h_line.show()
-                    # else:
-                    #     h_line.hide()
 
             # else:
             #     self.hide_all_labels()
