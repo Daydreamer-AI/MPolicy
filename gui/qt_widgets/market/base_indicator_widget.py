@@ -9,6 +9,8 @@ class BaseIndicatorWidget(QWidget):
     # 类变量，用于存储所有实例的垂直线引用
     _shared_v_lines = {}
     _shared_h_lines = {}
+    _shared_x_labels = {}
+    _shared_left_y_labels = {}
     def __init__(self, data, parent=None):
         super(BaseIndicatorWidget, self).__init__(parent)
         self.item = None
@@ -27,8 +29,12 @@ class BaseIndicatorWidget(QWidget):
         self.logger.info(f"开始清理{chart_name}及其资源")
         if chart_name in BaseIndicatorWidget._shared_v_lines:
             del BaseIndicatorWidget._shared_v_lines[chart_name]
+
         if chart_name in BaseIndicatorWidget._shared_h_lines:
             del BaseIndicatorWidget._shared_h_lines[chart_name]
+
+        if chart_name in BaseIndicatorWidget._shared_x_labels:
+            del BaseIndicatorWidget._shared_x_labels[chart_name]
     
     def init_ui(self):
         # 加载UI文件（子类需提供）
@@ -59,18 +65,38 @@ class BaseIndicatorWidget(QWidget):
         self.plot_widget.getAxis('left').setTextPen(QtGui.QColor(110, 110, 110))
         self.plot_widget.getAxis('bottom').setTextPen(QtGui.QColor(110, 110, 110))
 
+        # 添加十字线
         self.v_line = pg.InfiniteLine(angle=90, movable=False, pen=pg.mkPen('#808286', width=2, style=Qt.DashLine))
         self.h_line = pg.InfiniteLine(angle=0, movable=False, pen=pg.mkPen('#808286', width=2, style=Qt.DashLine))
         self.v_line.setZValue(1000)
         self.h_line.setZValue(1000)
 
+        chart_name = self.get_chart_name()
         # 将垂直线添加到共享列表
-        BaseIndicatorWidget._shared_v_lines[self.get_chart_name()] = self.v_line
-        BaseIndicatorWidget._shared_h_lines[self.get_chart_name()] = self.h_line
+        BaseIndicatorWidget._shared_v_lines[chart_name] = self.v_line
+        BaseIndicatorWidget._shared_h_lines[chart_name] = self.h_line
 
         main_viewbox = self.plot_widget.getViewBox()
         main_viewbox.addItem(self.v_line, ignoreBounds=True)
         main_viewbox.addItem(self.h_line, ignoreBounds=True)
+
+        # 添加x轴标签
+        self.x_label = pg.TextItem("", anchor=(0.5, 1))
+        self.x_label.setZValue(1000)
+        self.x_label.setFont(pg.QtGui.QFont("Arial", 9))
+        self.x_label.setColor(pg.QtGui.QColor(0, 0, 0)) 
+        
+        BaseIndicatorWidget._shared_x_labels[chart_name] = self.x_label
+        main_viewbox.addItem(self.x_label, ignoreBounds=True)
+
+        # 添加左y轴标签
+        self.left_y_label = pg.TextItem("", anchor=(0, 0.5))
+        self.left_y_label.setZValue(1000)
+        self.left_y_label.setFont(pg.QtGui.QFont("Arial", 9))
+        self.left_y_label.setColor(pg.QtGui.QColor(255, 0, 0))
+        BaseIndicatorWidget._shared_left_y_labels[chart_name] = self.left_y_label
+        
+        main_viewbox.addItem(self.left_y_label, ignoreBounds=True)
 
         self.hide_all_labels()
 
@@ -88,6 +114,25 @@ class BaseIndicatorWidget(QWidget):
     
     def get_plot_widget(self):
         return self.plot_widget
+    
+    def get_date_text_with_style(self, index):
+        try:
+            # 检查索引是否有效
+            if index < 0 or index >= len(self.df_data):
+                return ""
+            
+            # 使用 .loc 访问器获取指定行的 'date' 列数据
+            date_str = self.df_data.loc[index, 'date']
+            label_main_x_text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(date_str)
+            return label_main_x_text_with_style
+        except Exception as e:
+            self.logger.error(f"获取日期文本时出错: {e}")
+            return ""
+        
+    def get_left_y_text_with_style(self, y_val):
+        left_y_label_text = f"{y_val:.2f}"
+        left_y_label_text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(left_y_label_text)
+        return left_y_label_text_with_style
     
     def draw(self):
         if self.df_data is None or self.df_data.empty:
@@ -207,12 +252,13 @@ class BaseIndicatorWidget(QWidget):
         """鼠标移动事件处理"""
         if widget_source is not None:
             # self.logger.info(f"正在处理{self.get_chart_name()}鼠标移动响应，来源：{widget_source.get_chart_name()}")
-            pass
+            widget_source_chart_name = widget_source.get_chart_name()
         else:
             # self.logger.info(f"widget_source is not None")
             return
 
         if self.plot_widget.sceneBoundingRect().contains(pos):
+            view_range = self.plot_widget.getViewBox().viewRange()
             mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
             x_val = mouse_point.x()
             y_val = mouse_point.y()
@@ -228,11 +274,18 @@ class BaseIndicatorWidget(QWidget):
 
             # self.logger.info(f"当前存储的水平线：\n{BaseIndicatorWidget._shared_h_lines.keys()}")
             for chart_name, h_line in BaseIndicatorWidget._shared_h_lines.items():
-                if chart_name == widget_source.get_chart_name():
+                if chart_name == widget_source_chart_name:
                     h_line.setPos(y_val)
                     h_line.show()
                 # else:
                 #     h_line.hide()
+
+            for chart_name, left_y_label in BaseIndicatorWidget._shared_left_y_labels.items():
+                if chart_name == widget_source_chart_name:
+                    # self.logger.info(f"正在显示{chart_name}的左边Y轴标签, y_val={y_val}")
+                    left_y_label.setHtml(self.get_left_y_text_with_style(y_val))
+                    left_y_label.setPos(view_range[0][0], y_val)
+                    left_y_label.show()
 
             bar_centers = list(range(len(self.df_data)))
             
@@ -247,11 +300,22 @@ class BaseIndicatorWidget(QWidget):
                         closest_index = i
             
             if closest_index is not None:
-                view_range = self.plot_widget.getViewBox().viewRange()
+                
                 closest_x = bar_centers[closest_index]
                 for chart_name, v_line in BaseIndicatorWidget._shared_v_lines.items():
                     v_line.setPos(closest_x)
                     v_line.show()
+
+
+                for chart_name, v_line in BaseIndicatorWidget._shared_x_labels.items():
+                    if chart_name == widget_source_chart_name:
+                        x_label = BaseIndicatorWidget._shared_x_labels[chart_name]
+                        x_label.setHtml(self.get_date_text_with_style(closest_index))
+                        x_label.setPos(closest_x, view_range[1][0])
+                        x_label.show()
+
+                
+
 
 
             # else:
@@ -267,7 +331,8 @@ class BaseIndicatorWidget(QWidget):
     def hide_all_labels(self):
         self.v_line.hide()
         self.h_line.hide()
-        pass
+        self.x_label.hide()
+        self.left_y_label.hide()
 
     def enterEvent(self, event):
         """
