@@ -147,6 +147,35 @@ def ma(stock_data, column='5', cycle=5):
     # stock_data['MA24'] = close.rolling(window=24, min_periods=1).mean()
     stock_data[column] = close.rolling(window=cycle, min_periods=1).mean()
 
+def ma_corrected(stock_data, column='5', cycle=5, ma_type='EMA'):
+    """
+    计算移动平均线，支持多种算法以匹配同花顺。
+    
+    参数:
+    stock_data: DataFrame，包含'close'列
+    column: 输出列的名称
+    cycle: 移动平均周期
+    ma_type: 算法类型，可选 'SMA', 'EMA', 'WMA'
+    """
+    close = stock_data['close']
+    
+    if ma_type.upper() == 'SMA':
+        # 您的原始算法：简单移动平均
+        stock_data[column] = close.rolling(window=cycle, min_periods=cycle).mean()
+    elif ma_type.upper() == 'EMA':
+        # 修正算法：指数移动平均 (更可能匹配同花顺)
+        stock_data[column] = close.ewm(span=cycle, min_periods=cycle, adjust=False).mean()
+    elif ma_type.upper() == 'WMA':
+        # 另一种算法：加权移动平均
+        weights = np.arange(1, cycle+1)  # 生成线性权重 [1, 2, ..., cycle]
+        def wma_func(x):
+            return np.dot(x, weights) / weights.sum()
+        stock_data[column] = close.rolling(window=cycle, min_periods=cycle).apply(wma_func, raw=True)
+    else:
+        raise ValueError("ma_type 参数应为 'SMA', 'EMA' 或 'WMA'")
+    
+    return stock_data
+
 def quantity_ratio(stock_data, cycle='5'):
     volume = stock_data['volume']
     stock_data['volume_ratio'] = volume / volume.rolling(window=5, min_periods=1).mean()

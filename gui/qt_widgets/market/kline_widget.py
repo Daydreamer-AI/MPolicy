@@ -20,6 +20,17 @@ class KLineWidget(BaseIndicatorWidget):
         self.label_ma30.hide()
         self.label_ma60.hide()
 
+        # # k线图中的概览标签
+        # main_viewbox = self.plot_widget.getViewBox()
+        # self.label_overview = pg.TextItem("", anchor=(0, 0.5))
+        # self.label_overview.setZValue(1000)
+        
+        # font = pg.QtGui.QFont("Arial", 10, pg.QtGui.QFont.Bold)
+        # self.label_overview.setFont(font)
+        
+        # main_viewbox.addItem(self.label_overview, ignoreBounds=True)
+        # self.label_overview.hide()
+
     def init_para(self, data):
         self.logger = get_logger(__name__)
         # 检查是否有数据
@@ -79,7 +90,7 @@ class KLineWidget(BaseIndicatorWidget):
         self.plot_widget.setYRange(data_low * 0.95, data_high * 1.05, padding=0)
 
     def get_chart_name(self):
-        return "k线图"
+        return "K线图"
     
     def is_ma_show(self):
         return self.item.is_ma_show() if self.item else False
@@ -93,6 +104,41 @@ class KLineWidget(BaseIndicatorWidget):
 
     def set_stock_name(self, stock_name):
         self.label_stock_name.setText(stock_name)
+
+    def get_overview_text_with_style(self, index, y_val):
+        '''获取概览标签的文本，并设置样式'''
+        row = self.df_data.iloc[index]
+        date = row
+        open = row['open']
+        close = row['close']
+        high = row['high']
+        low = row['low']
+        change_percent = row['change_percent']
+        amplitude = (high - low) / low * 100
+        volume = row['volume'] / 10000      # 单位：万
+        amount = row['amount'] / 100000000  # 单位：亿
+        turnover_rate = row['turnover_rate']
+
+
+        label_text = f"日期: {date}<br>数值：{y_val:.2f}%<br>开盘：{open:.2f} <br>收盘: {close:.2f} \
+            <br>最高: {high:.2f} <br>最低: {low:.2f}<br>涨跌幅: {change_percent}<br>振幅: {amplitude}<br>成交量：{volume:.2f}万<br>成交额{amount}亿<br>换手率{turnover_rate}%"
+        
+        text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(label_text)
+        return text_with_style
+    
+    def show_overview_label(self, index, y_val, bool_show=True):
+        if bool_show:
+            
+            text_with_style = self.get_overview_text_with_style(index, y_val)
+            # self.logger.info(f"显示概览标签：\n{text_with_style}")
+            self.label_overview.setHtml(text_with_style)
+            self.label_overview.show()
+        else:
+            self.label_overview.hide()
+            self.logger.info("隐藏概览标签")
+
+    def hide_overview_label(self):
+        self.label_overview.hide()
 
     def set_indicator_name(self, indicator_name):
         self.label_indicator.setText(indicator_name)
@@ -185,4 +231,28 @@ class KLineWidget(BaseIndicatorWidget):
         self.label_ma52.setText(f"MA52:{self.df_data.iloc[closest_index]['ma52']:.2f}")
         self.label_ma60.setText(f"MA60:{self.df_data.iloc[closest_index]['ma60']:.2f}")
             
+    def slot_global_show_overview_label(self, index, y_val, x_pos, y_pos, bool_show=True):
+        # self.logger.info(f"正在处理{self.get_chart_name()}全局显示数据标签，位置：{x_pos}, 数据索引：{index}, 数据值：{y_val}，是否显示：{bool_show}")
+        # 不能在子类中通过self.plot_widget.getViewBox().viewRange() 计算显示位置。
+
+        # self.label_overview.setPos(x_pos, y_pos)
+        # view_range = self.plot_widget.getViewBox().viewRange()
+        # x_pos_2 = view_range[0][1]
+        # y_pos_2 = view_range[1][1]
+        # self.logger.info(f"全局显示数据标签位置：{x_pos}, {y_pos}")
+        # self.logger.info(f"子类计算出的数据标签位置：{x_pos_2}, {y_pos_2}")
+        self.label_overview.setPos(x_pos, y_pos)
+        # if x_pos is not None and index is not None:
+        #     view_range = self.plot_widget.getViewBox().viewRange()
+        #     # self.logger.info(f"view_range:\n{view_range}")
+        #     x_view_center = abs(view_range[0][0] - view_range[0][1]) / 2
+        #     y_view_center = abs(view_range[1][0] - view_range[1][1]) / 2 
+        #     self.logger.info(f"x_view_center:{x_view_center}, y_view_center:{y_view_center}")
+        #     self.label_overview.setPos(x_view_center, y_view_center)
+        #     # if x_pos >= len(self.df_data) - 3:
+        #     #     self.label_overview.setPos(x_view_center, y_view_center)    # view_range[0][0], view_range[1][1]
+        #     # else:
+        #     #     self.label_overview.setPos(x_view_center, y_view_center)    # view_range[0][1], view_range[1][1]
+
+        self.show_overview_label(index, y_val, bool_show)
 

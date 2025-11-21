@@ -8,6 +8,7 @@ import numpy as np
 class SignalManager(QObject):
     # 全局信号管理器
     global_update_labels = pyqtSignal(int)
+    global_show_overview_label = pyqtSignal(int, float, float, float, bool)
 
 # 创建全局信号管理器实例
 signal_manager = SignalManager()
@@ -26,6 +27,7 @@ class BaseIndicatorWidget(QWidget):
 
         # 连接到全局信号
         signal_manager.global_update_labels.connect(self.slot_golbal_update_labels)
+        signal_manager.global_show_overview_label.connect(self.slot_global_show_overview_label)
 
         self.item = None
         self.df_data = None
@@ -111,6 +113,18 @@ class BaseIndicatorWidget(QWidget):
         BaseIndicatorWidget._shared_left_y_labels[chart_name] = self.left_y_label
         
         main_viewbox.addItem(self.left_y_label, ignoreBounds=True)
+
+        # if self.get_chart_name() == "K线图":
+        self.logger.info(f"添加K线图概览标签")
+
+        self.label_overview = pg.TextItem("", anchor=(0.5, 0.5))
+        self.label_overview.setZValue(1000)
+        
+        font = pg.QtGui.QFont("Arial", 10, pg.QtGui.QFont.Bold)
+        self.label_overview.setFont(font)
+        
+        main_viewbox.addItem(self.label_overview, ignoreBounds=True)
+        self.label_overview.hide()
 
         self.hide_all_labels()
 
@@ -312,6 +326,7 @@ class BaseIndicatorWidget(QWidget):
                         min_distance = distance
                         closest_index = i
             
+            closest_x = None    # 这里closest_x其实和closest_index一样，都是从0开始
             if closest_index is not None:
                 
                 closest_x = bar_centers[closest_index]
@@ -333,10 +348,21 @@ class BaseIndicatorWidget(QWidget):
                 # self.sig_update_labels.emit(closest_index)
                 signal_manager.global_update_labels.emit(closest_index)
 
+                # 在k线图图表中显示概览标签
+                # if chart_name == "K线图":
+                x_pos = view_range[0][1]
+                y_pos = view_range[1][1]
+                if x_pos <= len(self.df_data) - 3:
+                    x_pos = view_range[0][0]
+
+                signal_manager.global_show_overview_label.emit(closest_index, y_val, x_pos, y_pos, True)
+
 
 
             # else:
+                # signal_manager.global_show_overview_label.emit(closest_x, closest_index, y_val, False)
             #     self.hide_all_labels()
+
         # else:
             # self.logger.info(f"鼠标位置超出图表范围")
             # self.hide_all_labels()
@@ -365,6 +391,9 @@ class BaseIndicatorWidget(QWidget):
         super().leaveEvent(event)
 
     def slot_golbal_update_labels(self, closest_index):
+        pass
+
+    def slot_global_show_overview_label(self, index, y_val, x_pos, y_pos, bool_show=True):
         pass
 
 
