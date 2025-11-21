@@ -491,7 +491,7 @@ class BaoStockProcessor:
             start_date = (datetime.datetime.now() - datetime.timedelta(days=365*3)).strftime("%Y-%m-%d")
             # self.logger.info(f"获取股票 {stock_code} 数据，时间范围：{start_date} 至 {end_date}")
         
-        sleep_time = random.uniform(0, 1)
+        sleep_time = random.uniform(0.1, 0.3)
         # time.sleep(sleep_time)
 
         # 判断是否是否交易
@@ -545,6 +545,9 @@ class BaoStockProcessor:
         else:
             # self.logger.info(f"{code}.db 存在，即将从本地数据库更新")
             result = self.update_daily_stock_data(code)
+
+        sleep_time = random.uniform(0.1, 0.3)
+        # time.sleep(sleep_time)
         
         # if result.empty:
         #     self.logger.info("process_daily_stock_data执行结果为空！")
@@ -702,7 +705,7 @@ class BaoStockProcessor:
 
         # self.logger.info(f"获取股票 {code} 周线数据，时间范围：{start_date} 至 {end_date}")
         
-        sleep_time = random.uniform(0, 1) # 等待时间可以设得稍长一些
+        sleep_time = random.uniform(0.1, 0.2) # 等待时间可以设得稍长一些
         # time.sleep(sleep_time)
 
         # lg = bs.login()
@@ -755,6 +758,9 @@ class BaoStockProcessor:
         else:
             # self.logger.info(f"周线 {code}.db 存在，即将从本地数据库更新")
             result = self.update_weekly_stock_data(code)
+
+        sleep_time = random.uniform(0.1, 0.3)
+        # time.sleep(sleep_time)
 
         # if result.empty:
         #     self.logger.info("process_weekly_stock_data执行结果为空！")
@@ -918,7 +924,7 @@ class BaoStockProcessor:
             if i % 100 == 0:  # 每100只股票打印一次日志
                 self.logger.info(f"已处理 {i} 只深市股票【日线】数据")
         
-        self.logger.info("沪市主板股票日线数据获取完成")
+        self.logger.info("深市主板股票日线数据获取完成")
 
 
         self.logger.info("深市主板股票日线数据获取完成")
