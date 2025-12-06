@@ -81,20 +81,6 @@ class HomeWidget(QWidget):
         self.btn_update_popularity_rank_stock_data.clicked.connect(self.slot_btn_update_popularity_rank_stock_data_clicked)
         self.btn_get_popularity_rank_stock_data.clicked.connect(self.slot_btn_get_popularity_rank_stock_data_clicked)
 
-        # 策略筛选
-        # self.btn_daily_up_ma52_filter.clicked.connect(self.slot_btn_daily_up_ma52_filter_clicked)
-        # self.btn_daily_up_ma24_filter.clicked.connect(self.slot_btn_daily_up_ma24_filter_clicked)
-        # self.btn_daily_up_ma10_filter.clicked.connect(self.slot_btn_daily_up_ma10_filter_clicked)
-
-        # self.btn_daily_down_ma52_filter.clicked.connect(self.slot_btn_daily_down_ma52_filter_clicked)
-        # self.btn_daily_down_ma5_filter.clicked.connect(self.slot_btn_daily_down_ma5_filter_clicked)
-        # self.btn_daily_down_breakthrough_ma24.clicked.connect(self.slot_btn_daily_down_breakthrough_ma24_clicked)
-        # self.btn_daily_down_breakthrough_ma52.clicked.connect(self.slot_btn_daily_down_breakthrough_ma52_clicked)
-        # self.btn_daily_down_double_bottom.clicked.connect(self.slot_btn_daily_down_double_bottom_clicked)
-
-        # self.btn_stop.clicked.connect(self.slot_btn_stop_clicked)
-        # self.btn_policy_filter_setting.clicked.connect(self.slot_btn_policy_filter_setting_clicked)
-
     def closeEvent(self, event):
         """
         重写 closeEvent，当窗口请求关闭时调用。
@@ -188,9 +174,6 @@ class HomeWidget(QWidget):
                 self.logger.info(f"MinuteLevelSelectDialog--选择的板块: {board_type}")
 
                 BaoStockProcessor().start_minute_level_stock_data_background_update(board_type, str(level_id))
-                # BaoStockProcessor().get_all_minute_level_stock_data_readonly()
-                
-                # result = BaoStockProcessor().process_minute_level_stock_data('sh.600000', str(level_id), '2025-09-01', '2025-11-25')
 
             if result is not None and not result.empty:
                 self.logger.info(f"process_minute_level_stock_data--结果: \n{result.tail(3)}")
@@ -310,74 +293,3 @@ class HomeWidget(QWidget):
         # result = AKStockDataProcessor().get_latest_popularity_rank_stock_data
         self.logger.info(result)
         self.logger.info("AKShare--查询人气榜数据完成")
-
-    # =================================================================================策略筛选=================================================================
-    # @pyqtSlot()
-    # def slot_btn_daily_up_ma52_filter_clicked(self):
-    #     self.logger.info("执行零轴上方MA52筛选")
-    #     result = BaoStockProcessor().daily_up_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney())
-    #     self.logger.info(f"筛选结果：\n{result}")
-    #     self.logger.info("零轴上方MA52筛选完成")
-
-    # @pyqtSlot()
-    # def slot_btn_daily_up_ma24_filter_clicked(self):
-    #     self.logger.info("执行零轴上方MA24筛选")
-    #     result = BaoStockProcessor().daily_up_ma24_filter(AKStockDataProcessor().get_stocks_eastmoney())
-    #     self.logger.info(f"筛选结果：\n{result}")
-    #     self.logger.info("零轴上方MA24筛选完成")
-
-    # @pyqtSlot()
-    # def slot_btn_daily_up_ma10_filter_clicked(self):
-    #     self.logger.info("执行零轴上方MA10筛选")
-    #     result = BaoStockProcessor().daily_up_ma10_filter(AKStockDataProcessor().get_stocks_eastmoney())
-    #     self.logger.info(f"筛选结果：\n{result}")
-    #     self.logger.info("零轴上方MA10筛选完成")
-
-    # @pyqtSlot()
-    # def slot_btn_daily_down_ma52_filter_clicked(self):
-    #     self.logger.info("执行零轴下方MA52筛选")
-    #     result = BaoStockProcessor().daily_down_between_ma24_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney())
-    #     self.logger.info(f"筛选结果：\n{result}")
-    #     self.logger.info("零轴下方MA52筛选完成")
-
-    # @pyqtSlot()
-    # def slot_btn_daily_down_ma5_filter_clicked(self):
-    #     self.logger.info("执行零轴下方MA5筛选")
-    #     result = BaoStockProcessor().daily_down_between_ma5_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney())
-    #     self.logger.info(f"筛选结果：\n{result}")
-    #     self.logger.info("零轴下方MA5筛选完成")
-
-    
-    # @pyqtSlot()
-    # def slot_btn_daily_down_breakthrough_ma24_clicked(self):
-    #     self.logger.info("执行零轴下方MA24突破筛选")
-    #     result = BaoStockProcessor().daily_down_breakthrough_ma24_filter(AKStockDataProcessor().get_stocks_eastmoney())
-    #     self.logger.info(f"筛选结果：\n{result}")
-    #     self.logger.info("零轴下方MA24突破筛选完成")
-
-
-    # @pyqtSlot()
-    # def slot_btn_daily_down_breakthrough_ma52_clicked(self):
-    #     self.logger.info("执行零轴下方MA52突破筛选")
-    #     result = BaoStockProcessor().daily_down_breakthrough_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney())
-    #     self.logger.info(f"筛选结果：\n{result}")
-    #     self.logger.info("零轴下方MA52突破筛选完成")
-
-    # @pyqtSlot()
-    # def slot_btn_daily_down_double_bottom_clicked(self):
-    #     self.logger.info("执行零轴下方双底筛选")
-    #     result = BaoStockProcessor().daily_down_double_bottom_filter(AKStockDataProcessor().get_stocks_eastmoney())
-    #     self.logger.info(f"筛选结果：\n{result}")
-    #     self.logger.info("零轴下方双底筛选完成")
-
-    # @pyqtSlot()
-    # def slot_btn_stop_clicked(self):
-    #     self.logger.info("手动停止所有执行")
-    #     BaoStockProcessor().stop_process()
-
-    # @pyqtSlot()
-    # def slot_btn_policy_filter_setting_clicked(self):
-    #     self.logger.info("点击筛选设置")
-    #     dlg = PolicyFilterSettingDialog()
-    #     dlg.exec()
-    #     self.logger.info("完成筛选设置")

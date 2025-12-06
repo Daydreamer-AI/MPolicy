@@ -14,7 +14,7 @@ from manager.config_manager import ConfigManager
 from common.common_api import *
 from manager.logging_manager import get_logger
 import traceback
-from types import MappingProxyType
+
 
 from PyQt5.QtWidgets import QApplication
 
@@ -25,7 +25,8 @@ from thread.base_thread_worker import BaseThreadWorker
 import json
 
 from manager.filter_result_data_manager import FilterResultDataManger
-
+from manager.bao_stock_data_manager import BaostockDataManager
+from manager.period_manager import TimePeriod
 
 def singleton(cls):
     """
@@ -57,19 +58,10 @@ class BaoStockProcessor(QObject):
     def __init__(self):
         super().__init__() 
         self.logger = get_logger(__name__)
-        self.stock_info_db_base = StockInfoDBBasePool().get_manager(1)
-        self.stock_db_base = StockDbBase("./data/database/stocks/db/baostock")
-
-        self.dict_all_stocks = {}
-
-        self.dict_daily_stock_data = {}     # {code : pd.DataFrame}
-        self.dict_weekly_stock_data = {}    # {code : pd.DataFrame}
-
-        self.dict_minute_level_stock_data = {}  # {level : {code : pd.DataFrame}}
 
         self.b_stop_process = False
-        self.lock = threading.Lock()  # 创建一把锁
-        self._is_initialized = False # 状态标志
+        self.lock = threading.Lock()  
+        self._is_initialized = False # 初始化状态标志
 
     
     # def __del__(self):
@@ -78,8 +70,6 @@ class BaoStockProcessor(QObject):
     def initialize(self) -> bool:
         """显式登录Baostock系统。应在程序开始时调用。"""
         try:
-            self.get_all_stocks_from_db()
-
             self.init_config()
 
             return self.init_baostock_login()
@@ -197,7 +187,9 @@ class BaoStockProcessor(QObject):
 
         self.logger.info(f"开始读取本地数据库日线、周线股票数据...")
         start_time = time.time()  # 记录开始时间
-        for board_name, board_data in self.dict_all_stocks.items():
+
+        dict_stock_info = BaostockDataManager().get_all_stock_info()
+        for board_name, board_data in dict_stock_info.items():
             if board_index > 1:
                 break
             board_index += 1
@@ -207,47 +199,29 @@ class BaoStockProcessor(QObject):
             
             # 遍历该板块的每一行数据
             for index, row in board_data.iterrows():
-                # if index > 100:
-                #     break
+                if index > 100:
+                    break
 
                 try:
                     stock_code = row['证券代码']
                     stock_name = row['证券名称'] if '证券名称' in row else '未知'
                     
                     # 获取日线和周线数据
-                    daily_data = self.stock_db_base.get_bao_stock_data(stock_code, table_name="stock_data_1d")
-                    weekly_data = self.stock_db_base.get_bao_stock_data(stock_code, table_name="stock_data_1w")
+                    daily_data = BaostockDataManager().get_stock_data_from_db_by_period(stock_code, TimePeriod.DAY)
+                    weekly_data = BaostockDataManager().get_stock_data_from_db_by_period(stock_code, TimePeriod.DAY)
                     
                     # 检查数据是否为None，如果是则创建空的DataFrame
                     if daily_data is None or daily_data.empty:
-                        # continue
-                        self.logger.warning(f"股票 {stock_code} 日线数据为None，创建空DataFrame")
-                        daily_data = pd.DataFrame()
+                        continue
                     
                     if weekly_data is None or weekly_data.empty:
-                        # continue
-                        self.logger.warning(f"股票 {stock_code} 周线数据为None，创建空DataFrame")
-                        weekly_data = pd.DataFrame()
-                    
-
-                    # 只对非空数据进行指标计算
-                    if not daily_data.empty:
-                        daily_data['name'] = stock_name
-                        sdi.default_indicators_auto_calculate(daily_data)
-                    else:
-                        self.logger.debug(f"股票 {stock_code} 日线数据为空，跳过指标计算")
+                        continue
                         
-                    if not weekly_data.empty:
-                        weekly_data['name'] = stock_name
-                        sdi.default_indicators_auto_calculate(weekly_data)
-                    else:
-                        self.logger.debug(f"股票 {stock_code} 周线数据为空，跳过指标计算")
 
                     # 存储数据
                     dict_daily_stock_data[stock_code] = daily_data
                     dict_weekly_stock_data[stock_code] = weekly_data
                     
-
                     total_count += 1
                     
                 except Exception as e:
@@ -263,234 +237,9 @@ class BaoStockProcessor(QObject):
         all_read_elapsed_time = time.time() - start_time  # 计算耗时
         self.logger.info(f"读取完成，总耗时: {all_read_elapsed_time:.2f}秒，即{all_read_elapsed_time/60:.2f}分钟")
 
-
-        # 数据加锁 同步
-        with self.lock:
-            self.dict_daily_stock_data = dict_daily_stock_data
-            self.dict_weekly_stock_data = dict_weekly_stock_data
-
         self.logger.info(f"总共处理了 {total_count} 只股票")
-        return True
-    def get_daily_stock_data(self, code, start_date = None, end_date=None) -> pd.DataFrame:
-        '''
-            获取股票日K线数据
-            code: 股票代码
-            start_date: 开始日期
-            end_date: 结束日期
-
-            返回:
-                DataFrame: 股票日K线数据
-        '''
-        with self.lock:
-            if self.dict_daily_stock_data is None or self.dict_daily_stock_data == {}:
-                self.logger.warning("日线数据字典为空")
-                return pd.DataFrame()
-
-            # 检查股票代码是否存在于字典中
-            if code not in self.dict_daily_stock_data:
-                self.logger.warning(f"股票代码 {code} 不存在于日线数据中")
-                return pd.DataFrame()
-            
-            # 获取该股票的所有日线数据
-            result = self.dict_daily_stock_data[code].copy()  # 返回副本避免外部修改
-        
-        # 如果没有数据，直接返回空DataFrame
-        if result.empty:
-            return result
-        
-        # 如果提供了日期范围，则进行过滤
-        if start_date is not None or end_date is not None:
-            # 确保'date'列是datetime类型
-            result = result.copy()  # 避免修改原始数据
-            result['date'] = pd.to_datetime(result['date'])
-            
-            # 应用开始日期过滤
-            if start_date is not None:
-                start_date = pd.to_datetime(start_date)
-                result = result[result['date'] >= start_date]
-            
-            # 应用结束日期过滤
-            if end_date is not None:
-                end_date = pd.to_datetime(end_date)
-                result = result[result['date'] <= end_date]
-        
-        return result
+        return True  
     
-    def get_weekly_stock_data(self, code, start_date = None, end_date=None) -> pd.DataFrame:
-        '''
-            获取股票周K线数据
-            code: 股票代码
-            start_date: 开始日期
-            end_date: 结束日期
-
-            返回:
-                DataFrame: 股票周K线数据
-        '''
-        with self.lock:
-            if self.dict_weekly_stock_data is None or self.dict_weekly_stock_data == {}:
-                self.logger.warning("周线数据字典为空")
-                return pd.DataFrame()
-
-            # 检查股票代码是否存在于字典中
-            if code not in self.dict_weekly_stock_data:
-                self.logger.warning(f"股票代码 {code} 不存在于周线数据中")
-                return pd.DataFrame()
-            
-            # 获取该股票的所有周线数据
-            result = self.dict_weekly_stock_data[code].copy()  # 返回副本避免外部修改
-        
-        # 如果没有数据，直接返回空DataFrame
-        if result.empty:
-            return result
-        
-        # 如果提供了日期范围，则进行过滤
-        if start_date is not None or end_date is not None:
-            # 确保'date'列是datetime类型
-            result = result.copy()  # 避免修改原始数据
-            result['date'] = pd.to_datetime(result['date'])
-            
-            # 应用开始日期过滤
-            if start_date is not None:
-                start_date = pd.to_datetime(start_date)
-                result = result[result['date'] >= start_date]
-            
-            # 应用结束日期过滤
-            if end_date is not None:
-                end_date = pd.to_datetime(end_date)
-                result = result[result['date'] <= end_date]
-        
-        return result
-
-    def get_all_daily_stock_data_dict(self):
-        '''
-            获取所有股票日K线数据引用
-            返回:
-                dict: 所有股票日K线数据
-        '''
-        with self.lock:
-            return self.dict_daily_stock_data
-    
-    def get_all_daily_stock_data_dict_copy(self):
-        '''返回浅拷贝'''
-        with self.lock:
-            return self.dict_daily_stock_data.copy()
-    
-    def get_all_daily_stock_data_dict_readonly(self):
-        '''
-            获取所有股票日K线数据（只读）
-            返回:
-                MappingProxyType: 所有股票日K线数据的只读视图
-        '''
-        with self.lock:
-            return MappingProxyType(self.dict_daily_stock_data)
-        
-    def get_daily_stock_data_dict_readonly_by_code_list(self, code_list=[]):
-        '''
-        获取指定股票列表的股票日K线数据（只读）
-        code_list: 股票列表
-        返回:
-            MappingProxyType: 指定股票列表的股票日K线数据的只读视图
-        '''
-        with self.lock:
-            # 创建一个新字典，包含指定的股票数据
-            filtered_dict = {code: self.dict_daily_stock_data[code]
-                            for code in code_list if code in self.dict_daily_stock_data}
-            # 返回MappingProxyType包装的字典
-            return MappingProxyType(filtered_dict)
-
-    
-    def get_all_weekly_stock_data_dict(self):
-        '''
-            获取所有股票周K线数据
-            返回:
-                dict: 所有股票周K线数据
-        '''
-        with self.lock:
-            return self.dict_weekly_stock_data
-    
-    def get_all_weekly_stock_data_dict_copy(self):
-        with self.lock:
-            return self.dict_weekly_stock_data.copy()
-    
-    def get_all_weekly_stock_data_dict_readonly(self):
-        '''
-            获取所有股票周K线数据（只读）
-            返回:
-                MappingProxyType: 所有股票周K线数据的只读视图
-        '''
-        with self.lock:
-            return MappingProxyType(self.dict_weekly_stock_data)
-        
-    def get_weekly_stock_data_dict_readonly_by_code_list(self, code_list=[]):
-        '''
-        获取指定股票列表的股票周K线数据（只读）
-        code_list: 股票列表
-        返回:
-            MappingProxyType: 指定股票列表的股票周K线数据的只读视图
-        '''
-        with self.lock:
-            # 创建一个新字典，包含指定的股票数据
-            filtered_dict = {code: self.dict_weekly_stock_data[code]
-                            for code in code_list if code in self.dict_weekly_stock_data}
-            # 返回MappingProxyType包装的字典
-            return MappingProxyType(filtered_dict)
-        
-    def get_all_minute_level_stock_data_readonly(self):
-        with self.lock:
-            return MappingProxyType(self.dict_minute_level_stock_data)
-
-    def get_level_minute_stock_data_readonly_by_code_list(self, code_list=[], level='5', start_date=None, end_date=None): 
-        '''
-        获取指定分钟级别和股票代码列表的股票数据（只读）
-        code_list: 股票代码列表
-        level: 分钟级别
-        start_date: 开始日期（暂未实现）
-        end_date: 结束日期（暂未实现）
-        返回:
-            MappingProxyType: 指定股票列表的分钟级别股票数据的只读视图
-        '''
-        with self.lock:
-            # 检查级别是否存在
-            if level not in self.dict_minute_level_stock_data.keys():
-                return MappingProxyType({})
-            
-            # 如果未指定股票代码列表，返回该级别所有数据
-            if code_list is None or len(code_list) == 0:
-                return MappingProxyType(dict(self.dict_minute_level_stock_data[level]))
-            
-            # 返回指定股票代码的数据
-            filtered_dict = {code: self.dict_minute_level_stock_data[level][code]
-                            for code in code_list if code in self.dict_minute_level_stock_data[level].keys()}
-            return MappingProxyType(filtered_dict)
-            
-    
-    def get_lastest_stock_data_date(self, level='1d'):
-        if level == '1d':
-            if self.dict_daily_stock_data:
-                first_stock_data = next(iter(self.dict_daily_stock_data.values()))
-                if not first_stock_data.empty:
-                    # 返回该股票数据最后一行的 'date' 值
-                    return first_stock_data['date'].iloc[-1]
-        elif level == '1w':
-            if self.dict_weekly_stock_data:
-                first_stock_data = next(iter(self.dict_weekly_stock_data.values()))
-                if not first_stock_data.empty:
-                    # 返回该股票数据最后一行的 'date' 值
-                    return first_stock_data['date'].iloc[-1]
-        elif level == '1m':
-            return None
-        elif level == '5m':
-            return None
-        elif level == '15m':
-            return None
-        elif level == '30m':
-            return None
-        elif level == '60m':
-            return None
-        elif level == '120m':
-            return None
-        
-        return None
 
     # --------------------------------------------------------------------
 
@@ -498,38 +247,6 @@ class BaoStockProcessor(QObject):
         # 1. 转换日期列
         if 'date' in result.columns:
             result['date'] = pd.to_datetime(result['date'], format='%Y-%m-%d').dt.date  # 转换为 datetime.date 类型，或者用 .dt.normalize() 取日期部分
-
-        # if 'time' in result.columns:
-        #     # 尝试多种格式解析时间列
-        #     formats_to_try = [
-        #         '%Y-%m-%d %H:%M',      # 标准格式
-        #         '%Y%m%d%H%M%S%f',      # 紧凑格式 YYYYMMDDHHMMSSSSS
-        #         '%Y-%m-%d %H:%M:%S',   # 包含秒的格式
-        #     ]
-            
-        #     converted = False
-        #     for fmt in formats_to_try:
-        #         try:
-        #             result['time'] = pd.to_datetime(result['time'], format=fmt)
-        #             converted = True
-        #             break
-        #         except ValueError:
-        #             continue
-            
-        #     if not converted:
-        #         try:
-        #             # 使用混合格式自动推断
-        #             result['time'] = pd.to_datetime(result['time'], format='mixed')
-        #         except:
-        #             self.logger.warning(f"无法解析时间列格式，原始数据示例: {result['time'].iloc[0] if not result.empty else 'Empty'}")
-
-
-        # 在数据处理阶段，确保 time 字段是 datetime 对象或正确的字符串格式
-        # SQLite 推荐的 datetime 格式是: 'YYYY-MM-DD HH:MM:SS'
-        # if 'time' in result.columns:
-        #     result['time'] = pd.to_datetime(result['time'])
-        #     # 确保格式正确
-        #     result['time'] = result['time'].dt.strftime('%Y-%m-%d %H:%M:%S')
 
         # 处理 time 字段 - 增强版
         if 'time' in result.columns:
@@ -778,56 +495,35 @@ class BaoStockProcessor(QObject):
     def process_and_save_daily_stock_data(self, code):
         result = pd.DataFrame()
 
-        if not self.stock_db_base.check_stock_db_exists(code) or not self.stock_db_base.check_table_exists(code, "stock_data_1d"):
+        if not BaostockDataManager().check_stock_db_exists(code) or not BaostockDataManager().check_table_exists(code, TimePeriod.DAY):
             # self.logger.info(f"{code}.db 不存在，即将从Baostock获取")
             result = self.process_daily_stock_data(code)
 
             # 指标不再入库，使用时按需计算
             if not result.empty:
-            #     sdi.macd(result)
-            #     sdi.ma(result, 'ma5', 5)
-            #     sdi.ma(result, 'ma10', 10)
-            #     sdi.ma(result, 'ma20', 20)
-            #     sdi.ma(result, 'ma24', 24)
-            #     sdi.ma(result, 'ma30', 30)
-            #     sdi.ma(result, 'ma52', 52)
-            #     sdi.ma(result, 'ma60', 60)
-            #     sdi.quantity_ratio(result)
-                self.stock_db_base.save_bao_stock_data_to_db(code, result, 'replace', "stock_data_1d")
+
+                BaostockDataManager().save_stock_data_to_db(code, result, 'replace', TimePeriod.DAY)
         else:
             # self.logger.info(f"{code}.db 存在，即将从本地数据库更新")
             result, data_to_save = self.update_daily_stock_data(code)
             if data_to_save is not None and not data_to_save.empty:
-                self.stock_db_base.save_bao_stock_data_to_db(code, data_to_save, "append", "stock_data_1d")
+                BaostockDataManager().save_stock_data_to_db(code, data_to_save, "append",TimePeriod.DAY)
 
         # sleep_time = random.uniform(0.1, 0.3)
         # time.sleep(sleep_time)
         
-        # if result.empty:
-        #     self.logger.info("process_daily_stock_data执行结果为空！")
-        #     return False
-
-        # self.logger.info(result.tail(3))
-
-        # 对数据进行指标计算，放外层同步
-        # sdi.default_indicators_auto_calculate(result)
-        
-        # 待优化：后台加载这里做数据同步，放外层同步
-        # self.dict_daily_stock_data[code] = result
-        
-
         return result
        
     # 增量维护，收盘后调用
     def update_daily_stock_data(self, code):
         day_stock_data = pd.DataFrame()
         data_to_save = pd.DataFrame()
-        if not self.stock_db_base.check_stock_db_exists(code):
+        if not BaostockDataManager().check_stock_db_exists(code):
             self.logger.info("{stock_code}.db 不存在", code)
             return day_stock_data, data_to_save
 
         # 步骤一：得到当前数据库中的股票数据
-        day_stock_data = self.stock_db_base.get_bao_stock_data(code, table_name="stock_data_1d")
+        day_stock_data = BaostockDataManager().get_stock_data_from_db_by_period(code, TimePeriod.DAY)
         # self.logger.info("code: ", code)
         # self.logger.info("day_stock_data的类型：", type(day_stock_data))
         # self.logger.info(day_stock_data.tail(1))
@@ -862,7 +558,7 @@ class BaoStockProcessor(QObject):
         #     day_stock_data = day_stock_data.loc[:first_null_index-1]  # 保留到第一个空值行之前的所有行
 
         #     # 数据库同步
-        #     self.stock_db_base.delete_data_by_date(null_data_code, first_null_date)
+        #     BaostockDataManager().delete_data_by_date(null_data_code, first_null_date)
 
             # 移除空列以便后面合并
             day_stock_data = day_stock_data.dropna()
@@ -935,29 +631,10 @@ class BaoStockProcessor(QObject):
                 combined_df = pd.concat([day_stock_data, df_new_stock_data], axis=0, ignore_index=True)
 
             # 指标数据不再入库
-            # sdi.macd(combined_df)
-            # sdi.ma(combined_df, 'ma5', 5)
-            # sdi.ma(combined_df, 'ma10', 10)
-            # sdi.ma(combined_df, 'ma20', 20)
-            # sdi.ma(combined_df, 'ma24', 24)
-            # sdi.ma(combined_df, 'ma30', 30)
-            # sdi.ma(combined_df, 'ma52', 52)
-            # sdi.ma(combined_df, 'ma60', 60)
-            # sdi.quantity_ratio(combined_df)
-        
-            # self.logger.info("新数据指标计算结果：")
             data_to_save = combined_df.tail(len(df_new_stock_data))
-            # self.logger.info(data_to_save)
-            # 放外层保存
-            # self.stock_db_base.save_bao_stock_data_to_db(code, data_to_save, "append", "stock_data_1d")
 
-            # 放外层同步
-            # self.dict_daily_stock_data[code] = combined_df
             return combined_df, data_to_save
         
-        # self.logger.info("未获取到新数据")
-        # 放外层同步
-        # self.dict_daily_stock_data[code] = day_stock_data
         return day_stock_data, data_to_save
 
 
@@ -1010,33 +687,20 @@ class BaoStockProcessor(QObject):
 
     def process_and_save_weekly_stock_data(self, code):
         result = pd.DataFrame()
-        if not self.stock_db_base.check_stock_db_exists(code) or not self.stock_db_base.check_table_exists(code, "stock_data_1w"):
+        if not BaostockDataManager().check_stock_db_exists(code) or not BaostockDataManager().check_table_exists(code, TimePeriod.WEEK):
             # self.logger.info(f"周线 {code}.db 不存在，即将从Baostock获取")
             result = self.process_weekly_stock_data(code)
 
             if not result.empty:
-                self.stock_db_base.save_bao_stock_data_to_db(code, result, 'replace', "stock_data_1w")
+                BaostockDataManager().save_stock_data_to_db(code, result, 'replace', TimePeriod.WEEK)
         else:
             # self.logger.info(f"周线 {code}.db 存在，即将从本地数据库更新")
             result, data_to_save = self.update_weekly_stock_data(code)
             if data_to_save is not None and not data_to_save.empty:
-                self.stock_db_base.save_bao_stock_data_to_db(code, data_to_save, "append", "stock_data_1w")
+                BaostockDataManager().save_stock_data_to_db(code, data_to_save, "append", TimePeriod.WEEK)
 
         # sleep_time = random.uniform(0.1, 0.3)
         # time.sleep(sleep_time)
-
-        # if result.empty:
-        #     self.logger.info("process_weekly_stock_data执行结果为空！")
-        #     return False
-
-        # self.logger.info(f"周线 {code} 数据：")
-        # self.logger.info(result.tail(3))
-
-        # 对数据进行指标计算，已放外层同步
-        # sdi.default_indicators_auto_calculate(result)
-        
-        # 待优化：后台加载这里做数据同步，已放外层同步
-        # self.dict_weekly_stock_data[code] = result
         return result
 
     # 增量维护，周线数据不好增量维护，追加后原表中还会存在周中数据。建议：每周末（或本周收盘后）调用一次更新本周周线数据
@@ -1045,12 +709,12 @@ class BaoStockProcessor(QObject):
     def update_weekly_stock_data(self, code):
         week_stock_data = pd.DataFrame()
         data_to_save = pd.DataFrame()
-        if not self.stock_db_base.check_stock_db_exists(code):
+        if not BaostockDataManager().check_stock_db_exists(code):
             self.logger.info("{stock_code}.db 不存在", code)
             return week_stock_data, data_to_save
 
         # 步骤一：得到当前数据库中的股票数据
-        week_stock_data = self.stock_db_base.get_bao_stock_data(code, table_name="stock_data_1w")
+        week_stock_data = BaostockDataManager().get_stock_data_from_db_by_period(code, TimePeriod.WEEK)
         if week_stock_data is None or week_stock_data.empty:
             self.logger.info("{stock_code}.db 中无周线数据", code)
             return week_stock_data, data_to_save
@@ -1091,46 +755,15 @@ class BaoStockProcessor(QObject):
         end_date = datetime.datetime.now().strftime("%Y-%m-%d")
 
         df_new_weekly_stock_data = self.process_weekly_stock_data(code, start_date, end_date)
-        # if df_new_weekly_stock_data.empty:
-        #     self.logger.info("process_weekly_stock_data执行结果为空！")
-        #     return week_stock_data, data_to_save
-        
-        # self.logger.info("获取到的新周线数据：", df_new_weekly_stock_data)
-
-        # if not df_new_weekly_stock_data.empty:
-        #     self.stock_db_base.save_bao_stock_data_to_db(code, df_new_weekly_stock_data, "append")
 
         df_new_weekly_stock_data = df_new_weekly_stock_data.dropna()
 
         if not df_new_weekly_stock_data.empty:
             # 合并计算指标
             combined_df = pd.concat([week_stock_data, df_new_weekly_stock_data], axis=0, ignore_index=True)
-            # self.logger.info("合并后的combined_df:")
-            # self.logger.info(combined_df.tail(3))
 
-            # sdi.macd(combined_df)
-            # sdi.ma(combined_df, 'ma5', 5)
-            # sdi.ma(combined_df, 'ma10', 10)
-            # sdi.ma(combined_df, 'ma20', 20)
-            # sdi.ma(combined_df, 'ma24', 24)
-            # sdi.ma(combined_df, 'ma30', 30)
-            # sdi.ma(combined_df, 'ma52', 52)
-            # sdi.ma(combined_df, 'ma60', 60)
-            # sdi.quantity_ratio(combined_df)
-        
-            # self.logger.info("新周线数据指标计算结果：")
-            data_to_save = combined_df.tail(len(df_new_weekly_stock_data))
-            # self.logger.info(data_to_save)
-
-            # 放外层保存数据库
-            # self.stock_db_base.save_bao_stock_data_to_db(code, data_to_save, "append", "stock_data_1w")
-            # 已放外层同步
-            # self.dict_weekly_stock_data[code] = combined_df
             return combined_df, data_to_save
         
-        # self.logger.info("未获取到新数据")
-        # 已放外层同步
-        # self.dict_weekly_stock_data[code] = week_stock_data
         return week_stock_data, data_to_save
     
     # 分钟级数据获取接口
@@ -1142,19 +775,19 @@ class BaoStockProcessor(QObject):
             self.logger.info(f"Invalid level: {level}")
             return result
 
-        table_name = f"stock_data_{level}m"
+        time_period = TimePeriod.from_minute_number_label(level)
 
-        if not self.stock_db_base.check_stock_db_exists(code) or not self.stock_db_base.check_table_exists(code, table_name):
+        if not BaostockDataManager().check_stock_db_exists(code) or not BaostockDataManager().check_table_exists(code, time_period):
             # self.logger.info(f"分钟级 {code}.db 不存在，即将从Baostock获取")
             result = self.process_minute_level_stock_data(code, level)
 
             if result is not None and not result.empty:
-                self.stock_db_base.save_bao_stock_data_to_db(code, result, 'replace', table_name)
+                BaostockDataManager().save_stock_data_to_db(code, result, 'replace', time_period)
         else:
             # self.logger.info(f"分钟级 {code}.db 存在，即将从本地数据库更新")
             result, data_to_save = self.update_minute_level_stock_data(code, level)
             if data_to_save is not None and not data_to_save.empty:
-                self.stock_db_base.save_bao_stock_data_to_db(code, data_to_save, "append", table_name)
+                BaostockDataManager().save_stock_data_to_db(code, data_to_save, "append", time_period)
 
         return result
 
@@ -1220,7 +853,7 @@ class BaoStockProcessor(QObject):
     def update_minute_level_stock_data(self, code, level='30'):
         result = pd.DataFrame()
         data_to_save = pd.DataFrame()
-        if not self.stock_db_base.check_stock_db_exists(code):
+        if not BaostockDataManager().check_stock_db_exists(code):
             self.logger.info("{stock_code}.db 不存在", code)
             return result, data_to_save
         
@@ -1228,10 +861,10 @@ class BaoStockProcessor(QObject):
         if level not in allowed_levels:
             return result, data_to_save
         
-        table_name = f"stock_data_{level}m"
+        time_period = TimePeriod.from_minute_number_label(level)
 
         # 步骤一：得到当前数据库中的股票数据
-        minute_stock_data = self.stock_db_base.get_bao_stock_data(code, table_name)
+        minute_stock_data = BaostockDataManager().get_stock_data_from_db_by_period(code, time_period)
         if minute_stock_data is None or minute_stock_data.empty:
             self.logger.info("minute_stock_data为空")
             return result, data_to_save
@@ -1330,6 +963,7 @@ class BaoStockProcessor(QObject):
         self.process_sh_main_stock_daily_data()
         self.process_sh_main_stock_weekly_data()
         return True
+    
     def process_sh_main_stock_daily_data(self):
         i = 1
         dict_daily_stock_data = {}
@@ -1337,18 +971,11 @@ class BaoStockProcessor(QObject):
         self.logger.info(f"开始处理沪市主板日线股票数据...")
         start_time = time.time()  # 记录开始时间
 
-
-        # for value in self.dict_all_stocks['sh_main']['证券代码']:\
-        for index, row in self.dict_all_stocks['sh_main'].iterrows():
+        dict_stock_info = BaostockDataManager().get_stock_info_dict()
+        for index, row in dict_stock_info['sh_main'].iterrows():
             value = row['证券代码']
             stock_name = row['证券名称'] if '证券名称' in row else '未知'
             # self.logger.info(f"获取第 {i} 只沪市主板股票 {value} 【日线】数据")
-            
-
-            # 判断是否已加载到内存
-            # if value in self.dict_daily_stock_data.keys():
-            #     self.logger.info(f"股票 {value} 数据已存在")
-            #     continue
 
             result = self.process_and_save_daily_stock_data(value)
 
@@ -1367,9 +994,6 @@ class BaoStockProcessor(QObject):
             #     break
 
             
-            # if i % 50 == 0:  # 每50只股票处理一次事件
-            #     QApplication.processEvents()
-            
             if i % 100 == 0:  # 每100只股票打印一次日志
                 self.logger.info(f"已处理 {i} 只沪市股票【日线】数据")
 
@@ -1378,21 +1002,6 @@ class BaoStockProcessor(QObject):
         process_elapsed_time = time.time() - start_time  # 计算耗时
         self.logger.info(f"沪市主板日线股票数据处理完成，共处理{i}只股票，耗时: {process_elapsed_time:.2f}秒，即{process_elapsed_time/60:.2f}分钟")
 
-        
-       # 增量更新模式
-        with self.lock:
-            # 记录更新前的数量
-            old_count = len(self.dict_daily_stock_data)
-            
-            # 更新数据
-            self.dict_daily_stock_data.update(dict_daily_stock_data)
-            
-            # 记录更新后的数量
-            new_count = len(self.dict_daily_stock_data)
-            
-        self.logger.info(f"沪市主板股票日线数据获取完成，新增{len(dict_daily_stock_data)}只股票，"
-                        f"总股票数从{old_count}变为{new_count}")
-
     def process_sh_main_stock_weekly_data(self):
         i = 1
         dict_weekly_stock_data = {}
@@ -1400,8 +1009,8 @@ class BaoStockProcessor(QObject):
         self.logger.info(f"开始处理沪市主板周线股票数据...")
         start_time = time.time()  # 记录开始时间
 
-        # for value in self.dict_all_stocks['sh_main']['证券代码']:
-        for index, row in self.dict_all_stocks['sh_main'].iterrows():
+        dict_stock_info = BaostockDataManager().get_stock_info_dict()
+        for index, row in dict_stock_info['sh_main'].iterrows():
             value = row['证券代码']
             stock_name = row['证券名称'] if '证券名称' in row else '未知'
             # self.logger.info(f"获取第 {i} 只沪市主板股票 {value} 【周线】数据")
@@ -1420,9 +1029,6 @@ class BaoStockProcessor(QObject):
             # if i > 3:
             #     self.logger.info(f"已获取到所有沪市股票周线数据, i: {i}")
             #     break
-
-            # if i % 50 == 0:  # 每50只股票处理一次事件
-            #     QApplication.processEvents()
             
             if i % 100 == 0:  # 每100只股票打印一次日志
                 self.logger.info(f"已处理 {i} 只沪市股票【周线】数据")
@@ -1433,19 +1039,6 @@ class BaoStockProcessor(QObject):
         process_elapsed_time = time.time() - start_time  # 计算耗时
         self.logger.info(f"沪市主板周线股票数据处理完成，共处理{i}只股票，耗时: {process_elapsed_time:.2f}秒，即{process_elapsed_time/60:.2f}分钟")
 
-        # 增量更新模式
-        with self.lock:
-            # 记录更新前的数量
-            old_count = len(self.dict_weekly_stock_data)
-            
-            # 更新数据
-            self.dict_weekly_stock_data.update(dict_weekly_stock_data)
-            
-            # 记录更新后的数量
-            new_count = len(self.dict_weekly_stock_data)
-            
-        self.logger.info(f"沪市主板股票周线数据获取完成，新增{len(dict_weekly_stock_data)}只股票，"
-                        f"总股票数从{old_count}变为{new_count}")
 
 
     # -----------------深市主板股票数据获取接口---------------------
@@ -1456,9 +1049,8 @@ class BaoStockProcessor(QObject):
         self.logger.info(f"开始处理深市主板日线股票数据...")
         start_time = time.time()  # 记录开始时间
         
-
-        # for value in self.dict_all_stocks['sz_main']['证券代码']:
-        for index, row in self.dict_all_stocks['sz_main'].iterrows():
+        dict_stock_info = BaostockDataManager().get_stock_info_dict()
+        for index, row in dict_stock_info['sz_main'].iterrows():
             value = row['证券代码']
             stock_name = row['证券名称'] if '证券名称' in row else '未知'
             # self.logger.info(f"获取第 {i} 只深市主板股票 {value} 【日线】数据")
@@ -1478,9 +1070,6 @@ class BaoStockProcessor(QObject):
             # if i > 1:
             #     self.logger.info(f"已获取到所有深市股票日线数据, i: {i}")
             #     break
-
-            # if i % 50 == 0:  # 每50只股票处理一次事件
-            #     QApplication.processEvents()
             
             if i % 100 == 0:  # 每100只股票打印一次日志
                 self.logger.info(f"已处理 {i} 只深市股票【日线】数据")
@@ -1489,19 +1078,6 @@ class BaoStockProcessor(QObject):
 
         process_elapsed_time = time.time() - start_time  # 计算耗时
         self.logger.info(f"深市主板日线股票数据处理完成，共处理{i}只股票，耗时: {process_elapsed_time:.2f}秒，即{process_elapsed_time/60:.2f}分钟")
-
-        with self.lock:
-            # 记录更新前的数量
-            old_count = len(self.dict_daily_stock_data)
-            
-            # 更新数据
-            self.dict_daily_stock_data.update(dict_daily_stock_data)
-            
-            # 记录更新后的数量
-            new_count = len(self.dict_daily_stock_data)
-            
-        self.logger.info(f"深市主板股票日线数据获取完成，新增{len(dict_daily_stock_data)}只股票，"
-                        f"总股票数从{old_count}变为{new_count}")
 
     def start_sz_main_stock_data_background_update(self):
         try:
@@ -1528,8 +1104,8 @@ class BaoStockProcessor(QObject):
         self.logger.info(f"开始处理深市主板周线股票数据...")
         start_time = time.time()  # 记录开始时间
 
-        # for value in self.dict_all_stocks['sz_main']['证券代码']:
-        for index, row in self.dict_all_stocks['sz_main'].iterrows():
+        dict_stock_info = BaostockDataManager().get_stock_info_dict()
+        for index, row in dict_stock_info['sz_main'].iterrows():
             value = row['证券代码']
             stock_name = row['证券名称'] if '证券名称' in row else '未知'
             # self.logger.info(f"获取第 {i} 只深市主板股票 {value} 【周线】数据")
@@ -1548,9 +1124,6 @@ class BaoStockProcessor(QObject):
             # if i > 1:
             #     self.logger.info(f"已获取到所有深市股票周线数据, i: {i}")
             #     break
-
-            # if i % 50 == 0:  # 每50只股票处理一次事件
-            #     QApplication.processEvents()
             
             if i % 100 == 0:  # 每100只股票打印一次日志
                 self.logger.info(f"已处理 {i} 只深市股票【周线】数据")
@@ -1561,18 +1134,6 @@ class BaoStockProcessor(QObject):
         process_elapsed_time = time.time() - start_time  # 计算耗时
         self.logger.info(f"深市主板周线股票数据处理完成，共处理{i}只股票，耗时: {process_elapsed_time:.2f}秒，即{process_elapsed_time/60:.2f}分钟")
 
-        with self.lock:
-            # 记录更新前的数量
-            old_count = len(self.dict_weekly_stock_data)
-            
-            # 更新数据
-            self.dict_weekly_stock_data.update(dict_weekly_stock_data)
-            
-            # 记录更新后的数量
-            new_count = len(self.dict_weekly_stock_data)
-            
-        self.logger.info(f"深市主板股票周线数据获取完成，新增{len(dict_weekly_stock_data)}只股票，"
-                        f"总股票数从{old_count}变为{new_count}")
         
     # -----------------创业板股票数据获取接口---------------------
     def start_gem_stock_data_background_update(self):
@@ -1598,8 +1159,8 @@ class BaoStockProcessor(QObject):
         self.logger.info(f"开始处理创业板日线股票数据...")
         start_time = time.time()  # 记录开始时间
 
-        # for value in self.dict_all_stocks['gem']['证券代码']:
-        for index, row in self.dict_all_stocks['gem'].iterrows():
+        dict_stock_info = BaostockDataManager().get_stock_info_dict()
+        for index, row in dict_stock_info['gem'].iterrows():
             value = row['证券代码']
             stock_name = row['证券名称'] if '证券名称' in row else '未知'
             # self.logger.info(f"获取第 {i} 只创业板股票 {value} 【日线】数据")
@@ -1618,9 +1179,6 @@ class BaoStockProcessor(QObject):
             # if i > 3:
             #     self.logger.info(f"已获取到所有创业板股票日线数据, i: {i}")
             #     break
-
-            # if i % 50 == 0:  # 每50只股票处理一次事件
-            #     QApplication.processEvents()
             
             if i % 100 == 0:  # 每100只股票打印一次日志
                 self.logger.info(f"已处理 {i} 只创业板股票【日线】数据")
@@ -1630,19 +1188,6 @@ class BaoStockProcessor(QObject):
         process_elapsed_time = time.time() - start_time  # 计算耗时
         self.logger.info(f"创业板日线股票数据处理完成，共处理{i}只股票，耗时: {process_elapsed_time:.2f}秒，即{process_elapsed_time/60:.2f}分钟")
 
-        with self.lock:
-            # 记录更新前的数量
-            old_count = len(self.dict_daily_stock_data)
-            
-            # 更新数据
-            self.dict_daily_stock_data.update(dict_daily_stock_data)
-            
-            # 记录更新后的数量
-            new_count = len(self.dict_daily_stock_data)
-            
-        self.logger.info(f"创业板股票日线数据获取完成，新增{len(dict_daily_stock_data)}只股票，"
-                        f"总股票数从{old_count}变为{new_count}")
-
     def process_gem_stock_weekly_data(self):
         i = 1
         dict_weekly_stock_data = {}
@@ -1650,9 +1195,8 @@ class BaoStockProcessor(QObject):
         self.logger.info(f"开始处理创业板周线股票数据...")
         start_time = time.time()  # 记录开始时间
 
-
-        # for value in self.dict_all_stocks['gem']['证券代码']:
-        for index, row in self.dict_all_stocks['gem'].iterrows():
+        dict_stock_info = BaostockDataManager().get_stock_info_dict()
+        for index, row in dict_stock_info['gem'].iterrows():
             value = row['证券代码']
             stock_name = row['证券名称'] if '证券名称' in row else '未知'
             # self.logger.info(f"获取第 {i} 只创业板股票 {value} 【周线】数据")
@@ -1672,9 +1216,6 @@ class BaoStockProcessor(QObject):
             # if i > 3:
             #     self.logger.info(f"已获取到所有创业板股票周线数据, i: {i}")
             #     break
-
-            # if i % 50 == 0:  # 每50只股票处理一次事件
-            #     QApplication.processEvents()
             
             if i % 100 == 0:  # 每100只股票打印一次日志
                 self.logger.info(f"已处理 {i} 只创业板股票【周线】数据")
@@ -1684,18 +1225,6 @@ class BaoStockProcessor(QObject):
         process_elapsed_time = time.time() - start_time  # 计算耗时
         self.logger.info(f"创业板周线股票数据处理完成，共处理{i}只股票，耗时: {process_elapsed_time:.2f}秒，即{process_elapsed_time/60:.2f}分钟")
 
-        with self.lock:
-            # 记录更新前的数量
-            old_count = len(self.dict_weekly_stock_data)
-            
-            # 更新数据
-            self.dict_weekly_stock_data.update(dict_weekly_stock_data)
-            
-            # 记录更新后的数量
-            new_count = len(self.dict_weekly_stock_data)
-            
-        self.logger.info(f"创业板股票周线数据获取完成，新增{len(dict_weekly_stock_data)}只股票，"
-                        f"总股票数从{old_count}变为{new_count}")
 
 
     # -----------------科创板股票数据获取接口---------------------
@@ -1724,8 +1253,8 @@ class BaoStockProcessor(QObject):
         self.logger.info(f"开始处理科创板日线股票数据...")
         start_time = time.time()  # 记录开始时间
 
-        # for value in self.dict_all_stocks['star']['证券代码']:
-        for index, row in self.dict_all_stocks['star'].iterrows():
+        dict_stock_info = BaostockDataManager().get_stock_info_dict()
+        for index, row in dict_stock_info['star'].iterrows():
             value = row['证券代码']
             stock_name = row['证券名称'] if '证券名称' in row else '未知'
             # self.logger.info(f"获取第 {i} 只科创板股票 {value} 【日线】数据")
@@ -1743,9 +1272,6 @@ class BaoStockProcessor(QObject):
             # if i > 1:
             #     self.logger.info(f"已获取到所有科创板股票日线数据, i: {i}")
             #     break
-
-            # if i % 50 == 0:  # 每50只股票处理一次事件
-            #     QApplication.processEvents()
             
             if i % 100 == 0:  # 每100只股票打印一次日志
                 self.logger.info(f"已处理 {i} 只科创板股票【日线】数据")
@@ -1754,19 +1280,6 @@ class BaoStockProcessor(QObject):
 
         process_elapsed_time = time.time() - start_time  # 计算耗时
         self.logger.info(f"科创板日线股票数据处理完成，共处理{i}只股票，耗时: {process_elapsed_time:.2f}秒，即{process_elapsed_time/60:.2f}分钟")
-
-        with self.lock:
-            # 记录更新前的数量
-            old_count = len(self.dict_daily_stock_data)
-            
-            # 更新数据
-            self.dict_daily_stock_data.update(dict_daily_stock_data)
-            
-            # 记录更新后的数量
-            new_count = len(self.dict_daily_stock_data)
-            
-        self.logger.info(f"科创板股票日线数据获取完成，新增{len(dict_daily_stock_data)}只股票，"
-                        f"总股票数从{old_count}变为{new_count}")
 
 
     def process_star_stock_weekly_data(self):
@@ -1777,8 +1290,8 @@ class BaoStockProcessor(QObject):
         self.logger.info(f"开始处理科创板周线股票数据...")
         start_time = time.time()  # 记录开始时间
 
-        # for value in self.dict_all_stocks['star']['证券代码']:
-        for index, row in self.dict_all_stocks['star'].iterrows():
+        dict_stock_info = BaostockDataManager().get_stock_info_dict()
+        for index, row in dict_stock_info['star'].iterrows():
             value = row['证券代码']
             stock_name = row['证券名称'] if '证券名称' in row else '未知'
             # self.logger.info(f"获取第 {i} 只科创板股票 {value} 【周线】数据")
@@ -1797,9 +1310,6 @@ class BaoStockProcessor(QObject):
             # if i > 1:
             #     self.logger.info(f"已获取到所有科创板股票周线数据, i: {i}")
             #     break
-
-            # if i % 50 == 0:  # 每50只股票处理一次事件
-            #     QApplication.processEvents()
             
             if i % 100 == 0:  # 每100只股票打印一次日志
                 self.logger.info(f"已处理 {i} 只科创板股票【周线】数据")
@@ -1810,18 +1320,6 @@ class BaoStockProcessor(QObject):
         process_elapsed_time = time.time() - start_time  # 计算耗时
         self.logger.info(f"科创板周线股票数据处理完成，共处理{i}只股票，耗时: {process_elapsed_time:.2f}秒，即{process_elapsed_time/60:.2f}分钟")
 
-        with self.lock:
-            # 记录更新前的数量
-            old_count = len(self.dict_weekly_stock_data)
-            
-            # 更新数据
-            self.dict_weekly_stock_data.update(dict_weekly_stock_data)
-            
-            # 记录更新后的数量
-            new_count = len(self.dict_weekly_stock_data)
-            
-        self.logger.info(f"科创板股票周线数据获取完成，新增{len(dict_weekly_stock_data)}只股票，"
-                        f"总股票数从{old_count}变为{new_count}")
         
 
     # -----------------分钟级别股票数据获取接口---------------------
@@ -1857,8 +1355,8 @@ class BaoStockProcessor(QObject):
         self.logger.info(f"开始处理{board_type}股票{level}分钟级别数据...")
         start_time = time.time()  # 记录开始时间
 
-        # for value in self.dict_all_stocks[board_type]['证券代码']:
-        for index, row in self.dict_all_stocks[board_type].iterrows():
+        dict_stock_info = BaostockDataManager().get_stock_info_dict()
+        for index, row in dict_stock_info[board_type].iterrows():
             value = row['证券代码']
             stock_name = row['证券名称'] if '证券名称' in row else '未知'
             # self.logger.info(f"获取第 {i} 只{board_type}股票 {value} {level}分钟级别数据")
@@ -1878,9 +1376,6 @@ class BaoStockProcessor(QObject):
             #     self.logger.info(f"已获取到所有沪市股票日线数据, i: {i}")
             #     break
             
-            # if i % 50 == 0:  # 每50只股票处理一次事件
-            #     QApplication.processEvents()
-            
             if i % 100 == 0:  # 每100只股票打印一次日志
                 self.logger.info(f"已处理 {i} 只{board_type}股票【{level}分钟级别】数据")
 
@@ -1889,21 +1384,6 @@ class BaoStockProcessor(QObject):
 
         process_elapsed_time = time.time() - start_time  # 计算耗时
         self.logger.info(f"获取{board_type}股票{level}分钟级别数据完成，共处理{i}只股票，耗时: {process_elapsed_time:.2f}秒，即{process_elapsed_time/60:.2f}分钟")
-
-        
-        # 增量更新模式
-        with self.lock:
-            # 记录更新前的数量
-            # old_count = len(self.dict_daily_stock_data)
-            
-            # 更新数据
-            self.dict_minute_level_stock_data[level] = dict_minute_level_stock_data
-            
-            # 记录更新后的数量
-            # new_count = len(self.dict_daily_stock_data)
-            
-        # self.logger.info(f"沪市主板股票日线数据获取完成，新增{len(dict_minute_level_stock_data)}只股票，"
-        #                 f"总股票数从{old_count}变为{new_count}")
 
         self.logger.info(f"{board_type}股票{level}分钟级别数据获取完成")
 
@@ -1935,10 +1415,10 @@ class BaoStockProcessor(QObject):
 
         self.logger.info(f"获取所有股票数据完成，共有{len(result)}只股票。\n获取结果如下：\n{result.head(3)}")
 
-        self.dict_all_stocks = self.filter_stocks_by_board(result)
+        dict_all_stock_info = self.filter_stocks_by_board(result)
 
         # 打印各板块股票数量
-        for board_name, df_board in self.dict_all_stocks.items():
+        for board_name, df_board in dict_all_stock_info.items():
             self.logger.info(f"{board_name} 股票数量: {len(df_board)}")
 
             # self.logger.info(df_board.tail(1))
@@ -1946,34 +1426,23 @@ class BaoStockProcessor(QObject):
             # 如需查看具体代码，可取消下一行的注释
             # self.logger.info(f"{board_name} 股票代码:\n {df_board['code'].tolist()}\n")
             if board_name == '沪市主板':
-                self.stock_info_db_base.save_tao_stocks_to_db(df_board, "replace", 'sh_main')
+                BaostockDataManager().save_stock_info_to_db(df_board, "replace", 'sh_main')
             elif board_name == '深市主板':
-                self.stock_info_db_base.save_tao_stocks_to_db(df_board, "replace", 'sz_main')
+                BaostockDataManager().save_stock_info_to_db(df_board, "replace", 'sz_main')
             elif board_name == '创业板':
-                self.stock_info_db_base.save_tao_stocks_to_db(df_board, "replace", 'gem')
+                BaostockDataManager().save_stock_info_to_db(df_board, "replace", 'gem')
             elif board_name == '科创板':
-                self.stock_info_db_base.save_tao_stocks_to_db(df_board, "replace", 'star')
+                BaostockDataManager().save_stock_info_to_db(df_board, "replace", 'star')
             # elif board_name == '北交所':
-            #    self.stock_info_db_base.save_tao_stocks_to_db(df_board, "replace", 'bse')
+            #    BaostockDataManager().save_stock_info_to_db(df_board, "replace", 'bse')
 
         #### 结果集输出到csv文件 ####   
         # result.to_csv("./data/database/stocks/db/baostock/all_stock.csv", encoding="utf-8", index=False)
         # self.logger.info(result)
-        # self.stock_info_db_base.save_tao_stocks_to_db(result)
+        # BaostockDataManager().save_stock_info_to_db(result)
 
         #### 登出系统 ####
         # bs.logout()
-
-    def get_all_stocks_from_db(self):
-        self.dict_all_stocks['sh_main'] = self.stock_info_db_base.get_sh_main_stocks()
-        self.dict_all_stocks['sz_main'] = self.stock_info_db_base.get_sz_main_stocks()
-        self.dict_all_stocks['gem'] = self.stock_info_db_base.get_gem_stocks()
-        self.dict_all_stocks['star'] = self.stock_info_db_base.get_star_stocks()
-
-        sh_main_count = len(self.dict_all_stocks['sh_main'])
-        sz_main_count = len(self.dict_all_stocks['sz_main'])
-        self.logger.info(f"沪A主板股票数量：{sh_main_count}")
-        self.logger.info(f"深A主板股票数量：{sz_main_count}")
 
     def filter_stocks_by_board(self, df):
         """
@@ -2010,33 +1479,11 @@ class BaoStockProcessor(QObject):
         }
 
     def auto_test(self):
-        filter_result = []
-        # sh_main = self.stock_info_db_base.get_sh_main_stocks()
-        # i = 1
-        # for value in sh_main['证券代码']:
-        #     self.logger.info(f"获取第 {i} 只股票 {value} 日线数据")
-        #     stock_data = self.process_stock_daily_data(value)
-        #     if self.daily_filter(stock_data):
-        #         filter_result.append(value)
-
-        sz_main = self.stock_info_db_base.get_sz_main_stocks()
-        i = 1
-        for value in sz_main['证券代码']:
-            self.logger.info(f"获取第 {i} 只股票 {value} 日线数据")
-            stock_data = self.process_daily_stock_data(value)
-            # if self.daily_filter(stock_data):
-            if pf.daily_ma52_filter(stock_data):
-                filter_result.append(value)
-
-        return filter_result
+        pass
 
     # 增量更新
     def update_sh_main_daily_data(self):
-        # i = 1
-        # for value in self.dict_all_stocks['sh_main']['证券代码']:
-        #     self.logger.info(f"获取第 {i} 只沪市主板股票 {value} 日线数据")
-        #     i += 1
-        self.update_daily_stock_data('sh.600000')
+        pass
 
     def create_baostock_table_indexes(self):
         """
@@ -2047,10 +1494,11 @@ class BaoStockProcessor(QObject):
         self.logger.info("开始为所有股票数据表创建索引...")
         total_start_time = time.time()
 
-        total_stocks = sum(len(board_data) for board_data in self.dict_all_stocks.values())
+        dict_stock_info = BaostockDataManager().get_stock_info_dict()
+        total_stocks = sum(len(board_data) for board_data in dict_stock_info.values())
         processed_count = 0
         
-        for board_name, board_data in self.dict_all_stocks.items():
+        for board_name, board_data in dict_stock_info.items():
             if board_index > 1:
                 break
             board_index += 1
@@ -2064,12 +1512,13 @@ class BaoStockProcessor(QObject):
                     code = row['证券代码']  # 使用正确的列名
                     
                     # 为不同时间级别的数据表创建索引
-                    table_names = ['stock_data_1d', 'stock_data_1w', 'stock_data_15m', 'stock_data_30m', 'stock_data_60m']
                     
-                    for table_name in table_names:
-                        if self.stock_db_base.check_table_exists(code, table_name):
-                            db_path = self.stock_db_base.get_db_path(code)
-                            self.stock_db_base.create_baostock_table_index(db_path, table_name)
+                    time_periods = [TimePeriod.DAY, TimePeriod.WEEK, TimePeriod.MINUTE_15, TimePeriod.MINUTE_30, TimePeriod.MINUTE_60]
+
+                    for period in time_periods:
+                        if BaostockDataManager().check_table_exists(code, period):
+                            db_path = BaostockDataManager().get_db_path(code)
+                            BaostockDataManager().create_baostock_table_index(db_path, period)
                         # else:
                         #     self.logger.debug(f"表 {table_name} 不存在，跳过索引创建")
                             
@@ -2141,14 +1590,7 @@ class BaoStockProcessor(QObject):
         self.logger.info(f"set_b_log--启用筛选日志输出：{log}")
         pf.set_b_filter_log(log)
 
-    def filter_check(self, code, condition=None, b_use_weekly_data=True):
-        with self.lock:
-            dict_weekly_stock_data_keys = self.dict_weekly_stock_data.keys()
-
-        if b_use_weekly_data and code not in dict_weekly_stock_data_keys:
-            self.logger.info(f"{code} 未在周线数据中")
-            return False
-
+    def filter_check(self, code, condition=None):
         if condition is None or condition.empty:
             self.logger.info(f"筛选条件为空")
             return True
@@ -2244,200 +1686,268 @@ class BaoStockProcessor(QObject):
         return df_to_save
             
 
-    def daily_up_ma52_filter(self, condition=None, level='1d'):
+    def daily_up_ma52_filter(self, condition=None, period=TimePeriod.DAY):
         filter_result = []
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
         self.logger.info(f"开始执行日线零轴上方MA52筛选，换手率： {turn}, 量比：{lb}")
 
-        # 创建本地副本避免长时间持有锁
-        with self.lock:
-            daily_data_items = list(self.dict_daily_stock_data.items())
-            weekly_data_dict = dict(self.dict_weekly_stock_data)
+        dict_stock_info = BaostockDataManager().get_stock_info_dict()
+        for board_name, board_data in dict_stock_info.items():
+            if board_index > 1:
+                # 仅处理沪深主板
+                break
+            board_index += 1
+            for index, row in board_data.iterrows():
+                try:
+                    code = row['证券代码']  # 使用正确的列名
 
-        for code, df_data in daily_data_items:
-            if not self.filter_check(code, condition):
-                continue
+                    if not self.filter_check(code, condition):
+                        continue
 
-            if pf.daily_up_ma52_filter(df_data, weekly_data_dict.get(code, pd.DataFrame())):
-                filter_result.append(code)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period(code, period)
+                    weekly_data = BaostockDataManager().get_stock_data_from_db_by_period(code, TimePeriod.WEEK)
+
+                    if pf.daily_up_ma52_filter(df_filter_data, weekly_data, period):
+                        filter_result.append(code)
+
+
+                except Exception as e:
+                    self.logger.error(f"对股票 {code} 进行策略判断时出错: {str(e)}")
+                    continue
+
 
         filter_result_data_manager = FilterResultDataManger(0)
         # 保存到文件，以便导入到看盘软件中
-        filter_result_data_manager.save_result_list_to_txt(filter_result, f"{self.get_filter_result_file_suffix()}.txt", ', ', level, f"零轴上方MA52筛选结果，共{len(filter_result)}只股票：\n")
+        filter_result_data_manager.save_result_list_to_txt(filter_result, f"{self.get_filter_result_file_suffix()}.txt", ', ', period, f"零轴上方MA52筛选结果，共{len(filter_result)}只股票：\n")
 
         df_to_save = self.generate_filter_result_df_to_save(filter_result)
         # self.logger.info(f"构造的df_to_save: \n{df_to_save.tail(3)}")
         if df_to_save is not None and not df_to_save.empty:
-            if filter_result_data_manager.save_filter_result_to_db(df_to_save, level):
+            if filter_result_data_manager.save_filter_result_to_db(df_to_save, period):
                 self.logger.info("保存零轴上方MA52筛选结果成功")
         else:
             self.logger.info("零轴上方MA52筛选结果为空")
 
         return filter_result
     
-    def daily_up_ma24_filter(self, condition=None, level='1d'):
+    def daily_up_ma24_filter(self, condition=None, period=TimePeriod.DAY):
         filter_result = []
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
         self.logger.info(f"开始执行日线零轴上方MA24筛选，换手率：{turn}, 量比：{lb}")
 
-        # 创建本地副本避免长时间持有锁
-        with self.lock:
-            daily_data_items = list(self.dict_daily_stock_data.items())
-            weekly_data_dict = dict(self.dict_weekly_stock_data)
+        dict_stock_info = BaostockDataManager().get_stock_info_dict()
+        for board_name, board_data in dict_stock_info.items():
+            if board_index > 1:
+                # 仅处理沪深主板
+                break
+            board_index += 1
+            for index, row in board_data.iterrows():
+                try:
+                    code = row['证券代码']  # 使用正确的列名
 
-        for code, df_data in daily_data_items:
-            if not self.filter_check(code, condition):
-                continue
+                    if not self.filter_check(code, condition):
+                        continue
 
-            if pf.daily_up_ma24_filter(df_data, weekly_data_dict.get(code, pd.DataFrame())):
-                filter_result.append(code)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period(code, period)
+                    weekly_data = BaostockDataManager().get_stock_data_from_db_by_period(code, TimePeriod.WEEK)
 
- 
+                    
+                    if pf.daily_up_ma24_filter(df_filter_data, weekly_data, period):
+                        filter_result.append(code)
+
+                except Exception as e:
+                    self.logger.error(f"对股票 {code} 进行策略判断时出错: {str(e)}")
+                    continue
+
         # save_list_to_txt(filter_result, f"./policy_filter/filter_result/daily_up_ma24/{self.get_filter_result_file_suffix()}.txt", ', ', "零轴上方MA24筛选结果：\n")
 
         filter_result_data_manager = FilterResultDataManger(1)
         # 保存到文件，以便导入到看盘软件中
-        filter_result_data_manager.save_result_list_to_txt(filter_result, f"{self.get_filter_result_file_suffix()}.txt", ', ', level, f"零轴上方MA24筛选结果，共{len(filter_result)}只股票：\n")
+        filter_result_data_manager.save_result_list_to_txt(filter_result, f"{self.get_filter_result_file_suffix()}.txt", ', ', period, f"零轴上方MA24筛选结果，共{len(filter_result)}只股票：\n")
 
         df_to_save = self.generate_filter_result_df_to_save(filter_result)
         if df_to_save is not None and not df_to_save.empty:
-            if filter_result_data_manager.save_filter_result_to_db(df_to_save, level):
+            if filter_result_data_manager.save_filter_result_to_db(df_to_save, period):
                 self.logger.info("保存零轴上方MA24筛选结果成功")
         else:
             self.logger.info("零轴上方MA24筛选结果为空")
 
         return filter_result
 
-    def daily_up_ma10_filter(self, condition=None, level='1d'):
+    def daily_up_ma10_filter(self, condition=None, period=TimePeriod.DAY):
         filter_result = []
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
         self.logger.info(f"开始执行日线零轴上方MA10筛选，换手率：{turn}, 量比：{lb}")
 
-        # 创建本地副本避免长时间持有锁
-        with self.lock:
-            daily_data_items = list(self.dict_daily_stock_data.items())
+        dict_stock_info = BaostockDataManager().get_stock_info_dict()
+        for board_name, board_data in dict_stock_info.items():
+            if board_index > 1:
+                # 仅处理沪深主板
+                break
+            board_index += 1
+            for index, row in board_data.iterrows():
+                try:
+                    code = row['证券代码']  # 使用正确的列名
 
-        for code, df_data in daily_data_items:
-            if not self.filter_check(code, condition, False):
-                continue
+                    if not self.filter_check(code, condition):
+                        continue
 
-            if pf.daily_up_ma10_filter(df_data):
-                filter_result.append(code)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period(code, period)
+                    
+                    if pf.daily_up_ma10_filter(df_filter_data, period):
+                        filter_result.append(code)
 
+                except Exception as e:
+                    self.logger.error(f"对股票 {code} 进行策略判断时出错: {str(e)}")
+                    continue
 
         # save_list_to_txt(filter_result, f"./policy_filter/filter_result/daily_up_ma10/{self.get_filter_result_file_suffix()}.txt", ', ', "零轴上方MA10筛选结果：\n")
 
         filter_result_data_manager = FilterResultDataManger(2)
         # 保存到文件，以便导入到看盘软件中
-        filter_result_data_manager.save_result_list_to_txt(filter_result, f"{self.get_filter_result_file_suffix()}.txt", ', ', level, f"零轴上方MA10筛选结果，共{len(filter_result)}只股票：\n")
+        filter_result_data_manager.save_result_list_to_txt(filter_result, f"{self.get_filter_result_file_suffix()}.txt", ', ', period, f"零轴上方MA10筛选结果，共{len(filter_result)}只股票：\n")
 
         df_to_save = self.generate_filter_result_df_to_save(filter_result)
         if df_to_save is not None and not df_to_save.empty:
-            if filter_result_data_manager.save_filter_result_to_db(df_to_save, level):
+            if filter_result_data_manager.save_filter_result_to_db(df_to_save, period):
                 self.logger.info(f"保存零轴上方MA10筛选结果成功")
         else:
             self.logger.info("零轴上方MA10筛选结果为空")
 
         return filter_result
     
-    def daily_up_ma5_filter(self, condition=None, level='1d'):
+    def daily_up_ma5_filter(self, condition=None, period=TimePeriod.DAY):
         pass
     
-    def daily_down_between_ma24_ma52_filter(self, condition=None, level='1d'):
+    def daily_down_between_ma24_ma52_filter(self, condition=None, period=TimePeriod.DAY):
         
         filter_result = []
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
         self.logger.info(f"开始执行日线零轴下方方MA24-MA52筛选，换手率：{turn}, 量比：{lb}")
 
-        # 创建本地副本避免长时间持有锁
-        with self.lock:
-            daily_data_items = list(self.dict_daily_stock_data.items())
-            weekly_data_dict = dict(self.dict_weekly_stock_data)
+        dict_stock_info = BaostockDataManager().get_stock_info_dict()
+        for board_name, board_data in dict_stock_info.items():
+            if board_index > 1:
+                # 仅处理沪深主板
+                break
+            board_index += 1
+            for index, row in board_data.iterrows():
+                try:
+                    code = row['证券代码']  # 使用正确的列名
 
-        for code, df_data in daily_data_items:
-            if not self.filter_check(code, condition):
-                continue
+                    if not self.filter_check(code, condition):
+                        continue
 
-            if pf.daily_down_between_ma24_ma52_filter(df_data, weekly_data_dict.get(code, pd.DataFrame())):
-                filter_result.append(code)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period(code, period)
+                    weekly_data = BaostockDataManager().get_stock_data_from_db_by_period(code, TimePeriod.WEEK)
+                    
+                    if pf.daily_down_between_ma24_ma52_filter(df_filter_data, weekly_data, period):
+                        filter_result.append(code)
+
+                except Exception as e:
+                    self.logger.error(f"对股票 {code} 进行策略判断时出错: {str(e)}")
+                    continue
 
         # save_list_to_txt(filter_result, f"./policy_filter/filter_result/daily_down_ma52/{self.get_filter_result_file_suffix()}.txt", ', ', "零轴下方MA52筛选结果：\n")
 
         filter_result_data_manager = FilterResultDataManger(4)
-        filter_result_data_manager.save_result_list_to_txt(filter_result, f"{self.get_filter_result_file_suffix()}.txt", ', ', level, f"零轴下方MA52筛选结果，共{len(filter_result)}只股票：\n")
+        filter_result_data_manager.save_result_list_to_txt(filter_result, f"{self.get_filter_result_file_suffix()}.txt", ', ', period, f"零轴下方MA52筛选结果，共{len(filter_result)}只股票：\n")
 
         df_to_save = self.generate_filter_result_df_to_save(filter_result)
         if df_to_save is not None and not df_to_save.empty:
-            if filter_result_data_manager.save_filter_result_to_db(df_to_save, level):
+            if filter_result_data_manager.save_filter_result_to_db(df_to_save, period):
                 self.logger.info("保存零轴下方MA52筛选结果成功")
         else:
             self.logger.info("零轴下方MA52筛选结果为空")
 
         return filter_result
     
-    def daily_down_between_ma5_ma52_filter(self, condition=None, level='1d'):
+    def daily_down_between_ma5_ma52_filter(self, condition=None, period=TimePeriod.DAY):
         
         filter_result = []
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
         self.logger.info(f"开始执行日线零轴下方方MA5-MA52筛选，换手率：{turn}, 量比：{lb}")
 
-        # 创建本地副本避免长时间持有锁
-        with self.lock:
-            daily_data_items = list(self.dict_daily_stock_data.items())
-            weekly_data_dict = dict(self.dict_weekly_stock_data)
+        dict_stock_info = BaostockDataManager().get_stock_info_dict()
+        for board_name, board_data in dict_stock_info.items():
+            if board_index > 1:
+                # 仅处理沪深主板
+                break
+            board_index += 1
+            for index, row in board_data.iterrows():
+                try:
+                    code = row['证券代码']  # 使用正确的列名
 
-        for code, df_data in daily_data_items:
-            if not self.filter_check(code, condition):
-                continue
+                    if not self.filter_check(code, condition):
+                        continue
 
-            if pf.daily_down_between_ma5_ma52_filter(df_data, weekly_data_dict.get(code, pd.DataFrame())):
-                filter_result.append(code)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period(code, period)
+                    weekly_data = BaostockDataManager().get_stock_data_from_db_by_period(code, TimePeriod.WEEK)
+                    
+                    if pf.daily_down_between_ma5_ma52_filter(df_filter_data, weekly_data, period):
+                        filter_result.append(code)
+
+                except Exception as e:
+                    self.logger.error(f"对股票 {code} 进行策略判断时出错: {str(e)}")
+                    continue
+
 
 
         # save_list_to_txt(filter_result, f"./policy_filter/filter_result/daily_down_ma5/{self.get_filter_result_file_suffix()}.txt", ', ', "零轴下方MA5筛选结果：\n")
 
         filter_result_data_manager = FilterResultDataManger(5)
-        filter_result_data_manager.save_result_list_to_txt(filter_result, f"{self.get_filter_result_file_suffix()}.txt", ', ', level, f"零轴下方MA5筛选结果，共{len(filter_result)}只股票：\n")
+        filter_result_data_manager.save_result_list_to_txt(filter_result, f"{self.get_filter_result_file_suffix()}.txt", ', ', period, f"零轴下方MA5筛选结果，共{len(filter_result)}只股票：\n")
 
         df_to_save = self.generate_filter_result_df_to_save(filter_result)
         if df_to_save is not None and not df_to_save.empty:
-            if filter_result_data_manager.save_filter_result_to_db(df_to_save, level):
+            if filter_result_data_manager.save_filter_result_to_db(df_to_save, period):
                 self.logger.info("保存零轴下方MA5筛选结果成功")
         else:
             self.logger.info("零轴下方MA5筛选结果为空")
 
         return filter_result
     
-    def daily_down_breakthrough_ma52_filter(self, condition=None, level='1d'):
+    def daily_down_breakthrough_ma52_filter(self, condition=None, period=TimePeriod.DAY):
         filter_result = []
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
         self.logger.info(f"开始执行日线零轴下方MA52突破筛选，换手率：{turn}, 量比：{lb}")
 
-        # 创建本地副本避免长时间持有锁
-        with self.lock:
-            daily_data_items = list(self.dict_daily_stock_data.items())
+        dict_stock_info = BaostockDataManager().get_stock_info_dict()
+        for board_name, board_data in dict_stock_info.items():
+            if board_index > 1:
+                # 仅处理沪深主板
+                break
+            board_index += 1
+            for index, row in board_data.iterrows():
+                try:
+                    code = row['证券代码']  # 使用正确的列名
 
-        for code, df_data in daily_data_items:
-            if not self.filter_check(code, condition, False):
-                continue
+                    if not self.filter_check(code, condition):
+                        continue
 
-            if pf.daily_down_breakthrough_ma52_filter(df_data):
-                filter_result.append(code)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period(code, period)
+                    
+                    if pf.daily_down_breakthrough_ma52_filter(df_filter_data):
+                        filter_result.append(code)
+
+                except Exception as e:
+                    self.logger.error(f"对股票 {code} 进行策略判断时出错: {str(e)}")
+                    continue
 
         # save_list_to_txt(filter_result, f"./policy_filter/filter_result/daily_down_breakthrough_ma52_filter/{self.get_filter_result_file_suffix()}.txt", ', ', "零轴下方MA52突破筛选结果：\n")
 
         filter_result_data_manager = FilterResultDataManger(6)
-        filter_result_data_manager.save_result_list_to_txt(filter_result, f"{self.get_filter_result_file_suffix()}.txt", ', ', level, f"零轴下方MA52突破筛选结果，共{len(filter_result)}只股票：\n")
+        filter_result_data_manager.save_result_list_to_txt(filter_result, f"{self.get_filter_result_file_suffix()}.txt", ', ', period, f"零轴下方MA52突破筛选结果，共{len(filter_result)}只股票：\n")
         
         df_to_save = self.generate_filter_result_df_to_save(filter_result)
         if df_to_save is not None and not df_to_save.empty:
-            if filter_result_data_manager.save_filter_result_to_db(df_to_save, level):
+            if filter_result_data_manager.save_filter_result_to_db(df_to_save, period):
                 self.logger.info("保存零轴下方MA52突破筛选结果成功")
         else:
             self.logger.info("零轴下方MA52突破筛选结果为空")
@@ -2445,38 +1955,50 @@ class BaoStockProcessor(QObject):
         return filter_result
 
 
-    def daily_down_breakthrough_ma24_filter(self, condition=None, level='1d'):
+    def daily_down_breakthrough_ma24_filter(self, condition=None, period=TimePeriod.DAY):
         filter_result = []
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
         self.logger.info(f"开始执行日线零轴下方MA24突破筛选，换手率：{turn}, 量比：{lb}")
 
-        # 创建本地副本避免长时间持有锁
-        with self.lock:
-            daily_data_items = list(self.dict_daily_stock_data.items())
+        dict_stock_info = BaostockDataManager().get_stock_info_dict()
+        for board_name, board_data in dict_stock_info.items():
+            if board_index > 1:
+                # 仅处理沪深主板
+                break
+            board_index += 1
+            for index, row in board_data.iterrows():
+                try:
+                    code = row['证券代码']  # 使用正确的列名
 
-        for code, df_data in daily_data_items:
-            if not self.filter_check(code, condition, False):
-                continue
+                    if not self.filter_check(code, condition):
+                        continue
 
-            if pf.daily_down_breakthrough_ma24_filter(df_data):
-                filter_result.append(code)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period(code, period)
+                    
+                    if pf.daily_down_breakthrough_ma24_filter(df_filter_data):
+                        filter_result.append(code)
+
+                except Exception as e:
+                    self.logger.error(f"对股票 {code} 进行策略判断时出错: {str(e)}")
+                    continue
+
 
         # save_list_to_txt(filter_result, f"./policy_filter/filter_result/daily_down_breakthrough_ma24_filter/{self.get_filter_result_file_suffix()}.txt", ', ', "零轴下方MA24突破筛选结果：\n")
 
         filter_result_data_manager = FilterResultDataManger(7)
-        filter_result_data_manager.save_result_list_to_txt(filter_result, f"{self.get_filter_result_file_suffix()}.txt", ', ', level, f"零轴下方MA24突破筛选结果，共{len(filter_result)}只股票：\n")
+        filter_result_data_manager.save_result_list_to_txt(filter_result, f"{self.get_filter_result_file_suffix()}.txt", ', ', period, f"零轴下方MA24突破筛选结果，共{len(filter_result)}只股票：\n")
 
         df_to_save = self.generate_filter_result_df_to_save(filter_result)
         if df_to_save is not None and not df_to_save.empty:
-            if filter_result_data_manager.save_filter_result_to_db(df_to_save, level):
+            if filter_result_data_manager.save_filter_result_to_db(df_to_save, period):
                 self.logger.info("保存零轴下方MA24突破筛选结果成功")
         else:
             self.logger.info("零轴下方MA24突破筛选结果为空")
 
         return filter_result
 
-    def daily_down_double_bottom_filter(self, condition=None, level='1d'):
+    def daily_down_double_bottom_filter(self, condition=None, period=TimePeriod.DAY):
         filter_result = []      # 零轴下方双底
         filter_result_1 = []    # 细分-背离
         filter_result_2 = []    # 细分-动能不足
@@ -2487,35 +2009,42 @@ class BaoStockProcessor(QObject):
         lb = pf.get_policy_filter_lb()
         self.logger.info(f"开始执行日线零轴下方双底筛选，换手率：{turn}, 量比：{lb}")
 
-        # 创建本地副本避免长时间持有锁
-        with self.lock:
-            daily_data_items = list(self.dict_daily_stock_data.items())
-            weekly_data_dict = dict(self.dict_weekly_stock_data)
+        dict_stock_info = BaostockDataManager().get_stock_info_dict()
+        for board_name, board_data in dict_stock_info.items():
+            if board_index > 1:
+                # 仅处理沪深主板
+                break
+            board_index += 1
+            for index, row in board_data.iterrows():
+                try:
+                    code = row['证券代码']  # 使用正确的列名
 
-        for code, df_data in daily_data_items:
-            if not self.filter_check(code, condition, False):
-                continue
-            
-            # if pf.daily_down_double_bottom_filter(df_data, weekly_data_dict.get(code, pd.DataFrame())):
-            #     filter_result.append(code)
+                    if not self.filter_check(code, condition, False):
+                        continue
 
-            ret = pf.get_last_adjust_period_deviate_status(df_data)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period(code, period)
+                    
+                    ret = pf.get_last_adjust_period_deviate_status(df_filter_data)
 
-            if ret <= 0:
-                continue
-            
-            # 0-不背离，1-背离，2-动能不足，3-隐形动能不足，4-隐形背离
-            if ret == 1:
-                filter_result_1.append(code)
-            elif ret == 2:
-                filter_result_2.append(code)
-            elif ret == 3:
-                filter_result_3.append(code)
-            elif ret == 4:
-                filter_result_4.append(code)
+                    if ret <= 0:
+                        continue
+                    
+                    # 0-不背离，1-背离，2-动能不足，3-隐形动能不足，4-隐形背离
+                    if ret == 1:
+                        filter_result_1.append(code)
+                    elif ret == 2:
+                        filter_result_2.append(code)
+                    elif ret == 3:
+                        filter_result_3.append(code)
+                    elif ret == 4:
+                        filter_result_4.append(code)
 
-            filter_result.append(code)
+                    filter_result.append(code)
 
+
+                except Exception as e:
+                    self.logger.error(f"对股票 {code} 进行策略判断时出错: {str(e)}")
+                    continue
 
         # save_list_to_txt(filter_result, f"./policy_filter/filter_result/daily_down_double_bottom_filter/背离/{self.get_filter_result_file_suffix()}.txt", ', ', "零轴下方双底【背离】筛选结果：\n")
         # save_list_to_txt(filter_result_2, f"./policy_filter/filter_result/daily_down_double_bottom_filter/动能不足/{self.get_filter_result_file_suffix()}.txt", ', ', "零轴下方双底【动能不足】筛选结果：\n")
@@ -2526,8 +2055,8 @@ class BaoStockProcessor(QObject):
         df_to_save = self.generate_filter_result_df_to_save(filter_result)
         if df_to_save is not None and not df_to_save.empty:
             filter_result_data_manager = FilterResultDataManger(8)
-            filter_result_data_manager.save_result_list_to_txt(filter_result, f"{self.get_filter_result_file_suffix()}.txt", ', ', level, f"零轴下方双底筛选结果，共{len(filter_result)}只股票：\n")
-            if filter_result_data_manager.save_filter_result_to_db(df_to_save, level):
+            filter_result_data_manager.save_result_list_to_txt(filter_result, f"{self.get_filter_result_file_suffix()}.txt", ', ', period, f"零轴下方双底筛选结果，共{len(filter_result)}只股票：\n")
+            if filter_result_data_manager.save_filter_result_to_db(df_to_save, period):
                 self.logger.info("保存零轴下方双底筛选结果成功")
         else:
             self.logger.info("零轴下方双底筛选结果为空")
@@ -2535,8 +2064,8 @@ class BaoStockProcessor(QObject):
         df_to_save_1 = self.generate_filter_result_df_to_save(filter_result_1)
         if df_to_save_1 is not None and not df_to_save_1.empty:
             filter_result_data_manager = FilterResultDataManger(9)
-            filter_result_data_manager.save_result_list_to_txt(filter_result_1, f"{self.get_filter_result_file_suffix()}.txt", ', ', level, f"零轴下方双底【背离】筛选结果，共{len(filter_result_1)}只股票：\n")
-            if filter_result_data_manager.save_filter_result_to_db(df_to_save_1, level):
+            filter_result_data_manager.save_result_list_to_txt(filter_result_1, f"{self.get_filter_result_file_suffix()}.txt", ', ', period, f"零轴下方双底【背离】筛选结果，共{len(filter_result_1)}只股票：\n")
+            if filter_result_data_manager.save_filter_result_to_db(df_to_save_1, period):
                 self.logger.info("保存零轴下方双底【背离】筛选结果成功")
         else:
             self.logger.info("零轴下方双底【背离】筛选结果为空")
@@ -2544,8 +2073,8 @@ class BaoStockProcessor(QObject):
         df_to_save_2 = self.generate_filter_result_df_to_save(filter_result_2)
         if df_to_save_2 is not None and not df_to_save_2.empty:
             filter_result_data_manager = FilterResultDataManger(10)
-            filter_result_data_manager.save_result_list_to_txt(filter_result_2, f"{self.get_filter_result_file_suffix()}.txt", ', ', level, f"零轴下方双底【动能不足】筛选结果，共{len(filter_result_2)}只股票：\n")
-            if filter_result_data_manager.save_filter_result_to_db(df_to_save_2, level):
+            filter_result_data_manager.save_result_list_to_txt(filter_result_2, f"{self.get_filter_result_file_suffix()}.txt", ', ', period, f"零轴下方双底【动能不足】筛选结果，共{len(filter_result_2)}只股票：\n")
+            if filter_result_data_manager.save_filter_result_to_db(df_to_save_2, period):
                 self.logger.info("保存零轴下方双底【动能不足】筛选结果成功")
         else:
             self.logger.info("零轴下方双底【动能不足】筛选结果为空")
@@ -2553,8 +2082,8 @@ class BaoStockProcessor(QObject):
         df_to_save_3 = self.generate_filter_result_df_to_save(filter_result_3)
         if df_to_save_3 is not None and not df_to_save_3.empty:
             filter_result_data_manager = FilterResultDataManger(12)
-            filter_result_data_manager.save_result_list_to_txt(filter_result_3, f"{self.get_filter_result_file_suffix()}.txt", ', ', level, f"零轴下方双底【隐形动能不足】筛选结果，共{len(filter_result_3)}只股票：\n")
-            if filter_result_data_manager.save_filter_result_to_db(df_to_save_3, level):
+            filter_result_data_manager.save_result_list_to_txt(filter_result_3, f"{self.get_filter_result_file_suffix()}.txt", ', ', period, f"零轴下方双底【隐形动能不足】筛选结果，共{len(filter_result_3)}只股票：\n")
+            if filter_result_data_manager.save_filter_result_to_db(df_to_save_3, period):
                 self.logger.info("保存零轴下方双底【隐形动能不足】筛选结果成功")
         else:
             self.logger.info("零轴下方双底【隐形动能不足】筛选结果为空")
@@ -2562,8 +2091,8 @@ class BaoStockProcessor(QObject):
         df_to_save_4 = self.generate_filter_result_df_to_save(filter_result_4)
         if df_to_save_4 is not None and not df_to_save_4.empty:
             filter_result_data_manager = FilterResultDataManger(11)
-            filter_result_data_manager.save_result_list_to_txt(filter_result_4, f"{self.get_filter_result_file_suffix()}.txt", ', ', level, f"零轴下方双底【隐形背离】筛选结果，共{len(filter_result_4)}只股票：\n")
-            if filter_result_data_manager.save_filter_result_to_db(df_to_save_4, level):
+            filter_result_data_manager.save_result_list_to_txt(filter_result_4, f"{self.get_filter_result_file_suffix()}.txt", ', ', period, f"零轴下方双底【隐形背离】筛选结果，共{len(filter_result_4)}只股票：\n")
+            if filter_result_data_manager.save_filter_result_to_db(df_to_save_4, period):
                 self.logger.info("保存零轴下方双底【隐形背离】筛选结果成功")
         else:
             self.logger.info("零轴下方双底【隐形背离】筛选结果为空")
@@ -2573,25 +2102,6 @@ class BaoStockProcessor(QObject):
 
     def stop_process(self):
         self.b_stop_process = True
-
-        code = self.get_target_code()
-        if code == "":
-            code = 'sh.600000'
-
-        df_data = self.get_daily_stock_data(code)
-
-        # list_adjust_period = pf.find_unit_adjust_period(df_data)
-        # if list_adjust_period:
-        #     self.logger.info("\n\n")
-        #     self.logger.info(f"找到的调整周期个数：{len(list_adjust_period)}")
-        #     pf.log_unit_adjust_period(list_adjust_period)
-        # else:
-        #     self.logger.info("没有找到的调整周期")
-
-        if pf.get_last_adjust_period_deviate_status(df_data) >= 1:
-            self.logger.info("符合筛选")
-        else:
-            self.logger.info("不符合筛选")
 
         
 
@@ -2603,8 +2113,6 @@ class BaoStockProcessor(QObject):
         else:
             self.logger.error("后台数据加载失败")
 
-        self.logger.info(f"日线数据长度：{len(self.dict_daily_stock_data)}")
-        self.logger.info(f"周线数据长度：{len(self.dict_weekly_stock_data)}")
         self.sig_stock_data_load_finished.emit(success)
 
     def slot_stock_data_loading_progress(self, progress):

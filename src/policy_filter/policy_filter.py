@@ -1,7 +1,7 @@
 import pandas as pd
 from typing import Sequence
 import copy
-
+from manager.period_manager import TimePeriod
 from manager.logging_manager import get_logger
 logger = get_logger(__name__)
 
@@ -132,164 +132,25 @@ def columns_check(df_data, col_names: Sequence[str]) -> bool:
 def daily_data_check(df_daily_data):
     pass
 
-# 未验证暂不考虑 ，暂无用 
-def daily_ma52_filter(df_daily_data):
-    '''
-        筛选逻辑：最新收盘价无限接近MA52。缺点：未分辨零轴上方还是下方，暂不考虑。
-    '''
-    if df_daily_data.empty:
-        return False
-
-    day_close = 0.0
-    day_ma52 = 0.0
-    day_turn = 0.0
-    day_lb = 0.0
-
-    # 检查列是否存在
-    if columns_check(df_daily_data, ('date', 'close', 'ma52', 'turnover_rate', 'volume_ratio')):
-    # if 'close' in df_daily_data.columns and 'ma52' in df_daily_data.columns and 'turnover_rate' in df_daily_data.columns and 'volume_ratio' in df_daily_data.columns:
-        last_day_row = df_daily_data.tail(1)
-        day_close = last_day_row['close'].item()
-        day_ma52 = last_day_row['ma52'].item()
-        day_turn = last_day_row['turnover_rate'].item()
-        day_lb = last_day_row['volume_ratio'].item()
-    else:
-        logger.info("错误：日线数据必要的列不存在")
-        logger.info("可用列：", df_daily_data.columns.tolist())
-        return False  # 或者处理错误情况
-    
-    day_diff = day_ma52 * policy_filter_ma52_diff
-    # logger.info(f"day_close: {day_close}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
-
-    # 修改后条件判断
-    if (abs(day_close - day_ma52) < day_diff) and (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb):
-    # 执行逻辑
-    # if (week_stock_data.tail(1)['close'] > week_stock_data.tail(1)['ma52']) and (abs(day_stock_data.tail(1)['close'] - day_stock_data.tail(1)['ma52']) < day_stock_data.tail(1)['ma52'] * 1.1):
-        # logger.info("符合日线MA52筛选")
-        return True
-    else:
-        # logger.info("不符合多空逻辑")
-        return False
-
-# 策略待优化 ，暂无用 
-def daily_and_weekly_ma52_filter(df_daily_data, df_weekly_data):
-    '''
-        筛选逻辑：周线在零轴上方保证中期趋势，日线最新收盘价无限接近零轴。缺点同上，未区分零轴上方下方，存在零轴纠缠情况。
-    '''
-    if df_daily_data.empty or df_weekly_data.empty:
-        return False
-    
-    day_close = 0.0
-    day_ma52 = 0.0
-    day_turn = 0.0
-    day_lb = 0.0
-
-    if columns_check(df_daily_data, ('date', 'close', 'ma52', 'turnover_rate', 'volume_ratio')):
-        last_day_row = df_daily_data.tail(1)
-        day_close = last_day_row['close'].item()
-        day_ma52 = last_day_row['ma52'].item()
-        day_turn = last_day_row['turnover_rate'].item()
-        day_lb = last_day_row['volume_ratio'].item()
-    else:
-        logger.info("错误：【日线】数据必要的列不存在")
-        return False
-
-    week_close = 0.0
-    week_ma52 = 0.0
-    if columns_check(df_weekly_data, ('date', 'close', 'ma52')):
-        last_week_row = df_weekly_data.tail(1)
-        week_close = last_week_row['close'].item()
-        week_ma52 = last_week_row['ma52'].item()
-    else:
-        logger.info("错误：【周线】数据必要的列不存在")
-        return False
-
-    day_diff = day_ma52 * policy_filter_ma52_diff
-    # logger.info(f"day_close: {day_close}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
-    # logger.info(f"week_close: {week_close}, week_ma52: {week_ma52}")
-    if week_close > week_ma52 and (abs(day_close - day_ma52) < day_diff) and (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb):
-        # logger.info("符合日线&周线MA52筛选")
-        return True
-    else:
-        return False
-    
-# 策略待优化 ，暂无用 
-def daily_ma52_ma24_filter(df_daily_data, df_weekly_data, isUp=False):
-    if df_daily_data.empty or df_weekly_data.empty:
-        return False
-    
-    day_close = 0.0
-    day_dea = 0.0
-    day_ma24 = 0.0
-    day_ma52 = 0.0
-    day_turn = 0.0
-    day_lb = 0.0
-    if columns_check(df_daily_data, ('date', 'close', 'dea', 'ma24', 'ma52', 'turnover_rate', 'volume_ratio')):
-        last_day_row = df_daily_data.tail(1)
-        day_close = last_day_row['close'].item()
-        day_dea = last_day_row['dea'].item()
-        day_ma24 = last_day_row['ma24'].item()
-        day_ma52 = last_day_row['ma52'].item()
-        day_turn = last_day_row['turnover_rate'].item()
-        day_lb = last_day_row['volume_ratio'].item()
-    else:
-        return False
-
-    week_close = 0.0
-    week_ma52 = 0.0
-    if columns_check(df_weekly_data, ('date', 'close', 'ma52')):
-        last_week_row = df_weekly_data.tail(1)
-        week_close = last_week_row['close'].item()
-        week_ma52 = last_week_row['ma52'].item()
-    else:
-        return False
-
-    day_diff = day_ma52 * policy_filter_ma52_diff
-    # logger.info(f"day_close: {day_close}, day_dea: {day_dea}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
-    # logger.info(f"week_close: {week_close}, week_ma52: {week_ma52}")
-
-    b_ret = (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
-    b_ret_2 = week_close > week_ma52
-    if isUp:
-        # 零轴上方
-        b_ret_3 = day_close < day_ma24 and (abs(day_close - day_ma52) < day_ma52 * policy_filter_ma52_diff)
-        b_ret_4 = day_dea > 0
-    else:
-        # 零轴下方
-        b_ret_3 = day_close > day_ma24 and day_close < day_ma52 and day_ma24 < day_ma52# (abs(day_close - day_ma24) < day_ma24 * policy_filter_ma24_diff)
-        b_ret_4 = day_dea < 0
-
-    if b_ret and b_ret_2 and b_ret_3 and b_ret_4:
-        # logger.info("符合日线MA24&MA52筛选")
-        return True
-    
-    return False
-
-
-# -------------------------------------------------------------日线零轴上方策略-------------------------------------------------------------------
+# -------------------------------------------------------------零轴上方策略-------------------------------------------------------------------
 
 # 零轴上方MA52选股法
-def daily_up_ma52_filter(df_daily_data, df_weekly_data, level='d'):
+def daily_up_ma52_filter(df_filter_data, df_weekly_data, period=TimePeriod.DAY):
     '''
         筛选逻辑：零轴上方回踩MA52筛选法，最好是第一次回踩MA24(回踩MA60也可考虑)。
         进场逻辑：最新收盘价位于MA24、MA60之间，即收盘价小于MA24，大于MA52或MA60，且下面30（或15）分钟级别零轴下方出现底背离或下跌动能不足形态，或者站上突破15分钟MA52压力，亦或者等15分钟DEA突破零轴，回踩15分钟MA5或MA10，才满足进场条件
         止盈位：有效反弹看前高
         止损位：有效跌破日线MA52或MA60清仓离场，等待日线零轴下方或大级别的零轴上方机会。
     '''
-    allowed_levels = ['d', 'w', 'm']
-    if level not in allowed_levels:
-        logger.info(f"Invalid level: {level}")
-        return False
-    
-    if df_daily_data.empty or df_weekly_data.empty:
-        logger.info("日线或周线数据为空！")
+    if df_filter_data.empty or df_weekly_data.empty:
+        logger.info("筛选数据或周线数据为空！")
         return False
 
-    if not columns_check(df_daily_data, ('date', 'close', 'diff', 'dea', 'ma5', 'ma10', 'ma24', 'ma30',  'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
-        logger.info("日线列名不存在！")
+    if not columns_check(df_filter_data, ('date', 'close', 'diff', 'dea', 'ma5', 'ma10', 'ma24', 'ma30',  'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
+        logger.info("筛选数据列名不存在！")
         return False
 
-    last_day_row = df_daily_data.tail(1)
+    last_day_row = df_filter_data.tail(1)
     day_close = last_day_row['close'].item()
     day_dif = last_day_row['diff'].item()
     day_dea = last_day_row['dea'].item()
@@ -318,7 +179,7 @@ def daily_up_ma52_filter(df_daily_data, df_weekly_data, level='d'):
     # logger.info(f"day_close: {day_close}, day_dea: {day_dea}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
     # logger.info(f"week_close: {week_close}, week_ma52: {week_ma52}")
 
-    b_ret = True if level == 'm' else (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
+    b_ret = True if TimePeriod.is_minute_level(period) else (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
     b_ret_2 = (week_close > week_ma52 and week_dea > 0) if b_weekly_condition else True
 
     b_ret_3 = day_dea > 0 and day_dif > 0
@@ -339,26 +200,21 @@ def daily_up_ma52_filter(df_daily_data, df_weekly_data, level='d'):
     return False
 
 # 零轴上方MA24选股法
-def daily_up_ma24_filter(df_daily_data, df_weekly_data, level='d'):
+def daily_up_ma24_filter(df_filter_data, df_weekly_data, period=TimePeriod.DAY):
     '''
         筛选逻辑：零轴上方回踩MA24筛选法，最好是第一次回踩MA24(回踩MA20、30均可考虑)。和daily_ma52_ma24_filter稍有重复。
         进场逻辑：最新收盘价无限接近MA24，且收盘价小于MA5或小于MA10，且下面15(或7.5)分钟级别零轴下方出现底背离或下跌动能不足形态，或者站上突破15分钟MA52压力，亦或者等15分钟DEA突破零轴，回踩15分钟MA5或MA10，才满足进场条件
         止盈位：有效反弹看前高
         止损位：有效跌破日线MA24或MA30清仓离场，等待日线MA52机会。
     '''
-    allowed_levels = ['d', 'w', 'm']
-    if level not in allowed_levels:
-        logger.info(f"Invalid level: {level}")
-        return False
-    
-    if df_daily_data.empty or df_weekly_data.empty:
+    if df_filter_data.empty or df_weekly_data.empty:
         return False
     
     
-    if not columns_check(df_daily_data, ('date', 'close', 'diff', 'dea', 'ma5', 'ma10', 'ma20', 'ma24', 'ma30', 'ma52', 'turnover_rate', 'volume_ratio')):
+    if not columns_check(df_filter_data, ('date', 'close', 'diff', 'dea', 'ma5', 'ma10', 'ma20', 'ma24', 'ma30', 'ma52', 'turnover_rate', 'volume_ratio')):
         return False
     
-    last_day_row = df_daily_data.tail(1)
+    last_day_row = df_filter_data.tail(1)
     day_close = last_day_row['close'].item()
     day_dif = last_day_row['diff'].item()
     day_dea = last_day_row['dea'].item()
@@ -383,7 +239,7 @@ def daily_up_ma24_filter(df_daily_data, df_weekly_data, level='d'):
     # logger.info(f"day_close: {day_close}, day_dea: {day_dea}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
     # logger.info(f"week_close: {week_close}, week_ma52: {week_ma52}")
 
-    b_ret = True if level == 'm' else (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
+    b_ret = True if TimePeriod.is_minute_level(period) else (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
     b_ret_2 = (week_close > week_ma52) if b_weekly_condition else True
 
     b_ret_3 = day_dea > 0 and day_dif > 0
@@ -397,29 +253,25 @@ def daily_up_ma24_filter(df_daily_data, df_weekly_data, level='d'):
     return False
 
 # 零轴上方MA5选股法
-def daily_up_ma5_filter(df_daily_data):
+def daily_up_ma5_filter(df_filter_data):
     pass
 
 # 零轴上方MA10选股法
-def daily_up_ma10_filter(df_daily_data, level='d'):
+def daily_up_ma10_filter(df_filter_data, period=TimePeriod.DAY):
     '''
         筛选逻辑：零轴上方，回踩MA10
         进场逻辑：最新收盘价位于MA5、MA10之间，次日必须低开，且接近30或60分钟MA52，且30或60分钟DEA大于0，且下面5分钟出现底背离或下跌动能不足，才满足进场条件。
         止盈：指数看到30或60分钟背离或上涨动能不足离场止盈
         止损：有效跌破30或60分钟MA52，且对应的DEA下穿零轴清仓止损
     '''
-    allowed_levels = ['d', 'w', 'm']
-    if level not in allowed_levels:
-        logger.info(f"Invalid level: {level}")
-        return False
     
-    if df_daily_data.empty:
+    if df_filter_data.empty:
         return False
 
-    if not columns_check(df_daily_data, ('date', 'close', 'dea', 'ma5', 'ma10', 'ma24', 'ma52', 'turnover_rate', 'volume_ratio')):
+    if not columns_check(df_filter_data, ('date', 'close', 'dea', 'ma5', 'ma10', 'ma24', 'ma52', 'turnover_rate', 'volume_ratio')):
         return False
     
-    last_day_row = df_daily_data.tail(1)
+    last_day_row = df_filter_data.tail(1)
     day_close = last_day_row['close'].item()
     day_dea = last_day_row['dea'].item()
     day_ma5 = last_day_row['ma5'].item()
@@ -429,7 +281,7 @@ def daily_up_ma10_filter(df_daily_data, level='d'):
     day_turn = last_day_row['turnover_rate'].item()
     day_lb = last_day_row['volume_ratio'].item()
 
-    b_ret = True if level == 'm' else (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
+    b_ret = True if TimePeriod.is_minute_level(period) else (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
     b_ret_2 = day_dea > 0
     b_ret_3 = day_ma24 > day_ma52 and day_ma10 > day_ma24 and day_ma5 > day_ma10
     b_ret_4 = day_close > day_ma10 and day_close < day_ma5# abs(day_close - day_ma10) < day_ma10 * policy_filter_ma10_diff
@@ -444,19 +296,14 @@ def daily_up_ma10_filter(df_daily_data, level='d'):
     return False
 
 # 情况被上面MA24选股法包括，不再使用
-def daily_up_ma20_filter(df_daily_data, level='d'):
+def daily_up_ma20_filter(df_filter_data, period=TimePeriod.DAY):
     '''
         筛选逻辑：零轴上方，回踩MA20
         进场逻辑：最新收盘价位于MMA10、MA20之间，次日必须低开，且接近30或60分钟MA52，且30或60分钟DEA大于0，且下面5、10分钟出现底背离或下跌动能不足，才满足进场条件。
         止盈：指数看到30或60分钟背离或上涨动能不足离场止盈
         止损：有效跌破30或60分钟MA52，且对应的DEA下穿零轴清仓止损
     '''
-    allowed_levels = ['d', 'w', 'm']
-    if level not in allowed_levels:
-        logger.info(f"Invalid level: {level}")
-        return False
-
-    if df_daily_data.empty:
+    if df_filter_data.empty:
         return False
     
     day_close = 0.0
@@ -466,10 +313,10 @@ def daily_up_ma20_filter(df_daily_data, level='d'):
     day_ma52 = 0.0
     day_turn = 0.0
     day_lb = 0.0
-    if not columns_check(df_daily_data, ('date', 'close', 'dea', 'ma5', 'ma10', 'ma20', 'ma24', 'ma52', 'turnover_rate', 'volume_ratio')):
+    if not columns_check(df_filter_data, ('date', 'close', 'dea', 'ma5', 'ma10', 'ma20', 'ma24', 'ma52', 'turnover_rate', 'volume_ratio')):
         return False
     
-    last_day_row = df_daily_data.tail(1)
+    last_day_row = df_filter_data.tail(1)
     day_close = last_day_row['close'].item()
     day_dea = last_day_row['dea'].item()
     day_ma5 = last_day_row['ma5'].item()
@@ -480,7 +327,7 @@ def daily_up_ma20_filter(df_daily_data, level='d'):
     day_turn = last_day_row['turnover_rate'].item()
     day_lb = last_day_row['volume_ratio'].item()
 
-    b_ret = True if level == 'm' else (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
+    b_ret = True if TimePeriod.is_minute_level(period) else (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
     b_ret_2 = day_dea > 0
     b_ret_3 = day_close >= day_ma20 and (day_close <= day_ma5 and day_close <= day_ma10)# abs(day_close - day_ma24) < day_ma24 * policy_filter_ma24_diff
     b_ret_4 = day_ma5 <= day_ma10 and day_ma10 > day_ma24 and day_ma5 > day_ma24 and day_ma24 > day_ma52
@@ -497,29 +344,24 @@ def daily_up_ma20_filter(df_daily_data, level='d'):
 
 
 # -------------------------------------------------------------日线零轴下方策略-------------------------------------------------------------------
-def daily_down_between_ma24_ma52_filter(df_daily_data, df_weekly_data, level='d'):
+def daily_down_between_ma24_ma52_filter(df_filter_data, df_weekly_data, period=TimePeriod.DAY):
     '''
         筛选逻辑：周线在零轴上方确保中期趋势；日线零轴下方，MA24 < MA52 or MA24 < MA60, MA52 <= MA60，且最新收盘价位于MA24、MA60之间，即日线最新收盘价大于MA24，小于MA52或MA60
         进场逻辑：回踩MA24进场。最好是前面已经过多个120分钟级别的单位调整周期调整，做上穿日线零轴趋势行情。可参考下面15分钟底背离或下跌动能不足进场。
         止盈：趋势行情，有效站上日线零轴上方后参考前高止盈。
         止损：跌破日线MA24清仓离场。也可参考下面60分钟MA52,跌破60分钟MA52离场。
     '''
-    allowed_levels = ['d', 'w', 'm']
-    if level not in allowed_levels:
-        logger.info(f"Invalid level: {level}")
-        return False
-
-    if df_daily_data.empty or df_weekly_data.empty:
+    if df_filter_data.empty or df_weekly_data.empty:
         return False
     
-    if not columns_check(df_daily_data, ('date', 'close', 'dea', 'ma24', 'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
+    if not columns_check(df_filter_data, ('date', 'close', 'dea', 'ma24', 'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
         return False
     
     if s_filter_date == '':
-        last_day_row = df_daily_data.tail(1)
+        last_day_row = df_filter_data.tail(1)
     else:
         # 直接筛选出指定日期的数据并取最后一行
-        filtered_data = df_daily_data[df_daily_data['date'] == s_filter_date]
+        filtered_data = df_filter_data[df_filter_data['date'] == s_filter_date]
         if not filtered_data.empty:
             last_day_row = filtered_data.tail(1)
             # 然后可以安全地访问具体值
@@ -563,7 +405,7 @@ def daily_down_between_ma24_ma52_filter(df_daily_data, df_weekly_data, level='d'
     week_dea = last_week_row['dea'].item()
     week_ma52 = last_week_row['ma52'].item()
 
-    b_ret = True if level == 'm' else (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
+    b_ret = True if TimePeriod.is_minute_level(period) else (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
     b_ret_2 = (week_close > week_ma52 and week_dea > 0) if b_weekly_condition else True
 
     b_ret_3 = day_dea < 0
@@ -593,25 +435,20 @@ def daily_down_between_ma24_ma52_filter(df_daily_data, df_weekly_data, level='d'
     
     return False
 
-def daily_down_between_ma5_ma52_filter(df_daily_data, df_weekly_data, level='d'):
+def daily_down_between_ma5_ma52_filter(df_filter_data, df_weekly_data, period=TimePeriod.DAY):
     '''
         筛选逻辑：周线在零轴上方确保中期趋势；日线零轴下方，MA5 < MA52 or MA6 < MA60, MA52 <= MA60，且最新收盘价位于MA5、MA60之间，即日线最新收盘价大于MA5，小于MA52或MA60
         进场逻辑：回踩MA5进场。最好是前面已经过多个30、60分钟级别的单位调整周期调整，且处于日线下跌线段第一个单位调整周期中，做日线零轴下方归零轴的超跌反弹行情。可参考下面15分钟底背离或下跌动能不足进场。
         止盈：参考日线MA52或MA60附近止盈。
         止损：跌破日线MA5或底部区间低点清仓离场。也可参考下面30分钟MA52,跌破30分钟MA52离场。
     '''
-    allowed_levels = ['d', 'w', 'm']
-    if level not in allowed_levels:
-        logger.info(f"Invalid level: {level}")
-        return False
-
-    if df_daily_data.empty or df_weekly_data.empty:
+    if df_filter_data.empty or df_weekly_data.empty:
         return False
     
-    if not columns_check(df_daily_data, ('date', 'close', 'dea', 'ma5', 'ma10', 'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
+    if not columns_check(df_filter_data, ('date', 'close', 'dea', 'ma5', 'ma10', 'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
         return False
 
-    last_day_row = df_daily_data.tail(1)
+    last_day_row = df_filter_data.tail(1)
     day_close = last_day_row['close'].item()
     day_dea = last_day_row['dea'].item()
     day_ma5 = last_day_row['ma5'].item()
@@ -637,7 +474,7 @@ def daily_down_between_ma5_ma52_filter(df_daily_data, df_weekly_data, level='d')
     # logger.info(f"day_close: {day_close}, day_dea: {day_dea}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
     # logger.info(f"week_close: {week_close}, week_ma52: {week_ma52}")
 
-    b_ret = True if level == 'm' else (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
+    b_ret = True if TimePeriod.is_minute_level(period) else (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
     b_ret_2 = (week_close > week_ma52 and week_dea > 0) if b_weekly_condition else True
 
     b_ret_3 = day_dea < 0
@@ -650,7 +487,7 @@ def daily_down_between_ma5_ma52_filter(df_daily_data, df_weekly_data, level='d')
     
     return False
 
-def daily_down_breakthrough_ma24_filter(df_daily_data):
+def daily_down_breakthrough_ma24_filter(df_filter_data):
     '''
         日线零轴下方MA24突破筛选
         筛选逻辑：日线MACD的diff、dea均小于0；最新k线收盘价大于MA24，小于MA52；MA5必须要金叉MA10，MA24小于MA52
@@ -658,13 +495,13 @@ def daily_down_breakthrough_ma24_filter(df_daily_data):
         止盈：短期看日线MA52压力止盈；若120分钟经过多个单位调整周期调整，且单位调整周期间已明显背离或下跌动能不足，则可做突破日线MA52的趋势行情。
         止损：跌破MA24清仓离场。
     '''
-    if df_daily_data.empty:
+    if df_filter_data.empty:
         return False
     
-    if not columns_check(df_daily_data, ('date', 'close', 'diff', 'dea', 'ma5', 'ma10', 'ma24', 'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
+    if not columns_check(df_filter_data, ('date', 'close', 'diff', 'dea', 'ma5', 'ma10', 'ma24', 'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
         return False
     
-    last_day_row = df_daily_data.tail(1)
+    last_day_row = df_filter_data.tail(1)
     day_close = last_day_row['close'].item()
     day_diff = last_day_row['diff'].item()
     day_dea = last_day_row['dea'].item()
@@ -688,7 +525,7 @@ def daily_down_breakthrough_ma24_filter(df_daily_data):
     return False
 
 
-def daily_down_breakthrough_ma52_filter(df_daily_data):
+def daily_down_breakthrough_ma52_filter(df_filter_data):
     '''
         日线零轴下方MA52突破筛选
         筛选逻辑：日线MACD的dea小于0；最新k线收盘价大于MA52且与MA52的差值小于MA52*0.1；MA5必须要金叉MA10，MA24小于MA52
@@ -696,13 +533,13 @@ def daily_down_breakthrough_ma52_filter(df_daily_data):
         止盈：短期看上面级别（2日、3日、周线）压力止盈；若成功突破上面级别压力，则可做有效反弹的趋势行情。
         止损：跌破MA52或MA24清仓离场。
     '''
-    if df_daily_data.empty:
+    if df_filter_data.empty:
         return False
     
-    if not columns_check(df_daily_data, ('date', 'close', 'diff', 'dea', 'ma5', 'ma10', 'ma24', 'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
+    if not columns_check(df_filter_data, ('date', 'close', 'diff', 'dea', 'ma5', 'ma10', 'ma24', 'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
         return False
     
-    last_day_row = df_daily_data.tail(1)
+    last_day_row = df_filter_data.tail(1)
     day_close = last_day_row['close'].item()
     day_diff = last_day_row['diff'].item()
     day_dea = last_day_row['dea'].item()
@@ -725,7 +562,7 @@ def daily_down_breakthrough_ma52_filter(df_daily_data):
     
     return False
 
-def daily_down_double_bottom_filter(df_daily_data, df_weekly_data, b_weekly_filter=True):
+def daily_down_double_bottom_filter(df_filter_data, df_weekly_data, b_weekly_filter=True):
     '''
         日线零轴下方双底筛选
         筛选逻辑：
@@ -741,15 +578,15 @@ def daily_down_double_bottom_filter(df_daily_data, df_weekly_data, b_weekly_filt
         止盈：短期看日线MA52压力止盈；若成功突破日线MA52压力，则可做有效反弹的趋势行情。
         止损：跌破前低清仓离场。
     '''
-    if df_daily_data.empty or df_weekly_data.empty:
+    if df_filter_data.empty or df_weekly_data.empty:
         return False
     
-    # logger.info(df_daily_data.tail(10))
+    # logger.info(df_filter_data.tail(10))
     
-    if not columns_check(df_daily_data, ('date', 'code', 'close', 'diff', 'dea', 'ma5', 'ma10', 'ma24', 'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
+    if not columns_check(df_filter_data, ('date', 'code', 'close', 'diff', 'dea', 'ma5', 'ma10', 'ma24', 'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
         return False
     
-    last_day_row = df_daily_data.tail(1)
+    last_day_row = df_filter_data.tail(1)
     day_close = last_day_row['close'].item()
     day_diff = last_day_row['diff'].item()
     day_dea = last_day_row['dea'].item()
@@ -777,7 +614,7 @@ def daily_down_double_bottom_filter(df_daily_data, df_weekly_data, b_weekly_filt
         
 
     # logger.info("find_lowest_after_dea_cross_below_zero")
-    lowest_result = find_lowest_after_dea_cross_below_zero(df_daily_data)
+    lowest_result = find_lowest_after_dea_cross_below_zero(df_filter_data)
     lowest_value = lowest_result['lowest_value']
     lowest_date = lowest_result['lowest_date']
     neck_line = lowest_result['neckline']
@@ -796,7 +633,7 @@ def daily_down_double_bottom_filter(df_daily_data, df_weekly_data, b_weekly_filt
     
     return False
 
-def find_lowest_after_dea_cross_below_zero(df_daily_data):
+def find_lowest_after_dea_cross_below_zero(df_filter_data):
     '''
     从最后的日期k线开始往前遍历，找到dea最近一次下穿零轴（小于0）的位置，
     然后从该位置往后遍历，判断该位置到最后这段区间内的日k的最低值
@@ -823,17 +660,17 @@ def find_lowest_after_dea_cross_below_zero(df_daily_data):
     }
     
     # 检查数据是否为空
-    if df_daily_data.empty:
+    if df_filter_data.empty:
         logger.info("日线数据为空")
         return result
     
     # 检查是否包含必要的列
-    if not columns_check(df_daily_data, ('code', 'dea', 'low')):
+    if not columns_check(df_filter_data, ('code', 'dea', 'low')):
         logger.info("缺少必要的列：股票代码 或 DEA 或 最低")
         return result
     
     # 因为数据已按日期排序（最后一行是最新的日期），所以直接使用原数据
-    df_data = df_daily_data
+    df_data = df_filter_data
     
     # 从最后的日期开始往前遍历，找到DEA最近一次下穿零轴的位置
     cross_index = -1
@@ -938,64 +775,51 @@ def get_cross_index(df_data):
         'close_cross_ma52_index': close_cross_ma52_index
     }
     
-def get_last_adjust_period_deviate_status(df_daily_data, level='d'):
-    allowed_levels = ['d', 'w', 'm']
-    if level not in allowed_levels:
-        # raise ValueError(f"Invalid level: {level}. Allowed values are: {allowed_levels}")
-        logger.info("Invalid level")
-        return -1
-
-    if df_daily_data is None or df_daily_data.empty:
+def get_last_adjust_period_deviate_status(df_filter_data, period=TimePeriod.DAY):
+    if df_filter_data is None or df_filter_data.empty:
         logger.info("数据为空")
         return -1
     
     # 检查是否包含必要的列
-    if not columns_check(df_daily_data, ('date', 'code', 'turnover_rate', 'volume_ratio')):
+    if not columns_check(df_filter_data, ('date', 'code', 'turnover_rate', 'volume_ratio')):
         logger.info("缺少必要的列")
         return -1
     
-    last_day_row = df_daily_data.tail(1)
+    last_day_row = df_filter_data.tail(1)
     day_date = last_day_row['date'].item()
     day_code = last_day_row['code'].item()
 
     day_turn = last_day_row['turnover_rate'].item()
     day_lb = last_day_row['volume_ratio'].item()
     # logger.info(f"最新换手率量比：{day_turn}, {day_lb}，限制：{policy_filter_turn}, {policy_filter_lb}")
-    b_turn_ret = False if level == 'm' else day_turn < policy_filter_turn or day_lb < policy_filter_lb    # 分钟级别筛选不比较换手率和量比
+    b_turn_ret = False if TimePeriod.is_minute_level(period) else day_turn < policy_filter_turn or day_lb < policy_filter_lb    # 分钟级别筛选不比较换手率和量比
     if b_turn_ret:
         return -1
     
     # 做日期和代码筛选
-    df_data = df_daily_data
+    df_data = df_filter_data
     if s_filter_date != "":
-        df_data = df_daily_data[df_daily_data['date'] <= s_filter_date]
+        df_data = df_filter_data[df_filter_data['date'] <= s_filter_date]
         if b_filter_log:
             logger.info(f"筛选日期：{s_filter_date}")
-            logger.info(f"筛选前长度：{len(df_daily_data)}，筛选后长度：{len(df_data)}")
+            logger.info(f"筛选前长度：{len(df_filter_data)}，筛选后长度：{len(df_data)}")
             logger.info(f"筛选日期后最后一行：{df_data.tail(1)}")
 
     if s_target_code != "" and day_code != s_target_code:
         return -1
     
-    unit_adjust_period_list = find_unit_adjust_period(df_data, level)
+    unit_adjust_period_list = find_unit_adjust_period(df_data, period)
     if not unit_adjust_period_list:
         return -1
 
-    
     last_unit_adjust_period = unit_adjust_period_list[-1]
     return last_unit_adjust_period.period_deviate_status
 
-def find_unit_adjust_period(df_data, level='d'):
+def find_unit_adjust_period(df_data, period=TimePeriod.DAY):
     unit_adjust_period_list = []
 
-    allowed_levels = ['d', 'w', 'm']
-    if level not in allowed_levels:
-        # raise ValueError(f"Invalid level: {level}. Allowed values are: {allowed_levels}")
-        logger.info("Invalid level")
-        return unit_adjust_period_list
-    
     s_date_col_name = 'date'
-    if level == 'm':
+    if TimePeriod.is_minute_level(period):
         s_date_col_name = 'time'
 
     # 检查数据是否为空
@@ -1360,163 +1184,3 @@ class UnitAdjustPeriod:
             'lowest_macd_date': self.lowest_macd_date
         }
 
-# 废弃
-def daily_down_double_bottom_filter_old(df_daily_data):
-    '''
-        日线零轴下方双底筛选
-        筛选逻辑：
-            1. 日线MACD的dea小于0；
-            2. 存在双底形态：
-               - 两个明显的低点
-               - 两个低点之间的反弹高点（颈线）
-               - 第二个低点不跌破第一个低点
-               - 当前价格突破颈线
-            3. 技术指标满足：
-               - MA5小于等于MA24，MA24小于MA52
-
-        进场逻辑：突破颈线进场。
-        止盈：短期看日线MA52压力止盈；若成功突破日线MA52压力，则可做有效反弹的趋势行情。
-        止损：跌破第二个底部清仓离场。
-    '''
-    if df_daily_data.empty:
-        return False
-    
-    if not columns_check(df_daily_data, ('date', 'close', 'diff', 'dea', 'ma5', 'ma10', 'ma24', 'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
-        return False
-    
-    last_day_row = df_daily_data.tail(1)
-    day_close = last_day_row['close'].item()
-    day_diff = last_day_row['diff'].item()
-    day_dea = last_day_row['dea'].item()
-    day_ma5 = last_day_row['ma5'].item()
-    day_ma10 = last_day_row['ma10'].item()
-    day_ma24 = last_day_row['ma24'].item()
-    day_ma52 = last_day_row['ma52'].item()
-    day_ma60 = last_day_row['ma60'].item()
-    day_turn = last_day_row['turnover_rate'].item()
-    day_lb = last_day_row['volume_ratio'].item()
-
-    # 基本条件检查
-    if day_dea >= 0 or day_ma24 >= day_ma52:
-        return False
-
-    # 检测双底形态
-    double_bottom_result = detect_double_bottom(df_daily_data)
-    
-    if not double_bottom_result['found']:
-        return False
-    
-    neckline = double_bottom_result['neckline']
-    first_low = double_bottom_result['first_low']
-    second_low = double_bottom_result['second_low']
-    first_idx = double_bottom_result['first_low_idx']
-    second_idx = double_bottom_result['second_low_idx']
-    
-    # 判断当前价格是否突破颈线且未突破MA52
-    b_ret_1 = day_close < neckline and day_close < day_ma24 and day_close < day_ma52
-    # 第二个底部不跌破第一个底部
-    b_ret_2 = second_low >= first_low * 0.99  # 允许1%的误差
-    # 均线排列正确
-    b_ret_3 = day_ma5 <= day_ma24 and day_ma24 < day_ma52
-    # 成交量条件
-    # b_ret_4 = day_turn > policy_filter_turn and day_lb > policy_filter_lb
-    
-    if b_ret_1 and b_ret_2 and b_ret_3:
-        code = df_daily_data.iloc[-1]['code']
-        logger.info(f"日线零轴下方双底筛选通过：{code}, 第一个低点：{first_low}， 索引：{first_idx}, 第二个低点：{second_low}，索引：{second_idx}")
-        return True
-    
-    return False
-
-# 废弃
-def detect_double_bottom(df_data, min_distance=10, max_distance=120):
-    '''
-    检测双底形态
-    
-    Args:
-        df_data: 股票数据
-        min_distance: 两个底部之间的最小距离(周期)
-        max_distance: 两个底部之间的最大距离(周期)
-        
-    Returns:
-        dict: 双底检测结果
-    '''
-    result = {
-        'found': False,
-        'first_low': None,
-        'second_low': None,
-        'first_low_idx': None,
-        'second_low_idx': None,
-        'neckline': None
-    }
-    
-    if len(df_data) < 30:  # 数据太少无法判断形态
-        return result
-    
-    # 从最后的日期开始往前遍历，找到DEA最近一次下穿零轴的位置
-    cross_index = -1
-    for i in range(len(df_data) - 1, 0, -1):  # 从倒数第二个开始，避免索引越界
-        current_dea = df_data.iloc[i]['dea']
-        previous_dea = df_data.iloc[i-1]['dea']
-        
-        # 判断是否为下穿零轴：当前DEA<=0 且 前一个DEA>0
-        if current_dea <= 0 and previous_dea > 0:
-            cross_index = i
-            break
-    
-    # 如果没有找到下穿零轴的情况
-    if cross_index == -1:
-        # logger.info("未找到DEA下穿零轴的情况")
-        return result
-    
-    close_prices = df_data['close'].values
-    low_prices = df_data['low'].values
-    
-    # 寻找局部低点
-    local_lows = []
-    for i in range(cross_index, len(close_prices) - 1):
-        if low_prices[i] < low_prices[i-1] and low_prices[i] < low_prices[i+1]:
-            local_lows.append((i, low_prices[i]))
-    
-    if len(local_lows) < 2:
-        return result
-    
-    # 寻找符合条件的双底组合
-    for i in range(len(local_lows)):
-        for j in range(i+1, len(local_lows)):
-            first_idx, first_low = local_lows[i]
-            second_idx, second_low = local_lows[j]
-            
-            distance = second_idx - first_idx
-            
-            # 检查两个底部之间的距离是否符合要求
-            if distance < min_distance or distance > max_distance:
-                continue
-            
-            # 检查两个底部的价格是否相近(允许一定误差)
-            if abs(first_low - second_low) / first_low > 0.05:  # 5%以内差异
-                continue
-            
-            # 寻找两个底部之间的高点(颈线)
-            intermediate_high = max(close_prices[first_idx:second_idx+1])
-            
-            # 检查颈线是否明显高于底部
-            if (intermediate_high - first_low) / first_low < 0.03:  # 至少3%的颈线高度
-                continue
-            
-            # 检查第二底部之后是否有突破颈线的趋势
-            # if second_idx + 5 < len(close_prices):
-            #     post_breakout = any(price > intermediate_high for price in close_prices[second_idx:second_idx+5])
-            #     if not post_breakout:
-            #         continue
-            
-            result['found'] = True
-            result['first_low'] = first_low
-            result['second_low'] = second_low
-            result['first_low_idx'] = first_idx
-            result['second_low_idx'] = second_idx
-            result['neckline'] = intermediate_high
-            
-            return result
-    
-    return result

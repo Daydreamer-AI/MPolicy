@@ -11,34 +11,70 @@ from manager.period_manager import TimePeriod
 import time
 import traceback
 import pandas as pd
+import threading
+from types import MappingProxyType
 
+def singleton(cls):
+    """
+    一个线程安全的单例装饰器。
+    使用双重检查锁模式确保在多线程环境下也只创建一个实例。
+    """
+    instances = {}  # 用于存储被装饰类的唯一实例
+    lock = threading.Lock()  # 创建一个锁对象，用于同步
+
+    def get_instance(*args, **kwargs):
+        # 第一次检查（无锁）：如果实例已存在，直接返回，避免绝大多数不必要的锁开销
+        if cls not in instances:
+            with lock:  # 加锁，确保同一时间只有一个线程能进入下面的代码块
+                # 第二次检查（有锁）：防止在等待锁的过程中，已有其他线程创建了实例
+                if cls not in instances:
+                    instances[cls] = cls(*args, **kwargs)  # 创建唯一的实例
+        return instances[cls]
+
+    return get_instance
+
+# 使用装饰器
+@singleton
 class BaostockDataManager(QObject):
     def __init__(self, parent=None):
         super().__init__() 
         self.logger = get_logger(__name__)
 
-        self.dict_stocks_info = {}  # {'board': pd.DataFrame()}, 示例：{'sh_main' : pd.DataFrame()}
-        self.dict_stock_data = {}   # {'level': {'code': DataFrame}}，示例：{'1d': {'sh.600000': pd.DataFrame()}}
+        self.lock = threading.Lock()
 
-        self.stocks_db_manager = StockInfoDBBasePool().get_manager(1)
+        self.dict_stocks_info = {}  # {'board': pd.DataFrame()}, 示例：{'sh_main' : pd.DataFrame()}
+        # self.dict_stock_data = {}   # {'TimePeriod': {'code': DataFrame}}，示例：{'TimePeriod.Day': {'sh.600000': pd.DataFrame()}}
+
+        self.stock_info_db_base = StockInfoDBBasePool().get_manager(1)
         self.stock_db_base = StockDbBase("./data/database/stocks/db/baostock")
 
         self.get_all_stocks_from_db()
 
+    def get_stock_info_dict(self):
+        with self.lock:
+            return MappingProxyType(self.dict_stocks_info)
+
+    # ----------------------stock_info相关接口-----------------------------------------
     def get_all_stocks_from_db(self):
-        self.dict_stocks_info['sh_main'] = self.stocks_db_manager.get_sh_main_stocks()
-        self.dict_stocks_info['sz_main'] = self.stocks_db_manager.get_sz_main_stocks()
-        self.dict_stocks_info['gem'] = self.stocks_db_manager.get_gem_stocks()
-        self.dict_stocks_info['star'] = self.stocks_db_manager.get_star_stocks()
+        with self.lock:
+            self.dict_stocks_info['sh_main'] = self.stock_info_db_base.get_sh_main_stocks()
+            self.dict_stocks_info['sz_main'] = self.stock_info_db_base.get_sz_main_stocks()
+            self.dict_stocks_info['gem'] = self.stock_info_db_base.get_gem_stocks()
+            self.dict_stocks_info['star'] = self.stock_info_db_base.get_star_stocks()
 
         # sh_main_count = len(self.dict_stocks_info['sh_main'])
         # sz_main_count = len(self.dict_stocks_info['sz_main'])
         # self.logger.info(f"沪A主板股票数量：{sh_main_count}")
         # self.logger.info(f"深A主板股票数量：{sz_main_count}")
 
+    def save_stock_info_to_db(self, df_data, writeWay="replace", board='sh_main'):
+        self.stock_info_db_base.save_tao_stocks_to_db(df_data, writeWay, board)
+
     def get_stock_name_by_code(self, code):
         board_name = identify_stock_board(code)
-        df_board_data = self.dict_stocks_info[board_name]
+
+        with self.lock:
+            df_board_data = self.dict_stocks_info[board_name]
         
         # 使用布尔索引查找匹配的行
         mask = df_board_data['证券代码'] == code
@@ -48,6 +84,21 @@ class BaostockDataManager(QObject):
             return matched_rows.iloc[0]['证券名称']
         else:
             return None
+        
+    # ----------------------stock_db_base相关接口-----------------------------------------
+    def check_stock_db_exists(self, code):
+        return self.stock_db_base.check_stock_db_exists(code)
+    
+    def get_db_path(self, code):
+        return self.stock_db_base.get_db_path(code)
+
+    def check_table_exist(self, code, period=TimePeriod.DAY):
+        table_name = period.get_table_name()
+        return self.stock_db_base.check_table_exists(code, table_name)
+    
+    def create_baostock_table_index(self, db_path, period=TimePeriod.DAY):
+        table_name = period.get_table_name()
+        self.stock_db_base.create_baostock_table_index(db_path, table_name)
 
     def get_stock_data_from_db_by_period(self, code, period=TimePeriod.DAY):
         table_name = period.get_table_name()
@@ -71,7 +122,11 @@ class BaostockDataManager(QObject):
         total_count = 0
         self.logger.info(f"开始读取本地数据库日线、周线股票数据...")
         start_time = time.time()  # 记录开始时间
-        for board_name, board_data in self.dict_stocks_info.items():
+
+        with self.lock:
+            dict_stocks_info = self.dict_stocks_info
+
+        for board_name, board_data in dict_stocks_info.items():
             if board_index > 1:
                 break
             board_index += 1
@@ -145,3 +200,12 @@ class BaostockDataManager(QObject):
                 continue
 
         return dict_result
+    
+    def get_lastest_stock_data_date(self, code, period=TimePeriod.DAY):
+        table_name = period.get_table_name()
+        lastest_data = self.stock_db_base.get_lastest_stock_data(code, table_name) 
+        return lastest_data.iloc[0]['date'] if lastest_data is not None and not lastest_data.empty else None
+
+    def save_stock_data_to_db(self, code, df_data, writeWay="replace", period=TimePeriod.DAY):
+        table_name = period.get_table_name()
+        self.stock_db_base.save_bao_stock_data_to_db(code, df_data, writeWay, table_name)

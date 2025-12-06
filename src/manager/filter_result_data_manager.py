@@ -8,6 +8,7 @@ import json
 
 from db_base.filter_result_db_base import FilterResultDBBase
 from manager.logging_manager import get_logger
+from manager.period_manager import TimePeriod
 
 def singleton(cls):
     """
@@ -43,7 +44,7 @@ class FilterResultDataManger():
             raise ValueError("Invalid type")
 
         self.type = type
-        self.filter_result_db_manager = FilterResultDBBase(type)
+        self.filter_result_db_base = FilterResultDBBase(type)
         self.logger = get_logger(__name__)
 
     def switch_to_type(self, type):
@@ -53,7 +54,7 @@ class FilterResultDataManger():
         
         if self.type != type:
             self.type = type
-            self.filter_result_db_manager = FilterResultDBBase(type)
+            self.filter_result_db_base = FilterResultDBBase(type)
 
     def get_old_filter_result_dir(self):
         if self.type == 0:
@@ -115,14 +116,14 @@ class FilterResultDataManger():
         else:
             return "./data/database/policy_filter/filter_result/zero_up_ma52"
         
-    def get_relative_path(self, level='1d'):
+    def get_relative_path(self, period=TimePeriod.DAY):
         """
         获取相对路径
         
-        :param level: 数据级别，默认为'1d'，可选值为'1d'或'5m'
+        :param period: 数据级别，默认为TimePeriod.DAY
         :return: 相对路径字符串
         """
-        return f"txt/{level}"
+        return f"txt/{period.value}"
     
     def get_txt_context_header(self):
         if self.type == 0:
@@ -155,7 +156,7 @@ class FilterResultDataManger():
             return "筛选结果"
 
         
-    def save_result_list_to_txt(self, data_list, file_name, separator='\n', level='1d', str_header=None, encoding='utf-8'):
+    def save_result_list_to_txt(self, data_list, file_name, separator='\n', period=TimePeriod.DAY, str_header=None, encoding='utf-8'):
         """
         将列表数据保存为txt文件
         
@@ -166,7 +167,7 @@ class FilterResultDataManger():
         :return: 保存成功返回True，失败返回False
         """
         # 拼接save_dir
-        relative_path = os.path.join(self.get_relative_path(level), file_name)
+        relative_path = os.path.join(self.get_relative_path(period.value), file_name)
         
         file_path = os.path.join(self.get_new_filter_result_dir(), relative_path)
 
@@ -206,19 +207,14 @@ class FilterResultDataManger():
             self.logger.info(f"保存列表数据到 {file_path} 时发生错误: {str(e)}")
             return False
         
-    def save_filter_result_from_db_to_txt(self, date=None, level='1d'):
-        allowed_levels = ['1d', '1w', '1m', '5m', '15m', '30m', '60m', '120m']
-        if level not in allowed_levels:
-            self.logger.info(f"Invalid level: {level}")
-            return
-
-        df_result = self.get_filter_result_with_params(date, level)
+    def save_filter_result_from_db_to_txt(self, date=None, period=TimePeriod.DAY):
+        df_result = self.get_filter_result_with_params(date, period)
 
         if df_result is None or df_result.empty:
-            self.logger.info(f"未查询到数据库中有{date}的{level}级别数据")
+            self.logger.info(f"未查询到数据库中有{date}的{period.value}级别数据")
             return
 
-        self.logger.info(f"{date}, 级别{level} 读取结果: \n{df_result.tail(3)}")
+        self.logger.info(f"{date}, 级别{period.value} 读取结果: \n{df_result.tail(3)}")
 
         dict_file_name = {}
         for index, row in df_result.iterrows():
@@ -249,9 +245,9 @@ class FilterResultDataManger():
             # value: list_code
             current_list_len = len(value)
             tatol_save_count += current_list_len
-            self.save_result_list_to_txt(value, key, ',', level, f"{self.get_txt_context_header()}, 共{current_list_len}只股票：\n")
+            self.save_result_list_to_txt(value, key, ',', period, f"{self.get_txt_context_header()}, 共{current_list_len}只股票：\n")
 
-        self.logger.info(f"保存{date}，{level} 级别筛选结果成功，共保存了{tatol_save_count}只股票")
+        self.logger.info(f"保存{date}，{period} 级别筛选结果成功，共保存了{tatol_save_count}只股票")
         
     def save_old_filter_result_to_db(self):
         dir = self.get_old_filter_result_dir()
@@ -394,7 +390,7 @@ class FilterResultDataManger():
                 df_to_save = pd.DataFrame(data_records)
                 
                 # 写入数据库（使用1d级别作为默认）
-                success = self.filter_result_db_manager.save_filter_result_to_db(df_to_save, level='1d')
+                success = self.filter_result_db_base.save_filter_result_to_db(df_to_save, period=TimePeriod.DAY)
                 
                 if success:
                     self.logger.info(f"Successfully saved {len(data_records)} records to database")
@@ -406,13 +402,13 @@ class FilterResultDataManger():
         except Exception as e:
             self.logger.info(f"Error reading file {file_path}: {e}")
 
-    def save_filter_result_to_db(self, df_to_save, level='1d'):
+    def save_filter_result_to_db(self, df_to_save, period=TimePeriod.DAY):
         if df_to_save is None or df_to_save.empty:
             self.logger.info.info("No valid records to save")
             return False
         
         try:
-            success = self.filter_result_db_manager.save_filter_result_to_db(df_to_save, level=level)
+            success = self.filter_result_db_base.save_filter_result_to_db(df_to_save, period=period)
             
             if success:
                 self.logger.info(f"Successfully saved {len(df_to_save)} records to database")
@@ -426,31 +422,31 @@ class FilterResultDataManger():
         return False
 
 
-    def query_filter_result(self, date=None, level='1d', code=None):
+    def query_filter_result(self, date=None, period=TimePeriod.DAY, code=None):
         """
         查询筛选结果
         
         Args:
             date (str, optional): 日期，格式为 'YYYY-MM-DD'
-            level (str): 时间级别，默认为 '1d'
+            period (TimePeriod): 时间级别，默认为TimePeriod.DAY
             code (str, optional): 股票代码，支持模糊查询
             
         Returns:
             pd.DataFrame: 查询结果
         """
-        return self.filter_result_db_manager.query_filter_result(date=date, level=level, code=code)
+        return self.filter_result_db_base.query_filter_result(date=date, period=period, code=code)
     
-    def get_latest_filter_result(self, level='1d'):
+    def get_latest_filter_result(self, period=TimePeriod.DAY):
         """
         获取最新日期的筛选结果
         
         Args:
-            level (str): 时间级别，默认为 '1d'
+            period (TimePeriod): 时间级别，默认为TimePeriod.DAY
             
         Returns:
             pd.DataFrame: 最新筛选结果
         """
-        return self.filter_result_db_manager.get_latest_filter_result(level=level)
+        return self.filter_result_db_base.get_latest_filter_result(period=period)
 
 
     def parse_filter_params(self, filter_params_json):
@@ -468,20 +464,20 @@ class FilterResultDataManger():
         except json.JSONDecodeError:
             return {}
     
-    def get_filter_result_with_params(self, date=None, level='1d', code=None):
+    def get_filter_result_with_params(self, date=None, period=TimePeriod.DAY, code=None):
         """
         获取筛选结果并解析筛选参数
         
         Args:
             date (str, optional): 日期，格式为 'YYYY-MM-DD'
-            level (str): 时间级别，默认为 '1d'
+            period (TimePeriod): 时间级别，默认为TimePeriod.DAY
             code (str, optional): 股票代码，支持模糊查询
             
         Returns:
             pd.DataFrame: 包含解析后筛选参数的查询结果
         """
         # 查询原始数据
-        df = self.query_filter_result(date=date, level=level, code=code)
+        df = self.query_filter_result(date=date, period=period, code=code)
         
         if df.empty:
             return df
@@ -498,12 +494,12 @@ class FilterResultDataManger():
         
         return result_df
     
-    def get_lastest_filter_result_date(self, level='1d'):
-        df = self.get_latest_filter_result(level=level)
+    def get_lastest_filter_result_date(self, period=TimePeriod.DAY):
+        df = self.get_latest_filter_result(period=period)
         if df is None or df.empty:
             return None
         return df['date'].iloc[0]
     
-    def get_lastest_filter_result_with_params(self, level='1d'):
-        date = self.get_lastest_filter_result_date(level=level)
-        return self.get_filter_result_with_params(date=date, level=level)
+    def get_lastest_filter_result_with_params(self, period=TimePeriod.DAY):
+        date = self.get_lastest_filter_result_date(period=period)
+        return self.get_filter_result_with_params(date=date, period=period)

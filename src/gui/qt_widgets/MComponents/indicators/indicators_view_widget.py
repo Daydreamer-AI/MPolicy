@@ -156,16 +156,10 @@ class IndicatorsViewWidget(QWidget):
         self.slot_btn_indicator_macd_clicked()
 
     def update_chart(self, data):
-        # self.df_data = BaoStockProcessor().get_daily_stock_data('sh.600004')  
-        # self.logger.info(f"更新数据：\n{self.df_data.tail(1)}")
-        # self.kline_widget.update_data(self.df_data)
-        # return  
-
         code = data['code']
         self.update_stock_data_dict(code)
         self.kline_widget.set_stock_name(data['name'])
-        # self.df_data = BaoStockProcessor().get_daily_stock_data(code)
-        # self.logger.info(f"self.df_data类型：{type(self.df_data)}")
+
         self.df_data = self.get_stock_data_by_period(code)
 
         if self.df_data is None or self.df_data.empty:  # 获取数据失败

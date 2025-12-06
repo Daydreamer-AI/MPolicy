@@ -10,6 +10,7 @@ import numpy as np
 from db_base.common_db_base import CommonDBBase
 from manager.logging_manager import get_logger
 from common.common_api import *
+from manager.period_manager import TimePeriod
 
 class FilterResultDBBase(CommonDBBase):
     
@@ -56,9 +57,9 @@ class FilterResultDBBase(CommonDBBase):
             return "./data/database/policy_filter/filter_result/zero_up_ma52/filter_result.db"
         
     def _init_db(self):
-        allowed_levels = ['1d', '1w', '1m', '5m', '15m', '30m', '60m', '120m']
-        for level in allowed_levels:
-            self.create_filter_result_table(level)
+        allowed_period_list = TimePeriod.get_period_list()
+        for period in allowed_period_list:
+            self.create_filter_result_table(period)
 
     def get_create_table_sql(self, table_name='filter_result'):
         sql = f"""CREATE TABLE IF NOT EXISTS {table_name} (
@@ -71,19 +72,15 @@ class FilterResultDBBase(CommonDBBase):
                 )"""
         
         return sql
-    def create_filter_result_table(self, level='1d'):
-        table_name = f"filter_result_{level}"
+    def create_filter_result_table(self, period=TimePeriod.DAY):
+        table_name = f"filter_result_{period.value}"
 
         create_table_sql = self.get_create_table_sql(table_name)
         self.create_table(table_name, create_table_sql)
 
-    def save_filter_result_to_db(self, df_result, level='1d'):
-        allowed_levels = ['1d', '1w', '1m', '5m', '15m', '30m', '60m', '120m']
-        if level not in allowed_levels:
-            self.logger.info(f"Invalid level: {level}")
-            return False
+    def save_filter_result_to_db(self, df_result, period=TimePeriod.DAY):
 
-        table_name = f"filter_result_{level}"
+        table_name = f"filter_result_{period.value}"
 
         try:
             # 修改冲突列为新的唯一约束字段
@@ -94,17 +91,12 @@ class FilterResultDBBase(CommonDBBase):
             self.logger.info(f"插入数据失败: {e}")
             return False
         
-    def query_filter_result(self, date=None, level='1d', code=None):
+    def query_filter_result(self, date=None, period=TimePeriod.DAY, code=None):
         """查询筛选结果数据"""
         conditions = []
         params = []
 
-        allowed_levels = ['1d', '1w', '1m', '5m', '15m', '30m', '60m', '120m']
-        if level not in allowed_levels:
-            self.logger.info(f"Invalid level: {level}")
-            return pd.DataFrame()
-
-        table_name = f"filter_result_{level}"
+        table_name = f"filter_result_{period.value}"
         
         if date:
             conditions.append("date = ?")
@@ -129,14 +121,9 @@ class FilterResultDBBase(CommonDBBase):
             self.logger.info(f"查询策略筛选结果时出错: {str(e)}")
             return pd.DataFrame()
         
-    def get_latest_filter_result(self, level='1d'):
+    def get_latest_filter_result(self, period=TimePeriod.DAY):
         """获取最新日期的筛选结果数据"""
-        allowed_levels = ['1d', '1w', '1m', '5m', '15m', '30m', '60m', '120m']
-        if level not in allowed_levels:
-            self.logger.info(f"Invalid level: {level}")
-            return pd.DataFrame()
-
-        table_name = f"filter_result_{level}"
+        table_name = f"filter_result_{period.value}"
         try:
             with self._get_connection() as cur:
                 cur.execute(f'''

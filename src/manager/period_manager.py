@@ -7,7 +7,7 @@ class TimePeriod(Enum):
     MINUTE_10 = '10m'
     MINUTE_15 = '15m'
     MINUTE_30 = '30m'
-    MINUTE_45 = '55m'
+    MINUTE_45 = '45m'
     MINUTE_60 = '60m'
     MINUTE_90 = '90m'
     MINUTE_120 = '120m'
@@ -39,9 +39,36 @@ class TimePeriod(Enum):
         }
         return mapping.get(label, cls.DAY)
     
+    @classmethod
+    def from_minute_number_label(cls, label):
+        """根据按钮标签获取对应的枚举值"""
+        mapping = {
+            "1": cls.MINUTE_1,
+            "3": cls.MINUTE_3,
+            "5": cls.MINUTE_5,
+            "10": cls.MINUTE_10,
+            "15": cls.MINUTE_15,
+            "30": cls.MINUTE_30,
+            "45": cls.MINUTE_45,
+            "60": cls.MINUTE_60,
+            "90": cls.MINUTE_90,
+            "120": cls.MINUTE_120,
+        }
+        return mapping.get(label, cls.DAY)
+    
+    @classmethod
+    def get_period_list(cls):
+        '''获取当前支持的所有级别'''
+        return [TimePeriod.MINUTE_1, TimePeriod.MINUTE_3, TimePeriod.MINUTE_5, TimePeriod.MINUTE_10, TimePeriod.MINUTE_15, TimePeriod.MINUTE_30, TimePeriod.MINUTE_45, TimePeriod.MINUTE_60, TimePeriod.MINUTE_90, TimePeriod.MINUTE_120, TimePeriod.DAY, TimePeriod.WEEK, TimePeriod.MONTH, TimePeriod.QUARTER, TimePeriod.YEAR]
+    
+    @classmethod
+    def is_minute_level(cls, period) -> bool:
+        return period in [TimePeriod.MINUTE_1, TimePeriod.MINUTE_3, TimePeriod.MINUTE_5, TimePeriod.MINUTE_10, TimePeriod.MINUTE_15, TimePeriod.MINUTE_30, TimePeriod.MINUTE_45, TimePeriod.MINUTE_60, TimePeriod.MINUTE_90, TimePeriod.MINUTE_120]
+    
     def get_table_name(self):
         """
         获取对应级别的数据库表名
         例如: '1d' -> 'stock_data_1d', '30m' -> 'stock_data_30m'
         """
         return f"stock_data_{self.value}"
+

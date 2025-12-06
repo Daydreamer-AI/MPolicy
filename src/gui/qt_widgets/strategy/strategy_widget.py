@@ -12,6 +12,7 @@ from gui.qt_widgets.market.market_widget import MarketWidget
 
 from manager.filter_result_data_manager import FilterResultDataManger
 from manager.bao_stock_data_manager import BaostockDataManager
+from manager.period_manager import TimePeriod
 
 class StrategyWidget(QWidget):
     def __init__(self, parent=None):
@@ -78,20 +79,20 @@ class StrategyWidget(QWidget):
         checked_id = self.strategy_button_group.checkedId()
         self.update_strategy_result(checked_id, True)
 
-    def update_date_and_count_labels(self, date, count, level='1d'):
+    def update_date_and_count_labels(self, date, count, period=TimePeriod.DAY):
         self.lineEdit_current_filter_date.setText(date)
         self.label_filter_result_count.setText(str(count))
-        self.comboBox_level.setCurrentText(level)
+        self.comboBox_level.setCurrentText(period.value)
 
-    def update_strategy_result(self, checked_id, load_local_result=False, level='1d'):
+    def update_strategy_result(self, checked_id, load_local_result=False, period=TimePeriod.DAY):
         filter_result = []
         dict_daily_filter_result = {}
         dict_weekly_filter_result = {}
 
 
-        lastest_stock_data_date = BaoStockProcessor().get_lastest_stock_data_date(level)
+        lastest_stock_data_date = BaostockDataManager().get_lastest_stock_data_date('sh.600000', period)
         filter_result_data_manager = FilterResultDataManger(checked_id)
-        lastest_filter_result_date = filter_result_data_manager.get_lastest_filter_result_date(level)
+        lastest_filter_result_date = filter_result_data_manager.get_lastest_filter_result_date(period)
         self.logger.info(f"最新策略结果日期：{lastest_filter_result_date}")
         self.logger.info(f"最新股票数据日期：{lastest_stock_data_date}")
 
@@ -121,40 +122,39 @@ class StrategyWidget(QWidget):
             
         if b_use_local_result:
             # 从本地加载筛选结果
-            df_local_filter_result = filter_result_data_manager.get_lastest_filter_result_with_params(level)
+            df_local_filter_result = filter_result_data_manager.get_lastest_filter_result_with_params(period)
             # self.logger.info(f"本地策略结果：\n{df_local_filter_result.tail(3)}")
             filter_result = df_local_filter_result['code'].tolist()
         else:
             if checked_id == 0:
                 # 这里可以先检查本地数据是否存在，如果存在则直接从本地加载筛选结果列表，而无需重新调用筛选接口
-                filter_result = BaoStockProcessor().daily_up_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney(), level)
+                filter_result = BaoStockProcessor().daily_up_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney(), period)
                 
             elif checked_id == 1:
-                filter_result = BaoStockProcessor().daily_up_ma24_filter(AKStockDataProcessor().get_stocks_eastmoney(), level)
+                filter_result = BaoStockProcessor().daily_up_ma24_filter(AKStockDataProcessor().get_stocks_eastmoney(), period)
                 
             elif checked_id == 2:
-                filter_result = BaoStockProcessor().daily_up_ma10_filter(AKStockDataProcessor().get_stocks_eastmoney(), level)
+                filter_result = BaoStockProcessor().daily_up_ma10_filter(AKStockDataProcessor().get_stocks_eastmoney(), period)
             elif checked_id == 3:
                 # filter_result = BaoStockProcessor().daily_up_ma5_filter(AKStockDataProcessor().get_stocks_eastmoney())
                 pass
             elif checked_id == 4:
-                filter_result = BaoStockProcessor().daily_down_between_ma24_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney(), level)
+                filter_result = BaoStockProcessor().daily_down_between_ma24_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney(), period)
             elif checked_id == 5:
-                filter_result = BaoStockProcessor().daily_down_between_ma5_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney(), level)
+                filter_result = BaoStockProcessor().daily_down_between_ma5_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney(), period)
             elif checked_id == 6:
-                filter_result = BaoStockProcessor().daily_down_breakthrough_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney(), level)
+                filter_result = BaoStockProcessor().daily_down_breakthrough_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney(), period)
             elif checked_id == 7:
-                filter_result = BaoStockProcessor().daily_down_breakthrough_ma24_filter(AKStockDataProcessor().get_stocks_eastmoney(), level)
+                filter_result = BaoStockProcessor().daily_down_breakthrough_ma24_filter(AKStockDataProcessor().get_stocks_eastmoney(), period)
             elif checked_id == 8:
-                filter_result = BaoStockProcessor().daily_down_double_bottom_filter(AKStockDataProcessor().get_stocks_eastmoney(), level)
+                filter_result = BaoStockProcessor().daily_down_double_bottom_filter(AKStockDataProcessor().get_stocks_eastmoney(), period)
             else:
-                filter_result = BaoStockProcessor().daily_up_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney(), level)
+                filter_result = BaoStockProcessor().daily_up_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney(), period)
 
         self.logger.info(f"策略结果：\n{filter_result[:3]}...{filter_result[-3:]}\n策略结果数量：{len(filter_result)}")
-        self.update_date_and_count_labels(lastest_stock_data_date, len(filter_result), level)
+        self.update_date_and_count_labels(lastest_stock_data_date, len(filter_result), period)
         
-        bao_stock_data_manager = BaostockDataManager()
-        new_dict_lastest_1d_stock_data = bao_stock_data_manager.get_lastest_stock_data_dict_by_code_list(filter_result)
+        new_dict_lastest_1d_stock_data = BaostockDataManager().get_lastest_stock_data_dict_by_code_list(filter_result)
         self.logger.info(f"new_dict_lastest_1d_stock_data 长度: {len(new_dict_lastest_1d_stock_data)}")
         if new_dict_lastest_1d_stock_data is not None or len(new_dict_lastest_1d_stock_data) > 0:
             self.strategy_result_show_widget.update_stock_data_dict(new_dict_lastest_1d_stock_data)
