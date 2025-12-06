@@ -149,8 +149,8 @@ class BaostockDataManager(QObject):
             
             # 遍历该板块的每一行数据
             for index, row in board_data.iterrows():
-                # if index > 100:
-                #     break
+                if index > 100:
+                    break
 
                 try:
                     code = row['证券代码']

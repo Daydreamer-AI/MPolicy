@@ -49,7 +49,7 @@ class StrategyWidget(QWidget):
         
         self.layout().addWidget(self.strategy_result_show_widget)
 
-        self.comboBox_level.addItems(["1d", "1w", "5m", "15m", "30m", "60m"])
+        self.comboBox_level.addItems([TimePeriod.get_chinese_label(TimePeriod.DAY), TimePeriod.get_chinese_label(TimePeriod.WEEK), TimePeriod.get_chinese_label(TimePeriod.MINUTE_15), TimePeriod.get_chinese_label(TimePeriod.MINUTE_30), TimePeriod.get_chinese_label(TimePeriod.MINUTE_60)])
         self.comboBox_level.setCurrentIndex(0)
 
         self.strategy_button_group = QtWidgets.QButtonGroup(self)
@@ -102,9 +102,9 @@ class StrategyWidget(QWidget):
             b_use_local_result = True
         else:
             b_ret = lastest_filter_result_date is not None and lastest_stock_data_date != ""
-            b_ret_2 = True if (filter_result_data_manager is None or lastest_stock_data_date is None) else lastest_filter_result_date >= lastest_stock_data_date
+            b_ret_2 = True if (lastest_filter_result_date is None or lastest_stock_data_date is None) else lastest_filter_result_date >= lastest_stock_data_date
             if b_ret and b_ret_2:
-                msg = f"本地已存在最新日期（{lastest_filter_result_date}）的筛选策略，是否重新筛选？\n\n注意：重新筛选结果将覆盖本地数据！"
+                msg = f"本地已存在【{TimePeriod.get_chinese_label(period)}】级别最新日期（{lastest_filter_result_date}）的筛选策略，是否重新筛选？\n\n注意：重新筛选结果将覆盖本地数据！"
                 reply = QtWidgets.QMessageBox.question(self, '提示', msg,
                                         QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
                                         QtWidgets.QMessageBox.No)
@@ -172,8 +172,19 @@ class StrategyWidget(QWidget):
                 self.logger.info(f"暂不支持5日MA策略")
                 QtWidgets.QMessageBox.warning(self, '警告', '暂不支持零轴上方5日MA策略！')
                 return
-            
+
+            # text = self.comboBox_level.currentText()
+            # period = TimePeriod.from_label(text)
+
+            # 使用信号阻塞避免触发更新
+            self.comboBox_level.blockSignals(True)
+            self.comboBox_level.setCurrentText(TimePeriod.get_chinese_label(TimePeriod.DAY))
+            # 恢复信号
+            self.comboBox_level.blockSignals(False)
+
             self.update_strategy_result(checked_id)
+
+
             
 
     def slot_filter_setting_clicked(self):
@@ -184,7 +195,6 @@ class StrategyWidget(QWidget):
 
     def slot_comboBox_level_currentTextChanged(self, text):
         self.logger.info(f"slot_comboBox_level_currentTextChanged--text: {text}")
-        # 暂未实现
-        # self.update_strategy_result(self.strategy_button_group.checkedId(), False, text)
+        self.update_strategy_result(self.strategy_button_group.checkedId(), False, TimePeriod.from_label(text))
             
 

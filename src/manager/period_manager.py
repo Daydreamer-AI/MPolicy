@@ -40,6 +40,28 @@ class TimePeriod(Enum):
         return mapping.get(label, cls.DAY)
     
     @classmethod
+    def get_chinese_label(cls, period):
+        """根据枚举值获取对应的中文标签"""
+        mapping = {
+            cls.DAY: "日线",
+            cls.WEEK: "周线",
+            cls.MONTH: "月线",
+            cls.QUARTER: "季线",
+            cls.YEAR: "年线",
+            cls.MINUTE_1: "1分",
+            cls.MINUTE_3: "3分",
+            cls.MINUTE_5: "5分",
+            cls.MINUTE_10: "10分",
+            cls.MINUTE_15: "15分",
+            cls.MINUTE_30: "30分",
+            cls.MINUTE_45: "45分",
+            cls.MINUTE_60: "60分",
+            cls.MINUTE_90: "90分",
+            cls.MINUTE_120: "120分",
+        }
+        return mapping.get(period, "日线")
+    
+    @classmethod
     def from_minute_number_label(cls, label):
         """根据按钮标签获取对应的枚举值"""
         mapping = {
