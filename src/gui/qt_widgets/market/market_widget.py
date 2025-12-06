@@ -127,7 +127,7 @@ class MarketWidget(QWidget):
         # self.logger.info(f"Baostock股票数据加载完成，结果为：{succsess}")
         if succsess:
             bao_stock_data_manager = BaostockDataManager()
-            new_dict_lastest_1d_stock_data = bao_stock_data_manager.get_all_lastest_row_data_dict_by_period()
+            new_dict_lastest_1d_stock_data = bao_stock_data_manager.get_all_lastest_row_data_dict_by_period_with_indicators()
            
             self.logger.info(f"成功获取股票数据，日线数据数量为：{len(new_dict_lastest_1d_stock_data)}")
 

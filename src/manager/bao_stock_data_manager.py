@@ -68,7 +68,8 @@ class BaostockDataManager(QObject):
         # self.logger.info(f"深A主板股票数量：{sz_main_count}")
 
     def save_stock_info_to_db(self, df_data, writeWay="replace", board='sh_main'):
-        self.stock_info_db_base.save_tao_stocks_to_db(df_data, writeWay, board)
+        with self.lock:
+            self.stock_info_db_base.save_tao_stocks_to_db(df_data, writeWay, board)
 
     def get_stock_name_by_code(self, code):
         board_name = identify_stock_board(code)
@@ -87,33 +88,43 @@ class BaostockDataManager(QObject):
         
     # ----------------------stock_db_base相关接口-----------------------------------------
     def check_stock_db_exists(self, code):
-        return self.stock_db_base.check_stock_db_exists(code)
+        with self.lock:
+            return self.stock_db_base.check_stock_db_exists(code)
     
     def get_db_path(self, code):
-        return self.stock_db_base.get_db_path(code)
+        with self.lock:
+            return self.stock_db_base.get_db_path(code)
 
-    def check_table_exist(self, code, period=TimePeriod.DAY):
+    def check_table_exists(self, code, period=TimePeriod.DAY):
         table_name = period.get_table_name()
-        return self.stock_db_base.check_table_exists(code, table_name)
+        with self.lock:
+            return self.stock_db_base.check_table_exists(code, table_name)
     
     def create_baostock_table_index(self, db_path, period=TimePeriod.DAY):
         table_name = period.get_table_name()
-        self.stock_db_base.create_baostock_table_index(db_path, table_name)
+        with self.lock:
+            self.stock_db_base.create_baostock_table_index(db_path, table_name)
 
     def get_stock_data_from_db_by_period(self, code, period=TimePeriod.DAY):
         table_name = period.get_table_name()
         # self.logger.info(f"处理股票: {code}, 表名：{table_name}")
 
-        df_data = self.stock_db_base.get_bao_stock_data(code, table_name)
+        with self.lock:
+            df_data = self.stock_db_base.get_bao_stock_data(code, table_name)
+
         if df_data is None or df_data.empty:
             return pd.DataFrame()
-
-        df_data['name'] = self.get_stock_name_by_code(code)
-        sdi.default_indicators_auto_calculate(df_data)
-
+        
         return df_data
     
-    def get_all_lastest_row_data_dict_by_period(self, period=TimePeriod.DAY):
+    def get_stock_data_from_db_by_period_with_indicators(self, code, period=TimePeriod.DAY):
+        df_data = self.get_stock_data_from_db_by_period(code, period)
+        self.data_type_conversion(df_data)
+        df_data['name'] = self.get_stock_name_by_code(code)
+        sdi.default_indicators_auto_calculate(df_data)
+        return df_data
+    
+    def get_all_lastest_row_data_dict_by_period_with_indicators(self, period=TimePeriod.DAY):
         dict_result = {}    # {'code': DataFrame}
         table_name = period.get_table_name()
 
@@ -143,13 +154,15 @@ class BaostockDataManager(QObject):
                     code = row['证券代码']
                     name = row['证券名称'] if '证券名称' in row else '未知'
                     
-                    lastest_1d_data = self.stock_db_base.get_lastest_stock_data(code, table_name)     
+                    with self.lock:
+                        lastest_1d_data = self.stock_db_base.get_lastest_stock_data(code, table_name)     
 
                     if lastest_1d_data is None or lastest_1d_data.empty:
                         self.logger.debug(f"股票 {code} 日线数据为空，跳过指标计算")
                         continue 
 
                     # 只对非空数据进行指标计算
+                    self.data_type_conversion(lastest_1d_data)
                     lastest_1d_data['name'] = name
                     sdi.default_indicators_auto_calculate(lastest_1d_data)
                     dict_result[code] = lastest_1d_data
@@ -161,8 +174,6 @@ class BaostockDataManager(QObject):
                     self.logger.error(traceback.format_exc())
                     # 继续处理下一个股票
                     continue
-
-
 
             board_read_elapsed_time = time.time() - board_start_time  # 计算耗时
             self.logger.info(f"读取完成，共读取{total_count}只股票，耗时: {board_read_elapsed_time:.2f}秒，即{board_read_elapsed_time/60:.2f}分钟")
@@ -182,13 +193,15 @@ class BaostockDataManager(QObject):
         table_name = period.get_table_name()
         for code in code_list:
             try:
-                lastest_1d_data = self.stock_db_base.get_lastest_stock_data(code, table_name)     
+                with self.lock:
+                    lastest_1d_data = self.stock_db_base.get_lastest_stock_data(code, table_name)     
 
                 if lastest_1d_data is None or lastest_1d_data.empty:
                     self.logger.debug(f"股票 {code} 日线数据为空，跳过指标计算")
                     continue 
 
                 # 只对非空数据进行指标计算
+                self.data_type_conversion(lastest_1d_data)
                 lastest_1d_data['name'] = self.get_stock_name_by_code(code)
                 sdi.default_indicators_auto_calculate(lastest_1d_data)
                 dict_result[code] = lastest_1d_data
@@ -203,9 +216,90 @@ class BaostockDataManager(QObject):
     
     def get_lastest_stock_data_date(self, code, period=TimePeriod.DAY):
         table_name = period.get_table_name()
-        lastest_data = self.stock_db_base.get_lastest_stock_data(code, table_name) 
+        with self.lock:
+            lastest_data = self.stock_db_base.get_lastest_stock_data(code, table_name) 
         return lastest_data.iloc[0]['date'] if lastest_data is not None and not lastest_data.empty else None
 
     def save_stock_data_to_db(self, code, df_data, writeWay="replace", period=TimePeriod.DAY):
         table_name = period.get_table_name()
-        self.stock_db_base.save_bao_stock_data_to_db(code, df_data, writeWay, table_name)
+        with self.lock:
+            self.stock_db_base.save_bao_stock_data_to_db(code, df_data, writeWay, table_name)
+
+
+    def data_type_conversion(self, result):
+        # 1. 转换日期列
+        if 'date' in result.columns:
+            result['date'] = pd.to_datetime(result['date'], format='%Y-%m-%d').dt.date  # 转换为 datetime.date 类型，或者用 .dt.normalize() 取日期部分
+
+        # 处理 time 字段 - 增强版
+        if 'time' in result.columns:
+            # 先尝试直接转换，如果失败则逐个处理
+            try:
+                # 首先尝试标准格式
+                result['time'] = pd.to_datetime(result['time'], format='%Y-%m-%d %H:%M:%S')
+            except (ValueError, TypeError):
+                try:
+                    # 尝试紧凑格式 YYYYMMDDHHMMSSxxx
+                    def parse_compact_time(time_str):
+                        if pd.isna(time_str):
+                            return None
+                        
+                        time_str = str(time_str).strip()
+                        
+                        # 处理类似 "20250102100000000" 的格式
+                        if len(time_str) >= 14 and time_str.isdigit():
+                            # 截取前14位作为日期时间: YYYYMMDDHHMMSS
+                            if len(time_str) >= 14:
+                                year = time_str[0:4]
+                                month = time_str[4:6]
+                                day = time_str[6:8]
+                                hour = time_str[8:10]
+                                minute = time_str[10:12]
+                                second = time_str[12:14]
+                                
+                                formatted_time = f"{year}-{month}-{day} {hour}:{minute}:{second}"
+                                return pd.to_datetime(formatted_time, format='%Y-%m-%d %H:%M:%S')
+                        
+                        # 其他格式尝试
+                        return pd.to_datetime(time_str)
+                    
+                    # 对每个时间值单独处理
+                    result['time'] = result['time'].apply(parse_compact_time)
+                    
+                except Exception as e:
+                    self.logger.warning(f"时间字段转换出现异常: {e}")
+                    # 最后的备选方案：使用 pandas 自动推断
+                    try:
+                        result['time'] = pd.to_datetime(result['time'], errors='coerce')
+                    except:
+                        # 如果还是失败，转换为字符串
+                        result['time'] = result['time'].astype(str)
+                        self.logger.warning(f"时间字段转换最终失败，已转换为字符串")
+
+
+        # 2. 转换数值列 (开盘, 最高, 最低, 收盘, 成交额, 涨跌幅, 换手率)
+        numeric_columns = ['open', 'high', 'low', 'close', 'amount', 'change_percent', 'turnover_rate']
+        for col in numeric_columns:
+            if col in result.columns:
+                # result[col] = result[col].str.replace(',', '').str.replace('%', '').str.replace('--', '0')
+                result[col] = pd.to_numeric(result[col], errors='coerce')  # errors='coerce' 将无效解析转换为NaN
+
+        # 3. 转换成交量 (整数)
+        if 'volume' in result.columns:
+            result['volume'] = pd.to_numeric(result['volume'], errors='coerce').astype('Int64')  # 使用 Pandas 的可空整数类型
+
+        # 4. 转换复权方式 (整数)
+        if 'adjustflag' in result.columns:
+            result['adjustflag'] = pd.to_numeric(result['adjustflag'], errors='coerce').astype('Int64')
+
+        # 5. 转换是否ST (布尔值) - 根据你的数据实际情况定义如何映射
+        # 假设你的字符串可能是 '是'/'否' 或 '1'/'0'
+        if 'isST' in result.columns:
+            result['isST'] = result['isST'].map({'是': True, '否': False, '1': True, '0': False, 'True': True, 'False': False})
+        # 或者如果原本是字符串形式的 'True'/'False'
+        # result['是否ST'] = result['是否ST'].astype(bool)
+        # else:
+            # self.logger.info("result中没有 是否ST 列")
+
+        # 打印转换后的数据类型检查
+        # self.logger.info(result.dtypes)

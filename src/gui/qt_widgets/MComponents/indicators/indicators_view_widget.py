@@ -131,11 +131,11 @@ class IndicatorsViewWidget(QWidget):
 
     def update_stock_data_dict(self, code):
         bao_stock_data_manager = BaostockDataManager()
-        df_1d_stock_data = bao_stock_data_manager.get_stock_data_from_db_by_period(code, TimePeriod.DAY)
-        df_1w_stock_data = bao_stock_data_manager.get_stock_data_from_db_by_period(code, TimePeriod.WEEK)
-        df_15m_stock_data = bao_stock_data_manager.get_stock_data_from_db_by_period(code, TimePeriod.MINUTE_15)
-        df_30m_stock_data = bao_stock_data_manager.get_stock_data_from_db_by_period(code, TimePeriod.MINUTE_30)
-        df_60m_stock_data = bao_stock_data_manager.get_stock_data_from_db_by_period(code, TimePeriod.MINUTE_60)
+        df_1d_stock_data = bao_stock_data_manager.get_stock_data_from_db_by_period_with_indicators(code, TimePeriod.DAY)
+        df_1w_stock_data = bao_stock_data_manager.get_stock_data_from_db_by_period_with_indicators(code, TimePeriod.WEEK)
+        df_15m_stock_data = bao_stock_data_manager.get_stock_data_from_db_by_period_with_indicators(code, TimePeriod.MINUTE_15)
+        df_30m_stock_data = bao_stock_data_manager.get_stock_data_from_db_by_period_with_indicators(code, TimePeriod.MINUTE_30)
+        df_60m_stock_data = bao_stock_data_manager.get_stock_data_from_db_by_period_with_indicators(code, TimePeriod.MINUTE_60)
 
         # 直接从数据库中获取的
 

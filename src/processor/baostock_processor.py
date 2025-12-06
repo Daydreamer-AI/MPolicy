@@ -207,8 +207,8 @@ class BaoStockProcessor(QObject):
                     stock_name = row['证券名称'] if '证券名称' in row else '未知'
                     
                     # 获取日线和周线数据
-                    daily_data = BaostockDataManager().get_stock_data_from_db_by_period(stock_code, TimePeriod.DAY)
-                    weekly_data = BaostockDataManager().get_stock_data_from_db_by_period(stock_code, TimePeriod.DAY)
+                    daily_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(stock_code, TimePeriod.DAY)
+                    weekly_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(stock_code, TimePeriod.DAY)
                     
                     # 检查数据是否为None，如果是则创建空的DataFrame
                     if daily_data is None or daily_data.empty:
@@ -243,83 +243,7 @@ class BaoStockProcessor(QObject):
 
     # --------------------------------------------------------------------
 
-    def data_type_conversion(self, result):
-        # 1. 转换日期列
-        if 'date' in result.columns:
-            result['date'] = pd.to_datetime(result['date'], format='%Y-%m-%d').dt.date  # 转换为 datetime.date 类型，或者用 .dt.normalize() 取日期部分
 
-        # 处理 time 字段 - 增强版
-        if 'time' in result.columns:
-            # 先尝试直接转换，如果失败则逐个处理
-            try:
-                # 首先尝试标准格式
-                result['time'] = pd.to_datetime(result['time'], format='%Y-%m-%d %H:%M:%S')
-            except (ValueError, TypeError):
-                try:
-                    # 尝试紧凑格式 YYYYMMDDHHMMSSxxx
-                    def parse_compact_time(time_str):
-                        if pd.isna(time_str):
-                            return None
-                        
-                        time_str = str(time_str).strip()
-                        
-                        # 处理类似 "20250102100000000" 的格式
-                        if len(time_str) >= 14 and time_str.isdigit():
-                            # 截取前14位作为日期时间: YYYYMMDDHHMMSS
-                            if len(time_str) >= 14:
-                                year = time_str[0:4]
-                                month = time_str[4:6]
-                                day = time_str[6:8]
-                                hour = time_str[8:10]
-                                minute = time_str[10:12]
-                                second = time_str[12:14]
-                                
-                                formatted_time = f"{year}-{month}-{day} {hour}:{minute}:{second}"
-                                return pd.to_datetime(formatted_time, format='%Y-%m-%d %H:%M:%S')
-                        
-                        # 其他格式尝试
-                        return pd.to_datetime(time_str)
-                    
-                    # 对每个时间值单独处理
-                    result['time'] = result['time'].apply(parse_compact_time)
-                    
-                except Exception as e:
-                    self.logger.warning(f"时间字段转换出现异常: {e}")
-                    # 最后的备选方案：使用 pandas 自动推断
-                    try:
-                        result['time'] = pd.to_datetime(result['time'], errors='coerce')
-                    except:
-                        # 如果还是失败，转换为字符串
-                        result['time'] = result['time'].astype(str)
-                        self.logger.warning(f"时间字段转换最终失败，已转换为字符串")
-
-
-        # 2. 转换数值列 (开盘, 最高, 最低, 收盘, 成交额, 涨跌幅, 换手率)
-        numeric_columns = ['open', 'high', 'low', 'close', 'amount', 'change_percent', 'turnover_rate']
-        for col in numeric_columns:
-            if col in result.columns:
-                # result[col] = result[col].str.replace(',', '').str.replace('%', '').str.replace('--', '0')
-                result[col] = pd.to_numeric(result[col], errors='coerce')  # errors='coerce' 将无效解析转换为NaN
-
-        # 3. 转换成交量 (整数)
-        if 'volume' in result.columns:
-            result['volume'] = pd.to_numeric(result['volume'], errors='coerce').astype('Int64')  # 使用 Pandas 的可空整数类型
-
-        # 4. 转换复权方式 (整数)
-        if 'adjustflag' in result.columns:
-            result['adjustflag'] = pd.to_numeric(result['adjustflag'], errors='coerce').astype('Int64')
-
-        # 5. 转换是否ST (布尔值) - 根据你的数据实际情况定义如何映射
-        # 假设你的字符串可能是 '是'/'否' 或 '1'/'0'
-        if 'isST' in result.columns:
-            result['isST'] = result['isST'].map({'是': True, '否': False, '1': True, '0': False, 'True': True, 'False': False})
-        # 或者如果原本是字符串形式的 'True'/'False'
-        # result['是否ST'] = result['是否ST'].astype(bool)
-        # else:
-            # self.logger.info("result中没有 是否ST 列")
-
-        # 打印转换后的数据类型检查
-        # self.logger.info(result.dtypes)
 
     def get_current_year_dates(self):
         """
@@ -484,9 +408,9 @@ class BaoStockProcessor(QObject):
         new_columns = ['date', 'code', 'open', 'high', 'low', 'close', 'volume', 'amount', 'change_percent', 'turnover_rate', 'adjustflag']
         result = pd.DataFrame(result_list, columns=new_columns)
 
-        self.data_type_conversion(result)
+        BaostockDataManager().data_type_conversion(result)
 
-        result = result.dropna()
+        # result = result.dropna()
 
         # 登出系统
         # bs.logout()
@@ -519,7 +443,7 @@ class BaoStockProcessor(QObject):
         day_stock_data = pd.DataFrame()
         data_to_save = pd.DataFrame()
         if not BaostockDataManager().check_stock_db_exists(code):
-            self.logger.info("{stock_code}.db 不存在", code)
+            self.logger.info(f"{code}.db 不存在", code)
             return day_stock_data, data_to_save
 
         # 步骤一：得到当前数据库中的股票数据
@@ -561,7 +485,7 @@ class BaoStockProcessor(QObject):
         #     BaostockDataManager().delete_data_by_date(null_data_code, first_null_date)
 
             # 移除空列以便后面合并
-            day_stock_data = day_stock_data.dropna()
+            # day_stock_data = day_stock_data.dropna()
         
 
         now_date = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -618,7 +542,7 @@ class BaoStockProcessor(QObject):
         # self.logger.info("获取到的新数据：")
         # self.logger.info(df_new_stock_data)
 
-        df_new_stock_data = df_new_stock_data.dropna()
+        # df_new_stock_data = df_new_stock_data.dropna()
 
         if not df_new_stock_data.empty:
             # 处理空 DataFrame 的情况
@@ -626,7 +550,7 @@ class BaoStockProcessor(QObject):
                 combined_df = df_new_stock_data.copy()
                 self.logger.info("原数据为空，直接使用新获取的数据")
             else:
-                self.data_type_conversion(df_new_stock_data)
+                BaostockDataManager().data_type_conversion(df_new_stock_data)
                 # 合并计算指标
                 combined_df = pd.concat([day_stock_data, df_new_stock_data], axis=0, ignore_index=True)
 
@@ -674,9 +598,9 @@ class BaoStockProcessor(QObject):
         chinese_columns = ['date', 'code', 'open', 'high', 'low', 'close', 'volume', 'amount', 'change_percent', 'turnover_rate', 'adjustflag']
         result = pd.DataFrame(result_list, columns=chinese_columns)
 
-        self.data_type_conversion(result)
+        BaostockDataManager().data_type_conversion(result)
 
-        result = result.dropna()
+        # result = result.dropna()
 
         # self.logger.info("process_weekly_stock_data执行结果：")
         # self.logger.info(result.tail(3))
@@ -688,13 +612,13 @@ class BaoStockProcessor(QObject):
     def process_and_save_weekly_stock_data(self, code):
         result = pd.DataFrame()
         if not BaostockDataManager().check_stock_db_exists(code) or not BaostockDataManager().check_table_exists(code, TimePeriod.WEEK):
-            # self.logger.info(f"周线 {code}.db 不存在，即将从Baostock获取")
+            self.logger.info(f"周线 {code}.db 不存在，即将从Baostock获取")
             result = self.process_weekly_stock_data(code)
 
             if not result.empty:
                 BaostockDataManager().save_stock_data_to_db(code, result, 'replace', TimePeriod.WEEK)
         else:
-            # self.logger.info(f"周线 {code}.db 存在，即将从本地数据库更新")
+            self.logger.info(f"周线 {code}.db 存在，即将从本地数据库更新")
             result, data_to_save = self.update_weekly_stock_data(code)
             if data_to_save is not None and not data_to_save.empty:
                 BaostockDataManager().save_stock_data_to_db(code, data_to_save, "append", TimePeriod.WEEK)
@@ -710,16 +634,24 @@ class BaoStockProcessor(QObject):
         week_stock_data = pd.DataFrame()
         data_to_save = pd.DataFrame()
         if not BaostockDataManager().check_stock_db_exists(code):
-            self.logger.info("{stock_code}.db 不存在", code)
+            self.logger.info(f"{code}.db 不存在")
             return week_stock_data, data_to_save
 
         # 步骤一：得到当前数据库中的股票数据
         week_stock_data = BaostockDataManager().get_stock_data_from_db_by_period(code, TimePeriod.WEEK)
-        if week_stock_data is None or week_stock_data.empty:
-            self.logger.info("{stock_code}.db 中无周线数据", code)
-            return week_stock_data, data_to_save
 
-        week_stock_data = week_stock_data.dropna()
+        # self.logger.info(f"获取到的周线数据长度：{len(week_stock_data)}")
+        # week_stock_data = week_stock_data.dropna()
+        # self.logger.info(f"dropna后的周线数据长度：{len(week_stock_data)}")
+        # 手动检查可疑数据
+        for col in week_stock_data.columns:
+            if week_stock_data[col].isnull().any():
+                self.logger.info(f"列 {col} 包含空值")
+                self.logger.info(f"空值位置: {week_stock_data[col].isnull()}")
+
+        if week_stock_data is None or week_stock_data.empty:
+            self.logger.info(f"{code}.db 中无周线数据")
+            return week_stock_data, data_to_save
         
         # 最后一行数据日期 + 1，至今有几个周五？一个也没有说明是最新数据，无需更新。
         # now_date = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -731,7 +663,7 @@ class BaoStockProcessor(QObject):
         last_date = parsed_date + datetime.timedelta(days=1)
         num_fridays = self.count_fridays_since(last_date.strftime("%Y-%m-%d"))
         if not num_fridays > 0:
-            # self.logger.info("已是最新周线数据")
+            self.logger.info("已是最新周线数据")
             return week_stock_data, data_to_save
         
         # 判断今天是否周五，数据库最后日期到今天有周五存在，但今天不是周五，则可以获取之前的周数据
@@ -756,7 +688,7 @@ class BaoStockProcessor(QObject):
 
         df_new_weekly_stock_data = self.process_weekly_stock_data(code, start_date, end_date)
 
-        df_new_weekly_stock_data = df_new_weekly_stock_data.dropna()
+        # df_new_weekly_stock_data = df_new_weekly_stock_data.dropna()
 
         if not df_new_weekly_stock_data.empty:
             # 合并计算指标
@@ -841,12 +773,12 @@ class BaoStockProcessor(QObject):
         #         self.logger.info(f"time列的类型：{last_row['time'].dtype}, {type(time_value)}")   # object, <class 'str'>
 
 
-        self.data_type_conversion(result)
+        BaostockDataManager().data_type_conversion(result)
 
         # if result is not None and not result.empty:
         #     sdi.default_indicators_auto_calculate(result)
 
-        result = result.dropna()
+        # result = result.dropna()
 
         return result
     
@@ -871,8 +803,8 @@ class BaoStockProcessor(QObject):
 
         # 判断是否存在空值
         if minute_stock_data.isnull().values.any():
-            # self.logger.info("存在空值")
-            minute_stock_data = minute_stock_data.dropna()
+            self.logger.info("存在空值")
+            # minute_stock_data = minute_stock_data.dropna()
         
 
         # 因为分钟级也只能按天获取，因此不用小时、分级的判断
@@ -925,7 +857,7 @@ class BaoStockProcessor(QObject):
         
         df_new_stock_data = self.process_minute_level_stock_data(code, level, start_date, end_date)
 
-        df_new_stock_data = df_new_stock_data.dropna()
+        # df_new_stock_data = df_new_stock_data.dropna()
         
         if not df_new_stock_data.empty:
             # 处理空 DataFrame 的情况
@@ -933,7 +865,7 @@ class BaoStockProcessor(QObject):
                 combined_df = df_new_stock_data.copy()
                 self.logger.info("原数据为空，直接使用新获取的数据")
             else:
-                self.data_type_conversion(df_new_stock_data)
+                BaostockDataManager().data_type_conversion(df_new_stock_data)
                 # 合并计算指标
                 combined_df = pd.concat([minute_stock_data, df_new_stock_data], axis=0, ignore_index=True)
 
@@ -1032,6 +964,9 @@ class BaoStockProcessor(QObject):
             
             if i % 100 == 0:  # 每100只股票打印一次日志
                 self.logger.info(f"已处理 {i} 只沪市股票【周线】数据")
+
+            if i > 700 and i <= 800:
+                self.logger.info(f"已处理 {i} 只沪市股票{value}【周线】数据")
 
             i += 1
 
@@ -1381,7 +1316,6 @@ class BaoStockProcessor(QObject):
 
             i += 1
 
-
         process_elapsed_time = time.time() - start_time  # 计算耗时
         self.logger.info(f"获取{board_type}股票{level}分钟级别数据完成，共处理{i}只股票，耗时: {process_elapsed_time:.2f}秒，即{process_elapsed_time/60:.2f}分钟")
 
@@ -1443,6 +1377,9 @@ class BaoStockProcessor(QObject):
 
         #### 登出系统 ####
         # bs.logout()
+
+    def get_all_stocks_from_db(self):
+        BaostockDataManager().get_all_stocks_from_db()
 
     def filter_stocks_by_board(self, df):
         """
@@ -1705,8 +1642,8 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period(code, period)
-                    weekly_data = BaostockDataManager().get_stock_data_from_db_by_period(code, TimePeriod.WEEK)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, period)
+                    weekly_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, TimePeriod.WEEK)
 
                     if pf.daily_up_ma52_filter(df_filter_data, weekly_data, period):
                         filter_result.append(code)
@@ -1750,8 +1687,8 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period(code, period)
-                    weekly_data = BaostockDataManager().get_stock_data_from_db_by_period(code, TimePeriod.WEEK)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, period)
+                    weekly_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, TimePeriod.WEEK)
 
                     
                     if pf.daily_up_ma24_filter(df_filter_data, weekly_data, period):
@@ -1795,7 +1732,7 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period(code, period)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, period)
                     
                     if pf.daily_up_ma10_filter(df_filter_data, period):
                         filter_result.append(code)
@@ -1842,8 +1779,8 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period(code, period)
-                    weekly_data = BaostockDataManager().get_stock_data_from_db_by_period(code, TimePeriod.WEEK)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, period)
+                    weekly_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, TimePeriod.WEEK)
                     
                     if pf.daily_down_between_ma24_ma52_filter(df_filter_data, weekly_data, period):
                         filter_result.append(code)
@@ -1886,8 +1823,8 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period(code, period)
-                    weekly_data = BaostockDataManager().get_stock_data_from_db_by_period(code, TimePeriod.WEEK)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, period)
+                    weekly_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, TimePeriod.WEEK)
                     
                     if pf.daily_down_between_ma5_ma52_filter(df_filter_data, weekly_data, period):
                         filter_result.append(code)
@@ -1931,7 +1868,7 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period(code, period)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, period)
                     
                     if pf.daily_down_breakthrough_ma52_filter(df_filter_data):
                         filter_result.append(code)
@@ -1974,7 +1911,7 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period(code, period)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, period)
                     
                     if pf.daily_down_breakthrough_ma24_filter(df_filter_data):
                         filter_result.append(code)
@@ -2022,7 +1959,7 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition, False):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period(code, period)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, period)
                     
                     ret = pf.get_last_adjust_period_deviate_status(df_filter_data)
 
