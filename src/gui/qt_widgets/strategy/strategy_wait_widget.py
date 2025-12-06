@@ -5,7 +5,7 @@ class StrategyWaitWidget(QWidget):
     def __init__(self, parent = None):
         super(StrategyWaitWidget, self).__init__(parent)
 
-        uic.loadUi("gui/qt_widgets/strategy/StrategyWaitWidget.ui", self)
+        uic.loadUi("./src/gui/qt_widgets/strategy/StrategyWaitWidget.ui", self)
 
         self.init_para()
         self.init_ui()

@@ -17,7 +17,7 @@ from gui.qt_widgets.board.board_chart_widget import BoardChartWidget
 class IndustryBoardWidget(QWidget):
     def __init__(self):
         super().__init__()
-        uic.loadUi('./gui/qt_widgets/board/IndustryBoardWidget.ui', self)
+        uic.loadUi('./src/gui/qt_widgets/board/IndustryBoardWidget.ui', self)
 
         self.init_para()
         self.init_ui()

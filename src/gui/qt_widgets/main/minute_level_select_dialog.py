@@ -7,7 +7,7 @@ from manager.logging_manager import get_logger
 class MinuteLevelSelectDialog(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super(MinuteLevelSelectDialog, self).__init__(parent)
-        uic.loadUi('./gui/qt_widgets/main/MinuteLevelSelectDialog.ui', self)
+        uic.loadUi('./src/gui/qt_widgets/main/MinuteLevelSelectDialog.ui', self)
         
         self.init_para()
         self.init_ui()

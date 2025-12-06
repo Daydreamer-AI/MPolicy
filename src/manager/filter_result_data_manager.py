@@ -6,7 +6,7 @@ import pandas as pd
 import json
 
 
-from data_base.filter_result_db_manager import FilterResultDBManager
+from db_base.filter_result_db_base import FilterResultDBBase
 from manager.logging_manager import get_logger
 
 def singleton(cls):
@@ -43,7 +43,7 @@ class FilterResultDataManger():
             raise ValueError("Invalid type")
 
         self.type = type
-        self.filter_result_db_manager = FilterResultDBManager(type)
+        self.filter_result_db_manager = FilterResultDBBase(type)
         self.logger = get_logger(__name__)
 
     def switch_to_type(self, type):
@@ -53,67 +53,67 @@ class FilterResultDataManger():
         
         if self.type != type:
             self.type = type
-            self.filter_result_db_manager = FilterResultDBManager(type)
+            self.filter_result_db_manager = FilterResultDBBase(type)
 
     def get_old_filter_result_dir(self):
         if self.type == 0:
-            return "./policy_filter/filter_result/old/daily_up_ma52"
+            return "./data/database/policy_filter/filter_result/old/daily_up_ma52"
         elif self.type == 1:
-            return "./policy_filter/filter_result/old/daily_up_ma24"
+            return "./data/database/policy_filter/filter_result/old/daily_up_ma24"
         elif self.type == 2:
-            return "./policy_filter/filter_result/old/daily_up_ma10"
+            return "./data/database/policy_filter/filter_result/old/daily_up_ma10"
         elif self.type == 3:
-            return "./policy_filter/filter_result/old/daily_up_ma5"
+            return "./data/database/policy_filter/filter_result/old/daily_up_ma5"
         elif self.type == 4:
-            return "./policy_filter/filter_result/old/daily_down_ma52"
+            return "./data/database/policy_filter/filter_result/old/daily_down_ma52"
         elif self.type == 5:
-            return "./policy_filter/filter_result/old/daily_down_ma5"
+            return "./data/database/policy_filter/filter_result/old/daily_down_ma5"
         elif self.type == 6:
-            return "./policy_filter/filter_result/old/daily_down_breakthrough_ma52_filter"
+            return "./data/database/policy_filter/filter_result/old/daily_down_breakthrough_ma52_filter"
         elif self.type == 7:
-            return "./policy_filter/filter_result/old/daily_down_breakthrough_ma24_filter"
+            return "./data/database/policy_filter/filter_result/old/daily_down_breakthrough_ma24_filter"
         elif self.type == 8:
-            return "./policy_filter/filter_result/old/daily_down_double_bottom_filter"
+            return "./data/database/policy_filter/filter_result/old/daily_down_double_bottom_filter"
         elif self.type == 9:
-            return "./policy_filter/filter_result/old/daily_down_double_bottom_filter/背离"
+            return "./data/database/policy_filter/filter_result/old/daily_down_double_bottom_filter/背离"
         elif self.type == 10:
-            return "./policy_filter/filter_result/old/daily_down_double_bottom_filter/动能不足"
+            return "./data/database/policy_filter/filter_result/old/daily_down_double_bottom_filter/动能不足"
         elif self.type == 11:
-            return "./policy_filter/filter_result/old/daily_down_double_bottom_filter/隐形背离"
+            return "./data/database/policy_filter/filter_result/old/daily_down_double_bottom_filter/隐形背离"
         elif self.type == 12:
-            return "./policy_filter/filter_result/old/daily_down_double_bottom_filter/隐形动能不足"
+            return "./data/database/policy_filter/filter_result/old/daily_down_double_bottom_filter/隐形动能不足"
         else:
-            return "./policy_filter/filter_result/old/daily_up_ma52"
+            return "./data/database/policy_filter/filter_result/old/daily_up_ma52"
         
     def get_new_filter_result_dir(self):
         if self.type == 0:
-            return "./policy_filter/filter_result/zero_up_ma52"
+            return "./data/database/policy_filter/filter_result/zero_up_ma52"
         elif self.type == 1:
-            return "./policy_filter/filter_result/zero_up_ma24"
+            return "./data/database/policy_filter/filter_result/zero_up_ma24"
         elif self.type == 2:
-            return "./policy_filter/filter_result/zero_up_ma10"
+            return "./data/database/policy_filter/filter_result/zero_up_ma10"
         elif self.type == 3:
-            return "./policy_filter/filter_result/zero_up_ma5"
+            return "./data/database/policy_filter/filter_result/zero_up_ma5"
         elif self.type == 4:
-            return "./policy_filter/filter_result/zero_down_ma52"
+            return "./data/database/policy_filter/filter_result/zero_down_ma52"
         elif self.type == 5:
-            return "./policy_filter/filter_result/zero_down_ma5"
+            return "./data/database/policy_filter/filter_result/zero_down_ma5"
         elif self.type == 6:
-            return "./policy_filter/filter_result/zero_down_breakthrough_ma52"
+            return "./data/database/policy_filter/filter_result/zero_down_breakthrough_ma52"
         elif self.type == 7:
-            return "./policy_filter/filter_result/zero_down_breakthrough_ma24"
+            return "./data/database/policy_filter/filter_result/zero_down_breakthrough_ma24"
         elif self.type == 8:
-            return "./policy_filter/filter_result/zero_down_double_bottom"
+            return "./data/database/policy_filter/filter_result/zero_down_double_bottom"
         elif self.type == 9:
-            return "./policy_filter/filter_result/zero_down_double_bottom/背离"
+            return "./data/database/policy_filter/filter_result/zero_down_double_bottom/背离"
         elif self.type == 10:
-            return "./policy_filter/filter_result/zero_down_double_bottom/动能不足"
+            return "./data/database/policy_filter/filter_result/zero_down_double_bottom/动能不足"
         elif self.type == 11:
-            return "./policy_filter/filter_result/zero_down_double_bottom/隐形背离"
+            return "./data/database/policy_filter/filter_result/zero_down_double_bottom/隐形背离"
         elif self.type == 12:
-            return "./policy_filter/filter_result/zero_down_double_bottom/隐形动能不足"
+            return "./data/database/policy_filter/filter_result/zero_down_double_bottom/隐形动能不足"
         else:
-            return "./policy_filter/filter_result/zero_up_ma52"
+            return "./data/database/policy_filter/filter_result/zero_up_ma52"
         
     def get_relative_path(self, level='1d'):
         """

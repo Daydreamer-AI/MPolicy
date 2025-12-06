@@ -5,13 +5,13 @@ from PyQt5.QtQuickWidgets import QQuickWidget
 from PyQt5.QtCore import QUrl, QObject, pyqtSignal, pyqtSlot
 from gui.qml.setting.policy_filter_setting_bridge import PolicyFilterSettingBridge
 from processor.baostock_processor import BaoStockProcessor
-from common.config_manager import ConfigManager
+from manager.config_manager import ConfigManager
 from manager.logging_manager import get_logger
 
 class PolicyFilterSettingDialog(QDialog):
     def __init__(self):
         super().__init__()
-        uic.loadUi('./gui/qt_widgets/setting/policy_filter_setting_dialog.ui', self)
+        uic.loadUi('./src/gui/qt_widgets/setting/policy_filter_setting_dialog.ui', self)
 
         self.logger = get_logger(__name__)
 
@@ -105,7 +105,7 @@ class PolicyFilterSettingDialog(QDialog):
 
 
         config_manager = ConfigManager()
-        config_manager.set_config_path("./resources/config/config.ini")
+        # config_manager.set_config_path("./resources/config/config.ini")
         config_manager.set('PolicyFilter', 'turn', turn_str)
         config_manager.set('PolicyFilter', 'lb', lb_str)
         config_manager.set('PolicyFilter', 'weekly_condition', '1' if b_weekly_condition else '0')

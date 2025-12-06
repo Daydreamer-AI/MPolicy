@@ -15,7 +15,7 @@ import pyqtgraph as pg
 
 from gui.qt_widgets.MComponents.stock_card_widget import StockCardWidget
 
-from gui.qt_widgets.market.indicators_view_widget import IndicatorsViewWidget
+from gui.qt_widgets.MComponents.indicators.indicators_view_widget import IndicatorsViewWidget
 
 from manager.period_manager import TimePeriod
 from manager.bao_stock_data_manager import BaostockDataManager
@@ -37,7 +37,7 @@ class MarketWidget(QWidget):
 
         self.option_to_code_map = {}  # name - code 映射字典
     def init_ui(self):
-        uic.loadUi('./gui/qt_widgets/market/MarketWidget.ui', self)
+        uic.loadUi('./src/gui/qt_widgets/market/MarketWidget.ui', self)
 
         
         main_h_layout = self.layout()

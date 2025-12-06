@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QDialog, QWidget, QPushButton, QLabel, QLineEdit, QV
 from PyQt5.QtCore import pyqtSlot
 
 from manager.logging_manager import get_logger
-# from gui.qt_widgets.market.indicators_view_widget import IndicatorsViewWidget
+# from gui.qt_widgets.MComponents.indicators.indicators_view_widget import IndicatorsViewWidget
 
 from processor.baostock_processor import BaoStockProcessor
 from manager.bao_stock_data_manager import BaostockDataManager
@@ -11,7 +11,7 @@ from manager.bao_stock_data_manager import BaostockDataManager
 class ReviewDialog(QDialog):
     def __init__(self, parent=None):
         super(ReviewDialog, self).__init__(parent) 
-        uic.loadUi('./gui/qt_widgets/review/ReviewDialog.ui', self)
+        uic.loadUi('./src/gui/qt_widgets/review/ReviewDialog.ui', self)
 
         self.init_para()
         self.init_ui()
@@ -23,7 +23,7 @@ class ReviewDialog(QDialog):
         self.logger = get_logger(__name__)
 
     def init_ui(self):
-        from gui.qt_widgets.market.indicators_view_widget import IndicatorsViewWidget
+        from gui.qt_widgets.MComponents.indicators.indicators_view_widget import IndicatorsViewWidget
         self.indicators_view_widget = IndicatorsViewWidget(self)
         self.indicators_view_widget.show_review_btn(False)
         main_h_layout = self.layout()

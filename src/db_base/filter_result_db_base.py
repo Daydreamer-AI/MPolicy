@@ -26,34 +26,34 @@ class FilterResultDBBase(CommonDBBase):
     def _get_db_path_by_type(self, db_type):
         """根据db_type获取数据库路径"""
         if db_type == 0:
-            return "./database/policy_filter/filter_result/zero_up_ma52/filter_result.db"
+            return "./data/database/policy_filter/filter_result/zero_up_ma52/filter_result.db"
         elif db_type == 1:
-            return "./database/policy_filter/filter_result/zero_up_ma24/filter_result.db"
+            return "./data/database/policy_filter/filter_result/zero_up_ma24/filter_result.db"
         elif db_type == 2:
-            return "./database/policy_filter/filter_result/zero_up_ma10/filter_result.db"
+            return "./data/database/policy_filter/filter_result/zero_up_ma10/filter_result.db"
         elif db_type == 3:
-            return "./database/policy_filter/filter_result/zero_up_ma5/filter_result.db"
+            return "./data/database/policy_filter/filter_result/zero_up_ma5/filter_result.db"
         elif db_type == 4:
-            return "./database/policy_filter/filter_result/zero_down_ma52/filter_result.db"
+            return "./data/database/policy_filter/filter_result/zero_down_ma52/filter_result.db"
         elif db_type == 5:
-            return "./database/policy_filter/filter_result/zero_down_ma5/filter_result.db"
+            return "./data/database/policy_filter/filter_result/zero_down_ma5/filter_result.db"
         elif db_type == 6:
-            return "./database/policy_filter/filter_result/zero_down_breakthrough_ma52/filter_result.db"
+            return "./data/database/policy_filter/filter_result/zero_down_breakthrough_ma52/filter_result.db"
         elif db_type == 7:
-            return "./database/policy_filter/filter_result/zero_down_breakthrough_ma24/filter_result.db"
+            return "./data/database/policy_filter/filter_result/zero_down_breakthrough_ma24/filter_result.db"
         elif db_type == 8:
-            return "./database/policy_filter/filter_result/zero_down_double_bottom/filter_result.db"
+            return "./data/database/policy_filter/filter_result/zero_down_double_bottom/filter_result.db"
         elif db_type == 9:
-            return "./database/policy_filter/filter_result/zero_down_double_bottom/背离/filter_result.db"
+            return "./data/database/policy_filter/filter_result/zero_down_double_bottom/背离/filter_result.db"
         elif db_type == 10:
-            return "./database/policy_filter/filter_result/zero_down_double_bottom/动能不足/filter_result.db"
+            return "./data/database/policy_filter/filter_result/zero_down_double_bottom/动能不足/filter_result.db"
         elif db_type == 11:
-            return "./database/policy_filter/filter_result/zero_down_double_bottom/隐形背离/filter_result.db"
+            return "./data/database/policy_filter/filter_result/zero_down_double_bottom/隐形背离/filter_result.db"
         elif db_type == 12:
-            return "./database/policy_filter/filter_result/zero_down_double_bottom/隐形动能不足/filter_result.db"
+            return "./data/database/policy_filter/filter_result/zero_down_double_bottom/隐形动能不足/filter_result.db"
 
         else:
-            return "./policy_filter/filter_result/zero_up_ma52/filter_result.db"
+            return "./data/database/policy_filter/filter_result/zero_up_ma52/filter_result.db"
         
     def _init_db(self):
         allowed_levels = ['1d', '1w', '1m', '5m', '15m', '30m', '60m', '120m']

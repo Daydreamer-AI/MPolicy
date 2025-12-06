@@ -1,4 +1,3 @@
-# file: gui/qt_widgets/market/rsi_widget.py
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets, uic, QtGui
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout
@@ -8,8 +7,8 @@ import pyqtgraph as pg
 import numpy as np
 
 from manager.logging_manager import get_logger
-from gui.qt_widgets.market.base_indicator_widget import BaseIndicatorWidget
-from gui.qt_widgets.MComponents.rsi_item import RSIItem
+from gui.qt_widgets.MComponents.indicators.base_indicator_widget import BaseIndicatorWidget
+from gui.qt_widgets.MComponents.indicators.item.rsi_item import RSIItem
 
 from manager.indicators_config_manager import *
 
@@ -42,7 +41,7 @@ class RsiWidget(BaseIndicatorWidget):
         self.label_rsi24.setStyleSheet(f"color: {dict_rsi_color_hex['rsi3']}")
 
     def get_ui_path(self):
-        return './gui/qt_widgets/market/RsiWidget.ui'
+        return './src/gui/qt_widgets/MComponents/indicators/RsiWidget.ui'
 
     def validate_data(self):
         # 确保至少有一个RSI数据列存在

@@ -2,7 +2,7 @@ from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
 from PyQt5.QtCore import pyqtSlot, QFile
 
-from src.manager.logging_manager import get_logger
+from manager.logging_manager import get_logger
 
 from gui.qt_widgets.main.home_widget import HomeWidget
 from gui.qt_widgets.board.board_home_widget import BoardHomeWidget
@@ -15,7 +15,7 @@ class MainWidget(QWidget):
 
         # 加载 UI 文件，第二个参数 self 表示将控件加载到当前窗口
         # 注意：PyQt5 在加载 .ui文件时，如果发现槽函数名称符合 on_对象名_信号名的格式，​​会自动连接​​信号和槽
-        uic.loadUi('./gui/qt_widgets/main/MainWidget.ui', self)  # 确保路径正确
+        uic.loadUi('./src/gui/qt_widgets/main/MainWidget.ui', self)  # 确保路径正确
 
         self.init_para()
         self.init_ui()

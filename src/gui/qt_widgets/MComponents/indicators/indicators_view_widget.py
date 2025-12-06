@@ -8,14 +8,14 @@ import pandas as pd
 
 from manager.logging_manager import get_logger
 
-from gui.qt_widgets.market.base_indicator_widget import BaseIndicatorWidget
-from gui.qt_widgets.market.kline_widget import KLineWidget
-from gui.qt_widgets.market.volume_widget import VolumeWidget
-from gui.qt_widgets.market.amount_widget import AmountWidget
-from gui.qt_widgets.market.macd_widget import MacdWidget
-from gui.qt_widgets.market.kdj_widget import KdjWidget
-from gui.qt_widgets.market.rsi_widget import RsiWidget
-from gui.qt_widgets.market.boll_widget import BollWidget
+from gui.qt_widgets.MComponents.indicators.base_indicator_widget import BaseIndicatorWidget
+from gui.qt_widgets.MComponents.indicators.kline_widget import KLineWidget
+from gui.qt_widgets.MComponents.indicators.volume_widget import VolumeWidget
+from gui.qt_widgets.MComponents.indicators.amount_widget import AmountWidget
+from gui.qt_widgets.MComponents.indicators.macd_widget import MacdWidget
+from gui.qt_widgets.MComponents.indicators.kdj_widget import KdjWidget
+from gui.qt_widgets.MComponents.indicators.rsi_widget import RsiWidget
+from gui.qt_widgets.MComponents.indicators.boll_widget import BollWidget
 
 from indicators import stock_data_indicators as sdi
 
@@ -26,7 +26,7 @@ class IndicatorsViewWidget(QWidget):
     _shared_object_id = 0
     def __init__(self, parent=None):
         super(IndicatorsViewWidget, self).__init__(parent)
-        uic.loadUi('./gui/qt_widgets/market/IndicatorsViewWidget.ui', self)
+        uic.loadUi('./src/gui/qt_widgets/MComponents/indicators/IndicatorsViewWidget.ui', self)
 
         self.init_para()
         self.init_ui()

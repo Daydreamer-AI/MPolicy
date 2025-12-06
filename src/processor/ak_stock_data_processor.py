@@ -5,7 +5,7 @@ import os
 import datetime
 from pathlib import Path
 from db_base.stock_info_db_base import StockInfoDBBasePool
-from db_base import StockDbBase
+from db_base.stock_db_base import StockDbBase
 import datetime
 from indicators import stock_data_indicators as sdi
 import random

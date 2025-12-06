@@ -7,8 +7,8 @@ import numpy as np
 import pandas as pd
 
 from manager.logging_manager import get_logger
-from gui.qt_widgets.market.base_indicator_widget import BaseIndicatorWidget
-from gui.qt_widgets.MComponents.amount_item import AmountItem
+from gui.qt_widgets.MComponents.indicators.base_indicator_widget import BaseIndicatorWidget
+from gui.qt_widgets.MComponents.indicators.item.amount_item import AmountItem
 
 from manager.indicators_config_manager import *
 
@@ -42,7 +42,7 @@ class AmountWidget(BaseIndicatorWidget):
         
 
     def get_ui_path(self):
-        return './gui/qt_widgets/market/AmountWidget.ui'
+        return './src/gui/qt_widgets/MComponents/indicators/AmountWidget.ui'
     
     def validate_data(self):
         required_columns = ['open', 'close', 'amount']

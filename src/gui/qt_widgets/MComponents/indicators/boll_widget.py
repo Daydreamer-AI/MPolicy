@@ -1,4 +1,3 @@
-# file: gui/qt_widgets/market/boll_widget.py
 from PyQt5 import QtWidgets, uic, QtGui
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout
 from PyQt5.QtCore import pyqtSlot
@@ -7,8 +6,8 @@ import pyqtgraph as pg
 import numpy as np
 
 from manager.logging_manager import get_logger
-from gui.qt_widgets.market.base_indicator_widget import BaseIndicatorWidget
-from gui.qt_widgets.MComponents.boll_item import BOLLItem
+from gui.qt_widgets.MComponents.indicators.base_indicator_widget import BaseIndicatorWidget
+from gui.qt_widgets.MComponents.indicators.item.boll_item import BOLLItem
 
 from manager.indicators_config_manager import *
 
@@ -40,7 +39,7 @@ class BollWidget(BaseIndicatorWidget):
         self.label_lower.setStyleSheet(f"color: {dict_boll_color_hex['down']}")
 
     def get_ui_path(self):
-        return './gui/qt_widgets/market/BollWidget.ui'
+        return './src/gui/qt_widgets/MComponents/indicators/BollWidget.ui'
 
     def validate_data(self):
         required_columns = ['close', 'boll_up', 'boll_mb', 'boll_dn']

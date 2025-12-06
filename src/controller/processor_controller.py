@@ -1,8 +1,8 @@
 from processor.ak_stock_data_processor import AKStockDataProcessor
 from processor.baostock_processor import BaoStockProcessor
-from common.config_manager import ConfigManager
+from manager.config_manager import ConfigManager
 
-from common.logging_manager import get_logger
+from manager.logging_manager import get_logger
 
 class ProcessorController:
     _instance = None

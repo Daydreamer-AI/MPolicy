@@ -3,7 +3,7 @@
 import pandas as pd
 import re
 from pathlib import Path
-from common.logging_manager import get_logger
+from manager.logging_manager import get_logger
 
 logger = get_logger(__name__)
 

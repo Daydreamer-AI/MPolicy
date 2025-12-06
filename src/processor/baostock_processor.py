@@ -2,7 +2,7 @@ import baostock as bs
 import pandas as pd
 import numpy as np
 from db_base.stock_info_db_base import StockInfoDBBasePool
-from db_base import StockDbBase
+from db_base.stock_db_base import StockDbBase
 from indicators import stock_data_indicators as sdi
 import random
 import time
@@ -20,7 +20,7 @@ from PyQt5.QtWidgets import QApplication
 
 from PyQt5.QtCore import QObject, pyqtSignal
 
-from processor.base_thread_worker import BaseThreadWorker
+from thread.base_thread_worker import BaseThreadWorker
 
 import json
 
@@ -91,9 +91,9 @@ class BaoStockProcessor(QObject):
         
     def init_config(self):
         config_manager = ConfigManager()
-        config_manager.set_config_path("./resources/config/config.ini")
-        policy_filter_turn_config = config_manager.get('PolicyFilter', 'turn')
-        policy_filter_lb_config = config_manager.get('PolicyFilter', 'lb')
+        # config_manager.set_config_path("./resources/config/config.ini")
+        policy_filter_turn_config = config_manager.get('PolicyFilter', 'turn', '1.0')
+        policy_filter_lb_config = config_manager.get('PolicyFilter', 'lb', '0.3')
         weekly_condition = config_manager.get('PolicyFilter', 'weekly_condition', '1')
         s_filter_date = config_manager.get('PolicyFilter', 'filter_date', '')
         s_target_code = config_manager.get('PolicyFilter', 'target_code', '')

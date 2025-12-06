@@ -6,8 +6,8 @@ from PyQt5.QtGui import QIcon
 
 from resources import resources_rc
 
-from src.gui.qt_widgets.main.main_widget import MainWidget
-from src.manager.logging_manager import get_logger, setup_logging
+from gui.qt_widgets.main.main_widget import MainWidget
+from manager.logging_manager import get_logger, setup_logging
 
 # qml
 from PyQt5.QtQml import QQmlApplicationEngine
@@ -20,7 +20,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
     
 # 确保能导入自定义组件
-components_path = os.path.join(project_root, 'app', 'gui', 'qt_widgets', 'MComponents')
+components_path = os.path.join(project_root, 'gui', 'qt_widgets', 'MComponents')
 if components_path not in sys.path:
     sys.path.insert(0, components_path)
 

@@ -14,7 +14,7 @@ class KLineOverviewWidget(QWidget):
         self.load_qss()
 
     def get_ui_path(self):
-        return "./gui/qt_widgets/market/KLineOverviewWidget.ui"
+        return "./src/gui/qt_widgets/MComponents/indicators/KLineOverviewWidget.ui"
     
     def init_para(self):
         pass

@@ -1,4 +1,3 @@
-# file: gui/qt_widgets/market/macd_widget.py
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets, uic, QtGui
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout
@@ -8,8 +7,8 @@ import pyqtgraph as pg
 import numpy as np
 
 from manager.logging_manager import get_logger
-from gui.qt_widgets.market.base_indicator_widget import BaseIndicatorWidget
-from gui.qt_widgets.MComponents.macd_item import MACDItem
+from gui.qt_widgets.MComponents.indicators.base_indicator_widget import BaseIndicatorWidget
+from gui.qt_widgets.MComponents.indicators.item.macd_item import MACDItem
 
 from manager.indicators_config_manager import *
 
@@ -40,7 +39,7 @@ class MacdWidget(BaseIndicatorWidget):
         self.label_dea.setStyleSheet(f"color: {dict_macd_color_hex['dea']};")
 
     def get_ui_path(self):
-        return './gui/qt_widgets/market/MacdWidget.ui'
+        return './src/gui/qt_widgets/MComponents/indicators/MacdWidget.ui'
 
     def validate_data(self):
         required_columns = ['diff', 'dea', 'macd']

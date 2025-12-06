@@ -1,4 +1,3 @@
-# file: gui/qt_widgets/market/kdj_widget.py
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets, uic, QtGui
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout
@@ -8,8 +7,8 @@ import pyqtgraph as pg
 import numpy as np
 
 from manager.logging_manager import get_logger
-from gui.qt_widgets.market.base_indicator_widget import BaseIndicatorWidget
-from gui.qt_widgets.MComponents.kdj_item import KDJItem
+from gui.qt_widgets.MComponents.indicators.base_indicator_widget import BaseIndicatorWidget
+from gui.qt_widgets.MComponents.indicators.item.kdj_item import KDJItem
 
 from manager.indicators_config_manager import *
 
@@ -41,7 +40,7 @@ class KdjWidget(BaseIndicatorWidget):
         self.label_j.setStyleSheet(f"color: {dict_kdj_color_hex['j']};")
 
     def get_ui_path(self):
-        return './gui/qt_widgets/market/KdjWidget.ui'
+        return './src/gui/qt_widgets/MComponents/indicators/KdjWidget.ui'
 
     def validate_data(self):
         required_columns = ['K', 'D', 'J']

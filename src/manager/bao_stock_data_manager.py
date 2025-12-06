@@ -1,7 +1,7 @@
 
 from PyQt5.QtCore import QObject, pyqtSignal
 from db_base.stock_info_db_base import StockInfoDBBasePool
-from db_base import StockDbBase
+from db_base.stock_db_base import StockDbBase
 from indicators import stock_data_indicators as sdi
 from manager.logging_manager import get_logger
 from common.common_api import *

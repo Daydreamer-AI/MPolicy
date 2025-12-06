@@ -10,7 +10,7 @@ from gui.qt_widgets.board.concept_board_widget import ConceptBoardWidget
 class BoardHomeWidget(QWidget):
     def __init__(self):
         super().__init__()
-        uic.loadUi('./gui/qt_widgets/board/BoardHomeWidget.ui', self)
+        uic.loadUi('./src/gui/qt_widgets/board/BoardHomeWidget.ui', self)
 
         self.init_para()
         self.init_ui()

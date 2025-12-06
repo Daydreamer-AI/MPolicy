@@ -21,7 +21,7 @@ class BoardOverviewWidget(QWidget):
         self.init_connect()
 
     def init_ui(self):
-        uic.loadUi('gui/qt_widgets/board/BoardOverViewWidget.ui', self)
+        uic.loadUi('./src/gui/qt_widgets/board/BoardOverViewWidget.ui', self)
 
         validator = MRangeValidator(10, 30, self.lineEdit_top)
         self.lineEdit_top.setValidator(validator)

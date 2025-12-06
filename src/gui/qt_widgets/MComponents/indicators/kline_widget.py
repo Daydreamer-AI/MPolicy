@@ -8,11 +8,11 @@ import pandas as pd
 
 from manager.logging_manager import get_logger
 
-from gui.qt_widgets.market.base_indicator_widget import BaseIndicatorWidget, signal_manager
-from gui.qt_widgets.MComponents.candlestick_item import CandlestickItem
+from gui.qt_widgets.MComponents.indicators.base_indicator_widget import BaseIndicatorWidget, signal_manager
+from gui.qt_widgets.MComponents.indicators.item.candlestick_item import CandlestickItem
 
 from manager.indicators_config_manager import *
-from gui.qt_widgets.market.kline_overview_widget import KLineOverviewWidget
+from gui.qt_widgets.MComponents.indicators.kline_overview_widget import KLineOverviewWidget
 
 class KLineWidget(BaseIndicatorWidget):
     def __init__(self, data, type, parent=None):
@@ -79,7 +79,7 @@ class KLineWidget(BaseIndicatorWidget):
         pass
 
     def get_ui_path(self):
-        return './gui/qt_widgets/market/KLineWidget.ui'
+        return './src/gui/qt_widgets/MComponents/indicators/KLineWidget.ui'
     
     def reset_labels(self):
         # self.label_ma_period.setText("")      # 选中周期时设置

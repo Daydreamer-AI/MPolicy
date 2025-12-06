@@ -6,8 +6,8 @@ import pyqtgraph as pg
 import numpy as np
 
 from manager.logging_manager import get_logger
-from gui.qt_widgets.market.base_indicator_widget import BaseIndicatorWidget, signal_manager
-from gui.qt_widgets.MComponents.volume_item import VolumeItem
+from gui.qt_widgets.MComponents.indicators.base_indicator_widget import BaseIndicatorWidget, signal_manager
+from gui.qt_widgets.MComponents.indicators.item.volume_item import VolumeItem
 
 from manager.indicators_config_manager import *
 
@@ -40,7 +40,7 @@ class VolumeWidget(BaseIndicatorWidget):
         pass
 
     def get_ui_path(self):
-        return './gui/qt_widgets/market/VolumeWidget.ui'
+        return './src/gui/qt_widgets/MComponents/indicators/VolumeWidget.ui'
     
     def validate_data(self):
         required_columns = ['open', 'close', 'volume']

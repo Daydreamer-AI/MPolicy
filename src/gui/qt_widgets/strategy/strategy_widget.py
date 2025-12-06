@@ -16,7 +16,7 @@ from manager.bao_stock_data_manager import BaostockDataManager
 class StrategyWidget(QWidget):
     def __init__(self, parent=None):
         super(StrategyWidget, self).__init__(parent)
-        self.ui = uic.loadUi("./gui/qt_widgets/strategy/StrategyWidget.ui", self)
+        self.ui = uic.loadUi("./src/gui/qt_widgets/strategy/StrategyWidget.ui", self)
 
         self.init_para()
         self.init_ui()

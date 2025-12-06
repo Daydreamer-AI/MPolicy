@@ -12,7 +12,7 @@ from gui.qt_widgets.strategy.strategy_widget import StrategyWidget
 class StrategyHomeWidget(QWidget):
     def __init__(self, parent=None):
         super(StrategyHomeWidget, self).__init__(parent)
-        self.ui = uic.loadUi("./gui/qt_widgets/strategy/StrategyHomeWidget.ui", self)
+        self.ui = uic.loadUi("./src/gui/qt_widgets/strategy/StrategyHomeWidget.ui", self)
 
         self.init_para()
         self.init_ui()
