@@ -84,7 +84,7 @@ class BaoStockProcessor(QObject):
         # config_manager.set_config_path("./resources/config/config.ini")
         policy_filter_turn_config = config_manager.get('PolicyFilter', 'turn', '1.0')
         policy_filter_lb_config = config_manager.get('PolicyFilter', 'lb', '0.3')
-        weekly_condition = config_manager.get('PolicyFilter', 'weekly_condition', '1')
+        weekly_condition = config_manager.get('PolicyFilter', 'weekly_condition', '0')
         s_filter_date = config_manager.get('PolicyFilter', 'filter_date', '')
         s_target_code = config_manager.get('PolicyFilter', 'target_code', '')
         less_than_ma5 = config_manager.get('PolicyFilter', 'less_than_ma5', '0')
@@ -410,7 +410,7 @@ class BaoStockProcessor(QObject):
 
         BaostockDataManager().data_type_conversion(result)
 
-        # result = result.dropna()
+        result = result.dropna()
 
         # 登出系统
         # bs.logout()
@@ -473,21 +473,7 @@ class BaoStockProcessor(QObject):
             first_null_date = first_row_with_null['date']
             # self.logger.info("第一个包含空值的行日期类型是: ", type(first_null_date))  # <class 'str'>
             # self.logger.info(f"第一个包含空值的行日期是: {first_null_date}")
-        
-
-        #     # 查找第一个出现空值的行索引
-        #     first_null_index = day_stock_data.isnull().any(axis=1).idxmax()
-
-        #     # 删除该行及之后的所有行
-        #     day_stock_data = day_stock_data.loc[:first_null_index-1]  # 保留到第一个空值行之前的所有行
-
-        #     # 数据库同步
-        #     BaostockDataManager().delete_data_by_date(null_data_code, first_null_date)
-
-            # 移除空列以便后面合并
-            # day_stock_data = day_stock_data.dropna()
-        
-
+    
         now_date = datetime.datetime.now().strftime("%Y-%m-%d")
         if now_date in day_stock_data['date'].values:
             # self.logger.info("已是最新日线数据")
@@ -542,7 +528,7 @@ class BaoStockProcessor(QObject):
         # self.logger.info("获取到的新数据：")
         # self.logger.info(df_new_stock_data)
 
-        # df_new_stock_data = df_new_stock_data.dropna()
+        df_new_stock_data = df_new_stock_data.dropna()
 
         if not df_new_stock_data.empty:
             # 处理空 DataFrame 的情况
@@ -600,7 +586,7 @@ class BaoStockProcessor(QObject):
 
         BaostockDataManager().data_type_conversion(result)
 
-        # result = result.dropna()
+        result = result.dropna()
 
         # self.logger.info("process_weekly_stock_data执行结果：")
         # self.logger.info(result.tail(3))
@@ -641,13 +627,13 @@ class BaoStockProcessor(QObject):
         week_stock_data = BaostockDataManager().get_stock_data_from_db_by_period(code, TimePeriod.WEEK)
 
         # self.logger.info(f"获取到的周线数据长度：{len(week_stock_data)}")
-        # week_stock_data = week_stock_data.dropna()
+        week_stock_data = week_stock_data.dropna()
         # self.logger.info(f"dropna后的周线数据长度：{len(week_stock_data)}")
         # 手动检查可疑数据
-        for col in week_stock_data.columns:
-            if week_stock_data[col].isnull().any():
-                self.logger.info(f"列 {col} 包含空值")
-                self.logger.info(f"空值位置: {week_stock_data[col].isnull()}")
+        # for col in week_stock_data.columns:
+        #     if week_stock_data[col].isnull().any():
+        #         self.logger.info(f"列 {col} 包含空值")
+        #         self.logger.info(f"空值位置: {week_stock_data[col].isnull()}")
 
         if week_stock_data is None or week_stock_data.empty:
             self.logger.info(f"{code}.db 中无周线数据")
@@ -688,9 +674,9 @@ class BaoStockProcessor(QObject):
 
         df_new_weekly_stock_data = self.process_weekly_stock_data(code, start_date, end_date)
 
-        # df_new_weekly_stock_data = df_new_weekly_stock_data.dropna()
+        df_new_weekly_stock_data = df_new_weekly_stock_data.dropna()
 
-        if not df_new_weekly_stock_data.empty:
+        if df_new_weekly_stock_data is not None and not df_new_weekly_stock_data.empty:
             # 合并计算指标
             combined_df = pd.concat([week_stock_data, df_new_weekly_stock_data], axis=0, ignore_index=True)
 
@@ -778,7 +764,7 @@ class BaoStockProcessor(QObject):
         # if result is not None and not result.empty:
         #     sdi.default_indicators_auto_calculate(result)
 
-        # result = result.dropna()
+        result = result.dropna()
 
         return result
     
@@ -857,9 +843,9 @@ class BaoStockProcessor(QObject):
         
         df_new_stock_data = self.process_minute_level_stock_data(code, level, start_date, end_date)
 
-        # df_new_stock_data = df_new_stock_data.dropna()
+        df_new_stock_data = df_new_stock_data.dropna()
         
-        if not df_new_stock_data.empty:
+        if df_new_stock_data is not None and not df_new_stock_data.empty:
             # 处理空 DataFrame 的情况
             if minute_stock_data.empty:
                 combined_df = df_new_stock_data.copy()
@@ -1628,7 +1614,7 @@ class BaoStockProcessor(QObject):
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
         self.logger.info(f"开始执行日线零轴上方MA52筛选，换手率： {turn}, 量比：{lb}")
-
+        board_index = 0
         dict_stock_info = BaostockDataManager().get_stock_info_dict()
         for board_name, board_data in dict_stock_info.items():
             if board_index > 1:
@@ -1673,7 +1659,7 @@ class BaoStockProcessor(QObject):
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
         self.logger.info(f"开始执行日线零轴上方MA24筛选，换手率：{turn}, 量比：{lb}")
-
+        board_index = 0
         dict_stock_info = BaostockDataManager().get_stock_info_dict()
         for board_name, board_data in dict_stock_info.items():
             if board_index > 1:
@@ -1718,7 +1704,7 @@ class BaoStockProcessor(QObject):
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
         self.logger.info(f"开始执行日线零轴上方MA10筛选，换手率：{turn}, 量比：{lb}")
-
+        board_index = 0
         dict_stock_info = BaostockDataManager().get_stock_info_dict()
         for board_name, board_data in dict_stock_info.items():
             if board_index > 1:
@@ -1765,7 +1751,7 @@ class BaoStockProcessor(QObject):
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
         self.logger.info(f"开始执行日线零轴下方方MA24-MA52筛选，换手率：{turn}, 量比：{lb}")
-
+        board_index = 0
         dict_stock_info = BaostockDataManager().get_stock_info_dict()
         for board_name, board_data in dict_stock_info.items():
             if board_index > 1:
@@ -1809,7 +1795,7 @@ class BaoStockProcessor(QObject):
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
         self.logger.info(f"开始执行日线零轴下方方MA5-MA52筛选，换手率：{turn}, 量比：{lb}")
-
+        board_index = 0
         dict_stock_info = BaostockDataManager().get_stock_info_dict()
         for board_name, board_data in dict_stock_info.items():
             if board_index > 1:
@@ -1854,7 +1840,7 @@ class BaoStockProcessor(QObject):
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
         self.logger.info(f"开始执行日线零轴下方MA52突破筛选，换手率：{turn}, 量比：{lb}")
-
+        board_index = 0
         dict_stock_info = BaostockDataManager().get_stock_info_dict()
         for board_name, board_data in dict_stock_info.items():
             if board_index > 1:
@@ -1897,7 +1883,7 @@ class BaoStockProcessor(QObject):
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
         self.logger.info(f"开始执行日线零轴下方MA24突破筛选，换手率：{turn}, 量比：{lb}")
-
+        board_index = 0
         dict_stock_info = BaostockDataManager().get_stock_info_dict()
         for board_name, board_data in dict_stock_info.items():
             if board_index > 1:
@@ -1945,7 +1931,7 @@ class BaoStockProcessor(QObject):
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
         self.logger.info(f"开始执行日线零轴下方双底筛选，换手率：{turn}, 量比：{lb}")
-
+        board_index = 0
         dict_stock_info = BaostockDataManager().get_stock_info_dict()
         for board_name, board_data in dict_stock_info.items():
             if board_index > 1:
@@ -1956,12 +1942,12 @@ class BaoStockProcessor(QObject):
                 try:
                     code = row['证券代码']  # 使用正确的列名
 
-                    if not self.filter_check(code, condition, False):
+                    if not self.filter_check(code, condition):
                         continue
 
                     df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, period)
                     
-                    ret = pf.get_last_adjust_period_deviate_status(df_filter_data)
+                    ret = pf.get_last_adjust_period_deviate_status(df_filter_data, period)
 
                     if ret <= 0:
                         continue

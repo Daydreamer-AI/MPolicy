@@ -56,9 +56,9 @@ class KLineOverviewWidget(QWidget):
 
             if 'm' in level:
                 time = df_current_row['time']
-                self.label_hours.setText(time)
+                self.label_hours.setText(str(time))
 
-            self.label_date.setText(date)
+            self.label_date.setText(str(date))
 
             self.label_value.setText(f"{y_val:.2f}")
             self.label_open.setText(f"{open:.2f}")

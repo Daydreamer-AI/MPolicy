@@ -112,6 +112,8 @@ class BaostockDataManager(QObject):
         with self.lock:
             df_data = self.stock_db_base.get_bao_stock_data(code, table_name)
 
+        df_data = df_data.dropna()
+
         if df_data is None or df_data.empty:
             return pd.DataFrame()
         
@@ -147,8 +149,8 @@ class BaostockDataManager(QObject):
             
             # 遍历该板块的每一行数据
             for index, row in board_data.iterrows():
-                if index > 100:
-                    break
+                # if index > 100:
+                #     break
 
                 try:
                     code = row['证券代码']

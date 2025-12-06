@@ -49,7 +49,7 @@ class PolicyFilterSettingDialog(QDialog):
         self.btn_ok.clicked.connect(self.solt_btn_ok_clicked)
 
     def qml_init(self):
-        self.quickWidget.setSource(QUrl.fromLocalFile("./gui/qml/setting/policy_filter_setting.qml")) # 加载QML文件
+        self.quickWidget.setSource(QUrl.fromLocalFile("./src/gui/qml/setting/policy_filter_setting.qml")) # 加载QML文件
 
         # 检查QML是否加载成功
         if self.quickWidget.status() == QQuickWidget.Error:

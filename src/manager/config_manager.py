@@ -28,7 +28,8 @@ class ConfigManager:
         
         self.logger = get_logger(__name__)
             
-        self._config_path = Path.home() / 'AppData' / 'Roaming' / '你的应用名' / 'config.ini' # 当前管理的配置文件路径
+        self._config_path = Path.home() / 'AppData' / 'Roaming' / 'MPolicy' / 'config.ini' # 当前管理的配置文件路径
+        self.logger.info(f"正在使用配置文件 '{self._config_path}'")
         self._config_data = configparser.ConfigParser() # 内存中的配置数据
         self._file_mtime = 0 # 记录文件最后修改时间，用于判断是否需重载
         self._lock = threading.RLock() # 实例级别的可重入锁，用于线程安全

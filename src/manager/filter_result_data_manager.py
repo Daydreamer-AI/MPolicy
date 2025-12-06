@@ -167,7 +167,7 @@ class FilterResultDataManger():
         :return: 保存成功返回True，失败返回False
         """
         # 拼接save_dir
-        relative_path = os.path.join(self.get_relative_path(period.value), file_name)
+        relative_path = os.path.join(self.get_relative_path(period), file_name)
         
         file_path = os.path.join(self.get_new_filter_result_dir(), relative_path)
 
