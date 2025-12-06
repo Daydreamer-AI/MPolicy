@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/">
+        <file>app.svg</file>
+        <file>icon/general/setting_disabled.svg</file>
+        <file>icon/general/setting_hover.svg</file>
+        <file>icon/general/setting_normal.svg</file>
+        <file>icon/general/setting_pressed.svg</file>
+        <file>icon/general/close_disabled.svg</file>
+        <file>icon/general/close_hover.svg</file>
+        <file>icon/general/close_normal.svg</file>
+        <file>icon/general/close_pressed.svg</file>
+        <file>icon/general/close_released.svg</file>
+        <file>theme/default/main.qss</file>
+        <file>theme/default/main/home.qss</file>
+        <file>theme/default/market/market.qss</file>
+        <file>theme/default/board/board.qss</file>
+        <file>theme/default/strategy/strategy.qss</file>
+        <file>theme/default/setting/setting.qss</file>
+    </qresource>
+</RCC>
