@@ -77,9 +77,9 @@ class MarketHomeWidget(QWidget):
         """
         super().showEvent(event)
 
-        if self.stackedWidget.currentWidget() == self.market_widget:
-            self.logger.info("MarketHomeWidget显示，更新股票数据")
-            self.market_widget.slot_bao_stock_data_load_finished(True)
+        # if self.stackedWidget.currentWidget() == self.market_widget:
+            # self.logger.info("MarketHomeWidget显示，更新股票数据")
+            # self.market_widget.slot_bao_stock_data_load_finished(True)
 
         
         # 检查当前是否处于等待状态，如果是则启动数据加载

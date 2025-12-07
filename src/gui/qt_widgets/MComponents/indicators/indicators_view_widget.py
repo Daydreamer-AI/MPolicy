@@ -50,7 +50,8 @@ class IndicatorsViewWidget(QWidget):
         # self.df_data列结构：date, code, name, open, high, low, close, volume, amount, change_percent, turnover_rate, adjustflag, diff, dea, macd, ma5, ma10, ma20, ma24, ma30, ma52, ma60, volume_ratio
         self.df_data = None                 # pd.DataFrame
 
-        self.dict_stock_data = None         # {TimePeriod: DataFrame}，只保存选中code的各个级别的k线数据
+        self.current_selected_code = ""
+        self.dict_stock_data = {}         # {TimePeriod: DataFrame}，只保存选中code的各个级别的k线数据
 
     def init_ui(self):
         
@@ -124,27 +125,31 @@ class IndicatorsViewWidget(QWidget):
         period_text = checked_btn.text()
         time_period = TimePeriod.from_label(period_text)
 
-        if time_period not in self.dict_stock_data:   # 暂无该级别数据
+        if time_period not in self.dict_stock_data.keys():   # 暂无该级别数据
             return pd.DataFrame()
     
         return self.dict_stock_data[time_period]
 
     def update_stock_data_dict(self, code):
+        checked_btn = self.period_button_group.checkedButton()
+        if checked_btn is None:
+            return pd.DataFrame()
+        
+        if code != self.current_selected_code:
+            # self.logger.info(f"self.current_selected_code为{self.current_selected_code}，code为{code}")
+            self.dict_stock_data.clear()
+            self.current_selected_code = code
+        
+        period_text = checked_btn.text()
+        time_period = TimePeriod.from_label(period_text)
+        
         bao_stock_data_manager = BaostockDataManager()
-        df_1d_stock_data = bao_stock_data_manager.get_stock_data_from_db_by_period_with_indicators_auto(code, TimePeriod.DAY)
-        df_1w_stock_data = bao_stock_data_manager.get_stock_data_from_db_by_period_with_indicators_auto(code, TimePeriod.WEEK)
-        df_15m_stock_data = bao_stock_data_manager.get_stock_data_from_db_by_period_with_indicators_auto(code, TimePeriod.MINUTE_15)
-        df_30m_stock_data = bao_stock_data_manager.get_stock_data_from_db_by_period_with_indicators_auto(code, TimePeriod.MINUTE_30)
-        df_60m_stock_data = bao_stock_data_manager.get_stock_data_from_db_by_period_with_indicators_auto(code, TimePeriod.MINUTE_60)
+        df_time_period_stock_data = bao_stock_data_manager.get_stock_data_from_db_by_period_with_indicators_auto(code, time_period)
 
-        self.dict_stock_data = {
-            TimePeriod.DAY: df_1d_stock_data,
-            TimePeriod.WEEK: df_1w_stock_data,
-            TimePeriod.MINUTE_15: df_15m_stock_data,
-            TimePeriod.MINUTE_30: df_30m_stock_data,
-            TimePeriod.MINUTE_60: df_60m_stock_data
-        }
-
+        if self.dict_stock_data:
+            self.dict_stock_data[time_period] = df_time_period_stock_data
+        else:
+            self.dict_stock_data = {time_period: df_time_period_stock_data}
     def show_default_indicator(self):
         self.btn_indicator_volume.setChecked(True)
         self.slot_btn_indicator_volume_clicked()
