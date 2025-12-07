@@ -40,12 +40,14 @@ class ReviewDialog(QDialog):
     def load_data_test(self):
         filter_result = ['sh.600000']
         bao_stock_data_manager = BaostockDataManager()
-        new_dict_lastest_1d_stock_data = bao_stock_data_manager.get_lastest_stock_data_dict_by_code_list(filter_result)
+        new_dict_lastest_1d_stock_data = bao_stock_data_manager.get_lastest_row_data_dict_by_code_list_auto(filter_result)
         self.logger.info(f"new_dict_lastest_1d_stock_data: {new_dict_lastest_1d_stock_data}")
 
         if new_dict_lastest_1d_stock_data:
-            self.indicators_view_widget.update_stock_data_dict(new_dict_lastest_1d_stock_data)
+            self.indicators_view_widget.update_stock_data_dict('sh.600000')
             data = new_dict_lastest_1d_stock_data['sh.600000'].iloc[-1]
             self.indicators_view_widget.update_chart(data)
         else:
             self.logger.info(f"结果为空")
+
+

@@ -45,36 +45,36 @@ class IndustryBoardWidget(QWidget):
             return
         
         # 获取更详细的统计信息
-        if 'total_amount' in df_lastest_industry_data.columns and 'industry_name' in df_lastest_industry_data.columns:
-            # 按总成交额排序
-            df_sorted = df_lastest_industry_data.sort_values('total_amount', ascending=False)
+        # if 'total_amount' in df_lastest_industry_data.columns and 'industry_name' in df_lastest_industry_data.columns:
+        #     # 按总成交额排序
+        #     df_sorted = df_lastest_industry_data.sort_values('total_amount', ascending=False)
             
-            # 获取前10个行业
-            top_10_industries = df_sorted.head(10)
+        #     # 获取前10个行业
+        #     top_10_industries = df_sorted.head(10)
             
-            # 获取后10个行业
-            bottom_10_industries = df_sorted.tail(10)
+        #     # 获取后10个行业
+        #     bottom_10_industries = df_sorted.tail(10)
             
-            total_amount_sum = df_lastest_industry_data['total_amount'].sum()
-            total_amount_mean = df_lastest_industry_data['total_amount'].mean()
-            total_amount_max = df_lastest_industry_data['total_amount'].max()
-            total_amount_min = df_lastest_industry_data['total_amount'].min()
+        #     total_amount_sum = df_lastest_industry_data['total_amount'].sum()
+        #     total_amount_mean = df_lastest_industry_data['total_amount'].mean()
+        #     total_amount_max = df_lastest_industry_data['total_amount'].max()
+        #     total_amount_min = df_lastest_industry_data['total_amount'].min()
             
-            self.logger.info(f"获取最新行业板块数据成功，数量: {len(df_lastest_industry_data)}")
-            self.logger.info(f"总成交额统计 - 总和: {total_amount_sum:.2f} 亿, 平均: {total_amount_mean:.2f} 亿, 最大: {total_amount_max:.2f} 亿, 最小: {total_amount_min:.2f} 亿")
+        #     self.logger.info(f"获取最新行业板块数据成功，数量: {len(df_lastest_industry_data)}")
+        #     self.logger.info(f"总成交额统计 - 总和: {total_amount_sum:.2f} 亿, 平均: {total_amount_mean:.2f} 亿, 最大: {total_amount_max:.2f} 亿, 最小: {total_amount_min:.2f} 亿")
             
-            # 输出前10个行业
-            self.logger.info("=== 总成交额前10行业 ===")
-            for i, (index, row) in enumerate(top_10_industries.iterrows(), 1):
-                self.logger.info(f"  {i:2d}. {row['industry_name']:<20} {row['total_amount']:>8.2f} 亿")
+        #     # 输出前10个行业
+        #     self.logger.info("=== 总成交额前10行业 ===")
+        #     for i, (index, row) in enumerate(top_10_industries.iterrows(), 1):
+        #         self.logger.info(f"  {i:2d}. {row['industry_name']:<20} {row['total_amount']:>8.2f} 亿")
             
-            # 输出后10个行业
-            self.logger.info("=== 总成交额后10行业 ===")
-            for i, (index, row) in enumerate(bottom_10_industries.iterrows(), 1):
-                self.logger.info(f"  {i:2d}. {row['industry_name']:<20} {row['total_amount']:>8.2f} 亿")
-        else:
-            self.logger.warning("数据中不包含 total_amount 或 industry_name 字段")
-            self.logger.info(f"获取最新行业板块数据成功，数量: {len(df_lastest_industry_data)}")
+        #     # 输出后10个行业
+        #     self.logger.info("=== 总成交额后10行业 ===")
+        #     for i, (index, row) in enumerate(bottom_10_industries.iterrows(), 1):
+        #         self.logger.info(f"  {i:2d}. {row['industry_name']:<20} {row['total_amount']:>8.2f} 亿")
+        # else:
+        #     self.logger.warning("数据中不包含 total_amount 或 industry_name 字段")
+        #     self.logger.info(f"获取最新行业板块数据成功，数量: {len(df_lastest_industry_data)}")
         
         self.listWidget_card.clear()
         first_item_data = None  # 保存第一个item的数据

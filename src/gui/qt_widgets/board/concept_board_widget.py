@@ -83,36 +83,36 @@ class ConceptBoardWidget(QWidget):
             self.logger.warning("数据中不包含 rise_fall_count 字段")
         
         # 获取更详细的统计信息
-        if 'turnover' in df_lastest_concept_data.columns and 'concept_name' in df_lastest_concept_data.columns:
-            # 按总成交额排序
-            df_sorted = df_lastest_concept_data.sort_values('turnover', ascending=False)
+        # if 'turnover' in df_lastest_concept_data.columns and 'concept_name' in df_lastest_concept_data.columns:
+        #     # 按总成交额排序
+        #     df_sorted = df_lastest_concept_data.sort_values('turnover', ascending=False)
             
-            # 获取前10个行业
-            top_10_industries = df_sorted.head(10)
+        #     # 获取前10个行业
+        #     top_10_industries = df_sorted.head(10)
             
-            # 获取后10个行业
-            bottom_10_industries = df_sorted.tail(10)
+        #     # 获取后10个行业
+        #     bottom_10_industries = df_sorted.tail(10)
             
-            total_amount_sum = df_lastest_concept_data['turnover'].sum()
-            total_amount_mean = df_lastest_concept_data['turnover'].mean()
-            total_amount_max = df_lastest_concept_data['turnover'].max()
-            total_amount_min = df_lastest_concept_data['turnover'].min()
+        #     total_amount_sum = df_lastest_concept_data['turnover'].sum()
+        #     total_amount_mean = df_lastest_concept_data['turnover'].mean()
+        #     total_amount_max = df_lastest_concept_data['turnover'].max()
+        #     total_amount_min = df_lastest_concept_data['turnover'].min()
             
-            self.logger.info(f"获取最新概念板块数据成功，数量: {len(df_lastest_concept_data)}")
-            self.logger.info(f"总成交额统计 - 总和: {total_amount_sum:.2f} 亿, 平均: {total_amount_mean:.2f} 亿, 最大: {total_amount_max:.2f} 亿, 最小: {total_amount_min:.2f} 亿")
+        #     self.logger.info(f"获取最新概念板块数据成功，数量: {len(df_lastest_concept_data)}")
+        #     self.logger.info(f"总成交额统计 - 总和: {total_amount_sum:.2f} 亿, 平均: {total_amount_mean:.2f} 亿, 最大: {total_amount_max:.2f} 亿, 最小: {total_amount_min:.2f} 亿")
             
-            # 输出前10个行业
-            self.logger.info("=== 总成交额前10行业 ===")
-            for i, (index, row) in enumerate(top_10_industries.iterrows(), 1):
-                self.logger.info(f"  {i:2d}. {row['concept_name']:<20} {row['turnover']:>8.2f} 亿")
+        #     # 输出前10个行业
+        #     self.logger.info("=== 总成交额前10行业 ===")
+        #     for i, (index, row) in enumerate(top_10_industries.iterrows(), 1):
+        #         self.logger.info(f"  {i:2d}. {row['concept_name']:<20} {row['turnover']:>8.2f} 亿")
             
-            # 输出后10个行业
-            self.logger.info("=== 总成交额后10行业 ===")
-            for i, (index, row) in enumerate(bottom_10_industries.iterrows(), 1):
-                self.logger.info(f"  {i:2d}. {row['concept_name']:<20} {row['turnover']:>8.2f} 亿")
-        else:
-            self.logger.warning("数据中不包含 turnover 或 concept_name 字段")
-            self.logger.info(f"获取最新行业板块数据成功，数量: {len(df_lastest_concept_data)}")
+        #     # 输出后10个行业
+        #     self.logger.info("=== 总成交额后10行业 ===")
+        #     for i, (index, row) in enumerate(bottom_10_industries.iterrows(), 1):
+        #         self.logger.info(f"  {i:2d}. {row['concept_name']:<20} {row['turnover']:>8.2f} 亿")
+        # else:
+        #     self.logger.warning("数据中不包含 turnover 或 concept_name 字段")
+        #     self.logger.info(f"获取最新行业板块数据成功，数量: {len(df_lastest_concept_data)}")
         
         self.listWidget_card.clear()
         first_item_data = None  # 保存第一个item的数据

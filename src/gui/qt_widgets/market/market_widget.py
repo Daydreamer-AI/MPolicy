@@ -78,6 +78,7 @@ class MarketWidget(QWidget):
 
             self.listWidget_card.setItemWidget(item, stock_card_widget)
 
+            # self.logger.info(f"row的类型为：{type(row)}")
             name = row['name']
             option = f"{name} - {code}"
             search_option_list.append(option)
@@ -127,7 +128,7 @@ class MarketWidget(QWidget):
         # self.logger.info(f"Baostock股票数据加载完成，结果为：{succsess}")
         if succsess:
             bao_stock_data_manager = BaostockDataManager()
-            new_dict_lastest_1d_stock_data = bao_stock_data_manager.get_all_lastest_row_data_dict_by_period_with_indicators()
+            new_dict_lastest_1d_stock_data = bao_stock_data_manager.get_all_lastest_row_data_dict_by_period_auto()
            
             self.logger.info(f"成功获取股票数据，日线数据数量为：{len(new_dict_lastest_1d_stock_data)}")
 
@@ -146,6 +147,8 @@ class MarketWidget(QWidget):
                 self.set_current_dict_1d_stock_keys = new_set_lastest_1d_stock_keys
                 self.update_stock_data_dict(new_dict_lastest_1d_stock_data)
                 self.logger.info("成功加载股票K线指标图")
+            else:
+                self.logger.info("数据未发生变化，不需要更新")
     def slot_bao_stock_data_load_progress(self, progress):
         self.logger.info(f"Baostock股票数据加载进度：{progress}")
         

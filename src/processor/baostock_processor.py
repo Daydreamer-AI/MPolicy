@@ -176,69 +176,7 @@ class BaoStockProcessor(QObject):
         """
         遍历所有股票代码并进行处理
         """
-        return True
-        total_count = 0
-
-        dict_daily_stock_data = {}
-        dict_weekly_stock_data = {}
-        
-        # 遍历所有板块
-        board_index = 0
-
-        self.logger.info(f"开始读取本地数据库日线、周线股票数据...")
-        start_time = time.time()  # 记录开始时间
-
-        dict_stock_info = BaostockDataManager().get_all_stock_info()
-        for board_name, board_data in dict_stock_info.items():
-            if board_index > 1:
-                break
-            board_index += 1
-
-            self.logger.info(f"读取 {board_name} 板块...")
-            board_start_time = time.time()  # 记录开始时间
-            
-            # 遍历该板块的每一行数据
-            for index, row in board_data.iterrows():
-                if index > 100:
-                    break
-
-                try:
-                    stock_code = row['证券代码']
-                    stock_name = row['证券名称'] if '证券名称' in row else '未知'
-                    
-                    # 获取日线和周线数据
-                    daily_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(stock_code, TimePeriod.DAY)
-                    weekly_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(stock_code, TimePeriod.DAY)
-                    
-                    # 检查数据是否为None，如果是则创建空的DataFrame
-                    if daily_data is None or daily_data.empty:
-                        continue
-                    
-                    if weekly_data is None or weekly_data.empty:
-                        continue
-                        
-
-                    # 存储数据
-                    dict_daily_stock_data[stock_code] = daily_data
-                    dict_weekly_stock_data[stock_code] = weekly_data
-                    
-                    total_count += 1
-                    
-                except Exception as e:
-                    self.logger.error(f"处理股票 {stock_code} 时发生错误: {str(e)}")
-                    self.logger.error(traceback.format_exc())
-                    # 继续处理下一个股票
-                    continue
-
-            board_read_elapsed_time = time.time() - board_start_time  # 计算耗时
-            self.logger.info(f"读取完成，共读取{total_count}只股票，耗时: {board_read_elapsed_time:.2f}秒，即{board_read_elapsed_time/60:.2f}分钟")
-
-        
-        all_read_elapsed_time = time.time() - start_time  # 计算耗时
-        self.logger.info(f"读取完成，总耗时: {all_read_elapsed_time:.2f}秒，即{all_read_elapsed_time/60:.2f}分钟")
-
-        self.logger.info(f"总共处理了 {total_count} 只股票")
-        return True  
+        return BaostockDataManager().load_1d_local_stock_data()
     
 
     # --------------------------------------------------------------------
@@ -1613,7 +1551,8 @@ class BaoStockProcessor(QObject):
         filter_result = []
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
-        self.logger.info(f"开始执行日线零轴上方MA52筛选，换手率： {turn}, 量比：{lb}")
+        b_weekly = pf.get_weekly_condition()
+        self.logger.info(f"开始执行日线零轴上方MA52筛选，换手率： {turn}, 量比：{lb}，是否启用周线筛选条件：{b_weekly}")
         board_index = 0
         dict_stock_info = BaostockDataManager().get_stock_info_dict()
         for board_name, board_data in dict_stock_info.items():
@@ -1628,8 +1567,12 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, period)
-                    weekly_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, TimePeriod.WEEK)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period)
+
+                    if b_weekly:
+                        weekly_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, TimePeriod.WEEK)
+                    else:
+                        weekly_data = None
 
                     if pf.daily_up_ma52_filter(df_filter_data, weekly_data, period):
                         filter_result.append(code)
@@ -1658,7 +1601,8 @@ class BaoStockProcessor(QObject):
         filter_result = []
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
-        self.logger.info(f"开始执行日线零轴上方MA24筛选，换手率：{turn}, 量比：{lb}")
+        b_weekly = pf.get_weekly_condition()
+        self.logger.info(f"开始执行日线零轴上方MA24筛选，换手率：{turn}, 量比：{lb}, 是否启用周线筛选条件：{b_weekly}")
         board_index = 0
         dict_stock_info = BaostockDataManager().get_stock_info_dict()
         for board_name, board_data in dict_stock_info.items():
@@ -1673,8 +1617,12 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, period)
-                    weekly_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, TimePeriod.WEEK)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period)
+
+                    if b_weekly:
+                        weekly_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, TimePeriod.WEEK)
+                    else:
+                        weekly_data = None
 
                     
                     if pf.daily_up_ma24_filter(df_filter_data, weekly_data, period):
@@ -1718,7 +1666,7 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, period)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period)
                     
                     if pf.daily_up_ma10_filter(df_filter_data, period):
                         filter_result.append(code)
@@ -1750,7 +1698,8 @@ class BaoStockProcessor(QObject):
         filter_result = []
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
-        self.logger.info(f"开始执行日线零轴下方方MA24-MA52筛选，换手率：{turn}, 量比：{lb}")
+        b_weekly = pf.get_weekly_condition()
+        self.logger.info(f"开始执行日线零轴下方方MA24-MA52筛选，换手率：{turn}, 量比：{lb}, 是否启用周线筛选条件：{b_weekly}")
         board_index = 0
         dict_stock_info = BaostockDataManager().get_stock_info_dict()
         for board_name, board_data in dict_stock_info.items():
@@ -1765,8 +1714,11 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, period)
-                    weekly_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, TimePeriod.WEEK)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period)
+                    if b_weekly:
+                        weekly_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, TimePeriod.WEEK)
+                    else:
+                        weekly_data = None
                     
                     if pf.daily_down_between_ma24_ma52_filter(df_filter_data, weekly_data, period):
                         filter_result.append(code)
@@ -1794,7 +1746,8 @@ class BaoStockProcessor(QObject):
         filter_result = []
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
-        self.logger.info(f"开始执行日线零轴下方方MA5-MA52筛选，换手率：{turn}, 量比：{lb}")
+        b_weekly = pf.get_weekly_condition()
+        self.logger.info(f"开始执行日线零轴下方方MA5-MA52筛选，换手率：{turn}, 量比：{lb}，是否启用周线筛选条件：{b_weekly}")
         board_index = 0
         dict_stock_info = BaostockDataManager().get_stock_info_dict()
         for board_name, board_data in dict_stock_info.items():
@@ -1809,8 +1762,11 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, period)
-                    weekly_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, TimePeriod.WEEK)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period)
+                    if b_weekly:
+                        weekly_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, TimePeriod.WEEK)
+                    else:
+                        weekly_data = None
                     
                     if pf.daily_down_between_ma5_ma52_filter(df_filter_data, weekly_data, period):
                         filter_result.append(code)
@@ -1854,7 +1810,7 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, period)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period)
                     
                     if pf.daily_down_breakthrough_ma52_filter(df_filter_data):
                         filter_result.append(code)
@@ -1897,7 +1853,7 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, period)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period)
                     
                     if pf.daily_down_breakthrough_ma24_filter(df_filter_data):
                         filter_result.append(code)
@@ -1945,7 +1901,7 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators(code, period)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period)
                     
                     ret = pf.get_last_adjust_period_deviate_status(df_filter_data, period)
 

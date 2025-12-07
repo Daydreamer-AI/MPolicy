@@ -142,8 +142,8 @@ def daily_up_ma52_filter(df_filter_data, df_weekly_data, period=TimePeriod.DAY):
         止盈位：有效反弹看前高
         止损位：有效跌破日线MA52或MA60清仓离场，等待日线零轴下方或大级别的零轴上方机会。
     '''
-    if df_filter_data.empty or df_weekly_data.empty:
-        logger.info("筛选数据或周线数据为空！")
+    if df_filter_data.empty:
+        logger.info("筛选数据数据为空！")
         return False
 
     if not columns_check(df_filter_data, ('date', 'close', 'diff', 'dea', 'ma5', 'ma10', 'ma24', 'ma30',  'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
@@ -164,24 +164,26 @@ def daily_up_ma52_filter(df_filter_data, df_weekly_data, period=TimePeriod.DAY):
     day_turn = last_day_row['turnover_rate'].item()
     day_lb = last_day_row['volume_ratio'].item()
 
+    if b_weekly_condition and df_weekly_data is not None and not df_weekly_data.empty:
+        if not columns_check(df_weekly_data, ('date', 'close', 'dea', 'ma52')):
+            logger.info("周线列名不存在！")
+            return False
+        
+        last_week_row = df_weekly_data.tail(1)
+        week_close = last_week_row['close'].item()
+        week_dea = last_week_row['dea'].item()
+        week_ma52 = last_week_row['ma52'].item()
 
-    if not columns_check(df_weekly_data, ('date', 'close', 'dea', 'ma52')):
-        logger.info("周线列名不存在！")
-        return False
-    
-    last_week_row = df_weekly_data.tail(1)
-    week_close = last_week_row['close'].item()
-    week_dea = last_week_row['dea'].item()
-    week_ma52 = last_week_row['ma52'].item()
-
+        b_ret_2 = (week_close > week_ma52 and week_dea > 0) if b_weekly_condition else True
+    else:
+        b_ret_2 = True
 
     # day_diff = day_ma52 * policy_filter_ma52_diff
     # logger.info(f"day_close: {day_close}, day_dea: {day_dea}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
     # logger.info(f"week_close: {week_close}, week_ma52: {week_ma52}")
 
     b_ret = True if TimePeriod.is_minute_level(period) else (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
-    b_ret_2 = (week_close > week_ma52 and week_dea > 0) if b_weekly_condition else True
-
+    
     b_ret_3 = day_dea > 0 and day_dif > 0
     b_ret_4 = (day_close >= day_ma52) and (day_close <= day_ma24) and day_close <= day_ma5
     b_ret_5 = day_ma5 <= day_ma10 and day_ma5 <= day_ma24 and day_ma5 >= day_ma52 and day_ma24 >= day_ma52
@@ -207,7 +209,7 @@ def daily_up_ma24_filter(df_filter_data, df_weekly_data, period=TimePeriod.DAY):
         止盈位：有效反弹看前高
         止损位：有效跌破日线MA24或MA30清仓离场，等待日线MA52机会。
     '''
-    if df_filter_data.empty or df_weekly_data.empty:
+    if df_filter_data.empty:
         return False
     
     
@@ -227,20 +229,22 @@ def daily_up_ma24_filter(df_filter_data, df_weekly_data, period=TimePeriod.DAY):
     day_turn = last_day_row['turnover_rate'].item()
     day_lb = last_day_row['volume_ratio'].item()
 
-
-    if not columns_check(df_weekly_data, ('date', 'close', 'ma52')):
-        return False
-    
-    last_week_row = df_weekly_data.tail(1)
-    week_close = last_week_row['close'].item()
-    week_ma52 = last_week_row['ma52'].item()
+    if b_weekly_condition and df_weekly_data is not None and not df_weekly_data.empty:
+        if not columns_check(df_weekly_data, ('date', 'close', 'ma52')):
+            return False
+        
+        last_week_row = df_weekly_data.tail(1)
+        week_close = last_week_row['close'].item()
+        week_ma52 = last_week_row['ma52'].item()
+        b_ret_2 = (week_close > week_ma52) if b_weekly_condition else True
+    else:
+        b_ret_2 = True
 
     # day_diff = day_ma52 * policy_filter_ma52_diff
     # logger.info(f"day_close: {day_close}, day_dea: {day_dea}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
     # logger.info(f"week_close: {week_close}, week_ma52: {week_ma52}")
 
     b_ret = True if TimePeriod.is_minute_level(period) else (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
-    b_ret_2 = (week_close > week_ma52) if b_weekly_condition else True
 
     b_ret_3 = day_dea > 0 and day_dif > 0
     b_ret_4 = (day_close >= day_ma20 or day_close >= day_ma24) and (day_close <= day_ma5 or day_close <= day_ma10)# abs(day_close - day_ma24) < day_ma24 * policy_filter_ma24_diff
@@ -351,7 +355,7 @@ def daily_down_between_ma24_ma52_filter(df_filter_data, df_weekly_data, period=T
         止盈：趋势行情，有效站上日线零轴上方后参考前高止盈。
         止损：跌破日线MA24清仓离场。也可参考下面60分钟MA52,跌破60分钟MA52离场。
     '''
-    if df_filter_data.empty or df_weekly_data.empty:
+    if df_filter_data.empty:
         return False
     
     if not columns_check(df_filter_data, ('date', 'close', 'dea', 'ma24', 'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
@@ -383,31 +387,36 @@ def daily_down_between_ma24_ma52_filter(df_filter_data, df_weekly_data, period=T
     day_turn = last_day_row['turnover_rate'].item()
     day_lb = last_day_row['volume_ratio'].item()
 
-
-    if not columns_check(df_weekly_data, ('date', 'close', 'dea', 'ma52')):
-        return False
-    
-    if s_filter_date == '':
-        last_week_row = df_weekly_data.tail(1)
-    else:
-        # 筛选出日期小于等于s_filter_date的所有行，然后取最后一行（因为日期是升序排列）
-        filtered_data = df_weekly_data[df_weekly_data['date'] <= s_filter_date]
-        if not filtered_data.empty:
-            last_week_row = filtered_data.iloc[-1]  # 获取最后一行，即最接近s_filter_date的那一行
-            # logger.info(f"last_week_row的日期: {last_week_row['date']}")
-        else:
-            # 处理没有找到符合条件的行的情况
-            last_week_row = None
-            logger.info(f"未找到日期 {s_filter_date} 前的周线数据")
+    if b_weekly_condition and df_weekly_data is not None and not df_weekly_data.empty:
+        if not columns_check(df_weekly_data, ('date', 'close', 'dea', 'ma52')):
             return False
+    
+        if s_filter_date == '':
+            last_week_row = df_weekly_data.tail(1)
+        else:
+            # 筛选出日期小于等于s_filter_date的所有行，然后取最后一行（因为日期是升序排列）
+            filtered_data = df_weekly_data[df_weekly_data['date'] <= s_filter_date]
+            if not filtered_data.empty:
+                last_week_row = filtered_data.iloc[-1]  # 获取最后一行，即最接近s_filter_date的那一行
+                # logger.info(f"last_week_row的日期: {last_week_row['date']}")
+            else:
+                # 处理没有找到符合条件的行的情况
+                last_week_row = None
+                logger.info(f"未找到日期 {s_filter_date} 前的周线数据")
+                return False
 
-    week_close = last_week_row['close'].item()
-    week_dea = last_week_row['dea'].item()
-    week_ma52 = last_week_row['ma52'].item()
+        week_close = last_week_row['close'].item()
+        week_dea = last_week_row['dea'].item()
+        week_ma52 = last_week_row['ma52'].item()
+        b_ret_2 = (week_close > week_ma52 and week_dea > 0) if b_weekly_condition else True
+    else:
+        b_ret_2 = True
+        week_close = 0.0
+        week_dea = 0.0
+        week_ma52 = 0.0
 
     b_ret = True if TimePeriod.is_minute_level(period) else (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
-    b_ret_2 = (week_close > week_ma52 and week_dea > 0) if b_weekly_condition else True
-
+    
     b_ret_3 = day_dea < 0
     b_ret_4 = (day_close <= day_ma52 or day_close <= day_ma60) and (day_close >= day_ma24)
     b_ret_5 = (day_ma24 < day_ma52 or day_ma24 < day_ma60) and day_ma52 <= day_ma60
@@ -442,7 +451,7 @@ def daily_down_between_ma5_ma52_filter(df_filter_data, df_weekly_data, period=Ti
         止盈：参考日线MA52或MA60附近止盈。
         止损：跌破日线MA5或底部区间低点清仓离场。也可参考下面30分钟MA52,跌破30分钟MA52离场。
     '''
-    if df_filter_data.empty or df_weekly_data.empty:
+    if df_filter_data.empty:
         return False
     
     if not columns_check(df_filter_data, ('date', 'close', 'dea', 'ma5', 'ma10', 'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
@@ -461,21 +470,24 @@ def daily_down_between_ma5_ma52_filter(df_filter_data, df_weekly_data, period=Ti
     day_turn = last_day_row['turnover_rate'].item()
     day_lb = last_day_row['volume_ratio'].item()
 
+    if b_weekly_condition and df_weekly_data is not None and not df_weekly_data.empty:
+        if not columns_check(df_weekly_data, ('date', 'close', 'dea', 'ma52')):
+            return False
 
-    if not columns_check(df_weekly_data, ('date', 'close', 'dea', 'ma52')):
-        return False
+        last_week_row = df_weekly_data.tail(1)
+        week_close = last_week_row['close'].item()
+        week_dea = last_week_row['dea'].item()
+        week_ma52 = last_week_row['ma52'].item()
 
-    last_week_row = df_weekly_data.tail(1)
-    week_close = last_week_row['close'].item()
-    week_dea = last_week_row['dea'].item()
-    week_ma52 = last_week_row['ma52'].item()
+        b_ret_2 = (week_close > week_ma52 and week_dea > 0) if b_weekly_condition else True
+    else:
+        b_ret_2 = True
         
     # day_diff = day_ma52 * policy_filter_ma52_diff
     # logger.info(f"day_close: {day_close}, day_dea: {day_dea}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, diff: {day_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
     # logger.info(f"week_close: {week_close}, week_ma52: {week_ma52}")
 
     b_ret = True if TimePeriod.is_minute_level(period) else (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
-    b_ret_2 = (week_close > week_ma52 and week_dea > 0) if b_weekly_condition else True
 
     b_ret_3 = day_dea < 0
     b_ret_4 = (day_close <= day_ma52 or day_close <= day_ma60) and (day_close >= day_ma5 or day_close >= day_ma10)
@@ -578,7 +590,7 @@ def daily_down_double_bottom_filter(df_filter_data, df_weekly_data, b_weekly_fil
         止盈：短期看日线MA52压力止盈；若成功突破日线MA52压力，则可做有效反弹的趋势行情。
         止损：跌破前低清仓离场。
     '''
-    if df_filter_data.empty or df_weekly_data.empty:
+    if df_filter_data.empty:
         return False
     
     # logger.info(df_filter_data.tail(10))
@@ -603,14 +615,19 @@ def daily_down_double_bottom_filter(df_filter_data, df_weekly_data, b_weekly_fil
     if day_diff >= 0 or day_dea >= 0 and day_ma24 >= day_ma52:
         return False
     
-    if not columns_check(df_weekly_data, ('date', 'close', 'dea', 'ma52')):
-        return False
-    
-    last_week_row = df_weekly_data.tail(1)
-    week_close = last_week_row['close'].item()
-    week_dea = last_week_row['dea'].item()
-    week_ma52 = last_week_row['ma52'].item()
-    # week_ma60 = last_week_row['ma52'].item()  # 周线没有维护MA60
+    if b_weekly_condition and df_weekly_data is not None and not df_weekly_data.empty:
+        if not columns_check(df_weekly_data, ('date', 'close', 'dea', 'ma52')):
+            return False
+        
+        last_week_row = df_weekly_data.tail(1)
+        week_close = last_week_row['close'].item()
+        week_dea = last_week_row['dea'].item()
+        week_ma52 = last_week_row['ma52'].item()
+        # week_ma60 = last_week_row['ma52'].item()  # 周线没有维护MA60
+
+        b_ret_5 = (week_dea >= 0) if b_weekly_condition else True
+    else:
+        b_ret_5 = True
         
 
     # logger.info("find_lowest_after_dea_cross_below_zero")
@@ -624,7 +641,7 @@ def daily_down_double_bottom_filter(df_filter_data, df_weekly_data, b_weekly_fil
     b_ret_3 = day_ma5 <= day_ma24 and day_ma24 < day_ma52
     b_ret_4 = neck_line >= day_ma10
     
-    b_ret_5 = (week_dea >= 0) if b_weekly_condition else True
+    
 
     if b_ret and b_ret_2 and b_ret_3 and b_ret_4 and b_ret_5:
         code = last_day_row['code'].item()

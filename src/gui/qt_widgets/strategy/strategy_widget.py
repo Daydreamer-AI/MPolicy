@@ -154,7 +154,7 @@ class StrategyWidget(QWidget):
         self.logger.info(f"策略结果：\n{filter_result[:3]}...{filter_result[-3:]}\n策略结果数量：{len(filter_result)}")
         self.update_date_and_count_labels(lastest_stock_data_date, len(filter_result), period)
         
-        new_dict_lastest_1d_stock_data = BaostockDataManager().get_lastest_stock_data_dict_by_code_list(filter_result)
+        new_dict_lastest_1d_stock_data = BaostockDataManager().get_lastest_row_data_dict_by_code_list_auto(filter_result)
         self.logger.info(f"new_dict_lastest_1d_stock_data 长度: {len(new_dict_lastest_1d_stock_data)}")
         if new_dict_lastest_1d_stock_data is not None or len(new_dict_lastest_1d_stock_data) > 0:
             self.strategy_result_show_widget.update_stock_data_dict(new_dict_lastest_1d_stock_data)

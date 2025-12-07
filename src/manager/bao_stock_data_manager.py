@@ -44,6 +44,7 @@ class BaostockDataManager(QObject):
 
         self.dict_stocks_info = {}  # {'board': pd.DataFrame()}, 示例：{'sh_main' : pd.DataFrame()}
         # self.dict_stock_data = {}   # {'TimePeriod': {'code': DataFrame}}，示例：{'TimePeriod.Day': {'sh.600000': pd.DataFrame()}}
+        self.dict_lastest_1d_stock_data = {}  # {code : pd.DataFrame}, 仅缓存最后一行数据用于快速加载股票list列表
 
         self.stock_info_db_base = StockInfoDBBasePool().get_manager(1)
         self.stock_db_base = StockDbBase("./data/database/stocks/db/baostock")
@@ -53,6 +54,15 @@ class BaostockDataManager(QObject):
     def get_stock_info_dict(self):
         with self.lock:
             return MappingProxyType(self.dict_stocks_info)
+        
+    def get_lastest_1d_stock_data_dict_from_cache(self):
+        '''
+            返回缓存中的最后一天（行）的股票数据
+            return: dict, {code : DataFrame}
+        '''
+        with self.lock:
+            return MappingProxyType(self.dict_lastest_1d_stock_data)
+
 
     # ----------------------stock_info相关接口-----------------------------------------
     def get_all_stocks_from_db(self):
@@ -62,28 +72,41 @@ class BaostockDataManager(QObject):
             self.dict_stocks_info['gem'] = self.stock_info_db_base.get_gem_stocks()
             self.dict_stocks_info['star'] = self.stock_info_db_base.get_star_stocks()
 
-        # sh_main_count = len(self.dict_stocks_info['sh_main'])
-        # sz_main_count = len(self.dict_stocks_info['sz_main'])
-        # self.logger.info(f"沪A主板股票数量：{sh_main_count}")
-        # self.logger.info(f"深A主板股票数量：{sz_main_count}")
+        sh_main_count = len(self.dict_stocks_info['sh_main'])
+        sz_main_count = len(self.dict_stocks_info['sz_main'])
+        self.logger.info(f"沪A主板股票数量：{sh_main_count}")
+        self.logger.info(f"深A主板股票数量：{sz_main_count}")
 
     def save_stock_info_to_db(self, df_data, writeWay="replace", board='sh_main'):
         with self.lock:
             self.stock_info_db_base.save_tao_stocks_to_db(df_data, writeWay, board)
 
     def get_stock_name_by_code(self, code):
-        board_name = identify_stock_board(code)
+        try:
+            board_name = identify_stock_board(code)
+            
+            if board_name not in self.dict_stocks_info:
+                return None
 
-        with self.lock:
-            df_board_data = self.dict_stocks_info[board_name]
-        
-        # 使用布尔索引查找匹配的行
-        mask = df_board_data['证券代码'] == code
-        matched_rows = df_board_data[mask]
-        
-        if not matched_rows.empty:
-            return matched_rows.iloc[0]['证券名称']
-        else:
+            with self.lock:
+                df_board_data = self.dict_stocks_info[board_name]
+            
+            if df_board_data.empty:
+                return None
+                
+            # 使用query方法（更直观）
+            matched_row = df_board_data[df_board_data['证券代码'] == code]
+            
+            if not matched_row.empty:
+                return matched_row.iloc[0].get('证券名称', '未知')
+            else:
+                return None
+                
+        except (KeyError, IndexError) as e:
+            self.logger.debug(f"未找到股票 {code} 的名称: {e}")
+            return None
+        except Exception as e:
+            self.logger.error(f"获取股票 {code} 名称时出错: {e}")
             return None
         
     # ----------------------stock_db_base相关接口-----------------------------------------
@@ -105,7 +128,76 @@ class BaostockDataManager(QObject):
         with self.lock:
             self.stock_db_base.create_baostock_table_index(db_path, table_name)
 
+    def load_1d_local_stock_data(self):
+        """
+        加载日线股票数据
+        """
+        self.get_all_lastest_row_data_dict_by_period(TimePeriod.DAY)
+        return True
+        total_count = 0
+
+        dict_daily_stock_data = {}
+        
+        # 遍历所有板块
+        board_index = 0
+
+        self.logger.info(f"开始读取本地数据库日线股票数据...")
+        start_time = time.time()  # 记录开始时间
+
+        dict_stock_info = self.get_stock_info_dict()
+        for board_name, board_data in dict_stock_info.items():
+            if board_index > 1:
+                break
+            board_index += 1
+
+            self.logger.info(f"读取 {board_name} 板块...")
+            board_start_time = time.time()  # 记录开始时间
+            
+            # 遍历该板块的每一行数据
+            for index, row in board_data.iterrows():
+                # if index > 100:
+                #     break
+
+                try:
+                    stock_code = row['证券代码']
+                    stock_name = row['证券名称'] if '证券名称' in row else '未知'
+                    
+                    # 获取日线和周线数据
+                    daily_data = self.get_stock_data_from_db_by_period_with_indicators(stock_code, TimePeriod.DAY)
+        
+                    
+                    # 检查数据是否为None，如果是则创建空的DataFrame
+                    if daily_data is None or daily_data.empty:
+                        continue
+                        
+
+                    # 存储数据
+                    dict_daily_stock_data[stock_code] = daily_data
+                    
+                    total_count += 1
+                    
+                except Exception as e:
+                    self.logger.error(f"处理股票 {stock_code} 时发生错误: {str(e)}")
+                    self.logger.error(traceback.format_exc())
+                    # 继续处理下一个股票
+                    continue
+
+            board_read_elapsed_time = time.time() - board_start_time  # 计算耗时
+            self.logger.info(f"读取完成，共读取{total_count}只股票，耗时: {board_read_elapsed_time:.2f}秒，即{board_read_elapsed_time/60:.2f}分钟")
+
+        
+        all_read_elapsed_time = time.time() - start_time  # 计算耗时
+        self.logger.info(f"读取完成，总耗时: {all_read_elapsed_time:.2f}秒，即{all_read_elapsed_time/60:.2f}分钟")
+
+        # 不再加载完整的日线数据到内存
+        # with self.lock:
+        #     self.dict_stock_data[TimePeriod.DAY] = dict_daily_stock_data
+
+        self.logger.info(f"总共处理了 {total_count} 只股票")
+        return True  
+
     def get_stock_data_from_db_by_period(self, code, period=TimePeriod.DAY):
+        '''从数据中获取股票指定周期的k线数据(原始数据库数据，未处理指标)'''
         table_name = period.get_table_name()
         # self.logger.info(f"处理股票: {code}, 表名：{table_name}")
 
@@ -119,21 +211,36 @@ class BaostockDataManager(QObject):
         
         return df_data
     
+    def get_stock_data_from_db_by_period_with_indicators_auto(self, code, period=TimePeriod.DAY):
+        # 不再加载完整日线数据到内存
+        return self.get_stock_data_from_db_by_period_with_indicators(code, period)
+
     def get_stock_data_from_db_by_period_with_indicators(self, code, period=TimePeriod.DAY):
+        '''从数据中获取股票指定周期的k线数据，并计算指标'''
         df_data = self.get_stock_data_from_db_by_period(code, period)
-        self.data_type_conversion(df_data)
-        df_data['name'] = self.get_stock_name_by_code(code)
+        # self.data_type_conversion(df_data)
+        stock_name = self.get_stock_name_by_code(code)
+        if stock_name is None:
+            stock_name = "未知"
+        df_data = df_data.assign(name=stock_name)
         sdi.default_indicators_auto_calculate(df_data)
         return df_data
     
-    def get_all_lastest_row_data_dict_by_period_with_indicators(self, period=TimePeriod.DAY):
+    def get_all_lastest_row_data_dict_by_period_auto(self, period=TimePeriod.DAY):
+        if self.dict_lastest_1d_stock_data:
+            self.logger.info(f"返回缓存的最后一天（行数据）")
+            return self.get_lastest_1d_stock_data_dict_from_cache()
+        else:
+            return self.get_all_lastest_row_data_dict_by_period(period)
+    def get_all_lastest_row_data_dict_by_period(self, period=TimePeriod.DAY):
+        '''获取所有股票的指定周期k线数据的最后一行数据，通常用于初始化list列表，不需要计算指标'''
         dict_result = {}    # {'code': DataFrame}
         table_name = period.get_table_name()
 
         # 遍历所有板块
         board_index = 0
         total_count = 0
-        self.logger.info(f"开始读取本地数据库日线、周线股票数据...")
+        self.logger.info(f"开始读取本地数据库日线、周线股票的最后一天（行）数据...")
         start_time = time.time()  # 记录开始时间
 
         with self.lock:
@@ -149,8 +256,8 @@ class BaostockDataManager(QObject):
             
             # 遍历该板块的每一行数据
             for index, row in board_data.iterrows():
-                if index > 100:
-                    break
+                # if index > 100:
+                #     break
 
                 try:
                     code = row['证券代码']
@@ -164,11 +271,10 @@ class BaostockDataManager(QObject):
                         continue 
 
                     # 只对非空数据进行指标计算
-                    self.data_type_conversion(lastest_1d_data)
+                    # self.data_type_conversion(lastest_1d_data)
                     lastest_1d_data['name'] = name
-                    sdi.default_indicators_auto_calculate(lastest_1d_data)
+                    # sdi.default_indicators_auto_calculate(lastest_1d_data)
                     dict_result[code] = lastest_1d_data
-                        
                     total_count += 1
                     
                 except Exception as e:
@@ -184,9 +290,30 @@ class BaostockDataManager(QObject):
         all_read_elapsed_time = time.time() - start_time  # 计算耗时
         self.logger.info(f"读取完成，总耗时: {all_read_elapsed_time:.2f}秒，即{all_read_elapsed_time/60:.2f}分钟")
 
+        with self.lock:
+            self.dict_lastest_1d_stock_data = dict_result
+
         return dict_result
     
-    def get_lastest_stock_data_dict_by_code_list(self, code_list=[], period=TimePeriod.DAY):
+    def get_lastest_row_data_dict_by_code_list_auto(self, code_list=[], period=TimePeriod.DAY):
+        '''优先从缓存中获取：指定列表中的股票代码指定周期的最后一天股票数据'''
+        if code_list is None or len(code_list) == 0:
+            self.logger.info(f"没有指定股票代码，返回空字典")
+            return {}
+        
+        dict_result = {}
+
+        with self.lock:
+            dict_lastest_1d_stock_data = self.dict_lastest_1d_stock_data
+        if dict_lastest_1d_stock_data:
+            self.logger.info(f"返回缓存的指定code列表的最后一天（行数据）")
+            for code in code_list:
+                dict_result[code] = dict_lastest_1d_stock_data[code]
+            return dict_result  
+        else:
+            return self.get_lastest_row_data_dict_by_code_list(code_list, period)
+    def get_lastest_row_data_dict_by_code_list(self, code_list=[], period=TimePeriod.DAY):
+        '''获取指定列表中的股票代码指定周期的最后一天股票数据，通常用于初始化list列表，不需要计算指标'''
         if code_list is None or len(code_list) == 0:
             self.logger.info(f"没有指定股票代码，返回空字典")
             return {}
@@ -203,9 +330,9 @@ class BaostockDataManager(QObject):
                     continue 
 
                 # 只对非空数据进行指标计算
-                self.data_type_conversion(lastest_1d_data)
+                # self.data_type_conversion(lastest_1d_data)
                 lastest_1d_data['name'] = self.get_stock_name_by_code(code)
-                sdi.default_indicators_auto_calculate(lastest_1d_data)
+                # sdi.default_indicators_auto_calculate(lastest_1d_data)
                 dict_result[code] = lastest_1d_data
                 
             except Exception as e:
@@ -217,12 +344,20 @@ class BaostockDataManager(QObject):
         return dict_result
     
     def get_lastest_stock_data_date(self, code, period=TimePeriod.DAY):
-        table_name = period.get_table_name()
+        '''获取指定股票的指定周期的股票数据最后一天的日期'''
         with self.lock:
-            lastest_data = self.stock_db_base.get_lastest_stock_data(code, table_name) 
-        return lastest_data.iloc[0]['date'] if lastest_data is not None and not lastest_data.empty else None
+            dict_lastest_1d_stock_data = self.dict_lastest_1d_stock_data
+        if dict_lastest_1d_stock_data:
+            self.logger.info(f"返回缓存的最后一天（行数据）的日期")
+            return dict_lastest_1d_stock_data[code].iloc[0]['date'] if code in dict_lastest_1d_stock_data else None 
+        else:  # 从数据库中读取
+            table_name = period.get_table_name()
+            with self.lock:
+                lastest_data = self.stock_db_base.get_lastest_stock_data(code, table_name) 
+            return lastest_data.iloc[0]['date'] if lastest_data is not None and not lastest_data.empty else None
 
     def save_stock_data_to_db(self, code, df_data, writeWay="replace", period=TimePeriod.DAY):
+        '''保存k线数据到指定周期数据库'''
         table_name = period.get_table_name()
         with self.lock:
             self.stock_db_base.save_bao_stock_data_to_db(code, df_data, writeWay, table_name)
