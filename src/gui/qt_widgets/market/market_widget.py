@@ -12,6 +12,7 @@ from indicators import stock_data_indicators as sdi
 
 import numpy as np
 import pyqtgraph as pg
+import time
 
 from gui.qt_widgets.MComponents.stock_card_widget import StockCardWidget
 
@@ -110,7 +111,11 @@ class MarketWidget(QWidget):
 
     def update_stock_data_dict(self, new_dict_lastest_1d_stock_data):
         self.dict_lastest_1d_stock_data = new_dict_lastest_1d_stock_data
+        self.logger.info(f"成功获取股票数据，日线数据数量为：{len(self.dict_lastest_1d_stock_data)}，即将初始化行情股票列表")
+        board_start_time = time.time()  # 记录开始时间
         self.init_stock_card_list()
+        elapsed_time = time.time() - board_start_time  # 计算耗时
+        self.logger.info(f"初始化行情股票列表完成，耗时: {elapsed_time:.2f}秒，即{elapsed_time/60:.2f}分钟")
 
     # ----------------------槽函数-------------------------
     def slot_stock_card_clicked(self, data):

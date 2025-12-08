@@ -144,7 +144,7 @@ class IndicatorsViewWidget(QWidget):
         time_period = TimePeriod.from_label(period_text)
         
         bao_stock_data_manager = BaostockDataManager()
-        df_time_period_stock_data = bao_stock_data_manager.get_stock_data_from_db_by_period_with_indicators_auto(code, time_period)
+        df_time_period_stock_data = bao_stock_data_manager.get_stock_data_from_db_by_period_with_indicators_auto(code, time_period) # TODO：这里可优化成多数据来源接口。
 
         if self.dict_stock_data:
             self.dict_stock_data[time_period] = df_time_period_stock_data

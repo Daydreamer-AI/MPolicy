@@ -39,6 +39,8 @@ class StrategyWidget(QWidget):
 
     def init_para(self):
         self.logger = get_logger(__name__)
+        self.last_strategy_btn_checked_id = 0
+        self.last_select_comboBox_index = 0
     def init_ui(self):
         self.strategy_result_show_widget = MarketWidget()
         # self.strategy_result_show_widget.show_period_frame(False)
@@ -74,9 +76,32 @@ class StrategyWidget(QWidget):
 
         self.comboBox_level.currentTextChanged.connect(self.slot_comboBox_level_currentTextChanged)
 
+    def restore_last_checked_strategy_button(self):
+        checked_id = self.last_strategy_btn_checked_id
+        if checked_id >= 0 and checked_id < self.strategy_button_group.buttons().__len__():
+            last_checked_button = self.strategy_button_group.button(checked_id)
+            if last_checked_button:
+                last_checked_button.setChecked(True)
+        else:
+            self.last_strategy_btn_checked_id = 0
+            self.btn_zero_up_ma52.setChecked(True)
+
+
+    def restore_last_select_comboBox_index(self):
+        select_index = self.last_select_comboBox_index
+        if select_index >= 0 and select_index < self.comboBox_level.count():
+            self.comboBox_level.setCurrentIndex(select_index)
+        else:
+            self.comboBox_level.setCurrentIndex(0)
+
     def show_default_strategy(self):
         self.btn_zero_up_ma52.setChecked(True)
         checked_id = self.strategy_button_group.checkedId()
+        self.last_strategy_btn_checked_id = checked_id
+
+        self.comboBox_level.setCurrentIndex(0)
+        self.last_select_comboBox_index = 0
+
         self.update_strategy_result(checked_id, True)
 
     def update_date_and_count_labels(self, date, count, period=TimePeriod.DAY):
@@ -104,7 +129,7 @@ class StrategyWidget(QWidget):
             b_ret = lastest_filter_result_date is not None and lastest_stock_data_date != ""
             b_ret_2 = True if (lastest_filter_result_date is None or lastest_stock_data_date is None) else lastest_filter_result_date >= lastest_stock_data_date
             if b_ret and b_ret_2:
-                msg = f"本地已存在【{TimePeriod.get_chinese_label(period)}】级别最新日期（{lastest_filter_result_date}）的筛选策略，是否重新筛选？\n\n注意：重新筛选结果将覆盖本地数据！"
+                msg = f"本地已存在【{TimePeriod.get_chinese_label(period)}】级别最新日期（{lastest_stock_data_date}）的筛选策略，是否重新筛选？\n\n注意：重新筛选结果将覆盖本地数据！"
                 reply = QtWidgets.QMessageBox.question(self, '提示', msg,
                                         QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
                                         QtWidgets.QMessageBox.No)
@@ -117,6 +142,17 @@ class StrategyWidget(QWidget):
                 if checked_id >= 9 and checked_id <= 12:
                     QtWidgets.QMessageBox.information(self, '提示', "暂无最新筛选结果，请执行【零轴下方双底】策略！")
                     return
+                
+                msg = f"即将更新【{TimePeriod.get_chinese_label(period)}】级别至日期（{lastest_stock_data_date}）的筛选策略，确认执行？\n\n提示：执行策略较为耗时，请耐心等待！"
+                reply = QtWidgets.QMessageBox.question(self, '提示', msg,
+                                        QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                        QtWidgets.QMessageBox.No)
+                
+                if reply == QtWidgets.QMessageBox.No:
+                    b_use_local_result = True
+                    return False
+                else:
+                    b_use_local_result = False
                 
                 self.logger.info("开始策略筛选...") 
             
@@ -155,11 +191,18 @@ class StrategyWidget(QWidget):
         self.update_date_and_count_labels(lastest_stock_data_date, len(filter_result), period)
         
         new_dict_lastest_1d_stock_data = BaostockDataManager().get_lastest_row_data_dict_by_code_list_auto(filter_result)
-        self.logger.info(f"new_dict_lastest_1d_stock_data 长度: {len(new_dict_lastest_1d_stock_data)}")
-        if new_dict_lastest_1d_stock_data is not None or len(new_dict_lastest_1d_stock_data) > 0:
+        result_data_len = len(new_dict_lastest_1d_stock_data)
+        self.logger.info(f"new_dict_lastest_1d_stock_data 长度: {result_data_len}")
+        if result_data_len == 0:
+            self.logger.info(f"无策略结果")
+            return False
+        
+        if new_dict_lastest_1d_stock_data is not None or result_data_len > 0:
             self.strategy_result_show_widget.update_stock_data_dict(new_dict_lastest_1d_stock_data)
         else:
             self.logger.info(f"策略结果为空")
+
+        return True
 
     # ------------槽函数-----------
     def slot_strategy_button_clicked(self, btn):
@@ -171,6 +214,7 @@ class StrategyWidget(QWidget):
             if checked_id == 3:
                 self.logger.info(f"暂不支持5日MA策略")
                 QtWidgets.QMessageBox.warning(self, '警告', '暂不支持零轴上方5日MA策略！')
+                self.restore_last_checked_strategy_button()
                 return
 
             # text = self.comboBox_level.currentText()
@@ -182,7 +226,16 @@ class StrategyWidget(QWidget):
             # 恢复信号
             self.comboBox_level.blockSignals(False)
 
-            self.update_strategy_result(checked_id)
+            b_ret = self.update_strategy_result(checked_id)
+
+            # k线也默认显示日线级别
+
+            if not b_ret:
+                # 这里不用阻塞信号是因为设置Checked不会触发clicked信号
+                self.restore_last_checked_strategy_button()
+                return
+
+            self.last_strategy_btn_checked_id = checked_id
 
 
             
@@ -195,6 +248,11 @@ class StrategyWidget(QWidget):
 
     def slot_comboBox_level_currentTextChanged(self, text):
         self.logger.info(f"slot_comboBox_level_currentTextChanged--text: {text}")
-        self.update_strategy_result(self.strategy_button_group.checkedId(), False, TimePeriod.from_label(text))
-            
-
+        b_ret = self.update_strategy_result(self.strategy_button_group.checkedId(), False, TimePeriod.from_label(text))
+        if not b_ret:
+            self.comboBox_level.blockSignals(True)
+            self.restore_last_select_comboBox_index()
+            self.comboBox_level.blockSignals(False)
+            return
+        
+        self.last_select_comboBox_index = self.comboBox_level.currentIndex()
