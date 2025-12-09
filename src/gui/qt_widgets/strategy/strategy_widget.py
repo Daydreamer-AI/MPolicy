@@ -51,6 +51,8 @@ class StrategyWidget(QWidget):
         
         self.layout().addWidget(self.strategy_result_show_widget)
 
+        self.lineEdit_current_filter_date.editingFinished.connect(self.slot_lineEdit_current_filter_date_editingFinished)
+
         self.comboBox_level.addItems([TimePeriod.get_chinese_label(TimePeriod.DAY), TimePeriod.get_chinese_label(TimePeriod.WEEK), TimePeriod.get_chinese_label(TimePeriod.MINUTE_15), TimePeriod.get_chinese_label(TimePeriod.MINUTE_30), TimePeriod.get_chinese_label(TimePeriod.MINUTE_60)])
         self.comboBox_level.setCurrentIndex(0)
 
@@ -95,19 +97,30 @@ class StrategyWidget(QWidget):
             self.comboBox_level.setCurrentIndex(0)
 
     def show_default_strategy(self):
+        # 默认选中策略
         self.btn_zero_up_ma52.setChecked(True)
         checked_id = self.strategy_button_group.checkedId()
         self.last_strategy_btn_checked_id = checked_id
-
+        # 默认选中级别
         self.comboBox_level.setCurrentIndex(0)
         self.last_select_comboBox_index = 0
+        # 默认最新日期
+        filter_result_data_manager = FilterResultDataManger(checked_id)
+        select_period_text = self.comboBox_level.currentText()
+        select_period = TimePeriod.from_label(select_period_text)
+        lastest_filter_result_date = filter_result_data_manager.get_lastest_filter_result_date(select_period)
+        if lastest_filter_result_date is not None:
+            self.lineEdit_current_filter_date.setText(lastest_filter_result_date)
 
-        self.update_strategy_result(checked_id, True)
+        self.update_strategy_result_new(True)
 
     def update_date_and_count_labels(self, date, count, period=TimePeriod.DAY):
         self.lineEdit_current_filter_date.setText(date)
         self.label_filter_result_count.setText(str(count))
         self.comboBox_level.setCurrentText(period.value)
+
+    def update_count_label(self, count):
+        self.label_filter_result_count.setText(str(count))
 
     def update_strategy_result(self, checked_id, load_local_result=False, period=TimePeriod.DAY):
         filter_result = []
@@ -128,17 +141,26 @@ class StrategyWidget(QWidget):
         else:
             b_ret = lastest_filter_result_date is not None and lastest_stock_data_date != ""
             b_ret_2 = True if (lastest_filter_result_date is None or lastest_stock_data_date is None) else lastest_filter_result_date >= lastest_stock_data_date
+
+            # 已是最新策略结果，直接加载不弹窗
             if b_ret and b_ret_2:
-                msg = f"本地已存在【{TimePeriod.get_chinese_label(period)}】级别最新日期（{lastest_stock_data_date}）的筛选策略，是否重新筛选？\n\n注意：重新筛选结果将覆盖本地数据！"
-                reply = QtWidgets.QMessageBox.question(self, '提示', msg,
-                                        QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
-                                        QtWidgets.QMessageBox.No)
+            #     msg = f"本地已存在【{TimePeriod.get_chinese_label(period)}】级别最新日期（{lastest_stock_data_date}）的筛选策略，是否重新筛选？\n\n注意：重新筛选结果将覆盖本地数据！"
+            #     reply = QtWidgets.QMessageBox.question(self, '提示', msg,
+            #                             QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+            #                             QtWidgets.QMessageBox.No)
                 
-                if reply == QtWidgets.QMessageBox.No:
-                    b_use_local_result = True
-                else:
-                    b_use_local_result = False
+            #     if reply == QtWidgets.QMessageBox.Yes:
+            #         if checked_id >= 9 and checked_id <= 12:
+            #             self.logger.info(f"双底扩展策略默认加载本地数据")
+            #             b_use_local_result = True
+            #         else:
+            #             b_use_local_result = False
+            #     else:
+            #         
+                b_use_local_result = True
+                    
             else:
+                # 无最新策略结果，
                 if checked_id >= 9 and checked_id <= 12:
                     QtWidgets.QMessageBox.information(self, '提示', "暂无最新筛选结果，请执行【零轴下方双底】策略！")
                     return
@@ -203,8 +225,116 @@ class StrategyWidget(QWidget):
             self.logger.info(f"策略结果为空")
 
         return True
+    
+    def update_strategy_result_new(self, load_local_result=False):
+        s_target_date = self.lineEdit_current_filter_date.text()
+
+        strategy_btn_checked_id = self.strategy_button_group.checkedId()
+        checked_btn_text = self.strategy_button_group.button(strategy_btn_checked_id).text()
+
+        select_period_text = self.comboBox_level.currentText()
+        select_period = TimePeriod.from_label(select_period_text)
+
+        filter_result = []
+
+        filter_result_data_manager = FilterResultDataManger(strategy_btn_checked_id)
+        df_local_filter_result = filter_result_data_manager.get_filter_result_with_params(s_target_date, select_period)
+
+        if load_local_result:
+            b_use_local_result = True
+        else:
+            # 人工确认弹窗
+            if df_local_filter_result is not None and not df_local_filter_result.empty:
+                msg = f"本地已存在【{TimePeriod.get_chinese_label(select_period)}】级别最新日期（{s_target_date}）的【{checked_btn_text}】筛选策略，是否重新执行策略筛选？\n\n注意：重新筛选结果将覆盖本地数据！"
+                reply = QtWidgets.QMessageBox.question(self, '提示', msg,
+                                        QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                        QtWidgets.QMessageBox.No)
+                
+                if reply == QtWidgets.QMessageBox.Yes:
+                    if strategy_btn_checked_id >= 9 and strategy_btn_checked_id <= 12:
+                        self.logger.info(f"双底扩展策略默认加载本地数据")
+                        b_use_local_result = True
+                    else:
+                        b_use_local_result = False
+                else:
+                    b_use_local_result = True
+            else:
+                if strategy_btn_checked_id >= 9 and strategy_btn_checked_id <= 12:
+                    QtWidgets.QMessageBox.information(self, '提示', "暂无最新筛选结果，请执行【零轴下方双底】策略！")
+                    return False
+                
+                msg = f"即将更新【{TimePeriod.get_chinese_label(select_period)}】级别，日期（{s_target_date}）的【{checked_btn_text}】筛选策略结果，确认执行？\n\n提示：执行策略较为耗时，请耐心等待！"
+                reply = QtWidgets.QMessageBox.question(self, '提示', msg,
+                                        QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                        QtWidgets.QMessageBox.No)
+                
+                if reply == QtWidgets.QMessageBox.No:
+                    b_use_local_result = True
+                    return False
+                else:
+                    b_use_local_result = False
+
+        if b_use_local_result:
+            # 本地存在指定日期、策略、时间级别的筛选结果
+            # self.logger.info(f"本地策略结果：\n{df_local_filter_result.tail(3)}")
+            filter_result = df_local_filter_result['code'].tolist()
+        else:
+            filter_result = self.process_filter_result(s_target_date, strategy_btn_checked_id, select_period)
+
+        self.logger.info(f"策略结果：\n{filter_result[:3]}...{filter_result[-3:]}\n策略结果数量：{len(filter_result)}")
+        
+        # 展示最后日期的k线，而不是指定日期的k线
+        new_dict_lastest_1d_stock_data = BaostockDataManager().get_lastest_row_data_dict_by_code_list_auto(filter_result)
+        result_data_len = len(new_dict_lastest_1d_stock_data)
+        self.logger.info(f"new_dict_lastest_1d_stock_data 长度: {result_data_len}")
+
+        if new_dict_lastest_1d_stock_data is not None and result_data_len == 0:
+            self.logger.info(f"无策略结果")
+            return False
+        
+        if result_data_len > 0:
+            self.strategy_result_show_widget.update_stock_data_dict(new_dict_lastest_1d_stock_data)
+        else:
+            self.logger.info(f"策略结果为空")
+
+        self.update_count_label(result_data_len)
+        # 切换至指定级别K线显示
+
+        return True
+    
+    def process_filter_result(self, target_date, checked_id, period):
+        filter_result = []
+        if checked_id == 0:
+            # 这里可以先检查本地数据是否存在，如果存在则直接从本地加载筛选结果列表，而无需重新调用筛选接口
+            filter_result = BaoStockProcessor().daily_up_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney(), period, end_date=target_date)
+            
+        elif checked_id == 1:
+            filter_result = BaoStockProcessor().daily_up_ma24_filter(AKStockDataProcessor().get_stocks_eastmoney(), period, end_date=target_date)
+            
+        elif checked_id == 2:
+            filter_result = BaoStockProcessor().daily_up_ma10_filter(AKStockDataProcessor().get_stocks_eastmoney(), period, end_date=target_date)
+        elif checked_id == 3:
+            # filter_result = BaoStockProcessor().daily_up_ma5_filter(AKStockDataProcessor().get_stocks_eastmoney())
+            pass
+        elif checked_id == 4:
+            filter_result = BaoStockProcessor().daily_down_between_ma24_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney(), period, end_date=target_date)
+        elif checked_id == 5:
+            filter_result = BaoStockProcessor().daily_down_between_ma5_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney(), period, end_date=target_date)
+        elif checked_id == 6:
+            filter_result = BaoStockProcessor().daily_down_breakthrough_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney(), period, end_date=target_date)
+        elif checked_id == 7:
+            filter_result = BaoStockProcessor().daily_down_breakthrough_ma24_filter(AKStockDataProcessor().get_stocks_eastmoney(), period, end_date=target_date)
+        elif checked_id == 8:
+            filter_result = BaoStockProcessor().daily_down_double_bottom_filter(AKStockDataProcessor().get_stocks_eastmoney(), period, end_date=target_date)
+        else:
+            filter_result = BaoStockProcessor().daily_up_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney(), period, end_date=target_date)
+
+        return filter_result
 
     # ------------槽函数-----------
+    def slot_lineEdit_current_filter_date_editingFinished(self):
+        text = self.lineEdit_current_filter_date.text()
+
     def slot_strategy_button_clicked(self, btn):
         if btn.isChecked():
             checked_btn_text = btn.text()
@@ -221,12 +351,12 @@ class StrategyWidget(QWidget):
             # period = TimePeriod.from_label(text)
 
             # 使用信号阻塞避免触发更新
-            self.comboBox_level.blockSignals(True)
-            self.comboBox_level.setCurrentText(TimePeriod.get_chinese_label(TimePeriod.DAY))
-            # 恢复信号
-            self.comboBox_level.blockSignals(False)
+            # self.comboBox_level.blockSignals(True)
+            # self.comboBox_level.setCurrentText(TimePeriod.get_chinese_label(TimePeriod.DAY))
+            # # 恢复信号
+            # self.comboBox_level.blockSignals(False)
 
-            b_ret = self.update_strategy_result(checked_id)
+            b_ret = self.update_strategy_result_new()
 
             # k线也默认显示日线级别
 
@@ -237,9 +367,6 @@ class StrategyWidget(QWidget):
 
             self.last_strategy_btn_checked_id = checked_id
 
-
-            
-
     def slot_filter_setting_clicked(self):
         self.logger.info("点击筛选设置")
         dlg = PolicyFilterSettingDialog()
@@ -248,7 +375,14 @@ class StrategyWidget(QWidget):
 
     def slot_comboBox_level_currentTextChanged(self, text):
         self.logger.info(f"slot_comboBox_level_currentTextChanged--text: {text}")
-        b_ret = self.update_strategy_result(self.strategy_button_group.checkedId(), False, TimePeriod.from_label(text))
+        checked_id = self.strategy_button_group.checkedId()
+        # if checked_id >= 9 and checked_id <= 12:
+        #     self.btn_zero_down_double_bottom.setChecked(True)
+        #     self.last_strategy_btn_checked_id = 8
+        #     checked_id = self.strategy_button_group.checkedId()
+        #     self.logger.info(f"双底扩展策略默认执行双底策略接口,checked_id: {checked_id}")
+            
+        b_ret = self.update_strategy_result_new()
         if not b_ret:
             self.comboBox_level.blockSignals(True)
             self.restore_last_select_comboBox_index()

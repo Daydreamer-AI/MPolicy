@@ -1,0 +1,88 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36" version="29.2.6">
+  <diagram name="Page-1" id="Qf4bSj5iTb69ruOD4CTB">
+    <mxGraphModel dx="1425" dy="761" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="583" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-1" edge="1" parent="1" source="nKYW1szJUTK1JOFiMAwE-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="nKYW1szJUTK1JOFiMAwE-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="点击策略按钮" vertex="1">
+          <mxGeometry height="60" width="120" x="226" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-3" edge="1" parent="1" source="nKYW1szJUTK1JOFiMAwE-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="nKYW1szJUTK1JOFiMAwE-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="切换时间级别" vertex="1">
+          <mxGeometry height="60" width="120" x="500" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-9" edge="1" parent="1" source="nKYW1szJUTK1JOFiMAwE-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="nKYW1szJUTK1JOFiMAwE-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="输入指定日期" vertex="1">
+          <mxGeometry height="60" width="120" x="754" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-18" edge="1" parent="1" source="nKYW1szJUTK1JOFiMAwE-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="nKYW1szJUTK1JOFiMAwE-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="得到当前选中时间级别" vertex="1">
+          <mxGeometry height="60" width="120" x="226" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-19" edge="1" parent="1" source="nKYW1szJUTK1JOFiMAwE-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="nKYW1szJUTK1JOFiMAwE-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="得到当前选中策略" vertex="1">
+          <mxGeometry height="60" width="120" x="500" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-20" edge="1" parent="1" source="nKYW1szJUTK1JOFiMAwE-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="nKYW1szJUTK1JOFiMAwE-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="得到指定日期" vertex="1">
+          <mxGeometry height="60" width="120" x="754.5" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-23" edge="1" parent="1" source="nKYW1szJUTK1JOFiMAwE-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="nKYW1szJUTK1JOFiMAwE-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-10" parent="1" style="rhombus;whiteSpace=wrap;html=1;" value="指定日期、级别、策略的结果&lt;br&gt;已在本地结果数据库中" vertex="1">
+          <mxGeometry height="160" width="280" x="420" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-22" edge="1" parent="1" source="nKYW1szJUTK1JOFiMAwE-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="nKYW1szJUTK1JOFiMAwE-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-12" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="加载指定日期、级别、策略结果" vertex="1">
+          <mxGeometry height="60" width="120" x="226" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-13" edge="1" parent="1" source="nKYW1szJUTK1JOFiMAwE-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="nKYW1szJUTK1JOFiMAwE-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-14" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="更新视图" vertex="1">
+          <mxGeometry height="60" width="120" x="500" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-15" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="自动切换到选中时间级别k线" vertex="1">
+          <mxGeometry height="60" width="120" x="500" y="725" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-25" edge="1" parent="1" source="nKYW1szJUTK1JOFiMAwE-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="nKYW1szJUTK1JOFiMAwE-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-16" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="执行指定日期、级别、策略接口" vertex="1">
+          <mxGeometry height="60" width="120" x="754" y="540" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-24" edge="1" parent="1" source="nKYW1szJUTK1JOFiMAwE-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="nKYW1szJUTK1JOFiMAwE-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-17" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="加载小于等于指定日期的股票数据" vertex="1">
+          <mxGeometry height="60" width="120" x="754" y="420" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-21" edge="1" parent="1" source="nKYW1szJUTK1JOFiMAwE-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.45;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="nKYW1szJUTK1JOFiMAwE-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-26" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="是" vertex="1">
+          <mxGeometry height="30" width="60" x="320" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="nKYW1szJUTK1JOFiMAwE-27" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="否" vertex="1">
+          <mxGeometry height="30" width="60" x="730" y="330" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

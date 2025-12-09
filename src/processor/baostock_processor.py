@@ -542,7 +542,7 @@ class BaoStockProcessor(QObject):
             if not result.empty:
                 BaostockDataManager().save_stock_data_to_db(code, result, 'replace', TimePeriod.WEEK)
         else:
-            self.logger.info(f"周线 {code}.db 存在，即将从本地数据库更新")
+            # self.logger.info(f"周线 {code}.db 存在，即将从本地数据库更新")
             result, data_to_save = self.update_weekly_stock_data(code)
             if data_to_save is not None and not data_to_save.empty:
                 BaostockDataManager().save_stock_data_to_db(code, data_to_save, "append", TimePeriod.WEEK)
@@ -587,7 +587,7 @@ class BaoStockProcessor(QObject):
         last_date = parsed_date + datetime.timedelta(days=1)
         num_fridays = self.count_fridays_since(last_date.strftime("%Y-%m-%d"))
         if not num_fridays > 0:
-            self.logger.info("已是最新周线数据")
+            # self.logger.info("已是最新周线数据")
             return week_stock_data, data_to_save
         
         # 判断今天是否周五，数据库最后日期到今天有周五存在，但今天不是周五，则可以获取之前的周数据
@@ -1547,7 +1547,7 @@ class BaoStockProcessor(QObject):
         return df_to_save
             
 
-    def daily_up_ma52_filter(self, condition=None, period=TimePeriod.DAY):
+    def daily_up_ma52_filter(self, condition=None, period=TimePeriod.DAY, start_date=None, end_date=None):
         filter_result = []
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
@@ -1567,10 +1567,10 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period, start_date, end_date)
 
                     if b_weekly:
-                        weekly_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, TimePeriod.WEEK)
+                        weekly_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, TimePeriod.WEEK, start_date, end_date)
                     else:
                         weekly_data = None
 
@@ -1597,7 +1597,7 @@ class BaoStockProcessor(QObject):
 
         return filter_result
     
-    def daily_up_ma24_filter(self, condition=None, period=TimePeriod.DAY):
+    def daily_up_ma24_filter(self, condition=None, period=TimePeriod.DAY, start_date=None, end_date=None):
         filter_result = []
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
@@ -1617,10 +1617,10 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period, start_date, end_date)
 
                     if b_weekly:
-                        weekly_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, TimePeriod.WEEK)
+                        weekly_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, TimePeriod.WEEK, start_date, end_date)
                     else:
                         weekly_data = None
 
@@ -1647,7 +1647,7 @@ class BaoStockProcessor(QObject):
 
         return filter_result
 
-    def daily_up_ma10_filter(self, condition=None, period=TimePeriod.DAY):
+    def daily_up_ma10_filter(self, condition=None, period=TimePeriod.DAY, start_date=None, end_date=None):
         filter_result = []
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
@@ -1666,7 +1666,7 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period, start_date, end_date)
                     
                     if pf.daily_up_ma10_filter(df_filter_data, period):
                         filter_result.append(code)
@@ -1693,7 +1693,7 @@ class BaoStockProcessor(QObject):
     def daily_up_ma5_filter(self, condition=None, period=TimePeriod.DAY):
         pass
     
-    def daily_down_between_ma24_ma52_filter(self, condition=None, period=TimePeriod.DAY):
+    def daily_down_between_ma24_ma52_filter(self, condition=None, period=TimePeriod.DAY, start_date=None, end_date=None):
         
         filter_result = []
         turn = pf.get_policy_filter_turn()
@@ -1714,9 +1714,9 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period, start_date, end_date)
                     if b_weekly:
-                        weekly_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, TimePeriod.WEEK)
+                        weekly_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, TimePeriod.WEEK, start_date, end_date)
                     else:
                         weekly_data = None
                     
@@ -1741,7 +1741,7 @@ class BaoStockProcessor(QObject):
 
         return filter_result
     
-    def daily_down_between_ma5_ma52_filter(self, condition=None, period=TimePeriod.DAY):
+    def daily_down_between_ma5_ma52_filter(self, condition=None, period=TimePeriod.DAY, start_date=None, end_date=None):
         
         filter_result = []
         turn = pf.get_policy_filter_turn()
@@ -1762,9 +1762,9 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period, start_date, end_date)
                     if b_weekly:
-                        weekly_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, TimePeriod.WEEK)
+                        weekly_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, TimePeriod.WEEK, start_date, end_date)
                     else:
                         weekly_data = None
                     
@@ -1791,7 +1791,7 @@ class BaoStockProcessor(QObject):
 
         return filter_result
     
-    def daily_down_breakthrough_ma52_filter(self, condition=None, period=TimePeriod.DAY):
+    def daily_down_breakthrough_ma52_filter(self, condition=None, period=TimePeriod.DAY, start_date=None, end_date=None):
         filter_result = []
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
@@ -1810,7 +1810,7 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period, start_date, end_date)
                     
                     if pf.daily_down_breakthrough_ma52_filter(df_filter_data):
                         filter_result.append(code)
@@ -1834,7 +1834,7 @@ class BaoStockProcessor(QObject):
         return filter_result
 
 
-    def daily_down_breakthrough_ma24_filter(self, condition=None, period=TimePeriod.DAY):
+    def daily_down_breakthrough_ma24_filter(self, condition=None, period=TimePeriod.DAY, start_date=None, end_date=None):
         filter_result = []
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
@@ -1853,7 +1853,7 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period, start_date, end_date)
                     
                     if pf.daily_down_breakthrough_ma24_filter(df_filter_data):
                         filter_result.append(code)
@@ -1877,7 +1877,7 @@ class BaoStockProcessor(QObject):
 
         return filter_result
 
-    def daily_down_double_bottom_filter(self, condition=None, period=TimePeriod.DAY):
+    def daily_down_double_bottom_filter(self, condition=None, period=TimePeriod.DAY, start_date=None, end_date=None):
         filter_result = []      # 零轴下方双底
         filter_result_1 = []    # 细分-背离
         filter_result_2 = []    # 细分-动能不足
@@ -1901,7 +1901,7 @@ class BaoStockProcessor(QObject):
                     if not self.filter_check(code, condition):
                         continue
 
-                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period)
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period, start_date, end_date)
                     
                     ret = pf.get_last_adjust_period_deviate_status(df_filter_data, period)
 

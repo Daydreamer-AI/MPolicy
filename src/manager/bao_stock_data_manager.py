@@ -196,13 +196,13 @@ class BaostockDataManager(QObject):
         self.logger.info(f"总共处理了 {total_count} 只股票")
         return True  
 
-    def get_stock_data_from_db_by_period(self, code, period=TimePeriod.DAY):
+    def get_stock_data_from_db_by_period(self, code, period=TimePeriod.DAY, start_date=None, end_date=None):
         '''从数据中获取股票指定周期的k线数据(原始数据库数据，未处理指标)'''
         table_name = period.get_table_name()
         # self.logger.info(f"处理股票: {code}, 表名：{table_name}")
 
         with self.lock:
-            df_data = self.stock_db_base.get_bao_stock_data(code, table_name)
+            df_data = self.stock_db_base.get_bao_stock_data(code, table_name, start_date, end_date)
 
         df_data = df_data.dropna()
 
@@ -211,13 +211,13 @@ class BaostockDataManager(QObject):
         
         return df_data
     
-    def get_stock_data_from_db_by_period_with_indicators_auto(self, code, period=TimePeriod.DAY):
+    def get_stock_data_from_db_by_period_with_indicators_auto(self, code, period=TimePeriod.DAY, start_date=None, end_date=None):
         # 不再加载完整日线数据到内存
-        return self.get_stock_data_from_db_by_period_with_indicators(code, period)
+        return self.get_stock_data_from_db_by_period_with_indicators(code, period, start_date, end_date)
 
-    def get_stock_data_from_db_by_period_with_indicators(self, code, period=TimePeriod.DAY):
+    def get_stock_data_from_db_by_period_with_indicators(self, code, period=TimePeriod.DAY, start_date=None, end_date=None):
         '''从数据中获取股票指定周期的k线数据，并计算指标'''
-        df_data = self.get_stock_data_from_db_by_period(code, period)
+        df_data = self.get_stock_data_from_db_by_period(code, period, start_date, end_date)
         # self.data_type_conversion(df_data)
         stock_name = self.get_stock_name_by_code(code)
         if stock_name is None:

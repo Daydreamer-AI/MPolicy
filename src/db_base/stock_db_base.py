@@ -127,12 +127,39 @@ class StockDbBase:
                 self.logger.info(f"创建表 {table_name} 失败: {str(e)}")
                 raise
 
-    def get_table_data(self, db_path, table="stock_data"):
+    def get_table_data(self, db_path, table="stock_data", start_date=None, end_date=None, code=None):
         try:
             # 使用线程安全的连接方式执行查询
             with self._get_connection(db_path) as cur:
+                # 基础查询
                 query = f"SELECT * FROM {table}"
-                cur.execute(query)
+                
+                # 添加条件过滤
+                conditions = []
+                params = []
+                
+                # 日期范围过滤
+                if start_date:
+                    conditions.append("date >= ?")
+                    params.append(start_date)
+                
+                if end_date:
+                    conditions.append("date <= ?")
+                    params.append(end_date)
+                
+                # 股票代码过滤
+                if code:
+                    conditions.append("code = ?")
+                    params.append(code)
+                
+                # 如果有条件，则添加WHERE子句
+                if conditions:
+                    query += " WHERE " + " AND ".join(conditions)
+                
+                # 添加排序
+                query += " ORDER BY date"
+                
+                cur.execute(query, params)
                 # 获取列名
                 column_names = [description[0] for description in cur.description]
                 # 获取所有数据
@@ -1076,7 +1103,7 @@ class StockDbBase:
         if not self.is_valid_table_name(table_name):
             raise ValueError(f"非法表名{table_name}！")
         
-        return self.get_table_data(db_path, table_name)
+        return self.get_table_data(db_path, table_name, start_date=start_date, end_date=end_date)
     
     def get_lastest_stock_data(self, stock_code, table_name="stock_data"):
         if not self.is_valid_table_name(table_name):
