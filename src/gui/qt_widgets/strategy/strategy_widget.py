@@ -115,9 +115,15 @@ class StrategyWidget(QWidget):
         self.update_strategy_result_new(True)
 
     def update_date_and_count_labels(self, date, count, period=TimePeriod.DAY):
+        self.lineEdit_current_filter_date.blockSignals(True)
         self.lineEdit_current_filter_date.setText(date)
+        self.lineEdit_current_filter_date.blockSignals(False)
+
         self.label_filter_result_count.setText(str(count))
+
+        self.comboBox_level.blockSignals(True)
         self.comboBox_level.setCurrentText(period.value)
+        self.comboBox_level.blockSignals(False)
 
     def update_count_label(self, count):
         self.label_filter_result_count.setText(str(count))
@@ -243,12 +249,20 @@ class StrategyWidget(QWidget):
         if load_local_result:
             b_use_local_result = True
         else:
+            lastest_stock_data_date = BaostockDataManager().get_lastest_stock_data_date('sh.600000', select_period)
+            
             # 人工确认弹窗
             if df_local_filter_result is not None and not df_local_filter_result.empty:
-                msg = f"本地已存在【{TimePeriod.get_chinese_label(select_period)}】级别最新日期（{s_target_date}）的【{checked_btn_text}】筛选策略，是否重新执行策略筛选？\n\n注意：重新筛选结果将覆盖本地数据！"
+                lastest_filter_result_date = df_local_filter_result['date'].iloc[0]
+                b_ret = True if (lastest_filter_result_date is None or lastest_stock_data_date is None) else lastest_filter_result_date >= lastest_stock_data_date
+                # if b_ret:
+                msg = f"本地最新的【{select_period_text}】级别\n筛选结果日期：{lastest_filter_result_date}\n目标股票日期：{s_target_date}，\n是否重新执行【{checked_btn_text}】筛选策略？\n\n注意：重新筛选结果将覆盖本地数据！"
+                # else:
+                #     msg = f"本地已存在【{TimePeriod.get_chinese_label(select_period)}】级别最新日期（{s_target_date}）的【{checked_btn_text}】筛选策略，是否重新执行策略筛选？\n\n注意：重新筛选结果将覆盖本地数据！"
+
                 reply = QtWidgets.QMessageBox.question(self, '提示', msg,
-                                        QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
-                                        QtWidgets.QMessageBox.No)
+                        QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                        QtWidgets.QMessageBox.No)
                 
                 if reply == QtWidgets.QMessageBox.Yes:
                     if strategy_btn_checked_id >= 9 and strategy_btn_checked_id <= 12:
@@ -263,16 +277,16 @@ class StrategyWidget(QWidget):
                     QtWidgets.QMessageBox.information(self, '提示', "暂无最新筛选结果，请执行【零轴下方双底】策略！")
                     return False
                 
-                msg = f"即将更新【{TimePeriod.get_chinese_label(select_period)}】级别，日期（{s_target_date}）的【{checked_btn_text}】筛选策略结果，确认执行？\n\n提示：执行策略较为耗时，请耐心等待！"
+                msg = f"即将执行【{select_period_text}】级别，目标股票日期（{s_target_date}）的【{checked_btn_text}】策略筛选，请确认？\n\n提示：执行策略较为耗时，请耐心等待！"
                 reply = QtWidgets.QMessageBox.question(self, '提示', msg,
                                         QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
                                         QtWidgets.QMessageBox.No)
                 
-                if reply == QtWidgets.QMessageBox.No:
+                if reply == QtWidgets.QMessageBox.Yes:
+                    b_use_local_result = False
+                else:
                     b_use_local_result = True
                     return False
-                else:
-                    b_use_local_result = False
 
         if b_use_local_result:
             # 本地存在指定日期、策略、时间级别的筛选结果
@@ -297,7 +311,7 @@ class StrategyWidget(QWidget):
         else:
             self.logger.info(f"策略结果为空")
 
-        self.update_count_label(result_data_len)
+        self.update_date_and_count_labels(s_target_date, result_data_len, select_period)
         # 切换至指定级别K线显示
 
         return True
