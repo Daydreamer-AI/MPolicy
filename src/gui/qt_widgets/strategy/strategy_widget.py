@@ -1,5 +1,8 @@
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QWidget, QMessageBox, QVBoxLayout
+from PyQt5.QtGui import QRegExpValidator
+from PyQt5.QtCore import QRegExp
+import re
 
 # from controller.processor_controller import processor_controller_instance
 from gui.qt_widgets.setting.policy_filter_setting_dialog import PolicyFilterSettingDialog
@@ -39,9 +42,16 @@ class StrategyWidget(QWidget):
 
     def init_para(self):
         self.logger = get_logger(__name__)
+        self.last_filter_date = ""
         self.last_strategy_btn_checked_id = 0
         self.last_select_comboBox_index = 0
     def init_ui(self):
+
+        # 设置日期输入格式验证器 (YYYY-MM-DD)
+        date_pattern = QRegExp(r'^\d{4}-\d{2}-\d{2}$')
+        validator = QRegExpValidator(date_pattern, self.lineEdit_current_filter_date)
+        self.lineEdit_current_filter_date.setValidator(validator)
+
         self.strategy_result_show_widget = MarketWidget()
         # self.strategy_result_show_widget.show_period_frame(False)
 
@@ -50,8 +60,6 @@ class StrategyWidget(QWidget):
             self.setLayout(QVBoxLayout())
         
         self.layout().addWidget(self.strategy_result_show_widget)
-
-        self.lineEdit_current_filter_date.editingFinished.connect(self.slot_lineEdit_current_filter_date_editingFinished)
 
         self.comboBox_level.addItems([TimePeriod.get_chinese_label(TimePeriod.DAY), TimePeriod.get_chinese_label(TimePeriod.WEEK), TimePeriod.get_chinese_label(TimePeriod.MINUTE_15), TimePeriod.get_chinese_label(TimePeriod.MINUTE_30), TimePeriod.get_chinese_label(TimePeriod.MINUTE_60)])
         self.comboBox_level.setCurrentIndex(0)
@@ -72,11 +80,19 @@ class StrategyWidget(QWidget):
         self.strategy_button_group.addButton(self.btn_zero_down_double_bottom_12, 12)      # 双底 - 隐形动能不足
 
     def init_connect(self):
+        self.lineEdit_current_filter_date.editingFinished.connect(self.slot_lineEdit_current_filter_date_editingFinished)
         self.strategy_button_group.buttonClicked.connect(self.slot_strategy_button_clicked)
 
         self.btn_filter_setting.clicked.connect(self.slot_filter_setting_clicked)
 
         self.comboBox_level.currentTextChanged.connect(self.slot_comboBox_level_currentTextChanged)
+
+    def restore_last_filter_date(self):
+        if self.last_filter_date != "":
+            self.lineEdit_current_filter_date.setText(self.last_filter_date)
+        else:
+            self.lineEdit_current_filter_date.setText("2025-12-01")
+            self.last_filter_date = "2025-12-01"
 
     def restore_last_checked_strategy_button(self):
         checked_id = self.last_strategy_btn_checked_id
@@ -101,16 +117,20 @@ class StrategyWidget(QWidget):
         self.btn_zero_up_ma52.setChecked(True)
         checked_id = self.strategy_button_group.checkedId()
         self.last_strategy_btn_checked_id = checked_id
+
         # 默认选中级别
         self.comboBox_level.setCurrentIndex(0)
         self.last_select_comboBox_index = 0
+
         # 默认最新日期
         filter_result_data_manager = FilterResultDataManger(checked_id)
         select_period_text = self.comboBox_level.currentText()
         select_period = TimePeriod.from_label(select_period_text)
+
         lastest_filter_result_date = filter_result_data_manager.get_lastest_filter_result_date(select_period)
         if lastest_filter_result_date is not None:
             self.lineEdit_current_filter_date.setText(lastest_filter_result_date)
+            self.last_filter_date = lastest_filter_result_date
 
         self.update_strategy_result_new(True)
 
@@ -256,7 +276,7 @@ class StrategyWidget(QWidget):
                 lastest_filter_result_date = df_local_filter_result['date'].iloc[0]
                 b_ret = True if (lastest_filter_result_date is None or lastest_stock_data_date is None) else lastest_filter_result_date >= lastest_stock_data_date
                 # if b_ret:
-                msg = f"本地最新的【{select_period_text}】级别\n筛选结果日期：{lastest_filter_result_date}\n目标股票日期：{s_target_date}，\n是否重新执行【{checked_btn_text}】筛选策略？\n\n注意：重新筛选结果将覆盖本地数据！"
+                msg = f"本地已存在最新【{select_period_text}】级别筛选结果\n筛选结果日期：{lastest_filter_result_date}\n目标股票日期：{s_target_date}\n是否重新执行【{checked_btn_text}】筛选策略？\n\n注意：重新筛选结果将覆盖本地数据！"
                 # else:
                 #     msg = f"本地已存在【{TimePeriod.get_chinese_label(select_period)}】级别最新日期（{s_target_date}）的【{checked_btn_text}】筛选策略，是否重新执行策略筛选？\n\n注意：重新筛选结果将覆盖本地数据！"
 
@@ -348,6 +368,45 @@ class StrategyWidget(QWidget):
     # ------------槽函数-----------
     def slot_lineEdit_current_filter_date_editingFinished(self):
         text = self.lineEdit_current_filter_date.text()
+        self.logger.info(f"输入的日期值为：{text}")
+
+         # 定义日期格式正则表达式
+        date_pattern = r'^\d{4}-\d{2}-\d{2}$'
+        
+        # 检查格式是否匹配
+        if not re.match(date_pattern, text):
+            QMessageBox.warning(self, '输入错误', '请输入正确日期格式: YYYY-MM-DD')
+            # 恢复之前的有效值或者清空
+            self.restore_last_filter_date()
+            return
+        
+        # 可选：进一步验证日期有效性（例如月份1-12，日期1-31）
+        try:
+            year, month, day = map(int, text.split('-'))
+            if not (1 <= month <= 12) or not (1 <= day <= 31):
+                raise ValueError("无效日期")
+            # 可以添加更多日期有效性检查
+                
+        except ValueError:
+            QMessageBox.warning(self, '输入错误', '请输入有效的日期')
+            self.restore_last_filter_date()
+            return
+            
+        # 在这里可以添加其他处理逻辑
+        BaoStockProcessor().set_filter_date(text)
+
+        self.lineEdit_current_filter_date.blockSignals(True)
+        self.lineEdit_current_filter_date.clearFocus()
+        self.lineEdit_current_filter_date.blockSignals(False)
+        b_ret = self.update_strategy_result_new()
+
+        if not b_ret:
+            self.restore_last_filter_date()
+            BaoStockProcessor().set_filter_date(self.last_filter_date)
+            return
+
+        # 保存当前有效的日期
+        self.last_filter_date = text
 
     def slot_strategy_button_clicked(self, btn):
         if btn.isChecked():

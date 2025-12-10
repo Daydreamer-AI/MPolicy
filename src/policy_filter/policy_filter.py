@@ -361,19 +361,7 @@ def daily_down_between_ma24_ma52_filter(df_filter_data, df_weekly_data, period=T
     if not columns_check(df_filter_data, ('date', 'close', 'dea', 'ma24', 'ma52', 'ma60', 'turnover_rate', 'volume_ratio')):
         return False
     
-    if s_filter_date == '':
-        last_day_row = df_filter_data.tail(1)
-    else:
-        # 直接筛选出指定日期的数据并取最后一行
-        filtered_data = df_filter_data[df_filter_data['date'] == s_filter_date]
-        if not filtered_data.empty:
-            last_day_row = filtered_data.tail(1)
-            # 然后可以安全地访问具体值
-            # day_close = last_day_row['close'].item()
-        else:
-            # 处理找不到指定日期的情况
-            logger.info(f"未找到日期 {s_filter_date} 的数据")
-            return False  # 或其他适当的处理
+    last_day_row = df_filter_data.tail(1)
     
     day_close = last_day_row['close'].item()
     day_dea = last_day_row['dea'].item()
@@ -391,19 +379,7 @@ def daily_down_between_ma24_ma52_filter(df_filter_data, df_weekly_data, period=T
         if not columns_check(df_weekly_data, ('date', 'close', 'dea', 'ma52')):
             return False
     
-        if s_filter_date == '':
-            last_week_row = df_weekly_data.tail(1)
-        else:
-            # 筛选出日期小于等于s_filter_date的所有行，然后取最后一行（因为日期是升序排列）
-            filtered_data = df_weekly_data[df_weekly_data['date'] <= s_filter_date]
-            if not filtered_data.empty:
-                last_week_row = filtered_data.iloc[-1]  # 获取最后一行，即最接近s_filter_date的那一行
-                # logger.info(f"last_week_row的日期: {last_week_row['date']}")
-            else:
-                # 处理没有找到符合条件的行的情况
-                last_week_row = None
-                logger.info(f"未找到日期 {s_filter_date} 前的周线数据")
-                return False
+        last_week_row = df_weekly_data.tail(1)
 
         week_close = last_week_row['close'].item()
         week_dea = last_week_row['dea'].item()
@@ -424,8 +400,8 @@ def daily_down_between_ma24_ma52_filter(df_filter_data, df_weekly_data, period=T
     b_ret_6 = day_close <= day_ma5 if b_less_than_ma5 else True
 
 
-    if s_filter_date != '' or s_target_code != '':
-        logger.info(f"特定筛选--s_filter_date: {s_filter_date}, s_target_code: {s_target_code}")
+    if s_target_code != '':
+        logger.info(f"特定筛选--s_target_code: {s_target_code}")
 
         day_diff = day_ma52 * policy_filter_ma52_diff
         logger.info(f"day_turn: {day_turn}, day_lb: {day_lb}, b_weekly_condition: {b_weekly_condition}")
@@ -815,12 +791,6 @@ def get_last_adjust_period_deviate_status(df_filter_data, period=TimePeriod.DAY)
     
     # 做日期和代码筛选
     df_data = df_filter_data
-    if s_filter_date != "":
-        df_data = df_filter_data[df_filter_data['date'] <= s_filter_date]
-        if b_filter_log:
-            logger.info(f"筛选日期：{s_filter_date}")
-            logger.info(f"筛选前长度：{len(df_filter_data)}，筛选后长度：{len(df_data)}")
-            logger.info(f"筛选日期后最后一行：{df_data.tail(1)}")
 
     if s_target_code != "" and day_code != s_target_code:
         return -1

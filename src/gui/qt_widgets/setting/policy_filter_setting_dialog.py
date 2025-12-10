@@ -44,6 +44,9 @@ class PolicyFilterSettingDialog(QDialog):
         self.checkBox_less_than_ma5.setChecked(b_less_than_ma5)
         self.checkBox_log.setChecked(b_filter_log)
 
+        self.label_filter_date.hide()
+        self.lineEdit_filter_date.hide()
+
     def connect_init(self):
         self.btn_cancel.clicked.connect(self.solt_btn_cancel_clicked)
         self.btn_ok.clicked.connect(self.solt_btn_ok_clicked)
