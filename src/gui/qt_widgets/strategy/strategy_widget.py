@@ -269,16 +269,26 @@ class StrategyWidget(QWidget):
         if load_local_result:
             b_use_local_result = True
         else:
+            lastest_stock_data_date = None
             lastest_stock_data_date = BaostockDataManager().get_lastest_stock_data_date('sh.600000', select_period)
+            self.logger.info(f"最新股票数据日期：{lastest_stock_data_date}")
             
             # 人工确认弹窗
             if df_local_filter_result is not None and not df_local_filter_result.empty:
+                lastest_filter_result_date = None
                 lastest_filter_result_date = df_local_filter_result['date'].iloc[0]
-                b_ret = True if (lastest_filter_result_date is None or lastest_stock_data_date is None) else lastest_filter_result_date >= lastest_stock_data_date
-                # if b_ret:
-                msg = f"本地已存在最新【{select_period_text}】级别筛选结果\n筛选结果日期：{lastest_filter_result_date}\n目标股票日期：{s_target_date}\n是否重新执行【{checked_btn_text}】筛选策略？\n\n注意：重新筛选结果将覆盖本地数据！"
-                # else:
-                #     msg = f"本地已存在【{TimePeriod.get_chinese_label(select_period)}】级别最新日期（{s_target_date}）的【{checked_btn_text}】筛选策略，是否重新执行策略筛选？\n\n注意：重新筛选结果将覆盖本地数据！"
+                self.logger.info(f"最新筛选结果日期：{lastest_filter_result_date}")
+                # self.logger.info(f"lastest_stock_data_date的类型：{type(lastest_stock_data_date)}， lastest_filter_result_date的类型：{type(lastest_filter_result_date)}")  # 都是<class 'str'>
+                
+                none_ret = lastest_filter_result_date is None or lastest_stock_data_date is None
+                date_ret = lastest_filter_result_date >= lastest_stock_data_date
+                self.logger.info(f"none_ret: {none_ret}, date_ret: {date_ret}")
+                b_ret = True if none_ret else date_ret
+                if b_ret:
+                    msg = f"本地已存在最新【{select_period_text}】级别筛选结果\n筛选结果日期：{lastest_filter_result_date}\n目标股票日期：{s_target_date}\n是否重新执行【{checked_btn_text}】筛选策略？\n\n注意：重新筛选结果将覆盖本地数据！"
+                else:
+                    s_target_date = lastest_stock_data_date
+                    msg = f"【{select_period_text}】级别的股票日期已更新至：{lastest_stock_data_date}\n筛选结果日期：{lastest_filter_result_date}\n是否更新执行【{checked_btn_text}】筛选策略？\n\n提示：执行策略较为耗时，请耐心等待！"
 
                 reply = QtWidgets.QMessageBox.question(self, '提示', msg,
                         QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
@@ -297,13 +307,14 @@ class StrategyWidget(QWidget):
                     QtWidgets.QMessageBox.information(self, '提示', "暂无最新筛选结果，请执行【零轴下方双底】策略！")
                     return False
                 
-                msg = f"即将执行【{select_period_text}】级别，目标股票日期（{s_target_date}）的【{checked_btn_text}】策略筛选，请确认？\n\n提示：执行策略较为耗时，请耐心等待！"
+                msg = f"即将执行【{select_period_text}】级别，目标股票日期（{s_target_date}）的【{checked_btn_text}】策略筛选\n请确认？\n\n提示：执行策略较为耗时，请耐心等待！"
                 reply = QtWidgets.QMessageBox.question(self, '提示', msg,
                                         QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
                                         QtWidgets.QMessageBox.No)
                 
                 if reply == QtWidgets.QMessageBox.Yes:
                     b_use_local_result = False
+                    s_target_date = lastest_stock_data_date
                 else:
                     b_use_local_result = True
                     return False
@@ -337,6 +348,7 @@ class StrategyWidget(QWidget):
         return True
     
     def process_filter_result(self, target_date, checked_id, period):
+        self.logger.info(f"执行筛选，目标日期：{target_date}，策略ID：{checked_id}，时间级别：{period.value}")
         filter_result = []
         if checked_id == 0:
             # 这里可以先检查本地数据是否存在，如果存在则直接从本地加载筛选结果列表，而无需重新调用筛选接口

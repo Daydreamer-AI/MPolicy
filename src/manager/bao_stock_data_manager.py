@@ -348,8 +348,9 @@ class BaostockDataManager(QObject):
         with self.lock:
             dict_lastest_1d_stock_data = self.dict_lastest_1d_stock_data
         if dict_lastest_1d_stock_data:
-            self.logger.info(f"返回缓存的最后一天（行数据）的日期")
-            return dict_lastest_1d_stock_data[code].iloc[0]['date'] if code in dict_lastest_1d_stock_data else None 
+            s_return = dict_lastest_1d_stock_data[code].iloc[0]['date'] if code in dict_lastest_1d_stock_data else None 
+            self.logger.info(f"返回缓存的最后一天（行数据）的日期： {s_return}")
+            return s_return
         else:  # 从数据库中读取
             table_name = period.get_table_name()
             with self.lock:
