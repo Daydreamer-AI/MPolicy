@@ -25,6 +25,9 @@ if components_path not in sys.path:
     sys.path.insert(0, components_path)
 
 def main():
+    # 设置进程标识环境变量
+    os.environ['MPOLICY_PROCESS'] = 'main'
+    
     # 初始化日志系统
     # 初始化日志系统
     setup_logging(

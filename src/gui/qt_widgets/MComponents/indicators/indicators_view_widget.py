@@ -136,20 +136,26 @@ class IndicatorsViewWidget(QWidget):
             return pd.DataFrame()
         
         if code != self.current_selected_code:
-            # self.logger.info(f"self.current_selected_code为{self.current_selected_code}，code为{code}")
+            self.logger.info(f"self.current_selected_code为{self.current_selected_code}，code为{code}")
             self.dict_stock_data.clear()
+            self.dict_stock_data = {}
             self.current_selected_code = code
         
         period_text = checked_btn.text()
         time_period = TimePeriod.from_label(period_text)
         
-        bao_stock_data_manager = BaostockDataManager()
-        df_time_period_stock_data = bao_stock_data_manager.get_stock_data_from_db_by_period_with_indicators_auto(code, time_period) # TODO：这里可优化成多数据来源接口。
+        if time_period not in self.dict_stock_data.keys():   # 暂无该级别数据
+            bao_stock_data_manager = BaostockDataManager()
+            df_time_period_stock_data = bao_stock_data_manager.get_stock_data_from_db_by_period_with_indicators_auto(code, time_period) # TODO：这里可优化成多数据来源接口。
 
-        if self.dict_stock_data:
-            self.dict_stock_data[time_period] = df_time_period_stock_data
+            if self.dict_stock_data:
+                self.logger.info(f"重新获取{code}的{period_text}数据")
+                self.dict_stock_data[time_period] = df_time_period_stock_data
+            else:
+                self.logger.info(f"更新{code}的{period_text}数据")
+                self.dict_stock_data = {time_period: df_time_period_stock_data}
         else:
-            self.dict_stock_data = {time_period: df_time_period_stock_data}
+            self.logger.info(f"{code}的{period_text}数据已存在，无需重复加载")
     def show_default_indicator(self):
         self.btn_indicator_volume.setChecked(True)
         self.slot_btn_indicator_volume_clicked()

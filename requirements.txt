@@ -4,3 +4,4 @@ PyQt5
 PyQtGraph
 Pandas
 PyQtChart
+psutil

@@ -333,7 +333,7 @@ class StrategyWidget(QWidget):
 
         self.update_date_and_count_labels(s_target_date, result_data_len, select_period)
         # 切换至指定级别K线显示
-
+        
         return True
     
     def process_filter_result(self, target_date, checked_id, period):
