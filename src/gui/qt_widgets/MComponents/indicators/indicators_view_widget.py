@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets, uic, QtGui, QtCore
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
+from PyQt5.QtCore import pyqtSlot, pyqtSignal
 
 import pyqtgraph as pg
 import numpy as np
@@ -24,6 +24,9 @@ from manager.bao_stock_data_manager import BaostockDataManager
 
 class IndicatorsViewWidget(QWidget):
     _shared_object_id = 0
+
+    sig_current_animation_index_changed = pyqtSignal(int)  # 点击信号
+
     def __init__(self, parent=None):
         super(IndicatorsViewWidget, self).__init__(parent)
         uic.loadUi('./src/gui/qt_widgets/MComponents/indicators/IndicatorsViewWidget.ui', self)
@@ -57,7 +60,10 @@ class IndicatorsViewWidget(QWidget):
         # 复盘相关参数
         self.animation_timer = QtCore.QTimer()
         self.animation_timer.timeout.connect(self.slot_animation_step)
+        self.start_animation_index = 0
         self.current_animation_index = 0
+        self.min_animation_index = 0
+        self.max_animation_index = -1
         self.animation_speed = 1000  # 毫秒
         self.is_playing = False
 
@@ -163,7 +169,8 @@ class IndicatorsViewWidget(QWidget):
                 self.logger.info(f"更新{code}的{period_text}数据")
                 self.dict_stock_data = {time_period: df_time_period_stock_data}
         else:
-            self.logger.info(f"{code}的{period_text}数据已存在，无需重复加载")
+            # self.logger.info(f"{code}的{period_text}数据已存在，无需重复加载")
+            pass
     def show_default_indicator(self):
         self.btn_indicator_volume.setChecked(True)
         self.slot_btn_indicator_volume_clicked()
@@ -171,12 +178,38 @@ class IndicatorsViewWidget(QWidget):
         self.btn_indicator_macd.setChecked(True)
         self.slot_btn_indicator_macd_clicked()
 
-    def update_chart(self, data):
+    def clear_chart(self):
+        # TODO: 待完善
+        pass
+
+    def update_chart(self, data, start_index=None):
         code = data['code']
         self.update_stock_data_dict(code)
         self.kline_widget.set_stock_name(data['name'])
 
-        self.df_data = self.get_stock_data_by_period(code)
+        df = self.get_stock_data_by_period(code)
+        if start_index is not None and start_index != "":  # 获取数据成功
+            # self.logger.info(f"df的长度: {len(df)}")
+            if self.max_animation_index == -1:
+                self.max_animation_index = len(df) - 1
+
+            if start_index < 0 or start_index > len(df) - 1:  # 索引超出范围
+                # self.logger.info(f"索引超出范围，start_index: {start_index}, df的长度: {len(df)}")
+                return
+
+            # 边界检查
+            start_index = max(0, min(start_index, len(df) - 1))
+            # 获取指定索引前（包含指定索引）的数据
+            self.df_data = df.iloc[:start_index+1]
+            # self.logger.info(f"self.df_data的长度: {len(self.df_data)}\n{self.df_data.tail(1)}")
+            
+            # 设置当前动画索引为start_index
+            self.current_animation_index = start_index
+            self.sig_current_animation_index_changed.emit(self.current_animation_index)
+
+            # self.logger.info(f"获取{code}的索引{start_index}数据成功")
+        else:
+            self.df_data = df
 
         if self.df_data is None or self.df_data.empty:  # 获取数据失败
             return
@@ -196,6 +229,12 @@ class IndicatorsViewWidget(QWidget):
         is_ma_checked = self.btn_indicator_ma.isChecked()
         self.kline_widget.show_ma(is_ma_checked)
 
+        self.update_indicator_chart(self.df_data)
+
+        #if start_date is None or start_date == "":
+        self.kline_widget.auto_scale_to_latest(120)
+
+    def update_indicator_chart(self, df_data):
         is_volume_checked = self.btn_indicator_volume.isChecked()
         if is_volume_checked:
             # self.add_indicator_chart('成交量')
@@ -203,7 +242,7 @@ class IndicatorsViewWidget(QWidget):
             if volume_widget is None:
                 self.btn_indicator_volume.setChecked(False)
             else:
-                volume_widget.update_data(self.df_data)
+                volume_widget.update_data(df_data)
             
 
         is_amount_checked = self.btn_indicator_amount.isChecked()
@@ -213,7 +252,7 @@ class IndicatorsViewWidget(QWidget):
             if amount_widget is None:
                 self.btn_indicator_amount.setChecked(False)
             else:
-                amount_widget.update_data(self.df_data)
+                amount_widget.update_data(df_data)
 
         is_macd_checked = self.btn_indicator_macd.isChecked()
         if is_macd_checked:
@@ -222,7 +261,7 @@ class IndicatorsViewWidget(QWidget):
             if macd_widget is None:
                 self.btn_indicator_macd.setChecked(False)
             else:
-                macd_widget.update_data(self.df_data)
+                macd_widget.update_data(df_data)
 
         is_kdj_checked = self.btn_indicator_kdj.isChecked()
         if is_kdj_checked:
@@ -231,7 +270,7 @@ class IndicatorsViewWidget(QWidget):
             if kdj_widget is None:
                 self.btn_indicator_kdj.setChecked(False)
             else:
-                kdj_widget.update_data(self.df_data)
+                kdj_widget.update_data(df_data)
 
         is_rsi_checked = self.btn_indicator_rsi.isChecked()
         if is_rsi_checked:
@@ -240,7 +279,7 @@ class IndicatorsViewWidget(QWidget):
             if rsi_widget is None:
                 self.btn_indicator_rsi.setChecked(False)
             else:
-                rsi_widget.update_data(self.df_data)
+                rsi_widget.update_data(df_data)
 
         is_boll_checked = self.btn_indicator_boll.isChecked()
         if is_boll_checked:
@@ -249,9 +288,8 @@ class IndicatorsViewWidget(QWidget):
             if boll_widget is None:
                 self.btn_indicator_boll.setChecked(False)
             else:
-                boll_widget.update_data(self.df_data)
+                boll_widget.update_data(df_data)
 
-        self.kline_widget.auto_scale_to_latest(120)
 
     def draw_volume(self):
         widget = VolumeWidget(self.df_data, self.type, self)
@@ -398,18 +436,33 @@ class IndicatorsViewWidget(QWidget):
         self.logger.info("成功移除所有指标图表")
 
     # -----------------------复盘回放相关接口----------------------
+    def init_animation(self, data, start_date):
+        dict_return = {}
+        code = data['code']
+        self.update_stock_data_dict(code)
+        df = self.get_stock_data_by_period(code)
+        if start_date is not None and start_date != "":
+            # self.df_data = df[df['date'] <= start_date]
+            # 获取等于start_date的行索引
+            matching_indices = df[df['date'] == start_date].index
+            if len(matching_indices) > 0:
+                self.start_animation_index = matching_indices[0]
+                self.logger.info(f"start_date索引: {self.start_animation_index}")
+                self.update_chart(data, self.start_animation_index)
+
+                dict_return = {
+                    "start_date_index": self.start_animation_index,
+                    "min_index": self.min_animation_index,
+                    "max_index": self.max_animation_index
+                }
+
+        return dict_return
+
     # 添加播放控制方法
-    def start_animation(self, start_index=0):
+    def start_animation(self, start_index=None):
         """开始动画播放"""
-        if self.df_data is None or self.df_data.empty:
-            return
-        
-        self.current_animation_index = start_index
         self.animation_timer.start(self.animation_speed)
         self.is_playing = True
-        
-        # 更新初始显示
-        self.update_animation_frame()
 
     def pause_animation(self):
         """暂停动画播放"""
@@ -420,8 +473,6 @@ class IndicatorsViewWidget(QWidget):
         """停止动画播放"""
         self.animation_timer.stop()
         self.is_playing = False
-        self.current_animation_index = 0
-        self.update_animation_frame()
 
     def set_animation_speed(self, speed_ms):
         """设置动画播放速度"""
@@ -434,35 +485,56 @@ class IndicatorsViewWidget(QWidget):
         """向前播放指定步数"""
         if self.df_data is None or self.df_data.empty:
             return
-            
-        self.current_animation_index = min(
-            len(self.df_data) - 1, 
-            self.current_animation_index + steps
-        )
-        self.update_animation_frame()
+        
+        new_index = self.current_animation_index + steps
+
+        if new_index < 0:
+            QMessageBox.warning(self, "提示", "已到达最前")
+            return
+
+        data = self.df_data.iloc[0]
+        self.update_chart(data, new_index)
 
     def step_backward(self, steps=1):
         """向后回退指定步数"""
-        self.current_animation_index = max(0, self.current_animation_index - steps)
-        self.update_animation_frame()
-
-    def update_animation_frame(self):
-        """更新动画帧显示"""
         if self.df_data is None or self.df_data.empty:
             return
         
-        # 获取当前需要显示的数据（从开始到当前索引）
-        display_data = self.df_data.iloc[:self.current_animation_index+1]
+        new_index = self.current_animation_index - steps
+
+        if new_index < 0:
+            QMessageBox.warning(self, "提示", "已到达最前")
+            return
+
+        data = self.df_data.iloc[0]
+        self.update_chart(data, new_index)
+
+    def back_to_front(self):
+        """回到最前"""
+        if self.df_data is None or self.df_data.empty:
+            return
         
-        # 更新所有图表
-        self.kline_widget.update_data(display_data)
+        data = self.df_data.iloc[0]
+        self.update_chart(data, 0)
+
+    def back_to_end(self):
+        """回到最后"""
+        if self.df_data is None or self.df_data.empty:
+            return
         
-        # 更新指标图表
-        for widget in self.indicator_widgets.values():
-            widget.update_data(display_data)
+        data = self.df_data.iloc[0]
+        self.update_chart(data, self.max_animation_index)
+
+    def go_to_target_index(self, index):
+        """跳转到指定索引"""
+        if self.df_data is None or self.df_data.empty:
+            return
         
-        # 自动缩放视图到最新数据
-        self.kline_widget.auto_scale_to_latest(self.current_animation_index+1)
+        if index == self.current_animation_index:
+            return
+
+        data = self.df_data.iloc[0]
+        self.update_chart(data, index)
 
 
     # --------------------------槽函数-------------------------------
@@ -536,5 +608,10 @@ class IndicatorsViewWidget(QWidget):
         dlg.exec()
 
     def slot_animation_step(self):
-        pass
+        if self.current_animation_index >= self.max_animation_index:
+            self.logger.info("已到达最后，播放结束")
+            self.stop_animation()
+            return
+        
+        self.step_forward()
 

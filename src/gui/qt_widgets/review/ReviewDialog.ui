@@ -15,6 +15,9 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_2">
    <item>
+    <layout class="QVBoxLayout" name="verticalLayout_indicators_view"/>
+   </item>
+   <item>
     <widget class="QFrame" name="frame_review">
      <property name="minimumSize">
       <size>
@@ -38,28 +41,23 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QPushButton" name="btn_select_start_date">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>24</height>
-           </size>
-          </property>
+         <widget class="QLabel" name="label_date_title">
           <property name="text">
-           <string>选择起点</string>
+           <string>日期：</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="btn_back">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>24</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>回退</string>
+         <widget class="QDateEdit" name="dateEdit">
+          <property name="dateTime">
+           <datetime>
+            <hour>0</hour>
+            <minute>0</minute>
+            <second>0</second>
+            <year>2025</year>
+            <month>10</month>
+            <day>1</day>
+           </datetime>
           </property>
          </widget>
         </item>
@@ -77,6 +75,62 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="btn_speed">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>倍速</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QPushButton" name="btn_back_to_front">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>最前</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btn_back_ten">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>向后十格</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btn_back">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>回退</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="btn_move_on">
           <property name="minimumSize">
            <size>
@@ -90,7 +144,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="btn_speed">
+         <widget class="QPushButton" name="btn_move_on_10">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -98,7 +152,45 @@
            </size>
           </property>
           <property name="text">
-           <string>倍速</string>
+           <string>向前十格</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btn_move_to_last">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>最后</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>进度：</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="horizontalSlider_progress">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_progress">
+          <property name="text">
+           <string>50/100</string>
           </property>
          </widget>
         </item>

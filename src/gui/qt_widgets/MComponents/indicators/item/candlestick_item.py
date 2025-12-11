@@ -74,13 +74,6 @@ class CandlestickItem(pg.GraphicsObject):
                     p.setPen(pg.mkPen(dict_ma_color['ma10'], width=2))
                     p.drawLines(*tuple(ma10_lines))
 
-            # if 'ma20' in self.data.columns and len(self.data) > 20:
-            #     ma20 = self.data['ma20']
-            #     ma20_lines = self._get_quota_lines(ma20)
-            #     if ma20_lines:
-            #         p.setPen(pg.mkPen(dict_ma_color['ma20'], width=1))
-            #         p.drawLines(*tuple(ma20_lines))
-
             if 'ma24' in self.data.columns and len(self.data) > 24:
                 ma24 = self.data['ma24']
                 ma24_lines = self._get_quota_lines(ma24)
@@ -88,28 +81,20 @@ class CandlestickItem(pg.GraphicsObject):
                     p.setPen(pg.mkPen(dict_ma_color['ma24'], width=2))
                     p.drawLines(*tuple(ma24_lines))
 
-            
-            # if 'ma30' in self.data.columns and len(self.data) > 30:
-            #     ma30 = self.data['ma30']
-            #     ma30_lines = self._get_quota_lines(ma30)
-            #     if ma30_lines:
-            #         p.setPen(pg.mkPen(dict_ma_color['30'], width=1))
-            #         p.drawLines(*tuple(ma30_lines))
-
             if 'ma52' in self.data.columns and len(self.data) > 52:
                 ma52 = self.data['ma52']
                 ma52_lines = self._get_quota_lines(ma52)
                 if ma52_lines:
                     p.setPen(pg.mkPen(dict_ma_color['ma52'], width=2))
                     p.drawLines(*tuple(ma52_lines))
-        
 
         #绘制蜡烛图
         for i in range(len(self.data)):
-            open_price = self.data['open' ][i]
-            close_price = self.data['close'][i]
-            high_price = self.data['high'][i]
-            low_price = self.data['low'][i]
+            # 使用 iloc 按位置访问数据，而不是按索引访问
+            open_price = self.data['open'].iloc[i]
+            close_price = self.data['close'].iloc[i]
+            high_price = self.data['high'].iloc[i]
+            low_price = self.data['low'].iloc[i]
 
             if close_price < open_price:
                 #下跌－绿色
@@ -137,14 +122,13 @@ class CandlestickItem(pg.GraphicsObject):
                     p.drawRect(QtCore.QRectF(i - w, open_price, w * 2, close_price - open_price))
                     
         p.end()
-
     def _get_quota_lines(self, data):
         #…获取指标线段的坐标点·
         lines = []
         for i in range(1, len(data)):
-            if not np.isnan(data[i-1]) and not np.isnan(data[i]):
-                lines.append(QtCore.QLineF(QtCore.QPointF(i-1, data[i-1]),
-                QtCore.QPointF(i, data[i])))
+            if not np.isnan(data.iloc[i-1]) and not np.isnan(data.iloc[i]):
+                lines.append(QtCore.QLineF(QtCore.QPointF(i-1, data.iloc[i-1]),
+                QtCore.QPointF(i, data.iloc[i])))
         return lines
     def paint(self, p, *args):
         p.drawPicture(0, 0, self.picture)
