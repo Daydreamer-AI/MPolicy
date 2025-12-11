@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, uic, QtGui
+from PyQt5 import QtWidgets, uic, QtGui, QtCore
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout
 from PyQt5.QtCore import pyqtSlot
 
@@ -52,6 +52,14 @@ class IndicatorsViewWidget(QWidget):
 
         self.current_selected_code = ""
         self.dict_stock_data = {}         # {TimePeriod: DataFrame}，只保存选中code的各个级别的k线数据
+
+
+        # 复盘相关参数
+        self.animation_timer = QtCore.QTimer()
+        self.animation_timer.timeout.connect(self.slot_animation_step)
+        self.current_animation_index = 0
+        self.animation_speed = 1000  # 毫秒
+        self.is_playing = False
 
     def init_ui(self):
         
@@ -243,7 +251,7 @@ class IndicatorsViewWidget(QWidget):
             else:
                 boll_widget.update_data(self.df_data)
 
-        self.kline_widget.auto_scale_to_latest()
+        self.kline_widget.auto_scale_to_latest(120)
 
     def draw_volume(self):
         widget = VolumeWidget(self.df_data, self.type, self)
@@ -389,6 +397,75 @@ class IndicatorsViewWidget(QWidget):
         
         self.logger.info("成功移除所有指标图表")
 
+    # -----------------------复盘回放相关接口----------------------
+    # 添加播放控制方法
+    def start_animation(self, start_index=0):
+        """开始动画播放"""
+        if self.df_data is None or self.df_data.empty:
+            return
+        
+        self.current_animation_index = start_index
+        self.animation_timer.start(self.animation_speed)
+        self.is_playing = True
+        
+        # 更新初始显示
+        self.update_animation_frame()
+
+    def pause_animation(self):
+        """暂停动画播放"""
+        self.animation_timer.stop()
+        self.is_playing = False
+
+    def stop_animation(self):
+        """停止动画播放"""
+        self.animation_timer.stop()
+        self.is_playing = False
+        self.current_animation_index = 0
+        self.update_animation_frame()
+
+    def set_animation_speed(self, speed_ms):
+        """设置动画播放速度"""
+        self.animation_speed = speed_ms
+        if self.is_playing:
+            self.animation_timer.stop()
+            self.animation_timer.start(self.animation_speed)
+
+    def step_forward(self, steps=1):
+        """向前播放指定步数"""
+        if self.df_data is None or self.df_data.empty:
+            return
+            
+        self.current_animation_index = min(
+            len(self.df_data) - 1, 
+            self.current_animation_index + steps
+        )
+        self.update_animation_frame()
+
+    def step_backward(self, steps=1):
+        """向后回退指定步数"""
+        self.current_animation_index = max(0, self.current_animation_index - steps)
+        self.update_animation_frame()
+
+    def update_animation_frame(self):
+        """更新动画帧显示"""
+        if self.df_data is None or self.df_data.empty:
+            return
+        
+        # 获取当前需要显示的数据（从开始到当前索引）
+        display_data = self.df_data.iloc[:self.current_animation_index+1]
+        
+        # 更新所有图表
+        self.kline_widget.update_data(display_data)
+        
+        # 更新指标图表
+        for widget in self.indicator_widgets.values():
+            widget.update_data(display_data)
+        
+        # 自动缩放视图到最新数据
+        self.kline_widget.auto_scale_to_latest(self.current_animation_index+1)
+
+
+    # --------------------------槽函数-------------------------------
     def slot_period_button_clicked(self, btn):
         if self.df_data is None or self.df_data.empty:
             self.logger.warning("数据为空，无法切换图表周期数据")
@@ -457,4 +534,7 @@ class IndicatorsViewWidget(QWidget):
         from gui.qt_widgets.review.review_dialog import ReviewDialog
         dlg = ReviewDialog()
         dlg.exec()
+
+    def slot_animation_step(self):
+        pass
 

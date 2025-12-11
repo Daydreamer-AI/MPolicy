@@ -277,25 +277,39 @@ class BaseIndicatorWidget(QWidget):
         # 重新设置Y轴刻度
         pass
 
-    def set_default_view_range(self, visible_days=120):
+    def set_default_view_range(self, visible_days=None):
         """
-        设置默认视图范围，显示最新的数据
+        设置默认视图范围，显示最新的数据，最后一个数据显示在视图左边2/3的位置，为右边预留1/3的空白
         :param visible_days: 默认显示的天数
         """
         if self.plot_widget is None or self.df_data is None or self.df_data.empty:
             return
         
         total_days = len(self.df_data)
-        if total_days <= visible_days:
-            # 数据量小于等于默认显示天数，显示所有数据
-            self.plot_widget.setXRange(-1, total_days + 1, padding=0)
-        else:
-            # 显示最新的visible_days天数据
-            start_index = total_days - visible_days
-            end_index = total_days
+        if visible_days is None:
+            # 显示所有数据，最后一个数据显示在视图左边2/3位置
+            display_range = total_days / (2/3)  # 总视图范围，使得total_days占据2/3
+            start_index = 0
+            end_index = display_range  # 结束位置要给右侧留出1/3空白
             self.plot_widget.setXRange(start_index, end_index, padding=0)
+        else:
+            # 显示指定天数的数据
+            if total_days <= visible_days:
+                # 数据量不足指定天数
+                display_range = visible_days / (2/3)
+                start_index = 0
+                end_index = display_range
+                self.plot_widget.setXRange(start_index, end_index, padding=0)
+            else:
+                # 数据量超过指定天数，显示最新的visible_days天数据
+                end_index = total_days
+                # 计算起始索引，使得最后一天位于视图的2/3位置
+                display_range = visible_days / (2/3)
+                start_index = end_index - visible_days  # 显示visible_days根K线
+                end_index = start_index + display_range  # 但视图范围要给右侧留1/3空白
+                self.plot_widget.setXRange(start_index, end_index, padding=0)
 
-    def auto_scale_to_latest(self, visible_days=120):
+    def auto_scale_to_latest(self, visible_days=None):
         """
         自动缩放到最新数据并触发Y轴自适应
         :param visible_days: 默认显示的天数
