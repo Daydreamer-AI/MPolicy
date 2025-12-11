@@ -70,7 +70,7 @@ class BoardOverviewWidget(QWidget):
         s_industry_date = self.df_lastest_industry_data['date'].iloc[-1]
         s_concept_date = self.df_lastest_concept_data['date'].iloc[-1]
         if s_industry_date != s_concept_date:
-            self.logger.warning(f"行业板块数据日期和概念板块数据日期不一致，请检查数据！")
+            self.logger.warning(f"行业板块数据日期和概念板块数据日期不一致，请检查数据！s_industry_date：{s_industry_date}，s_concept_date：{s_concept_date}")
             return
         
         self.lastest_industry_data_date = s_industry_date
@@ -146,7 +146,7 @@ class BoardOverviewWidget(QWidget):
         s_industry_date = self.df_lastest_industry_data['date'].iloc[-1]
         s_concept_date = self.df_lastest_concept_data['date'].iloc[-1]
         if s_industry_date != s_concept_date:
-            self.logger.warning(f"行业板块数据日期和概念板块数据日期不一致，请检查数据！")
+            self.logger.warning(f"行业板块数据日期和概念板块数据日期不一致，请检查数据！s_industry_date：{s_industry_date}，s_concept_date：{s_concept_date}")
             return
         
         if self.lastest_industry_data_date != s_industry_date or self.lastest_concept_data_date != s_concept_date:

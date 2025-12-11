@@ -15,6 +15,7 @@ class BoardChangePercentChartWidget(QWidget):
     def __init__(self, type=0):
         super().__init__()
         self.logger = get_logger(__name__)
+        self.x_positions = []
 
         self.board_type = type
         self.setup_ui()
@@ -349,6 +350,7 @@ class BoardChangePercentChartWidget(QWidget):
         pass
 
     def on_mouse_move(self, pos):
+        if self.x_positions is None or self.x_positions == []: return
         if self.plot_widget.sceneBoundingRect().contains(pos):
             mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
             x_val = mouse_point.x()
