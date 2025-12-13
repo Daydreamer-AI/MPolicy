@@ -129,7 +129,7 @@ class KLineWidget(BaseIndicatorWidget):
         if self.item:
             self.item.show_ma(b_show)
 
-    def set_period(self, period):
+    def set_period_text(self, period):
         self.label_ma_period.setText(period)
 
     def set_stock_name(self, stock_name):

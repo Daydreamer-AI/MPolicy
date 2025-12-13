@@ -889,8 +889,8 @@ class BaoStockProcessor(QObject):
             if i % 100 == 0:  # 每100只股票打印一次日志
                 self.logger.info(f"已处理 {i} 只沪市股票【周线】数据")
 
-            if i > 700 and i <= 800:
-                self.logger.info(f"已处理 {i} 只沪市股票{value}【周线】数据")
+            # if i > 700 and i <= 800:
+            #     self.logger.info(f"已处理 {i} 只沪市股票{value}【周线】数据")
 
             i += 1
 

@@ -25,7 +25,8 @@ from manager.bao_stock_data_manager import BaostockDataManager
 class IndicatorsViewWidget(QWidget):
     _shared_object_id = 0
 
-    sig_current_animation_index_changed = pyqtSignal(int)  # 点击信号
+    sig_current_animation_index_changed = pyqtSignal(int)
+    sig_min_and_max_animation_index_changed = pyqtSignal(int, int)
 
     def __init__(self, parent=None):
         super(IndicatorsViewWidget, self).__init__(parent)
@@ -67,19 +68,21 @@ class IndicatorsViewWidget(QWidget):
         self.animation_speed = 1000  # 毫秒
         self.is_playing = False
 
+        self.last_period_btn_checked_id = 7
+
     def init_ui(self):
         
         self.period_button_group = QtWidgets.QButtonGroup(self)
         self.period_button_group.addButton(self.btn_time)
-        self.period_button_group.addButton(self.btn_1d)
-        self.period_button_group.addButton(self.btn_1w)
-        self.period_button_group.addButton(self.btn_1m)
-        self.period_button_group.addButton(self.btn_5m)
-        self.period_button_group.addButton(self.btn_10m)
-        self.period_button_group.addButton(self.btn_15m)
-        self.period_button_group.addButton(self.btn_30m)
-        self.period_button_group.addButton(self.btn_60m)
-        self.period_button_group.addButton(self.btn_120m)
+        self.period_button_group.addButton(self.btn_1m, 0)
+        self.period_button_group.addButton(self.btn_5m, 1)
+        self.period_button_group.addButton(self.btn_10m, 2)
+        self.period_button_group.addButton(self.btn_15m, 3)
+        self.period_button_group.addButton(self.btn_30m, 4)
+        self.period_button_group.addButton(self.btn_60m, 5)
+        self.period_button_group.addButton(self.btn_120m, 6)
+        self.period_button_group.addButton(self.btn_1d, 7)
+        self.period_button_group.addButton(self.btn_1w, 8)
 
         self.btn_time.setEnabled(False)
         self.btn_1m.setEnabled(False)
@@ -93,7 +96,8 @@ class IndicatorsViewWidget(QWidget):
         self.verticalLayout.addWidget(self.kline_widget, 3)
         self.btn_indicator_ma.setChecked(True)
         self.kline_widget.show_ma()
-        self.kline_widget.set_period("日线")
+        self.kline_widget.set_period(TimePeriod.DAY)
+        self.kline_widget.set_period_text("日线")
         self.kline_widget.set_indicator_name("均线")
 
     def init_connect(self):
@@ -130,6 +134,17 @@ class IndicatorsViewWidget(QWidget):
             self.btn_review.show()
         else:
             self.btn_review.hide()
+
+    def enable_period_btn(self, b_enable=True):
+        # checked_id = self.period_button_group.checkedId()
+        for btn in self.period_button_group.buttons():
+            if btn.isChecked():  # 忽略选中的按钮
+                continue
+            
+            if self.period_button_group.id(btn) in [0, 2, 6]:
+                continue
+
+            btn.setEnabled(b_enable)
 
     def get_stock_data_by_period(self, code):
         checked_btn = self.period_button_group.checkedButton()
@@ -435,18 +450,36 @@ class IndicatorsViewWidget(QWidget):
         
         self.logger.info("成功移除所有指标图表")
 
+    def set_period(self, period):
+        self.kline_widget.set_period(period)
+        for indicator_name, widget in self.indicator_widgets.items():
+            widget.set_period(period)
+
     # -----------------------复盘回放相关接口----------------------
     def init_animation(self, data, start_date):
         dict_return = {}
         code = data['code']
+        self.logger.info(f"初始化动画：{code}, 日期：{start_date}")
         self.update_stock_data_dict(code)
         df = self.get_stock_data_by_period(code)
+
+        if df is None or df.empty:
+            self.logger.warning(f"数据为空，无法初始化动画：{code}")
+            return dict_return
+
         if start_date is not None and start_date != "":
             # self.df_data = df[df['date'] <= start_date]
             # 获取等于start_date的行索引
             matching_indices = df[df['date'] == start_date].index
+            self.logger.info(f"找到 {len(matching_indices)} 行匹配的数据")
             if len(matching_indices) > 0:
-                self.start_animation_index = matching_indices[0]
+                # 如果有多个匹配项，你可以选择如何处理
+                # 例如，获取所有匹配的数据
+                self.logger.info(f"找到 {len(matching_indices)} 个匹配的日期记录")
+                
+                # 方案1: 使用第一个匹配项（当前逻辑）
+                self.start_animation_index = matching_indices[-1]
+                
                 self.logger.info(f"start_date索引: {self.start_animation_index}")
                 self.update_chart(data, self.start_animation_index)
 
@@ -455,6 +488,10 @@ class IndicatorsViewWidget(QWidget):
                     "min_index": self.min_animation_index,
                     "max_index": self.max_animation_index
                 }
+            else:
+                self.logger.warning(f"没有找到匹配的行：{start_date}")
+        else:
+            self.logger.info("start_date为空")
 
         return dict_return
 
@@ -463,16 +500,19 @@ class IndicatorsViewWidget(QWidget):
         """开始动画播放"""
         self.animation_timer.start(self.animation_speed)
         self.is_playing = True
+        self.enable_period_btn(False)
 
     def pause_animation(self):
         """暂停动画播放"""
         self.animation_timer.stop()
         self.is_playing = False
+        self.enable_period_btn(True)
 
     def stop_animation(self):
         """停止动画播放"""
         self.animation_timer.stop()
         self.is_playing = False
+        self.enable_period_btn(True)
 
     def set_animation_speed(self, speed_ms):
         """设置动画播放速度"""
@@ -543,8 +583,31 @@ class IndicatorsViewWidget(QWidget):
             self.logger.warning("数据为空，无法切换图表周期数据")
             return
         
-        self.kline_widget.set_period(btn.text())
-        self.update_chart(self.df_data.iloc[0])
+        checked_id = self.period_button_group.checkedId()
+        if self.property("review") is not None:
+            # self.logger.info(f"所属复盘模块，暂不支持周期切换")
+            list_btns = self.period_button_group.buttons()
+            if checked_id >= 0 and checked_id < len(list_btns):
+                target_period_text = self.period_button_group.button(checked_id).text()
+                last_period_text = self.period_button_group.button(self.last_period_btn_checked_id).text()
+                self.logger.info(f"此前周期id：{self.last_period_btn_checked_id}，名称：{last_period_text}，切换到目标周期id：{checked_id}，名称：{target_period_text}")
+                if checked_id < self.last_period_btn_checked_id:
+                    # 大周期切小周期
+                    # 需更新：self.current_animation_index，self.min_animation_index，self.max_animation_index，并通知外层控件
+                    self.init_animation(self.df_data.iloc[0], self.df_data.iloc[self.current_animation_index]['date'])
+                else:
+                    # 小周期切大周期
+                    self.logger.info(f"暂不支持小周期切大周期")
+                    pass
+            else:
+                self.logger.warning(f"当前选中的按钮ID: {checked_id} 不存在")
+                return
+        else:
+            self.update_chart(self.df_data.iloc[0])
+
+        self.kline_widget.set_period_text(btn.text())
+        self.last_period_btn_checked_id = checked_id
+        self.set_period(TimePeriod.from_label(btn.text()))
 
     def slot_btn_indicator_volume_clicked(self):
         is_checked = self.btn_indicator_volume.isChecked()

@@ -26,6 +26,7 @@ class ReviewDialog(QDialog):
     def init_ui(self):
         from gui.qt_widgets.MComponents.indicators.indicators_view_widget import IndicatorsViewWidget
         self.indicators_view_widget = IndicatorsViewWidget(self)
+        self.indicators_view_widget.setProperty("review", True)
         self.indicators_view_widget.show_review_btn(False)
 
         self.verticalLayout_indicators_view.addWidget(self.indicators_view_widget)
@@ -34,6 +35,7 @@ class ReviewDialog(QDialog):
 
     def init_connect(self):
         self.indicators_view_widget.sig_current_animation_index_changed.connect(self.slot_current_animation_index_changed)
+        self.indicators_view_widget.sig_min_and_max_animation_index_changed.connect(self.slot_min_and_max_animation_index_changed)
 
         self.btn_play.clicked.connect(self.slot_btn_play_clicked)
 
@@ -88,6 +90,9 @@ class ReviewDialog(QDialog):
         self.horizontalSlider_progress.blockSignals(False)
 
         self.update_progress_label(index)
+
+    def slot_min_and_max_animation_index_changed(self, min_index, max_index):
+        pass
 
     def slot_btn_play_clicked(self):
         if self.btn_play.property("is_play"):

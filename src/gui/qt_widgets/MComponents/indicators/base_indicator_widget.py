@@ -5,6 +5,8 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout
 import pyqtgraph as pg
 import numpy as np
 
+from manager.period_manager import TimePeriod
+
 # 需要发送到外部控件（如BaseIndicatorWidget的父控件或其他子类）时，使用全局信号
 # 问题：当存在多个BaseIndicatorWidget（及其子类）对象连接同一个全局信号时，触发全局信号后所有槽函数都会响应。解决方案：传递self，在槽函数中判断，不是当前实例，则不响应。
 class SignalManager(QObject):
@@ -43,6 +45,7 @@ class BaseIndicatorWidget(QWidget):
         self.logger = None
         self.plot_widget = None
         self.type = type   # 0：行情，1：策略，2：复盘
+        self.period = TimePeriod.DAY
         
         self.init_para(data)    # 注意：若子类中有重写这三个init_函数，必须显示调用父类对应的init_函数，否则会覆盖掉父类的初始化处理。
         self.init_ui()
@@ -164,8 +167,12 @@ class BaseIndicatorWidget(QWidget):
             if index < 0 or index >= len(self.df_data):
                 return ""
             
-            # 使用 .loc 访问器获取指定行的 'date' 列数据
-            date_str = self.df_data.loc[index, 'date']
+            # 使用 .loc 访问器获取指定行的 时间列数据
+            s_col_name = 'date'
+            if TimePeriod.is_minute_level(self.period):
+                s_col_name = 'time'
+                
+            date_str = self.df_data.loc[index, s_col_name]
             label_main_x_text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(date_str)
             return label_main_x_text_with_style
         except Exception as e:
@@ -238,6 +245,12 @@ class BaseIndicatorWidget(QWidget):
     def addtional_connect(self):
         # raise NotImplementedError("子类必须实现 addtional_connect 方法")
         pass
+
+    def set_period(self, period):
+        self.period = period
+
+    def get_period(self):
+        return self.period
 
     def get_visible_data_range(self):
         '''
