@@ -1453,7 +1453,7 @@ class BaoStockProcessor(QObject):
 
     def filter_check(self, code, condition=None):
         if condition is None or condition.empty:
-            self.logger.info(f"筛选条件为空")
+            # self.logger.info(f"筛选条件为空")
             return True
         else:
             # 特定股票代码筛选
@@ -1552,7 +1552,7 @@ class BaoStockProcessor(QObject):
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
         b_weekly = pf.get_weekly_condition()
-        self.logger.info(f"开始执行日线零轴上方MA52筛选，换手率： {turn}, 量比：{lb}，是否启用周线筛选条件：{b_weekly}")
+        self.logger.info(f"开始执行【{TimePeriod.get_chinese_label(period)}】零轴上方MA52筛选，换手率： {turn}, 量比：{lb}，是否启用周线筛选条件：{b_weekly}")
         board_index = 0
         dict_stock_info = BaostockDataManager().get_stock_info_dict()
         for board_name, board_data in dict_stock_info.items():
@@ -1602,7 +1602,7 @@ class BaoStockProcessor(QObject):
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
         b_weekly = pf.get_weekly_condition()
-        self.logger.info(f"开始执行日线零轴上方MA24筛选，换手率：{turn}, 量比：{lb}, 是否启用周线筛选条件：{b_weekly}")
+        self.logger.info(f"开始执行【{TimePeriod.get_chinese_label(period)}】零轴上方MA24筛选，换手率：{turn}, 量比：{lb}, 是否启用周线筛选条件：{b_weekly}")
         board_index = 0
         dict_stock_info = BaostockDataManager().get_stock_info_dict()
         for board_name, board_data in dict_stock_info.items():
@@ -1651,7 +1651,7 @@ class BaoStockProcessor(QObject):
         filter_result = []
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
-        self.logger.info(f"开始执行日线零轴上方MA10筛选，换手率：{turn}, 量比：{lb}")
+        self.logger.info(f"开始执行【{TimePeriod.get_chinese_label(period)}】零轴上方MA10筛选，换手率：{turn}, 量比：{lb}")
         board_index = 0
         dict_stock_info = BaostockDataManager().get_stock_info_dict()
         for board_name, board_data in dict_stock_info.items():
@@ -1699,7 +1699,7 @@ class BaoStockProcessor(QObject):
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
         b_weekly = pf.get_weekly_condition()
-        self.logger.info(f"开始执行日线零轴下方方MA24-MA52筛选，换手率：{turn}, 量比：{lb}, 是否启用周线筛选条件：{b_weekly}")
+        self.logger.info(f"开始执行【{TimePeriod.get_chinese_label(period)}】零轴下方方MA24-MA52筛选，换手率：{turn}, 量比：{lb}, 是否启用周线筛选条件：{b_weekly}")
         board_index = 0
         dict_stock_info = BaostockDataManager().get_stock_info_dict()
         for board_name, board_data in dict_stock_info.items():
@@ -1747,7 +1747,7 @@ class BaoStockProcessor(QObject):
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
         b_weekly = pf.get_weekly_condition()
-        self.logger.info(f"开始执行日线零轴下方方MA5-MA52筛选，换手率：{turn}, 量比：{lb}，是否启用周线筛选条件：{b_weekly}")
+        self.logger.info(f"开始执行【{TimePeriod.get_chinese_label(period)}】零轴下方方MA5-MA52筛选，换手率：{turn}, 量比：{lb}，是否启用周线筛选条件：{b_weekly}")
         board_index = 0
         dict_stock_info = BaostockDataManager().get_stock_info_dict()
         for board_name, board_data in dict_stock_info.items():
@@ -1795,7 +1795,7 @@ class BaoStockProcessor(QObject):
         filter_result = []
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
-        self.logger.info(f"开始执行日线零轴下方MA52突破筛选，换手率：{turn}, 量比：{lb}")
+        self.logger.info(f"开始执行【{TimePeriod.get_chinese_label(period)}】零轴下方MA52突破筛选，换手率：{turn}, 量比：{lb}")
         board_index = 0
         dict_stock_info = BaostockDataManager().get_stock_info_dict()
         for board_name, board_data in dict_stock_info.items():
@@ -1838,7 +1838,7 @@ class BaoStockProcessor(QObject):
         filter_result = []
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
-        self.logger.info(f"开始执行日线零轴下方MA24突破筛选，换手率：{turn}, 量比：{lb}")
+        self.logger.info(f"开始执行【{TimePeriod.get_chinese_label(period)}】零轴下方MA24突破筛选，换手率：{turn}, 量比：{lb}")
         board_index = 0
         dict_stock_info = BaostockDataManager().get_stock_info_dict()
         for board_name, board_data in dict_stock_info.items():
@@ -1886,7 +1886,7 @@ class BaoStockProcessor(QObject):
 
         turn = pf.get_policy_filter_turn()
         lb = pf.get_policy_filter_lb()
-        self.logger.info(f"开始执行日线零轴下方双底筛选，换手率：{turn}, 量比：{lb}")
+        self.logger.info(f"开始执行【{TimePeriod.get_chinese_label(period)}】零轴下方双底筛选，换手率：{turn}, 量比：{lb}")
         board_index = 0
         dict_stock_info = BaostockDataManager().get_stock_info_dict()
         for board_name, board_data in dict_stock_info.items():

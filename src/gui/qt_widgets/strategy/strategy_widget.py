@@ -252,28 +252,28 @@ class StrategyWidget(QWidget):
         filter_result = []
         if checked_id == 0:
             # 这里可以先检查本地数据是否存在，如果存在则直接从本地加载筛选结果列表，而无需重新调用筛选接口
-            filter_result = BaoStockProcessor().daily_up_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney(), period, end_date=target_date)
+            filter_result = BaoStockProcessor().daily_up_ma52_filter(None, period, end_date=target_date)    # AKStockDataProcessor().get_stocks_eastmoney()
             
         elif checked_id == 1:
-            filter_result = BaoStockProcessor().daily_up_ma24_filter(AKStockDataProcessor().get_stocks_eastmoney(), period, end_date=target_date)
+            filter_result = BaoStockProcessor().daily_up_ma24_filter(None, period, end_date=target_date)
             
         elif checked_id == 2:
-            filter_result = BaoStockProcessor().daily_up_ma10_filter(AKStockDataProcessor().get_stocks_eastmoney(), period, end_date=target_date)
+            filter_result = BaoStockProcessor().daily_up_ma10_filter(None, period, end_date=target_date)
         elif checked_id == 3:
-            # filter_result = BaoStockProcessor().daily_up_ma5_filter(AKStockDataProcessor().get_stocks_eastmoney())
+            # filter_result = BaoStockProcessor().daily_up_ma5_filter(None)
             pass
         elif checked_id == 4:
-            filter_result = BaoStockProcessor().daily_down_between_ma24_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney(), period, end_date=target_date)
+            filter_result = BaoStockProcessor().daily_down_between_ma24_ma52_filter(None, period, end_date=target_date)
         elif checked_id == 5:
-            filter_result = BaoStockProcessor().daily_down_between_ma5_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney(), period, end_date=target_date)
+            filter_result = BaoStockProcessor().daily_down_between_ma5_ma52_filter(None, period, end_date=target_date)
         elif checked_id == 6:
-            filter_result = BaoStockProcessor().daily_down_breakthrough_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney(), period, end_date=target_date)
+            filter_result = BaoStockProcessor().daily_down_breakthrough_ma52_filter(None, period, end_date=target_date)
         elif checked_id == 7:
-            filter_result = BaoStockProcessor().daily_down_breakthrough_ma24_filter(AKStockDataProcessor().get_stocks_eastmoney(), period, end_date=target_date)
+            filter_result = BaoStockProcessor().daily_down_breakthrough_ma24_filter(None, period, end_date=target_date)
         elif checked_id == 8:
-            filter_result = BaoStockProcessor().daily_down_double_bottom_filter(AKStockDataProcessor().get_stocks_eastmoney(), period, end_date=target_date)
+            filter_result = BaoStockProcessor().daily_down_double_bottom_filter(None, period, end_date=target_date)
         else:
-            filter_result = BaoStockProcessor().daily_up_ma52_filter(AKStockDataProcessor().get_stocks_eastmoney(), period, end_date=target_date)
+            filter_result = BaoStockProcessor().daily_up_ma52_filter(None, period, end_date=target_date)
 
         return filter_result
 
