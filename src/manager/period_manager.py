@@ -93,4 +93,13 @@ class TimePeriod(Enum):
         例如: '1d' -> 'stock_data_1d', '30m' -> 'stock_data_30m'
         """
         return f"stock_data_{self.value}"
+    
+class ReviewPeriodProcessData(object):
+    def __init__(self):
+        self.current_period = None
+        self.current_date = None
+        self.current_start_index = None
+        self.current_index = None
+        self.current_min_index = None
+        self.current_max_index = None
 

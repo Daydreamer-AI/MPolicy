@@ -19,14 +19,14 @@ from gui.qt_widgets.MComponents.indicators.boll_widget import BollWidget
 
 from indicators import stock_data_indicators as sdi
 
-from manager.period_manager import TimePeriod
+from manager.period_manager import TimePeriod, ReviewPeriodProcessData
 from manager.bao_stock_data_manager import BaostockDataManager
 
 class IndicatorsViewWidget(QWidget):
     _shared_object_id = 0
 
     sig_current_animation_index_changed = pyqtSignal(int)
-    sig_min_and_max_animation_index_changed = pyqtSignal(int, int)
+    sig_init_review_animation_finished = pyqtSignal(bool, object)
 
     def __init__(self, parent=None):
         super(IndicatorsViewWidget, self).__init__(parent)
@@ -69,6 +69,11 @@ class IndicatorsViewWidget(QWidget):
         self.is_playing = False
 
         self.last_period_btn_checked_id = 7
+
+        self.dict_period_process_data = {}  # {TimePeriod: ReviewPeriodProcessData}，保存周期切换时的状态
+        self.from_period = None
+        self.from_start_index = None
+        self.from_current_index = None
 
     def init_ui(self):
         
@@ -205,8 +210,8 @@ class IndicatorsViewWidget(QWidget):
         df = self.get_stock_data_by_period(code)
         if start_index is not None and start_index != "":  # 获取数据成功
             # self.logger.info(f"df的长度: {len(df)}")
-            if self.max_animation_index == -1:
-                self.max_animation_index = len(df) - 1
+            # if self.max_animation_index == -1:
+            #     self.max_animation_index = len(df) - 1
 
             if start_index < 0 or start_index > len(df) - 1:  # 索引超出范围
                 # self.logger.info(f"索引超出范围，start_index: {start_index}, df的长度: {len(df)}")
@@ -220,6 +225,10 @@ class IndicatorsViewWidget(QWidget):
             
             # 设置当前动画索引为start_index
             self.current_animation_index = start_index
+            checked_id = self.period_button_group.checkedId()
+            target_period_text = self.period_button_group.button(checked_id).text()
+            target_period = TimePeriod.from_label(target_period_text)
+            self.dict_period_process_data[target_period].current_index = start_index
             self.sig_current_animation_index_changed.emit(self.current_animation_index)
 
             # self.logger.info(f"获取{code}的索引{start_index}数据成功")
@@ -455,8 +464,112 @@ class IndicatorsViewWidget(QWidget):
         for indicator_name, widget in self.indicator_widgets.items():
             widget.set_period(period)
 
+    def get_time_intervals_for_period(self, period):
+        """
+        根据周期返回对应的时间区间列表
+        返回: [(start_time, end_time), ...] 格式的列表
+        """
+        # A股交易时间: 09:30-11:30, 13:00-15:00
+        morning_start = pd.Timestamp("09:30").time()
+        morning_end = pd.Timestamp("11:30").time()
+        afternoon_start = pd.Timestamp("13:00").time()
+        afternoon_end = pd.Timestamp("15:00").time()
+        
+        if period == TimePeriod.MINUTE_15:
+            # 16个15分钟区间
+            intervals = []
+            # 上午时段: 09:30-11:30 (9个区间)
+            current = morning_start
+            while current < morning_end:
+                next_time = self.add_minutes(current, 15)
+                if next_time > morning_end:
+                    next_time = morning_end
+                intervals.append((current, next_time))
+                current = next_time
+                
+            # 下午时段: 13:00-15:00 (8个区间)
+            current = afternoon_start
+            while current < afternoon_end:
+                next_time = self.add_minutes(current, 15)
+                if next_time > afternoon_end:
+                    next_time = afternoon_end
+                intervals.append((current, next_time))
+                current = next_time
+                
+            return intervals[:16]  # 确保只有16个区间
+            
+        elif period == TimePeriod.MINUTE_30:
+            # 8个30分钟区间
+            intervals = [
+                (pd.Timestamp("09:30").time(), pd.Timestamp("10:00").time()),
+                (pd.Timestamp("10:00").time(), pd.Timestamp("10:30").time()),
+                (pd.Timestamp("10:30").time(), pd.Timestamp("11:00").time()),
+                (pd.Timestamp("11:00").time(), pd.Timestamp("11:30").time()),
+                (pd.Timestamp("13:00").time(), pd.Timestamp("13:30").time()),
+                (pd.Timestamp("13:30").time(), pd.Timestamp("14:00").time()),
+                (pd.Timestamp("14:00").time(), pd.Timestamp("14:30").time()),
+                (pd.Timestamp("14:30").time(), pd.Timestamp("15:00").time())
+            ]
+            return intervals
+            
+        elif period == TimePeriod.MINUTE_60:
+            # 4个60分钟区间
+            intervals = [
+                (pd.Timestamp("09:30").time(), pd.Timestamp("10:30").time()),
+                (pd.Timestamp("10:30").time(), pd.Timestamp("11:30").time()),
+                (pd.Timestamp("13:00").time(), pd.Timestamp("14:00").time()),
+                (pd.Timestamp("14:00").time(), pd.Timestamp("15:00").time())
+            ]
+            return intervals
+            
+        elif period == TimePeriod.MINUTE_120:
+            # 2个120分钟区间
+            intervals = [
+                (pd.Timestamp("09:30").time(), pd.Timestamp("11:30").time()),
+                (pd.Timestamp("13:00").time(), pd.Timestamp("15:00").time())
+            ]
+            return intervals
+            
+        return []
+
+    def add_minutes(self, time_obj, minutes):
+        """给time对象加上指定分钟数"""
+        dummy_date = pd.Timestamp("2020-01-01")
+        datetime_obj = pd.Timestamp.combine(dummy_date, time_obj)
+        new_datetime = datetime_obj + pd.Timedelta(minutes=minutes)
+        return new_datetime.time()
+
+    def get_target_index(self, last_checked_id, target_checked_id):
+        last_period_text = self.period_button_group.button(last_checked_id).text()
+        last_period = TimePeriod.from_label(last_period_text)
+
+        target_period_text = self.period_button_group.button(target_checked_id).text()
+        target_period = TimePeriod.from_label(target_period_text)
+
+        if TimePeriod.is_minute_level(target_period):
+            current_time = self.df_data.iloc[self.current_animation_index]['time']
+            # 将current_time转换为datetime对象
+            if isinstance(current_time, str):
+                current_time = pd.to_datetime(current_time)
+            
+            # 根据目标周期确定时间区间
+            target_time_intervals = self.get_time_intervals_for_period(target_period)
+            
+            # 查找current_time在哪个时间区间内
+            for i, (start_time, end_time) in enumerate(target_time_intervals):
+                # 构造完整的日期时间用于比较
+                current_date = current_time.date()
+                interval_start = pd.Timestamp.combine(current_date, start_time)
+                interval_end = pd.Timestamp.combine(current_date, end_time)
+                
+                if interval_start <= current_time <= interval_end:
+                    return i
+        
+        return -1
+
+
     # -----------------------复盘回放相关接口----------------------
-    def init_animation(self, data, start_date):
+    def init_animation(self, data, start_date, b_init=True):
         dict_return = {}
         code = data['code']
         self.logger.info(f"初始化动画：{code}, 日期：{start_date}")
@@ -465,34 +578,105 @@ class IndicatorsViewWidget(QWidget):
 
         if df is None or df.empty:
             self.logger.warning(f"数据为空，无法初始化动画：{code}")
+            self.sig_init_review_animation_finished.emit(False, dict_return)
             return dict_return
-
+        
         if start_date is not None and start_date != "":
-            # self.df_data = df[df['date'] <= start_date]
-            # 获取等于start_date的行索引
-            matching_indices = df[df['date'] == start_date].index
-            self.logger.info(f"找到 {len(matching_indices)} 行匹配的数据")
-            if len(matching_indices) > 0:
-                # 如果有多个匹配项，你可以选择如何处理
-                # 例如，获取所有匹配的数据
-                self.logger.info(f"找到 {len(matching_indices)} 个匹配的日期记录")
-                
-                # 方案1: 使用第一个匹配项（当前逻辑）
-                self.start_animation_index = matching_indices[-1]
-                
-                self.logger.info(f"start_date索引: {self.start_animation_index}")
-                self.update_chart(data, self.start_animation_index)
+            self.min_animation_index = 0
+            self.max_animation_index = len(df) - 1
 
-                dict_return = {
-                    "start_date_index": self.start_animation_index,
-                    "min_index": self.min_animation_index,
-                    "max_index": self.max_animation_index
-                }
+            checked_id = self.period_button_group.checkedId()
+            last_period_text = self.period_button_group.button(self.last_period_btn_checked_id).text()
+            last_period = TimePeriod.from_label(last_period_text)
+
+            target_period_text = self.period_button_group.button(checked_id).text()
+            target_period = TimePeriod.from_label(target_period_text)
+
+            if b_init:
+                matching_indices = df[df['date'] <= start_date].index
+                if len(matching_indices) > 0:
+                        # 普通处理
+                        self.logger.info(f"找到 {len(matching_indices)} 个匹配的日期记录")
+                        self.start_animation_index = matching_indices[-1]
+                        self.logger.info(f"start_date索引: {self.start_animation_index}")
+
+                        review_period_process_data = ReviewPeriodProcessData()
+                        review_period_process_data.current_period = target_period
+                        review_period_process_data.current_date = start_date
+                        review_period_process_data.current_min_index = 0
+                        review_period_process_data.current_max_index = self.max_animation_index
+                        review_period_process_data.current_index = self.start_animation_index
+                        review_period_process_data.current_start_index = self.start_animation_index
+                        self.dict_period_process_data[target_period] = review_period_process_data
+
+                        self.update_chart(data, self.start_animation_index)
+                        dict_return = {
+                            "start_date_index": self.start_animation_index,
+                            "min_index": self.min_animation_index,
+                            "max_index": self.max_animation_index
+                        }
+
+                        self.last_period_btn_checked_id = 7
+                else:
+                    self.logger.warning(f"普通处理--未找到匹配的日期记录：{start_date}")
             else:
-                self.logger.warning(f"没有找到匹配的行：{start_date}")
+                if checked_id >= 8:
+                    matching_indices = df[df['date'] < start_date].index
+                else:
+                    matching_indices = df[df['date'] == start_date].index
+
+                if len(matching_indices) > 0:
+                    # 周期切换步骤。来源周期，目标周期
+                    # 目标周期是否第一次切换？
+                    # 第一次切换默认到最后索引
+                    # 不是第一次切换则判断来源周期索引是否发生变化
+                    # 有发生变化则更新目标周期索引，没有发生变化则自动切换到目标周期索引
+                    self.logger.info(f"周期切换--来源周期：{TimePeriod.get_chinese_label(last_period)}，目标周期：{TimePeriod.get_chinese_label(target_period)}")
+                    self.logger.info(f"当前索引：{self.current_animation_index}，开始索引：{self.start_animation_index}")
+                    self.logger.info(f"上次来源周期索引：{self.dict_period_process_data[last_period].current_index}，上次来源周期开始索引：{self.dict_period_process_data[last_period].current_start_index}")
+                    
+                    if target_period not in self.dict_period_process_data:
+                        # 第1次切换，默认到最后索引
+                        self.start_animation_index = matching_indices[-1]
+                    else:
+                        self.logger.info(f"上次目标周期索引：{self.dict_period_process_data[target_period].current_index}，上次目标周期开始索引：{self.dict_period_process_data[target_period].current_start_index}")
+                        if self.current_animation_index == self.dict_period_process_data[last_period].current_index and start_date == self.dict_period_process_data[last_period].current_date:
+                            # 来源周期索引没有发生变化，则自动切换到目标周期索引
+                            self.start_animation_index = self.dict_period_process_data[target_period].current_index
+                        else:
+                            # 来源周期索引有发生变化，则更新周期索引
+                            self.start_animation_index = matching_indices[-1]
+
+                            # 优化：更新来源周期索引判断是否合成目标周期索引对应的值
+                            # if checked_id < self.last_period_btn_checked_id:
+                            #     # 大周期切小周期。
+                            #     self.start_animation_index = matching_indices[-1]
+                            # else:
+                            #     # 小周期切大周期。问题：合成未走完的k线数据。
+                            #     self.start_animation_index = matching_indices[-1]
+
+                    review_period_process_data = ReviewPeriodProcessData()
+                    review_period_process_data.current_period = target_period
+                    review_period_process_data.current_date = start_date
+                    review_period_process_data.current_min_index = 0
+                    review_period_process_data.current_max_index = self.max_animation_index
+                    review_period_process_data.current_index = self.start_animation_index
+                    review_period_process_data.current_start_index = self.start_animation_index
+                    self.dict_period_process_data[target_period] = review_period_process_data
+                    self.update_chart(data, self.start_animation_index)
+                    dict_return = {
+                            "start_date_index": self.start_animation_index,
+                            "min_index": self.min_animation_index,
+                            "max_index": self.max_animation_index
+                        }
+                else:
+                    self.logger.warning(f"周期切换处理--未找到匹配的日期记录：{start_date}")
+            
         else:
             self.logger.info("start_date为空")
 
+
+        self.sig_init_review_animation_finished.emit(True, dict_return)
         return dict_return
 
     # 添加播放控制方法
@@ -591,14 +775,15 @@ class IndicatorsViewWidget(QWidget):
                 target_period_text = self.period_button_group.button(checked_id).text()
                 last_period_text = self.period_button_group.button(self.last_period_btn_checked_id).text()
                 self.logger.info(f"此前周期id：{self.last_period_btn_checked_id}，名称：{last_period_text}，切换到目标周期id：{checked_id}，名称：{target_period_text}")
-                if checked_id < self.last_period_btn_checked_id:
-                    # 大周期切小周期
-                    # 需更新：self.current_animation_index，self.min_animation_index，self.max_animation_index，并通知外层控件
-                    self.init_animation(self.df_data.iloc[0], self.df_data.iloc[self.current_animation_index]['date'])
-                else:
-                    # 小周期切大周期
-                    self.logger.info(f"暂不支持小周期切大周期")
-                    pass
+                self.init_animation(self.df_data.iloc[0], self.df_data.iloc[self.current_animation_index]['date'], False)
+                # if checked_id < self.last_period_btn_checked_id:
+                #     # 大周期切小周期
+                #     # 需更新：self.current_animation_index，self.min_animation_index，self.max_animation_index，并通知外层控件
+                #     self.init_animation(self.df_data.iloc[0], self.df_data.iloc[self.current_animation_index]['date'])
+                # else:
+                #     # 小周期切大周期。问题：合成未走完的k线数据。
+                #     self.logger.info(f"暂不支持小周期切大周期")
+                #     # self.init_animation(self.df_data.iloc[0], self.df_data.iloc[self.current_animation_index]['date'], checked_id)
             else:
                 self.logger.warning(f"当前选中的按钮ID: {checked_id} 不存在")
                 return

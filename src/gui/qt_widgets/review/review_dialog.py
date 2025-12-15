@@ -35,7 +35,7 @@ class ReviewDialog(QDialog):
 
     def init_connect(self):
         self.indicators_view_widget.sig_current_animation_index_changed.connect(self.slot_current_animation_index_changed)
-        self.indicators_view_widget.sig_min_and_max_animation_index_changed.connect(self.slot_min_and_max_animation_index_changed)
+        self.indicators_view_widget.sig_init_review_animation_finished.connect(self.slot_init_review_animation_finished)
 
         self.btn_play.clicked.connect(self.slot_btn_play_clicked)
 
@@ -67,17 +67,17 @@ class ReviewDialog(QDialog):
             data = new_dict_lastest_1d_stock_data['sh.600000'].iloc[-1]
             # self.indicators_view_widget.update_chart(data, '2025-12-08')
             self.dict_progress_data = self.indicators_view_widget.init_animation(data, "2025-12-01")
-            if self.dict_progress_data is not None and self.dict_progress_data != {}:
-                self.horizontalSlider_progress.setMinimum(self.dict_progress_data['min_index'])
-                self.horizontalSlider_progress.setMaximum(self.dict_progress_data['max_index'])
+            # if self.dict_progress_data is not None and self.dict_progress_data != {}:
+            #     self.horizontalSlider_progress.setMinimum(self.dict_progress_data['min_index'])
+            #     self.horizontalSlider_progress.setMaximum(self.dict_progress_data['max_index'])
 
-                self.horizontalSlider_progress.blockSignals(True)
-                self.horizontalSlider_progress.setSliderPosition(self.dict_progress_data['start_date_index'])
-                self.horizontalSlider_progress.blockSignals(False)
+            #     self.horizontalSlider_progress.blockSignals(True)
+            #     self.horizontalSlider_progress.setSliderPosition(self.dict_progress_data['start_date_index'])
+            #     self.horizontalSlider_progress.blockSignals(False)
 
-                self.update_progress_label(self.dict_progress_data['start_date_index'])
-            else:
-                self.logger.info(f"初始化返回的进度数据为空")
+            #     self.update_progress_label(self.dict_progress_data['start_date_index'])
+            # else:
+            #     self.logger.info(f"初始化返回的进度数据为空")
         else:
             self.logger.info(f"结果为空")
 
@@ -91,8 +91,21 @@ class ReviewDialog(QDialog):
 
         self.update_progress_label(index)
 
-    def slot_min_and_max_animation_index_changed(self, min_index, max_index):
-        pass
+    def slot_init_review_animation_finished(self, success, dict_progress_data):
+        if success:
+            self.logger.info("回放动画初始化成功")
+            self.dict_progress_data = dict_progress_data
+            if self.dict_progress_data is not None and self.dict_progress_data != {}:
+                self.horizontalSlider_progress.setMinimum(self.dict_progress_data['min_index'])
+                self.horizontalSlider_progress.setMaximum(self.dict_progress_data['max_index'])
+
+                self.horizontalSlider_progress.blockSignals(True)
+                self.horizontalSlider_progress.setSliderPosition(self.dict_progress_data['start_date_index'])
+                self.horizontalSlider_progress.blockSignals(False)
+
+                self.update_progress_label(self.dict_progress_data['start_date_index'])
+            else:
+                self.logger.info(f"初始化返回的进度数据为空")
 
     def slot_btn_play_clicked(self):
         if self.btn_play.property("is_play"):
