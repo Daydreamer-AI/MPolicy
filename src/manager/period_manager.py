@@ -188,7 +188,8 @@ class TimePeriod(Enum):
 class ReviewPeriodProcessData(object):
     def __init__(self):
         self.current_period = None
-        self.current_date = None
+        self.current_start_date_time = None
+        self.current_date_time = None
         self.current_start_index = None
         self.current_index = None
         self.current_min_index = None
