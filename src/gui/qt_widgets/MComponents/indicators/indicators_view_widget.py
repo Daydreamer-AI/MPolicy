@@ -883,7 +883,7 @@ class IndicatorsViewWidget(QWidget):
         if self.df_data is None or self.df_data.empty:
             self.logger.warning("数据为空，无法切换图表周期数据")
             return
-        
+        self.set_period(TimePeriod.from_label(btn.text()))
         checked_id = self.period_button_group.checkedId()
         if self.property("review") is not None:
             # self.logger.info(f"所属复盘模块，暂不支持周期切换")
@@ -909,7 +909,7 @@ class IndicatorsViewWidget(QWidget):
 
         self.kline_widget.set_period_text(btn.text())
         self.last_period_btn_checked_id = checked_id
-        self.set_period(TimePeriod.from_label(btn.text()))
+        
 
     def slot_btn_indicator_volume_clicked(self):
         is_checked = self.btn_indicator_volume.isChecked()

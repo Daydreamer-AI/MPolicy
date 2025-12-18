@@ -1,6 +1,6 @@
 import sys
 import os
-from PyQt5.QtCore import QFile
+from PyQt5.QtCore import QFile, QCoreApplication, Qt
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QIcon
 
@@ -24,9 +24,13 @@ components_path = os.path.join(project_root, 'gui', 'qt_widgets', 'MComponents')
 if components_path not in sys.path:
     sys.path.insert(0, components_path)
 
+# os.environ['QT_AUTO_SCREEN_SCALE_FACTOR'] = '1'
+
 def main():
     # 设置进程标识环境变量
     os.environ['MPOLICY_PROCESS'] = 'main'
+    QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+    QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
     
     # 初始化日志系统
     # 初始化日志系统

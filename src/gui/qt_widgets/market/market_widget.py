@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, uic, QtGui
+from PyQt5 import QtWidgets, uic, QtCore
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout, QHBoxLayout
 from PyQt5.QtCore import pyqtSlot, QTimer
 
@@ -73,7 +73,8 @@ class MarketWidget(QWidget):
             # stock_card_widget.doubleClicked.connect(self.slot_stock_card_double_clicked)
 
             item = QtWidgets.QListWidgetItem()
-            item.setSizeHint(stock_card_widget.sizeHint())
+            # item.setSizeHint(stock_card_widget.sizeHint())
+            item.setSizeHint(QtCore.QSize(200, 60))
             
             self.listWidget_card.addItem(item)
 

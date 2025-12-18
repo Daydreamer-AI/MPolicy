@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, uic
+from PyQt5 import QtWidgets, uic, QtCore
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QMessageBox, QListWidget
 from PyQt5.QtCore import pyqtSlot, QTimer
 from PyQt5.QtChart import QChart, QChartView, QLineSeries, QBarSeries, QBarSet, QDateTimeAxis, QValueAxis
@@ -94,7 +94,8 @@ class IndustryBoardWidget(QWidget):
             stock_card_widget.doubleClicked.connect(self.slot_stock_card_double_clicked)
 
             # 设置 item 的大小（可选）
-            item.setSizeHint(stock_card_widget.sizeHint())
+            # item.setSizeHint(stock_card_widget.sizeHint())
+            item.setSizeHint(QtCore.QSize(200, 60))
             
             # 将 item 添加到 list widget
             self.listWidget_card.addItem(item)
