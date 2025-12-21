@@ -2,6 +2,9 @@ from PyQt5 import QtWidgets, uic, QtGui
 from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import QDate
 
+import random
+from datetime import date
+
 from manager.logging_manager import get_logger
 # from gui.qt_widgets.MComponents.indicators.indicators_view_widget import IndicatorsViewWidget
 
@@ -46,6 +49,8 @@ class ReviewDialog(QDialog):
         self.lineEdit_code.editingFinished.connect(self.slot_lineEdit_code_editingFinished)
         self.dateEdit.dateChanged.connect(self.slot_dateEdit_dateChanged)
         self.comboBox_period.currentIndexChanged.connect(self.slot_comboBox_period_currentIndexChanged)
+
+        self.btn_load_data_random.clicked.connect(self.slot_btn_load_data_random_clicked)
         self.btn_load_data.clicked.connect(self.slot_btn_load_data_clicked)
 
         self.btn_play.clicked.connect(self.slot_btn_play_clicked)
@@ -111,6 +116,32 @@ class ReviewDialog(QDialog):
         else:
             self.logger.info(f"结果为空")
 
+    def get_random_date(self):
+        '''    
+        # 使用示例
+        random_date = get_random_date()
+        print(random_date)  # 输出类似: 2025-08-08
+    '''
+        current_year = date.today().year
+        # 生成3-8月之间的随机月份
+        month = random.randint(3, 8)
+        
+        # 根据月份设置随机日期范围
+        if month in [1, 3, 5, 7, 8, 10, 12]:
+            day = random.randint(1, 31)
+        elif month in [4, 6, 9, 11]:
+            day = random.randint(1, 30)
+        else:  # 2月
+            # 判断闰年
+            if (current_year % 4 == 0 and current_year % 100 != 0) or (current_year % 400 == 0):
+                day = random.randint(1, 29)
+            else:
+                day = random.randint(1, 28)
+        
+        return f"{current_year}-{month:02d}-{day:02d}"
+
+
+
     # -----------------槽函数----------------
     def slot_current_animation_index_changed(self, index):
         # self.logger.info(f"收到k线图进度: {index}")
@@ -135,12 +166,12 @@ class ReviewDialog(QDialog):
 
                 self.update_progress_label(self.dict_progress_data['start_date_index'])
 
-                start_date = self.dict_progress_data['start_date']
-                self.logger.info(f"实际开始日期--start_date: {start_date}")
+                # start_date = self.dict_progress_data['start_date']
+                # self.logger.info(f"实际开始日期--start_date: {start_date}")
 
-                self.dateEdit.blockSignals(True)
-                self.dateEdit.setDate(QDate.fromString(start_date, "yyyy-MM-dd"))
-                self.dateEdit.blockSignals(False)
+                # self.dateEdit.blockSignals(True)
+                # self.dateEdit.setDate(QDate.fromString(start_date, "yyyy-MM-dd"))
+                # self.dateEdit.blockSignals(False)
 
             else:
                 self.logger.info(f"初始化返回的进度数据为空")
@@ -167,6 +198,45 @@ class ReviewDialog(QDialog):
         text = self.comboBox_period.currentText()
         self.logger.info(f"收到周期选择: {text}, index: {index}")
 
+    def slot_btn_load_data_random_clicked(self):
+        # 从 dict_lastest_1d_data 中获取一个随机的 code 和对应的 name
+        dict_lastest_1d_data = BaostockDataManager().get_lastest_1d_stock_data_dict_from_cache()
+        if dict_lastest_1d_data:
+            # 随机选择一个 code
+            code = random.choice(list(dict_lastest_1d_data.keys()))
+            
+            # 获取对应的 name
+            name = dict_lastest_1d_data[code]['name'].iloc[0]
+            
+            print(f"随机股票代码: {code}, 对应名称: {name}")
+        else:
+            print("没有可用的股票数据")
+            return
+        
+        date = self.get_random_date()
+
+        period = self.comboBox_period.currentText()
+        self.logger.info(f"点击随机加载数据: {code}, {date}, {period}")
+
+        if self.current_load_code == code:
+            self.logger.info("当前股票数据已加载，无需重复加载")
+            return
+        
+        self.load_data(code, date)
+
+        start_date = self.dict_progress_data['start_date']
+        self.logger.info(f"实际开始日期--start_date: {start_date}")
+
+        self.label_name.setText(str(dict_lastest_1d_data[code]['name'].iloc[0]))
+
+        self.lineEdit_code.blockSignals(True)
+        self.lineEdit_code.setText(code)
+        self.lineEdit_code.blockSignals(False)
+
+        self.dateEdit.blockSignals(True)
+        self.dateEdit.setDate(QDate.fromString(start_date, "yyyy-MM-dd"))
+        self.dateEdit.blockSignals(False)
+
     def slot_btn_load_data_clicked(self):
         code = self.lineEdit_code.text()
         date = self.dateEdit.date().toString("yyyy-MM-dd")
@@ -178,6 +248,13 @@ class ReviewDialog(QDialog):
             return
         
         self.load_data(code, date)
+
+        start_date = self.dict_progress_data['start_date']
+        self.logger.info(f"实际开始日期--start_date: {start_date}")
+
+        self.dateEdit.blockSignals(True)
+        self.dateEdit.setDate(QDate.fromString(start_date, "yyyy-MM-dd"))
+        self.dateEdit.blockSignals(False)
 
     def slot_btn_play_clicked(self):
         if self.btn_play.property("is_play"):
