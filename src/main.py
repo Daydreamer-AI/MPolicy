@@ -105,7 +105,7 @@ def main():
         logger.info("应用程序正常退出")
         
     except Exception as e:
-        logger.error(f"应用程序异常退出: {e}")   
+        logger.error(f"应用程序异常退出: {e}")
 
     # sys.exit(app.exec_())          # 进入主事件循环[1,7]
     # logger.info("应用程序正常退出")
