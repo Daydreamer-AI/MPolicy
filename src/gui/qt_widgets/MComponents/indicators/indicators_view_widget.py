@@ -625,6 +625,13 @@ class IndicatorsViewWidget(QWidget):
         last_period_chinese_text = TimePeriod.get_chinese_label(last_period)
         target_period_chinese_text = TimePeriod.get_chinese_label(target_period)
         self.logger.info(f"已切换成功的最小周期：{min_period_chinese_text}，来源周期：{last_period_chinese_text}，目标周期：{target_period_chinese_text}")
+        current_time = self.dict_period_process_data[last_period].current_date_time
+        self.logger.info(f"来源周期的current_time：{current_time}")
+        if target_period not in self.dict_period_process_data:
+            if TimePeriod.is_minute_level(target_period):
+                return self.get_target_index_by_time(current_time, target_period)
+                
+            return -1
         
         if TimePeriod.is_minute_level(self.min_period) and TimePeriod.is_minute_level(target_period):
             # 最小周期当前索引的time。问题：已加载15、30、60分钟数据时，15切30,30分钟级别能前进，切换15分钟还是未前进的时间。
@@ -637,26 +644,32 @@ class IndicatorsViewWidget(QWidget):
             # current_time = self.get_min_process_data_period_current_time()
             # self.logger.info(f"已切换成功的周期当前索引最小的time：{current_time}，所属周期：{min_period_chinese_text}")
 
-            # 这里应该得到来源周期的current_time，将据此得到目标周期的start_time。问题：会自动跳整顿。例如：当已加载15、30、60分钟时，15分钟前进到xx:15, xx:45时，此时切30、60分钟，会自动跳到对应整点（xx:15-xx:30, xx:45-xx:00), 再切换15分钟时，同样会自动跳整点（这应该是正常的）
-            current_time = self.dict_period_process_data[last_period].current_date_time
-            self.logger.info(f"来源周期的current_time：{current_time}")
+            # 这里应该得到来源周期的current_time，将据此得到目标周期的start_time。
+            # 问题：会自动跳整顿。例如：当已加载15、30、60分钟时，15分钟前进到xx:15, xx:45时，此时切30、60分钟，会自动跳到对应整点（xx:15-xx:30, xx:45-xx:00), 再切换15分钟时，同样会自动跳整点（这应该是正常的）
+            # 处理：last_period索引没有变化时，自动切换到target_period的start_time
+            # current_time = self.dict_period_process_data[last_period].current_date_time
+            b_check = self.dict_period_process_data[last_period].current_index == self.dict_period_process_data[last_period].current_start_index
+            b_check_2 = True    # self.dict_period_process_data[target_period].current_index == self.dict_period_process_data[target_period].current_start_index
+            if TimePeriod.is_minute_level(last_period):
+                self.logger.info(f"来源周期是分钟级别，来源周期当前时间：{self.dict_period_process_data[last_period].current_date_time}， 目标周期当前时间：{self.dict_period_process_data[target_period].current_date_time}")
+                # b_check_2 = self.dict_period_process_data[last_period].current_date_time <= self.dict_period_process_data[target_period].current_date_time
+                # TODO: 分钟级别跨周期切换时的优化
+                if last_period < target_period:
+                    # 小周期切大周期
+                    b_check_2 = self.dict_period_process_data[last_period].current_date_time <= self.dict_period_process_data[target_period].current_date_time
+                else:
+                    # 大周期切小周期
+                    b_check_2 = self.dict_period_process_data[last_period].current_date_time >= self.dict_period_process_data[target_period].current_date_time
 
-            # 将current_time转换为datetime对象
-            if isinstance(current_time, str):
-                current_time = pd.to_datetime(current_time)
+                self.logger.info(f"b_check_2: {b_check_2}")
 
-            # 根据目标周期确定时间区间
-            target_time_intervals = self.get_time_intervals_for_period(target_period)
+            if b_check and b_check_2:
+                self.logger.info(f"来源周期last_period索引没有变化，自动切换到目标周期target_period的上次索引时间")
+                current_time = self.dict_period_process_data[target_period].current_date_time
 
-            # 查找current_time在哪个时间区间内
-            for i, (start_time, end_time) in enumerate(target_time_intervals):
-                # 构造完整的日期时间用于比较
-                current_date = current_time.date()
-                interval_start = pd.Timestamp.combine(current_date, start_time)
-                interval_end = pd.Timestamp.combine(current_date, end_time)
-                
-                if interval_start <= current_time <= interval_end:
-                    return i
+            self.logger.info(f"更新后的current_time：{current_time}")
+
+            return self.get_target_index_by_time(current_time, target_period)
 
         return -1
     
@@ -666,6 +679,26 @@ class IndicatorsViewWidget(QWidget):
                 return True
             
         return False
+    
+    def get_target_index_by_time(self, current_time, target_period):
+        # 将current_time转换为datetime对象
+        if isinstance(current_time, str):
+            current_time = pd.to_datetime(current_time)
+
+        # 根据目标周期确定时间区间
+        target_time_intervals = self.get_time_intervals_for_period(target_period)
+
+        # 查找current_time在哪个时间区间内
+        for i, (start_time, end_time) in enumerate(target_time_intervals):
+            # 构造完整的日期时间用于比较
+            current_date = current_time.date()
+            interval_start = pd.Timestamp.combine(current_date, start_time)
+            interval_end = pd.Timestamp.combine(current_date, end_time)
+            
+            if interval_start <= current_time <= interval_end:
+                return i
+            
+        return -1
 
 
     # -----------------------复盘回放相关接口----------------------
@@ -728,7 +761,10 @@ class IndicatorsViewWidget(QWidget):
                 else:
                     matching_indices = df[df['date'] == start_date].index
 
-                if len(matching_indices) > 0:
+                matching_indices_len = len(matching_indices)
+                self.logger.info(f"找到 {matching_indices_len} 个匹配的日期记录")
+
+                if matching_indices_len > 0:
                     # 周期切换步骤。来源周期，目标周期
                     # 目标周期是否第一次切换？
                     # 第一次切换默认到最后索引
@@ -744,26 +780,33 @@ class IndicatorsViewWidget(QWidget):
                     last_start_index = self.dict_period_process_data[last_period].current_start_index
                     self.logger.info(f"来源周期[{s_last_period_text}]索引：{last_current_index}，日期：{self.dict_period_process_data[last_period].current_date_time}，来源周期[{s_last_period_text}]开始索引：{last_start_index}, 开始日期：{self.dict_period_process_data[last_period].current_start_date_time}")
                     
+                    index = self.get_target_index_auto(last_period, target_period)
+                    self.logger.info(f"目标周期索引：{index}")
+                    self.start_animation_index = matching_indices[index]
                     if target_period not in self.dict_period_process_data:
                         # 第1次切换，默认到最后索引
                         self.logger.info(f"第1次切换")
-                        index = self.get_target_index_auto(last_period, target_period)
-                        self.start_animation_index = matching_indices[index]
+                        # index = self.get_target_index_auto(last_period, target_period)
+                        # self.start_animation_index = matching_indices[index]
                     else:
                         target_current_index = self.dict_period_process_data[target_period].current_index
                         target_start_index = self.dict_period_process_data[target_period].current_start_index
                         self.logger.info(f"上次目标周期[{s_target_period_text}]索引：{target_current_index}，日期：{self.dict_period_process_data[target_period].current_date_time}，上次目标周期[{s_target_period_text}]开始索引：{target_start_index}，日期：{self.dict_period_process_data[target_period].current_start_date_time}")
-                        if self.current_animation_index == self.dict_period_process_data[last_period].current_start_index and start_date == self.dict_period_process_data[last_period].current_start_date_time and not self.is_period_process_data_index_changed():
-                            # 来源周期索引没有发生变化，则自动切换到目标周期索引
-                            self.logger.info(f"自动切换到目标周期[{s_target_period_text}]索引")
-                            self.start_animation_index = self.dict_period_process_data[target_period].current_index
-                        else:
+                        # b_check = self.current_animation_index == self.dict_period_process_data[last_period].current_start_index
+                        # b_check_2 = start_date == self.dict_period_process_data[last_period].current_start_date_time
+                        # b_check_3 = start_date == self.dict_period_process_data[target_period].current_start_date_time
+                        # b_check_4 = not self.is_period_process_data_index_changed()
+                        # if b_check and b_check_2 and b_check_3 and b_check_4:
+                        #     # 来源周期索引没有发生变化，则自动切换到目标周期索引
+                        #     self.logger.info(f"自动切换到目标周期[{s_target_period_text}]索引")
+                        #     self.start_animation_index = self.dict_period_process_data[target_period].current_index
+                        # else:
                             # 来源周期索引有发生变化，则更新周期索引
                             # if not TimePeriod.is_minute_level(last_period):
                             #     index = -1
                             # else:
-                            index = self.get_target_index_auto(last_period, target_period)
-                            self.start_animation_index = matching_indices[index]
+                            # index = self.get_target_index_auto(last_period, target_period)
+                            # self.start_animation_index = matching_indices[index]
 
                             # 优化：更新来源周期索引判断是否合成目标周期索引对应的值
 
