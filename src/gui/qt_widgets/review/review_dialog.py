@@ -11,6 +11,7 @@ from manager.logging_manager import get_logger
 from processor.baostock_processor import BaoStockProcessor
 from manager.bao_stock_data_manager import BaostockDataManager
 from manager.period_manager import TimePeriod
+from manager.review_demo_trading_manager import ReviewDemoTradingManager
 
 class ReviewDialog(QDialog):
     def __init__(self, parent=None):
@@ -29,6 +30,8 @@ class ReviewDialog(QDialog):
 
         self.current_load_code = ""
 
+        self.demo_trading_manager = ReviewDemoTradingManager()
+
     def init_ui(self):
         from gui.qt_widgets.MComponents.indicators.indicators_view_widget import IndicatorsViewWidget
         self.indicators_view_widget = IndicatorsViewWidget(self)
@@ -41,6 +44,17 @@ class ReviewDialog(QDialog):
 
         self.comboBox_period.addItems([TimePeriod.get_chinese_label(TimePeriod.DAY), TimePeriod.get_chinese_label(TimePeriod.WEEK), TimePeriod.get_chinese_label(TimePeriod.MINUTE_15), TimePeriod.get_chinese_label(TimePeriod.MINUTE_30), TimePeriod.get_chinese_label(TimePeriod.MINUTE_60)])
         self.comboBox_period.setCurrentIndex(0)
+
+        self.btn_load_data_random.setAutoDefault(False)
+        self.btn_load_data_random.setDefault(False)
+
+        self.btn_load_data.setAutoDefault(False)
+        self.btn_load_data.setDefault(False)
+
+        self.playing_enabled(True)
+
+        self.label_total_assets.setText(str(self.demo_trading_manager.get_total_assets()))
+        self.label_available_balance.setText(str(self.demo_trading_manager.get_available_balance()))
 
     def init_connect(self):
         self.indicators_view_widget.sig_current_animation_index_changed.connect(self.slot_current_animation_index_changed)
@@ -64,6 +78,22 @@ class ReviewDialog(QDialog):
 
         self.horizontalSlider_progress.valueChanged.connect(self.slot_horizontalSlider_progress_valueChanged)
 
+        # 模拟交易
+        self.lineEdit_price.editingFinished.connect(self.slot_lineEdit_price_editingFinished)
+        self.btn_all.clicked.connect(self.slot_btn_all_clicked)
+        self.btn_one_half.clicked.connect(self.slot_btn_one_half_clicked)
+        self.btn_one_third.clicked.connect(self.slot_btn_one_third_clicked)
+        self.btn_a_quarter.clicked.connect(self.slot_btn_a_quarter_clicked)
+        self.btn_one_in_five.clicked.connect(self.slot_btn_one_in_five_clicked)
+
+        self.btn_buy.clicked.connect(self.slot_btn_buy_clicked)
+        self.btn_sell.clicked.connect(self.slot_btn_sell_clicked)
+        self.btn_pending_order_cancel.clicked.connect(self.slot_btn_pending_order_cancel_clicked)
+
+    def update_count_and_amount_labels(self, price, count):
+        self.lineEdit_count.setText(str(count))
+        self.lineEdit_amount.setText(str(count * price))
+
     def playing_enabled(self, is_playing):
         self.lineEdit_code.setEnabled(not is_playing)
         self.dateEdit.setEnabled(not is_playing)
@@ -79,6 +109,13 @@ class ReviewDialog(QDialog):
 
         self.btn_buy.setEnabled(not is_playing)
         self.btn_sell.setEnabled(not is_playing)
+        self.btn_pending_order_cancel.setEnabled(not is_playing)
+
+        self.btn_all.setEnabled(not is_playing)
+        self.btn_one_half.setEnabled(not is_playing)
+        self.btn_one_third.setEnabled(not is_playing)
+        self.btn_a_quarter.setEnabled(not is_playing)
+        self.btn_one_in_five.setEnabled(not is_playing)
 
 
     def update_progress_label(self, current_index):
@@ -88,6 +125,49 @@ class ReviewDialog(QDialog):
         else:
             self.logger.info("进度数据为空")
             self.label_progress.setText("")
+
+    def update_trading_widgets_status(self):
+        trading_status = self.demo_trading_manager.get_trading_status()
+
+        if trading_status == 1 or trading_status == 3:
+            self.btn_all.setEnabled(False)
+            self.btn_one_half.setEnabled(False)
+            self.btn_one_third.setEnabled(False)
+            self.btn_a_quarter.setEnabled(False)
+            self.btn_one_in_five.setEnabled(False)
+            self.btn_buy.setEnabled(False)
+            self.btn_sell.setEnabled(False)
+            self.btn_pending_order_cancel.setEnabled(True)
+        elif trading_status == 5:
+            self.btn_all.setEnabled(False)
+            self.btn_one_half.setEnabled(False)
+            self.btn_one_third.setEnabled(False)
+            self.btn_a_quarter.setEnabled(False)
+            self.btn_one_in_five.setEnabled(False)
+            self.btn_buy.setEnabled(False)
+            self.btn_sell.setEnabled(True)
+            self.btn_pending_order_cancel.setEnabled(False)
+        else:
+            self.btn_all.setEnabled(True)
+            self.btn_one_half.setEnabled(True)
+            self.btn_one_third.setEnabled(True)
+            self.btn_a_quarter.setEnabled(True)
+            self.btn_one_in_five.setEnabled(True)
+            self.btn_buy.setEnabled(True)
+            self.btn_sell.setEnabled(False)
+            self.btn_pending_order_cancel.setEnabled(False)
+
+    def reset_trading_record(self):
+        self.lineEdit_price.blockSignals(True)
+        self.lineEdit_price.clear()
+        self.lineEdit_price.blockSignals(False)
+
+        self.lineEdit_count.clear()
+        self.lineEdit_amount.clear()
+
+        # 清空收益率曲线
+
+        # 清空交易记录列表
 
     def load_data(self, code, date):
         stock_codes = [code]
@@ -113,6 +193,12 @@ class ReviewDialog(QDialog):
             #     self.logger.info(f"初始化返回的进度数据为空")
 
             self.current_load_code = code
+
+            self.demo_trading_manager.reset_trading_record()
+            self.playing_enabled(False)
+            self.update_trading_widgets_status()
+            self.reset_trading_record()
+
         else:
             self.logger.info(f"结果为空")
 
@@ -151,6 +237,22 @@ class ReviewDialog(QDialog):
         self.horizontalSlider_progress.blockSignals(False)
 
         self.update_progress_label(index)
+
+        date_time = self.indicators_view_widget.get_current_date_time_by_index(index)
+        min_price, max_price = self.indicators_view_widget.get_min_and_max_price_by_index(index)
+
+        trading_status = self.demo_trading_manager.get_trading_status()
+
+        target_status = 0
+        if trading_status == 1:
+            target_status = 1
+        elif trading_status == 3:
+            target_status = 2
+        elif trading_status == 5:
+            target_status = 5
+        
+        self.demo_trading_manager.update_trading_record(target_status, min_price, max_price, date_time)
+        self.update_trading_widgets_status()
 
     def slot_init_review_animation_finished(self, success, dict_progress_data):
         if success:
@@ -237,6 +339,9 @@ class ReviewDialog(QDialog):
         self.dateEdit.setDate(QDate.fromString(start_date, "yyyy-MM-dd"))
         self.dateEdit.blockSignals(False)
 
+        self.btn_buy.setDefault(True)
+
+
     def slot_btn_load_data_clicked(self):
         code = self.lineEdit_code.text()
         date = self.dateEdit.date().toString("yyyy-MM-dd")
@@ -255,6 +360,8 @@ class ReviewDialog(QDialog):
         self.dateEdit.blockSignals(True)
         self.dateEdit.setDate(QDate.fromString(start_date, "yyyy-MM-dd"))
         self.dateEdit.blockSignals(False)
+
+        self.btn_buy.setDefault(True)
 
     def slot_btn_play_clicked(self):
         if self.btn_play.property("is_play"):
@@ -290,6 +397,93 @@ class ReviewDialog(QDialog):
     def slot_horizontalSlider_progress_valueChanged(self, value):
         self.logger.info(f"进度条值改变: {value}")
         self.indicators_view_widget.go_to_target_index(value)
+
+    def slot_lineEdit_price_editingFinished(self):
+        str_price = self.lineEdit_price.text()
+        str_count = self.lineEdit_count.text()
+        self.lineEdit_amount.setText(str(float(str_price) * int(str_count)))
+
+    def slot_btn_all_clicked(self):
+        str_price = self.lineEdit_price.text()
+        max_count = self.demo_trading_manager.get_buy_count(float(str_price))
+
+        self.logger.info(f"最大可买数量: {max_count}")
+        self.lineEdit_count.setText(str(max_count))
+        self.lineEdit_amount.setText(str(max_count * float(str_price)))
+
+    def slot_btn_one_half_clicked(self):
+        str_price = self.lineEdit_price.text()
+        max_count = self.demo_trading_manager.get_buy_count(float(str_price), 1)
+
+        self.logger.info(f"最大可买数量: {max_count}")
+        self.lineEdit_count.setText(str(max_count))
+        self.lineEdit_amount.setText(str(max_count * float(str_price)))
+
+    def slot_btn_one_third_clicked(self):
+        str_price = self.lineEdit_price.text()
+        max_count = self.demo_trading_manager.get_buy_count(float(str_price), 2)
+        self.logger.info(f"最大可买数量: {max_count}")
+        self.lineEdit_count.setText(str(max_count))
+        self.lineEdit_amount.setText(str(max_count * float(str_price)))
+
+    def slot_btn_a_quarter_clicked(self):
+        str_price = self.lineEdit_price.text()
+        max_count = self.demo_trading_manager.get_buy_count(float(str_price), 3)
+        self.logger.info(f"最大可买数量: {max_count}")
+        self.lineEdit_count.setText(str(max_count))
+        self.lineEdit_amount.setText(str(max_count * float(str_price)))
+
+    def slot_btn_one_in_five_clicked(self):
+        str_price = self.lineEdit_price.text()
+        max_count = self.demo_trading_manager.get_buy_count(float(str_price), 4)
+
+        self.logger.info(f"最大可买数量: {max_count}")
+        self.lineEdit_count.setText(str(max_count))
+        self.lineEdit_amount.setText(str(max_count * float(str_price)))
+
+    def slot_btn_buy_clicked(self):
+        if self.current_load_code == "":
+            self.logger.info("请先加载股票数据")
+            return
+
+        str_code = self.lineEdit_code.text()
+        str_name = self.label_name.text()
+        str_price = self.lineEdit_price.text()
+        str_count = self.lineEdit_count.text()
+
+        current_index = self.horizontalSlider_progress.value()
+        str_date_time = self.indicators_view_widget.get_current_date_time_by_index(current_index)
+        self.logger.info(f"点击买入: {str_code}, {str_name}, {str_price}, {str_count}, {str_date_time}")
+        self.demo_trading_manager.pending_order_buy(str_code, str_name, float(str_price), int(str_count), str_date_time)
+
+        self.update_trading_widgets_status()
+
+    def slot_btn_sell_clicked(self):
+        if self.current_load_code == "":
+            self.logger.info("请先加载股票数据")
+            return
+        str_price = self.lineEdit_price.text()
+        str_count = self.lineEdit_count.text()
+
+        current_index = self.horizontalSlider_progress.value()
+        str_date_time = self.indicators_view_widget.get_current_date_time_by_index(current_index)
+
+        self.logger.info(f"点击卖出: {str_price}, {str_count}, {str_date_time}")
+        self.demo_trading_manager.pending_order_sell(float(str_price), int(str_count), str_date_time)
+
+        self.update_trading_widgets_status()
+
+    def slot_btn_pending_order_cancel_clicked(self):
+        if self.current_load_code == "":
+            self.logger.info("请先加载股票数据")
+            return
         
+        current_index = self.horizontalSlider_progress.value()
+        str_date_time = self.indicators_view_widget.get_current_date_time_by_index(current_index)
+
+        self.logger.info(f"点击取消挂单: {str_date_time}")
+        self.demo_trading_manager.update_trading_record(0, None, None, str_date_time)
+
+        self.update_trading_widgets_status()
 
 

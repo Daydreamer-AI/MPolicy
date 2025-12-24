@@ -150,6 +150,32 @@ class IndicatorsViewWidget(QWidget):
 
             btn.setEnabled(b_enable)
 
+    def get_current_date_time_by_index(self, index):
+        if self.df_data is None or self.df_data.empty:  # 获取数据失败
+            return None
+        
+        if index < 0 or index > len(self.df_data) - 1:  # 索引超出范围
+            self.logger.info(f"索引超出范围，index: {index}, df的长度: {len(self.df_data)}")
+            return None
+        
+        checked_id = self.period_button_group.checkedId()
+        target_period_text = self.period_button_group.button(checked_id).text()
+        target_period = TimePeriod.from_label(target_period_text)
+        s_date_time_col = "time" if TimePeriod.is_minute_level(target_period) else "date"
+        current_date_time = self.df_data[s_date_time_col].iloc[-1]
+        return current_date_time
+    
+    def get_min_and_max_price_by_index(self, index):
+        if self.df_data is None or self.df_data.empty:  # 获取数据失败
+            return None
+        
+        if index < 0 or index > len(self.df_data) - 1:  # 索引超出范围
+            self.logger.info(f"索引超出范围，index: {index}, df的长度: {len(self.df_data)}")
+            return None
+        
+        min_price, max_price = self.df_data["low"].iloc[index], self.df_data["high"].iloc[index]
+        return min_price, max_price
+
     def get_stock_data(self):
         checked_btn = self.period_button_group.checkedButton()
         if checked_btn is None:

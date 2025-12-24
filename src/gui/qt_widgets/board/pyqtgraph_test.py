@@ -722,4 +722,8 @@ def main():
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
-    main()
+    # main()
+    str_date = "2025-12-24 15:00:00"
+    str_date_2 = "2025-12-24 14:00:00"
+    b_ret = str_date >= str_date_2
+    print(b_ret)
