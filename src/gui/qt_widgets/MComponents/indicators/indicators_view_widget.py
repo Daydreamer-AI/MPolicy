@@ -465,7 +465,18 @@ class IndicatorsViewWidget(QWidget):
                     plot_widget.setXLink(kline_plot_widget)
                     kline_plot_widget.setXLink(plot_widget)
         
-        self.verticalLayout.addWidget(indicator_widget, 1)
+        if indicator_name == '成交量':
+            # 成交量指标图固定在k线图下方
+            # 找到K线图在布局中的索引位置
+            kline_index = self.verticalLayout.indexOf(self.kline_widget)
+            # 在K线图后面插入成交量图（即K线图下方）
+            if kline_index != -1:
+                self.verticalLayout.insertWidget(kline_index + 1, indicator_widget, 1)
+            else:
+                # 如果没找到K线图，添加到末尾
+                self.verticalLayout.addWidget(indicator_widget, 1)
+        else:
+            self.verticalLayout.addWidget(indicator_widget, 1)
 
         # 缩放同步和鼠标移动
         plot_widget = indicator_widget.get_plot_widget()
