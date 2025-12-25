@@ -86,6 +86,9 @@ class RsiWidget(BaseIndicatorWidget):
 
     def get_chart_name(self):
         return "RSI"
+    
+    def update_widget_labels(self):
+        self.slot_global_update_labels(self, -1)
 
     def additional_draw(self):
         """添加参考线"""

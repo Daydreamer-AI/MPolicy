@@ -8,7 +8,7 @@ import pandas as pd
 
 from manager.logging_manager import get_logger
 
-from gui.qt_widgets.MComponents.indicators.base_indicator_widget import BaseIndicatorWidget
+from gui.qt_widgets.MComponents.indicators.base_indicator_widget import BaseIndicatorWidget, signal_manager
 from gui.qt_widgets.MComponents.indicators.kline_widget import KLineWidget
 from gui.qt_widgets.MComponents.indicators.volume_widget import VolumeWidget
 from gui.qt_widgets.MComponents.indicators.amount_widget import AmountWidget
@@ -313,6 +313,8 @@ class IndicatorsViewWidget(QWidget):
 
         #if start_date is None or start_date == "":
         self.kline_widget.auto_scale_to_latest(120)
+
+        # 更新最后一根k线指标值
 
     def update_indicator_chart(self, df_data):
         is_volume_checked = self.btn_indicator_volume.isChecked()

@@ -69,6 +69,9 @@ class MacdWidget(BaseIndicatorWidget):
 
     def get_chart_name(self):
         return "MACD"
+    
+    def update_widget_labels(self):
+        self.slot_global_update_labels(self, -1)
 
     def additional_draw(self):
         """添加零轴线"""

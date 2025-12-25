@@ -77,6 +77,9 @@ class AmountWidget(BaseIndicatorWidget):
     def get_chart_name(self):
         return "成交额"
     
+    def update_widget_labels(self):
+        self.slot_global_update_labels(self, -1)
+    
     def slot_range_changed(self):
         '''当视图范围改变时调用'''
         # y轴坐标值同步

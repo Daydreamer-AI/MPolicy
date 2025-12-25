@@ -178,6 +178,9 @@ class KLineWidget(BaseIndicatorWidget):
     # def hide_overview_label(self):
     #     self.label_overview.hide()
 
+    def update_widget_labels(self):
+        self.slot_global_update_labels(self, -1)
+
     def set_indicator_name(self, indicator_name):
         self.label_indicator.setText(indicator_name)
 
