@@ -175,6 +175,23 @@ class IndicatorsViewWidget(QWidget):
         
         min_price, max_price = self.df_data["low"].iloc[index], self.df_data["high"].iloc[index]
         return min_price, max_price
+    
+    def get_kline_price_by_index(self, index):
+        if self.df_data is None or self.df_data.empty:  # 获取数据失败
+            return None
+        
+        if index < 0 or index > len(self.df_data) - 1:  # 索引超出范围
+            self.logger.info(f"索引超出范围，index: {index}, df的长度: {len(self.df_data)}")
+            return None
+        
+        dict_return = {"low": self.df_data["low"].iloc[index],
+                       "high": self.df_data["high"].iloc[index],
+                       "open": self.df_data["open"].iloc[index],
+                       "close": self.df_data["close"].iloc[index]
+        }
+
+        return dict_return
+
 
     def get_stock_data(self):
         checked_btn = self.period_button_group.checkedButton()

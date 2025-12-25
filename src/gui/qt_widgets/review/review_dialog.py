@@ -1,12 +1,13 @@
-from PyQt5 import QtWidgets, uic, QtGui
-from PyQt5.QtWidgets import QDialog, QMessageBox
+from PyQt5 import QtCore, uic, QtGui
+from PyQt5.QtWidgets import QDialog, QMessageBox, QListWidget, QListWidgetItem
 from PyQt5.QtCore import QDate
 
 import random
 from datetime import date
 
 from manager.logging_manager import get_logger
-# from gui.qt_widgets.MComponents.indicators.indicators_view_widget import IndicatorsViewWidget
+from gui.qt_widgets.MComponents.demo_trading_card_widget import DemoTradingCardWidget
+from gui.qt_widgets.review.demo_trading_record_widget import DemoTradingRecordWidget
 
 from processor.baostock_processor import BaoStockProcessor
 from manager.bao_stock_data_manager import BaostockDataManager
@@ -56,6 +57,13 @@ class ReviewDialog(QDialog):
         self.label_total_assets.setText(str(self.demo_trading_manager.get_total_assets()))
         self.label_available_balance.setText(str(self.demo_trading_manager.get_available_balance()))
 
+        self.listWidget_trading_record = QListWidget(self)
+        self.demo_trading_record_widget = DemoTradingRecordWidget(self)
+
+        self.stackedWidget_trading_record.addWidget(self.listWidget_trading_record)
+        self.stackedWidget_trading_record.addWidget(self.demo_trading_record_widget)
+        self.stackedWidget_trading_record.setCurrentWidget(self.listWidget_trading_record)
+
     def init_connect(self):
         self.indicators_view_widget.sig_current_animation_index_changed.connect(self.slot_current_animation_index_changed)
         self.indicators_view_widget.sig_init_review_animation_finished.connect(self.slot_init_review_animation_finished)
@@ -89,6 +97,14 @@ class ReviewDialog(QDialog):
         self.btn_buy.clicked.connect(self.slot_btn_buy_clicked)
         self.btn_sell.clicked.connect(self.slot_btn_sell_clicked)
         self.btn_pending_order_cancel.clicked.connect(self.slot_btn_pending_order_cancel_clicked)
+
+        self.demo_trading_manager.sig_total_assets_and_available_balance_changed.connect(self.update_assets_and_available_balance)
+        self.demo_trading_manager.sig_trading_status_changed.connect(self.slot_demo_trading_manager_sig_trading_status_changed)
+        self.demo_trading_record_widget.sig_btn_return_clicked.connect(self.slot_demo_trading_record_widget_sig_btn_return_clicked)
+
+    def update_assets_and_available_balance(self, total_assets, available_balance):
+        self.label_total_assets.setText(f"{total_assets:.2f}")
+        self.label_available_balance.setText(f"{available_balance:.2f}")
 
     def update_count_and_amount_labels(self, price, count):
         self.lineEdit_count.setText(str(count))
@@ -239,7 +255,7 @@ class ReviewDialog(QDialog):
         self.update_progress_label(index)
 
         date_time = self.indicators_view_widget.get_current_date_time_by_index(index)
-        min_price, max_price = self.indicators_view_widget.get_min_and_max_price_by_index(index)
+        dict_kline_price = self.indicators_view_widget.get_kline_price_by_index(index)
 
         trading_status = self.demo_trading_manager.get_trading_status()
 
@@ -251,8 +267,7 @@ class ReviewDialog(QDialog):
         elif trading_status == 5:
             target_status = 5
         
-        self.demo_trading_manager.update_trading_record(target_status, min_price, max_price, date_time)
-        self.update_trading_widgets_status()
+        self.demo_trading_manager.update_trading_record(target_status, dict_kline_price, date_time)
 
     def slot_init_review_animation_finished(self, success, dict_progress_data):
         if success:
@@ -401,6 +416,9 @@ class ReviewDialog(QDialog):
     def slot_lineEdit_price_editingFinished(self):
         str_price = self.lineEdit_price.text()
         str_count = self.lineEdit_count.text()
+
+        if str_price == "" or str_count == "":
+            return
         self.lineEdit_amount.setText(str(float(str_price) * int(str_count)))
 
     def slot_btn_all_clicked(self):
@@ -451,12 +469,14 @@ class ReviewDialog(QDialog):
         str_price = self.lineEdit_price.text()
         str_count = self.lineEdit_count.text()
 
+        if str_price == "" or str_count == "":
+            self.logger.info("请填写价格和数量")
+            return
+
         current_index = self.horizontalSlider_progress.value()
         str_date_time = self.indicators_view_widget.get_current_date_time_by_index(current_index)
         self.logger.info(f"点击买入: {str_code}, {str_name}, {str_price}, {str_count}, {str_date_time}")
         self.demo_trading_manager.pending_order_buy(str_code, str_name, float(str_price), int(str_count), str_date_time)
-
-        self.update_trading_widgets_status()
 
     def slot_btn_sell_clicked(self):
         if self.current_load_code == "":
@@ -471,8 +491,6 @@ class ReviewDialog(QDialog):
         self.logger.info(f"点击卖出: {str_price}, {str_count}, {str_date_time}")
         self.demo_trading_manager.pending_order_sell(float(str_price), int(str_count), str_date_time)
 
-        self.update_trading_widgets_status()
-
     def slot_btn_pending_order_cancel_clicked(self):
         if self.current_load_code == "":
             self.logger.info("请先加载股票数据")
@@ -480,10 +498,45 @@ class ReviewDialog(QDialog):
         
         current_index = self.horizontalSlider_progress.value()
         str_date_time = self.indicators_view_widget.get_current_date_time_by_index(current_index)
+        dict_kline_price = self.indicators_view_widget.get_kline_price_by_index(current_index)
 
         self.logger.info(f"点击取消挂单: {str_date_time}")
-        self.demo_trading_manager.update_trading_record(0, None, None, str_date_time)
+        self.demo_trading_manager.update_trading_record(0, dict_kline_price, str_date_time)
 
+    def slot_demo_trading_manager_sig_trading_status_changed(self, status):
         self.update_trading_widgets_status()
+
+        if status == 1:
+            # 添加Item到ListWidget
+            demo_trading_card_widget = DemoTradingCardWidget()
+            demo_trading_card_widget.set_data(self.demo_trading_manager.current_trading_record)
+            demo_trading_card_widget.update_ui()
+
+            self.demo_trading_manager.sig_trading_yield_changed.connect(demo_trading_card_widget.slot_trading_status_changed)
+            self.demo_trading_manager.sig_trading_status_changed.connect(demo_trading_card_widget.slot_trading_status_changed)
+            demo_trading_card_widget.clicked.connect(self.slot_demo_trading_card_clicked)
+            # demo_trading_card_widget.hovered.connect(self.slot_demo_trading_card_hovered)
+            # demo_trading_card_widget.hoverLeft.connect(self.slot_demo_trading_card_hover_left)
+            # demo_trading_card_widget.doubleClicked.connect(self.slot_demo_trading_card_double_clicked)
+
+            item = QListWidgetItem(self.listWidget_trading_record)
+            # 设置 item 的大小（可选）
+            item.setSizeHint(demo_trading_card_widget.sizeHint())
+            # item.setSizeHint(QtCore.QSize(200, 60))
+            
+            # 将 item 添加到 list widget，默认添加到最前
+            # self.listWidget_trading_record.addItem(item)
+            self.listWidget_trading_record.insertItem(0, item)
+            
+            # 将自定义 widget 设置为 item 的 widget
+            self.listWidget_trading_record.setItemWidget(item, demo_trading_card_widget)
+
+    def slot_demo_trading_card_clicked(self, trading_record):
+        self.logger.info(f"交易买入挂单时间：{trading_record.pending_order_buy_date_time}")
+        self.demo_trading_record_widget.update_trading_record(trading_record)
+        self.stackedWidget_trading_record.setCurrentWidget(self.demo_trading_record_widget)
+
+    def slot_demo_trading_record_widget_sig_btn_return_clicked(self):
+        self.stackedWidget_trading_record.setCurrentWidget(self.listWidget_trading_record)
 
 

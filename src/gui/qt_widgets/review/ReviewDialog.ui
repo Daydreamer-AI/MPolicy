@@ -536,7 +536,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QListWidget" name="listWidget_buy_and_sell_record"/>
+          <widget class="QStackedWidget" name="stackedWidget_trading_record"/>
          </item>
         </layout>
        </widget>
