@@ -208,6 +208,28 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="btn_auto_process_all_stock_data">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>40</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>40</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>一键获取沪深主板日线、周线、15、30、60分钟k线数据</string>
+          </property>
+          <property name="text">
+           <string>一键获取</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer_2">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>

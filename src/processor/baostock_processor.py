@@ -28,6 +28,8 @@ from manager.filter_result_data_manager import FilterResultDataManger
 from manager.bao_stock_data_manager import BaostockDataManager
 from manager.period_manager import TimePeriod
 
+from thread.task_pool import get_default_task_pool
+
 def singleton(cls):
     """
     一个线程安全的单例装饰器。
@@ -63,10 +65,6 @@ class BaoStockProcessor(QObject):
         self.lock = threading.Lock()  
         self._is_initialized = False # 初始化状态标志
 
-    
-    # def __del__(self):
-    #     self.logger.info("登出Baostock系统")
-    #     bs.logout()
     def initialize(self) -> bool:
         """显式登录Baostock系统。应在程序开始时调用。"""
         try:
@@ -195,7 +193,7 @@ class BaoStockProcessor(QObject):
 
     # 获取当年交易日信息
     def get_current_trade_dates(self):
-        # bs.login()
+
         #### 获取交易日信息 ####
         start_date, end_date = self.get_current_year_dates()
         rs = bs.query_trade_dates(start_date=start_date, end_date=end_date)
@@ -212,7 +210,7 @@ class BaoStockProcessor(QObject):
         #### 结果集输出到csv文件 ####   
         # result.to_csv("D:\\trade_datas.csv", encoding="gbk", index=False)
         # self.logger.info("2025年交易日：", result)
-        # bs.login()
+
         return result
 
     def is_trading_day(self, day_str=''):
@@ -323,13 +321,11 @@ class BaoStockProcessor(QObject):
         # sleep_time = random.uniform(0.1, 0.3)
         # time.sleep(sleep_time)
 
-        # 判断是否是否交易
-
-        # lg = bs.login()
-        rs = bs.query_history_k_data_plus(code,
-            "date,code,open,high,low,close,volume,amount,pctChg,turn,adjustflag",
-            start_date=start_date, end_date=end_date,
-            frequency="d", adjustflag="2")
+        with self.lock:
+            rs = bs.query_history_k_data_plus(code,
+                "date,code,open,high,low,close,volume,amount,pctChg,turn,adjustflag",
+                start_date=start_date, end_date=end_date,
+                frequency="d", adjustflag="2")
         # self.logger.info(rs.error_code)      # 0
         # self.logger.info(rs.error_msg)       # success
         # self.logger.info("rs的类型：", type(rs))       # <class 'baostock.data.resultset.ResultData'>
@@ -348,8 +344,6 @@ class BaoStockProcessor(QObject):
 
         result = result.dropna()
 
-        # 登出系统
-        # bs.logout()
         return result
 
     def process_and_save_daily_stock_data(self, code):
@@ -501,11 +495,11 @@ class BaoStockProcessor(QObject):
         # sleep_time = random.uniform(0.1, 0.2) # 等待时间可以设得稍长一些
         # time.sleep(sleep_time)
 
-        # lg = bs.login()
-        rs = bs.query_history_k_data_plus(code,
-            "date,code,open,high,low,close,volume,amount,pctChg,turn,adjustflag",
-            start_date=start_date, end_date=end_date,
-            frequency="w", adjustflag="2")
+        with self.lock:
+            rs = bs.query_history_k_data_plus(code,
+                "date,code,open,high,low,close,volume,amount,pctChg,turn,adjustflag",
+                start_date=start_date, end_date=end_date,
+                frequency="w", adjustflag="2")
         # self.logger.info(rs.error_code)      # 0
         # self.logger.info(rs.error_msg)       # success
         # self.logger.info("rs的类型：", type(rs))       # <class 'baostock.data.resultset.ResultData'>
@@ -527,8 +521,6 @@ class BaoStockProcessor(QObject):
         # self.logger.info("process_weekly_stock_data执行结果：")
         # self.logger.info(result.tail(3))
 
-        # 登出系统
-        # bs.logout()
         return result
 
     def process_and_save_weekly_stock_data(self, code):
@@ -674,10 +666,11 @@ class BaoStockProcessor(QObject):
         # sleep_time = random.uniform(0.1, 0.2)
         # time.sleep(sleep_time)
 
-        rs = bs.query_history_k_data_plus(code,
-            "date,time,code,open,high,low,close,volume,amount,adjustflag",
-            start_date=start_date, end_date=end_date,
-            frequency=level, adjustflag="2")
+        with self.lock:
+            rs = bs.query_history_k_data_plus(code,
+                "date,time,code,open,high,low,close,volume,amount,adjustflag",
+                start_date=start_date, end_date=end_date,
+                frequency=level, adjustflag="2")
 
 
         result_list = []
@@ -834,6 +827,7 @@ class BaoStockProcessor(QObject):
             stock_name = row['证券名称'] if '证券名称' in row else '未知'
             # self.logger.info(f"获取第 {i} 只{board_name_chinese}股票 {value} 【{time_period_name_chinese}】数据")
 
+            result = None
             if TimePeriod == TimePeriod.DAY:
                 result = self.process_and_save_daily_stock_data(value)
             elif TimePeriod == TimePeriod.WEEK:
@@ -843,7 +837,6 @@ class BaoStockProcessor(QObject):
                 # self.logger.info(f"股票 {value} 数据获取失败")
                 continue
 
-            
             # if i > 3:
             #     self.logger.info(f"已获取到所有{board_name_chinese}股票{time_period_name_chinese}数据, i: {i}")
             #     break
@@ -857,7 +850,13 @@ class BaoStockProcessor(QObject):
         process_elapsed_time = time.time() - start_time  # 计算耗时
         self.logger.info(f"{board_name_chinese} {time_period_name_chinese}股票数据处理完成，共处理{i}只股票，耗时: {process_elapsed_time:.2f}秒，即{process_elapsed_time/60:.2f}分钟")
 
-
+    
+    def auto_process_all_stock_data(self):
+        # 一键自动 获取/更新 沪、深主板 日线、周线、15、30、60分钟k线数据
+        from thread.baostock_data_fetch_task import BaostockDataFetchTask
+        baostock_data_fetch_task = BaostockDataFetchTask()
+        baostock_data_fetch_task.task_completed.connect(self.slot_baostock_data_fetch_task_completed)
+        task_id = get_default_task_pool().submit(baostock_data_fetch_task)
 
     # -----------------沪市主板股票数据获取接口---------------------
     def start_sh_main_stock_data_background_update(self):
@@ -876,6 +875,8 @@ class BaoStockProcessor(QObject):
 
     def process_sh_main_stock_data(self):
         self.process_sh_main_stock_daily_data()
+        sleep_time = random.uniform(0.5, 1)
+        time.sleep(sleep_time)
         self.process_sh_main_stock_weekly_data()
         return True
     
@@ -905,6 +906,8 @@ class BaoStockProcessor(QObject):
 
     def process_sz_main_stock_data(self):
         self.process_sz_main_stock_daily_data()
+        sleep_time = random.uniform(0.5, 1)
+        time.sleep(sleep_time)
         self.process_sz_main_stock_weekly_data()
         return True
 
@@ -927,6 +930,8 @@ class BaoStockProcessor(QObject):
             self.logger.error(f"启动后台更新Baostock创业板股票数据失败: {e}")
     def process_gem_stock_data(self):
         self.process_gem_stock_daily_data()
+        sleep_time = random.uniform(0.5, 1)
+        time.sleep(sleep_time)
         self.process_gem_stock_weekly_data()
         return True
     def process_gem_stock_daily_data(self):
@@ -951,6 +956,8 @@ class BaoStockProcessor(QObject):
 
     def process_star_stock_data(self):
         self.process_star_stock_daily_data()
+        sleep_time = random.uniform(0.5, 1)
+        time.sleep(sleep_time)
         self.process_star_stock_weekly_data()
         return True
     
@@ -1026,8 +1033,6 @@ class BaoStockProcessor(QObject):
 
     # -----------------其他接口-------------------
     def get_and_save_all_stocks_from_bao(self):
-        #### 登陆系统 ####
-        # lg = bs.login()
         # 显示登陆返回信息
         # self.logger.info('login respond error_code:'+lg.error_code)
         # self.logger.info('login respond  error_msg:'+lg.error_msg)
@@ -1076,9 +1081,6 @@ class BaoStockProcessor(QObject):
         # result.to_csv("./data/database/stocks/db/baostock/all_stock.csv", encoding="utf-8", index=False)
         # self.logger.info(result)
         # BaostockDataManager().save_stock_info_to_db(result)
-
-        #### 登出系统 ####
-        # bs.logout()
 
     def get_all_stocks_from_db(self):
         BaostockDataManager().get_all_stocks_from_db()
@@ -1828,6 +1830,9 @@ class BaoStockProcessor(QObject):
                 
     def slot_process_star_stock_data_error(self, error):
         self.logger.info(f"科创板数据后台更新出错: {error}")
+
+    def slot_baostock_data_fetch_task_completed(self, task_id, result):
+        self.logger.info(f"task_id: {task_id}, result: {result}")
 
 if __name__ == "__main__":
     bao_stock_processor = BaoStockProcessor()

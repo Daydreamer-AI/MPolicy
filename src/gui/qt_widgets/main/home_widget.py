@@ -57,6 +57,8 @@ class HomeWidget(QWidget):
 
         self.btn_query_minute_level.clicked.connect(self.slot_btn_query_minute_level_clicked)
 
+        self.btn_auto_process_all_stock_data.clicked.connect(self.slot_btn_auto_process_all_stock_data_clicked)
+
         # AKShare
         self.btn_get_akshare_stocks_info.clicked.connect(self.slot_btn_get_akshare_stocks_info_clicked)
 
@@ -182,6 +184,10 @@ class HomeWidget(QWidget):
             pass
 
         self.logger.info("Baostock--查询A股所有股票分钟级别数据完成")
+
+    def slot_btn_auto_process_all_stock_data_clicked(self):
+        self.logger.info("自动处理所有股票数据")
+        BaoStockProcessor().auto_process_all_stock_data()
 
     # =================================================================================AKShare==========================================================================
     @pyqtSlot()
