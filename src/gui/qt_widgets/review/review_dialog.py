@@ -530,6 +530,9 @@ class ReviewDialog(QDialog):
             
             # 将自定义 widget 设置为 item 的 widget
             self.listWidget_trading_record.setItemWidget(item, demo_trading_card_widget)
+        elif status == 6:
+            # 交易完成，更新收益曲线图
+            self.widget_total_yield_curve.update_data(self.demo_trading_manager.get_trding_record_list())
 
     def slot_demo_trading_card_clicked(self, trading_record):
         self.logger.info(f"交易买入挂单时间：{trading_record.pending_order_buy_date_time}")

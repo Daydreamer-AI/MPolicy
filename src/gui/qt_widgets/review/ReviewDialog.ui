@@ -526,14 +526,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QFrame" name="frame_total_yield_curve">
-           <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-          </widget>
+          <widget class="IncomeChartWidget" name="widget_total_yield_curve" native="true"/>
          </item>
          <item>
           <widget class="QStackedWidget" name="stackedWidget_trading_record"/>
@@ -546,6 +539,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>IncomeChartWidget</class>
+   <extends>QWidget</extends>
+   <header>income_chart_widget</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

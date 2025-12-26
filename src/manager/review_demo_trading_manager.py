@@ -86,6 +86,9 @@ class ReviewDemoTradingManager(QObject):
         # 发送信号通知外层控件更新
         self.sig_total_assets_and_available_balance_changed.emit(self.total_assets, self.available_balance)
 
+    def get_trding_record_list(self):
+        return self.trding_record_list
+
     def get_trading_status(self):
         if self.current_trading_record is None:
             return 0
