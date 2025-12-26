@@ -276,7 +276,7 @@ class ReviewDemoTradingManager(QObject):
             if (min_price <= self.current_trading_record.buy_price and self.current_trading_record.buy_price <= max_price) or self.current_trading_record.buy_price > max_price:
                 if self.current_trading_record.buy_price > max_price:
                     self.current_trading_record.buy_price = open_price
-                    self.current_trading_record.buy_price.buy_amount = self.current_trading_record.buy_price * self.current_trading_record.buy_count
+                    self.current_trading_record.buy_amount = self.current_trading_record.buy_price * self.current_trading_record.buy_count
 
                 # 买入挂单成交
                 self.current_trading_record.status = 5  # 持有中

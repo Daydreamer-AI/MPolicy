@@ -210,7 +210,7 @@ class ReviewDialog(QDialog):
 
             self.current_load_code = code
 
-            self.demo_trading_manager.reset_trading_record()
+            # self.demo_trading_manager.reset_trading_record()  # 重新加载不用情况当前收益
             self.playing_enabled(False)
             self.update_trading_widgets_status()
             self.reset_trading_record()

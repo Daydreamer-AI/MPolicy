@@ -70,6 +70,16 @@ class IncomeChartWidget(QWidget):
     
         main_viewbox.addItem(self.left_y_label, ignoreBounds=True)
 
+        # 初始化主图表标签（优化样式）
+        self.label_main = pg.TextItem("", anchor=(0, 1))
+        self.label_main.setZValue(1000)
+        
+        # 预设标签样式
+        font = pg.QtGui.QFont("Arial", 10, pg.QtGui.QFont.Bold)
+        self.label_main.setFont(font)
+        
+        main_viewbox.addItem(self.label_main, ignoreBounds=True)
+
         self.hide_all_plot_widget_labels()
 
     def hide_all_plot_widget_labels(self):
@@ -79,6 +89,8 @@ class IncomeChartWidget(QWidget):
 
         # 隐藏左y轴标签
         self.left_y_label.hide()
+
+        self.label_main.hide()
 
     def get_left_y_text_with_style(self, y_val):
         left_y_label_text = f"{y_val:.2f}"
@@ -114,6 +126,7 @@ class IncomeChartWidget(QWidget):
         self.label_win_rate.setText(f"{win_rate:.2f}%")
 
         self.update_chart(list_data)
+
     def update_chart(self, list_data):
         # 清除之前的图表数据
         self.plot_widget.clear()
@@ -122,12 +135,28 @@ class IncomeChartWidget(QWidget):
         x_data = []  # X轴数据（序号）
         y_data = []  # Y轴数据（累计总收益率百分比）
         
+        # 存储额外信息用于鼠标交互
+        self.chart_info = []  # 存储每个点的详细信息
+        
         # 添加起始点（初始收益为0）
         x_data.append(0)  # X轴从0开始
         y_data.append(0.0)  # 初始总收益为0%
         
-        # 计算累计总收益率
+        # 存储起始点信息
+        start_info = {
+            'x': 0,
+            'single_yield': 0.0,  # 单次收益率
+            'cumulative_yield': 0.0,  # 累计总收益率
+            'win_rate': 0.0,  # 当前胜率
+            'trade_index': -1,  # 交易索引（-1表示起始点）
+            'record': None  # 交易记录对象
+        }
+        self.chart_info.append(start_info)
+        
+        # 计算累计总收益率和胜率
         cumulative_yield = 0.0
+        win_count = 0  # 获胜交易次数
+        total_trades = 0  # 总交易次数
         
         # 按交易顺序处理记录
         for record in list_data:
@@ -139,10 +168,31 @@ class IncomeChartWidget(QWidget):
                 # 累计总收益率（简单累加，实际应用中可能需要考虑复利）
                 cumulative_yield += single_yield
                 
+                # 更新胜率统计
+                total_trades += 1
+                if single_yield > 0:
+                    win_count += 1
+                
+                # 计算当前胜率
+                current_win_rate = 0.0
+                if total_trades > 0:
+                    current_win_rate = (win_count / total_trades) * 100
+                
                 # 添加当前点的数据
                 x_value = len(x_data)  # 当前点的序号
                 x_data.append(x_value)
                 y_data.append(cumulative_yield)
+                
+                # 存储当前点的详细信息
+                point_info = {
+                    'x': x_value,
+                    'single_yield': single_yield,  # 单次收益率
+                    'cumulative_yield': cumulative_yield,  # 累计总收益率
+                    'win_rate': current_win_rate,  # 当前胜率
+                    'trade_index': total_trades - 1,  # 交易索引
+                    'record': record  # 交易记录对象
+                }
+                self.chart_info.append(point_info)
 
         # 保存X轴和Y轴数据用于鼠标交互
         self.chart_x_data = x_data
@@ -218,6 +268,7 @@ class IncomeChartWidget(QWidget):
 
             # 寻找最接近的X轴坐标
             closest_x = None
+            closest_info = None
             min_distance = float('inf')
 
             for x_point in self.chart_x_data:
@@ -226,13 +277,36 @@ class IncomeChartWidget(QWidget):
                 if distance < min_distance and distance <= tolerance:
                     min_distance = distance
                     closest_x = x_point
+                    # 找到对应的信息
+                    for info in self.chart_info:
+                        if info['x'] == x_point:
+                            closest_info = info
+                            break
             
             if closest_x is not None:
                 self.v_line.setPos(closest_x)
                 self.v_line.show()
+                
+                # 更新主标签显示详细信息
+                if closest_info is not None:
+                    # 构建详细信息文本，使用HTML格式设置样式
+                    info_text = (
+                        '<div style="background-color: white; border: 2px solid black; padding: 5px; border-radius: 5px;">'
+                        f'<span style="color: black; font-weight: bold;">交易序号:</span> <span style="color: blue;">{closest_info["trade_index"] if closest_info["trade_index"] >= 0 else "起始点"}</span><br>'
+                        f'<span style="color: black; font-weight: bold;">单次收益率:</span> <span style="color: {"red" if closest_info["single_yield"] < 0 else "green"}; font-weight: bold;">{closest_info["single_yield"]:.2f}%</span><br>'
+                        f'<span style="color: black; font-weight: bold;">累计总收益率:</span> <span style="color: {"red" if closest_info["cumulative_yield"] < 0 else "green"}; font-weight: bold;">{closest_info["cumulative_yield"]:.2f}%</span><br>'
+                        f'<span style="color: black; font-weight: bold;">当前胜率:</span> <span style="color: purple; font-weight: bold;">{closest_info["win_rate"]:.2f}%</span>'
+                        '</div>'
+                    )
+                    
+                    # 设置标签文本
+                    self.label_main.setHtml(info_text)
+                    self.label_main.setPos(closest_x, y_val)  # 位置在十字线交叉点
+                    self.label_main.show()
             else:
-                # 鼠标不在有效数据点附近时隐藏十字线
+                # 鼠标不在有效数据点附近时隐藏十字线和标签
                 self.v_line.hide()
+                self.label_main.hide()
 
         else:
             self.hide_all_plot_widget_labels()
