@@ -181,8 +181,6 @@ class BaoStockProcessor(QObject):
 
     # --------------------------------------------------------------------
 
-
-
     def get_current_year_dates(self):
         """
         获取当前年份的起始和结束日期
@@ -652,7 +650,6 @@ class BaoStockProcessor(QObject):
 
         return result
 
-
     def process_minute_level_stock_data(self, code, level = '1', start_date=None, end_date=None):
         result = pd.DataFrame()
         allowed_levels = ['1', '3', '5', '10', '15', '30', '45', '60', '90', '120']
@@ -805,6 +802,63 @@ class BaoStockProcessor(QObject):
         return minute_stock_data, data_to_save
 
     # ------------------------------------------数据更新接口--------------------------------------------
+    def get_chinese_board_name(self, board_name):
+        if board_name == 'sh_main':
+            return '沪市主板'
+        elif board_name == 'sz_main':
+            return '深市主板'
+        elif board_name == 'gem':
+            return '创业板'
+        elif board_name == 'star':
+            return '科创板'
+        elif board_name == 'bse':
+            return '北交所'
+        else:
+            return '其他'
+
+    def process_stock_data(self, board_name='sh_main', TimePeriod=TimePeriod.DAY):
+        allowed_board_names = ['sh_main', 'sz_main', 'gem', 'star', 'bse']
+        if board_name not in allowed_board_names:
+            self.logger.info(f"无效的板块名称: {board_name}")
+            return
+
+        i = 1
+        board_name_chinese = self.get_chinese_board_name(board_name)
+        time_period_name_chinese = TimePeriod.get_chinese_label(TimePeriod)
+        self.logger.info(f"开始处理 {board_name_chinese} {time_period_name_chinese} 股票数据...")
+        start_time = time.time()  # 记录开始时间
+
+        dict_stock_info = BaostockDataManager().get_stock_info_dict()
+        for index, row in dict_stock_info[board_name].iterrows():
+            value = row['证券代码']
+            stock_name = row['证券名称'] if '证券名称' in row else '未知'
+            # self.logger.info(f"获取第 {i} 只{board_name_chinese}股票 {value} 【{time_period_name_chinese}】数据")
+
+            if TimePeriod == TimePeriod.DAY:
+                result = self.process_and_save_daily_stock_data(value)
+            elif TimePeriod == TimePeriod.WEEK:
+                result = self.process_and_save_weekly_stock_data(value)
+
+            if result is None or result.empty:
+                # self.logger.info(f"股票 {value} 数据获取失败")
+                continue
+
+            
+            # if i > 3:
+            #     self.logger.info(f"已获取到所有{board_name_chinese}股票{time_period_name_chinese}数据, i: {i}")
+            #     break
+
+            
+            if i % 100 == 0:  # 每100只股票打印一次日志
+                self.logger.info(f"已处理 {i} 只{board_name_chinese}股票【{time_period_name_chinese}】数据")
+
+            i += 1
+
+        process_elapsed_time = time.time() - start_time  # 计算耗时
+        self.logger.info(f"{board_name_chinese} {time_period_name_chinese}股票数据处理完成，共处理{i}只股票，耗时: {process_elapsed_time:.2f}秒，即{process_elapsed_time/60:.2f}分钟")
+
+
+
     # -----------------沪市主板股票数据获取接口---------------------
     def start_sh_main_stock_data_background_update(self):
         """启动后台更新Baostock股票数据"""
@@ -826,122 +880,15 @@ class BaoStockProcessor(QObject):
         return True
     
     def process_sh_main_stock_daily_data(self):
-        i = 1
-        # dict_daily_stock_data = {}
-
-        self.logger.info(f"开始处理沪市主板日线股票数据...")
-        start_time = time.time()  # 记录开始时间
-
-        dict_stock_info = BaostockDataManager().get_stock_info_dict()
-        for index, row in dict_stock_info['sh_main'].iterrows():
-            value = row['证券代码']
-            stock_name = row['证券名称'] if '证券名称' in row else '未知'
-            # self.logger.info(f"获取第 {i} 只沪市主板股票 {value} 【日线】数据")
-
-            result = self.process_and_save_daily_stock_data(value)
-
-            if result is None or result.empty:
-                # self.logger.info(f"股票 {value} 数据获取失败")
-                continue
-
-            # result['name'] = stock_name
-
-            # sdi.default_indicators_auto_calculate(result)
-            # dict_daily_stock_data[value] = result
-
-            
-            # if i > 3:
-            #     self.logger.info(f"已获取到所有沪市股票日线数据, i: {i}")
-            #     break
-
-            
-            if i % 100 == 0:  # 每100只股票打印一次日志
-                self.logger.info(f"已处理 {i} 只沪市股票【日线】数据")
-
-            i += 1
-
-        process_elapsed_time = time.time() - start_time  # 计算耗时
-        self.logger.info(f"沪市主板日线股票数据处理完成，共处理{i}只股票，耗时: {process_elapsed_time:.2f}秒，即{process_elapsed_time/60:.2f}分钟")
+        self.process_stock_data(board_name='sh_main', TimePeriod=TimePeriod.DAY)
 
     def process_sh_main_stock_weekly_data(self):
-        i = 1
-        # dict_weekly_stock_data = {}
-
-        self.logger.info(f"开始处理沪市主板周线股票数据...")
-        start_time = time.time()  # 记录开始时间
-
-        dict_stock_info = BaostockDataManager().get_stock_info_dict()
-        for index, row in dict_stock_info['sh_main'].iterrows():
-            value = row['证券代码']
-            stock_name = row['证券名称'] if '证券名称' in row else '未知'
-            # self.logger.info(f"获取第 {i} 只沪市主板股票 {value} 【周线】数据")
-            
-
-            result = self.process_and_save_weekly_stock_data(value)
-            if result is None or result.empty:
-                # self.logger.info(f"股票 {value} 数据获取失败")
-                continue
-            
-            # result['name'] = stock_name
-
-            # sdi.default_indicators_auto_calculate(result)
-            # dict_weekly_stock_data[value] = result
-
-            # if i > 3:
-            #     self.logger.info(f"已获取到所有沪市股票周线数据, i: {i}")
-            #     break
-            
-            if i % 100 == 0:  # 每100只股票打印一次日志
-                self.logger.info(f"已处理 {i} 只沪市股票【周线】数据")
-
-            # if i > 700 and i <= 800:
-            #     self.logger.info(f"已处理 {i} 只沪市股票{value}【周线】数据")
-
-            i += 1
-
-        
-        process_elapsed_time = time.time() - start_time  # 计算耗时
-        self.logger.info(f"沪市主板周线股票数据处理完成，共处理{i}只股票，耗时: {process_elapsed_time:.2f}秒，即{process_elapsed_time/60:.2f}分钟")
-
+        self.process_stock_data(board_name='sh_main', TimePeriod=TimePeriod.WEEK)
 
 
     # -----------------深市主板股票数据获取接口---------------------
     def process_sz_main_stock_daily_data(self):
-        i = 1
-        # dict_daily_stock_data = {}
-
-        self.logger.info(f"开始处理深市主板日线股票数据...")
-        start_time = time.time()  # 记录开始时间
-        
-        dict_stock_info = BaostockDataManager().get_stock_info_dict()
-        for index, row in dict_stock_info['sz_main'].iterrows():
-            value = row['证券代码']
-            stock_name = row['证券名称'] if '证券名称' in row else '未知'
-            # self.logger.info(f"获取第 {i} 只深市主板股票 {value} 【日线】数据")
-            
-
-            result = self.process_and_save_daily_stock_data(value)
-
-            if result is None or result.empty:
-                # self.logger.info(f"股票 {value} 数据获取失败")
-                continue
-
-            # result['name'] = stock_name
-
-            # sdi.default_indicators_auto_calculate(result)
-            # dict_daily_stock_data[value] = result
-
-            # if i > 1:
-            #     self.logger.info(f"已获取到所有深市股票日线数据, i: {i}")
-            #     break
-            
-            if i % 100 == 0:  # 每100只股票打印一次日志
-                self.logger.info(f"已处理 {i} 只深市股票【日线】数据")
-
-            i += 1
-
-        process_elapsed_time = time.time() - start_time  # 计算耗时
-        self.logger.info(f"深市主板日线股票数据处理完成，共处理{i}只股票，耗时: {process_elapsed_time:.2f}秒，即{process_elapsed_time/60:.2f}分钟")
+        self.process_stock_data(board_name='sz_main', TimePeriod=TimePeriod.DAY)
 
     def start_sz_main_stock_data_background_update(self):
         try:
@@ -962,134 +909,31 @@ class BaoStockProcessor(QObject):
         return True
 
     def process_sz_main_stock_weekly_data(self):
-        i = 1
-        # dict_weekly_stock_data = {}
-
-        self.logger.info(f"开始处理深市主板周线股票数据...")
-        start_time = time.time()  # 记录开始时间
-
-        dict_stock_info = BaostockDataManager().get_stock_info_dict()
-        for index, row in dict_stock_info['sz_main'].iterrows():
-            value = row['证券代码']
-            stock_name = row['证券名称'] if '证券名称' in row else '未知'
-            # self.logger.info(f"获取第 {i} 只深市主板股票 {value} 【周线】数据")
-            
-            result = self.process_and_save_weekly_stock_data(value)
-
-            if result is None or result.empty:
-                # self.logger.info(f"股票 {value} 数据获取失败")
-                continue
-            
-            # result['name'] = stock_name
-
-            # sdi.default_indicators_auto_calculate(result)
-            # dict_weekly_stock_data[value] = result
-
-            # if i > 1:
-            #     self.logger.info(f"已获取到所有深市股票周线数据, i: {i}")
-            #     break
-            
-            if i % 100 == 0:  # 每100只股票打印一次日志
-                self.logger.info(f"已处理 {i} 只深市股票【周线】数据")
-
-            i += 1
-
-
-        process_elapsed_time = time.time() - start_time  # 计算耗时
-        self.logger.info(f"深市主板周线股票数据处理完成，共处理{i}只股票，耗时: {process_elapsed_time:.2f}秒，即{process_elapsed_time/60:.2f}分钟")
+        self.process_stock_data(board_name='sz_main', TimePeriod=TimePeriod.WEEK)
 
         
     # -----------------创业板股票数据获取接口---------------------
     def start_gem_stock_data_background_update(self):
-            try:
-                # 创建并启动工作线程来执行特定任务
-                self.load_worker = BaseThreadWorker(BaoStockProcessor().process_gem_stock_data)
-                self.load_worker.finished.connect(self.slot_process_gem_stock_data_finished)
-                self.load_worker.progress.connect(self.slot_process_gem_stock_data_progress)
-                self.load_worker.error.connect(self.slot_process_gem_stock_data_error)
-                self.load_worker.start()
-                
-                self.logger.info("已启动后台更新Baostock创业板股票数据")
-            except Exception as e:
-                self.logger.error(f"启动后台更新Baostock创业板股票数据失败: {e}")
+        try:
+            # 创建并启动工作线程来执行特定任务
+            self.load_worker = BaseThreadWorker(BaoStockProcessor().process_gem_stock_data)
+            self.load_worker.finished.connect(self.slot_process_gem_stock_data_finished)
+            self.load_worker.progress.connect(self.slot_process_gem_stock_data_progress)
+            self.load_worker.error.connect(self.slot_process_gem_stock_data_error)
+            self.load_worker.start()
+            
+            self.logger.info("已启动后台更新Baostock创业板股票数据")
+        except Exception as e:
+            self.logger.error(f"启动后台更新Baostock创业板股票数据失败: {e}")
     def process_gem_stock_data(self):
         self.process_gem_stock_daily_data()
         self.process_gem_stock_weekly_data()
         return True
     def process_gem_stock_daily_data(self):
-        i = 1
-        # dict_daily_stock_data = {}
-
-        self.logger.info(f"开始处理创业板日线股票数据...")
-        start_time = time.time()  # 记录开始时间
-
-        dict_stock_info = BaostockDataManager().get_stock_info_dict()
-        for index, row in dict_stock_info['gem'].iterrows():
-            value = row['证券代码']
-            stock_name = row['证券名称'] if '证券名称' in row else '未知'
-            # self.logger.info(f"获取第 {i} 只创业板股票 {value} 【日线】数据")
-            
-            result = self.process_and_save_daily_stock_data(value)
-
-            if result is None or result.empty:
-                # self.logger.info(f"股票 {value} 数据获取失败")
-                continue
-
-            # result['name'] = stock_name
-
-            # sdi.default_indicators_auto_calculate(result)
-            # dict_daily_stock_data[value] = result
-
-            # if i > 3:
-            #     self.logger.info(f"已获取到所有创业板股票日线数据, i: {i}")
-            #     break
-            
-            if i % 100 == 0:  # 每100只股票打印一次日志
-                self.logger.info(f"已处理 {i} 只创业板股票【日线】数据")
-
-            i += 1
-
-        process_elapsed_time = time.time() - start_time  # 计算耗时
-        self.logger.info(f"创业板日线股票数据处理完成，共处理{i}只股票，耗时: {process_elapsed_time:.2f}秒，即{process_elapsed_time/60:.2f}分钟")
+        self.process_stock_data(board_name='gem', TimePeriod=TimePeriod.DAY)
 
     def process_gem_stock_weekly_data(self):
-        i = 1
-        dict_weekly_stock_data = {}
-
-        self.logger.info(f"开始处理创业板周线股票数据...")
-        start_time = time.time()  # 记录开始时间
-
-        dict_stock_info = BaostockDataManager().get_stock_info_dict()
-        for index, row in dict_stock_info['gem'].iterrows():
-            value = row['证券代码']
-            stock_name = row['证券名称'] if '证券名称' in row else '未知'
-            # self.logger.info(f"获取第 {i} 只创业板股票 {value} 【周线】数据")
-            
-            result = self.process_and_save_weekly_stock_data(value)
-
-            if result is None or result.empty:
-                # self.logger.info(f"股票 {value} 数据获取失败")
-                continue
-
-            result['name'] = stock_name
-
-
-            sdi.default_indicators_auto_calculate(result)
-            dict_weekly_stock_data[value] = result
-
-            # if i > 3:
-            #     self.logger.info(f"已获取到所有创业板股票周线数据, i: {i}")
-            #     break
-            
-            if i % 100 == 0:  # 每100只股票打印一次日志
-                self.logger.info(f"已处理 {i} 只创业板股票【周线】数据")
-
-            i += 1
-
-        process_elapsed_time = time.time() - start_time  # 计算耗时
-        self.logger.info(f"创业板周线股票数据处理完成，共处理{i}只股票，耗时: {process_elapsed_time:.2f}秒，即{process_elapsed_time/60:.2f}分钟")
-
-
+        self.process_stock_data(board_name='gem', TimePeriod=TimePeriod.WEEK)
 
     # -----------------科创板股票数据获取接口---------------------
     def start_star_stock_data_background_update(self):
@@ -1111,78 +955,10 @@ class BaoStockProcessor(QObject):
         return True
     
     def process_star_stock_daily_data(self):
-        i = 1
-        # dict_daily_stock_data = {}
-
-        self.logger.info(f"开始处理科创板日线股票数据...")
-        start_time = time.time()  # 记录开始时间
-
-        dict_stock_info = BaostockDataManager().get_stock_info_dict()
-        for index, row in dict_stock_info['star'].iterrows():
-            value = row['证券代码']
-            stock_name = row['证券名称'] if '证券名称' in row else '未知'
-            # self.logger.info(f"获取第 {i} 只科创板股票 {value} 【日线】数据")
-            
-            result = self.process_and_save_daily_stock_data(value)
-            if result is None or result.empty:
-                # self.logger.info(f"股票 {value} 数据获取失败")
-                continue
-
-            # result['name'] = stock_name
-
-            # sdi.default_indicators_auto_calculate(result)
-            # dict_daily_stock_data[value] = result
-
-            # if i > 1:
-            #     self.logger.info(f"已获取到所有科创板股票日线数据, i: {i}")
-            #     break
-            
-            if i % 100 == 0:  # 每100只股票打印一次日志
-                self.logger.info(f"已处理 {i} 只科创板股票【日线】数据")
-
-            i += 1
-
-        process_elapsed_time = time.time() - start_time  # 计算耗时
-        self.logger.info(f"科创板日线股票数据处理完成，共处理{i}只股票，耗时: {process_elapsed_time:.2f}秒，即{process_elapsed_time/60:.2f}分钟")
-
+        self.process_stock_data(board_name='star', TimePeriod=TimePeriod.DAY)
 
     def process_star_stock_weekly_data(self):
-        i = 1
-
-        # dict_weekly_stock_data = {}
-
-        self.logger.info(f"开始处理科创板周线股票数据...")
-        start_time = time.time()  # 记录开始时间
-
-        dict_stock_info = BaostockDataManager().get_stock_info_dict()
-        for index, row in dict_stock_info['star'].iterrows():
-            value = row['证券代码']
-            stock_name = row['证券名称'] if '证券名称' in row else '未知'
-            # self.logger.info(f"获取第 {i} 只科创板股票 {value} 【周线】数据")
-            
-            result = self.process_and_save_weekly_stock_data(value)
-
-            if result is None or result.empty:
-                # self.logger.info(f"股票 {value} 数据获取失败")
-                continue
-
-            # result['name'] = stock_name
-
-            # sdi.default_indicators_auto_calculate(result)
-            # dict_weekly_stock_data[value] = result
-
-            # if i > 1:
-            #     self.logger.info(f"已获取到所有科创板股票周线数据, i: {i}")
-            #     break
-            
-            if i % 100 == 0:  # 每100只股票打印一次日志
-                self.logger.info(f"已处理 {i} 只科创板股票【周线】数据")
-
-            i += 1
-
-
-        process_elapsed_time = time.time() - start_time  # 计算耗时
-        self.logger.info(f"科创板周线股票数据处理完成，共处理{i}只股票，耗时: {process_elapsed_time:.2f}秒，即{process_elapsed_time/60:.2f}分钟")
+        self.process_stock_data(board_name='star', TimePeriod=TimePeriod.WEEK)
 
         
 
@@ -1214,7 +990,6 @@ class BaoStockProcessor(QObject):
             return
         
         i = 1
-        # dict_minute_level_stock_data = {}
 
         self.logger.info(f"开始处理{board_type}股票{level}分钟级别数据...")
         start_time = time.time()  # 记录开始时间
@@ -1233,13 +1008,6 @@ class BaoStockProcessor(QObject):
             if result is None or result.empty:
                 # self.logger.info(f"股票 {value} 数据获取失败")
                 continue
-
-            # result['name'] = stock_name
-
-            # sdi.default_indicators_auto_calculate(result)
-            # dict_minute_level_stock_data[value] = result
-
-            # self.logger.info(f"result: {result.tail(1)}")
 
             # if i > 500:
             #     self.logger.info(f"已获取到所有沪市股票日线数据, i: {i}")
