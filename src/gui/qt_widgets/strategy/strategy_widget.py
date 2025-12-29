@@ -78,6 +78,7 @@ class StrategyWidget(QWidget):
         self.strategy_button_group.addButton(self.btn_zero_down_double_bottom_10, 10)      # 双底 - 动能不足
         self.strategy_button_group.addButton(self.btn_zero_down_double_bottom_11, 11)      # 双底 - 隐形背离
         self.strategy_button_group.addButton(self.btn_zero_down_double_bottom_12, 12)      # 双底 - 隐形动能不足
+        self.strategy_button_group.addButton(self.btn_limit_copy, 13)                       # 涨停复制
 
     def init_connect(self):
         self.lineEdit_current_filter_date.editingFinished.connect(self.slot_lineEdit_current_filter_date_editingFinished)
@@ -150,6 +151,7 @@ class StrategyWidget(QWidget):
 
     def update_strategy_result_new(self, load_local_result=False):
         s_target_date = self.lineEdit_current_filter_date.text()
+        self.logger.info(f"s_target_date: {s_target_date}")
 
         strategy_btn_checked_id = self.strategy_button_group.checkedId()
         checked_btn_text = self.strategy_button_group.button(strategy_btn_checked_id).text()
@@ -197,7 +199,7 @@ class StrategyWidget(QWidget):
                         self.logger.info(f"已存在最新【{select_period_text}】级别筛选结果，无需重新执行，目标股票日期：{s_target_date}")
                         b_use_local_result = True
                     else:
-                        s_target_date = lastest_stock_data_date
+                        s_target_date = lastest_stock_data_date     # 这里为什么要使用最新的股票日期
                         b_use_local_result = False
                 else:
                     b_use_local_result = True
@@ -213,7 +215,7 @@ class StrategyWidget(QWidget):
                 
                 if reply == QtWidgets.QMessageBox.Yes:
                     b_use_local_result = False
-                    s_target_date = lastest_stock_data_date
+                    # s_target_date = lastest_stock_data_date     # 这里为什么要使用最新的股票日期
                 else:
                     b_use_local_result = True
                     return False
@@ -272,6 +274,8 @@ class StrategyWidget(QWidget):
             filter_result = BaoStockProcessor().daily_down_breakthrough_ma24_filter(None, period, end_date=target_date)
         elif checked_id == 8:
             filter_result = BaoStockProcessor().daily_down_double_bottom_filter(None, period, end_date=target_date)
+        elif checked_id == 13:
+            filter_result = BaoStockProcessor().limit_copy_filter(condition=None, end_date=target_date)
         else:
             filter_result = BaoStockProcessor().daily_up_ma52_filter(None, period, end_date=target_date)
 
@@ -313,6 +317,7 @@ class StrategyWidget(QWidget):
         b_ret = self.update_strategy_result_new()
 
         if not b_ret:
+            self.logger.info(f"更新策略结果失败，恢复上次筛选")
             self.restore_last_filter_date()
             BaoStockProcessor().set_filter_date(self.last_filter_date)
             return
@@ -346,6 +351,7 @@ class StrategyWidget(QWidget):
             # k线也默认显示日线级别
 
             if not b_ret:
+                self.logger.info(f"更新策略结果失败，恢复上次筛选")
                 # 这里不用阻塞信号是因为设置Checked不会触发clicked信号
                 self.restore_last_checked_strategy_button()
                 return
@@ -360,15 +366,21 @@ class StrategyWidget(QWidget):
 
     def slot_comboBox_level_currentTextChanged(self, text):
         self.logger.info(f"slot_comboBox_level_currentTextChanged--text: {text}")
+        select_period = TimePeriod.from_label(text)
+
         checked_id = self.strategy_button_group.checkedId()
         # if checked_id >= 9 and checked_id <= 12:
         #     self.btn_zero_down_double_bottom.setChecked(True)
         #     self.last_strategy_btn_checked_id = 8
         #     checked_id = self.strategy_button_group.checkedId()
         #     self.logger.info(f"双底扩展策略默认执行双底策略接口,checked_id: {checked_id}")
-            
-        b_ret = self.update_strategy_result_new()
+        if checked_id == 13 and select_period != TimePeriod.DAY:
+            b_ret =False
+        else: 
+            b_ret = self.update_strategy_result_new()
+
         if not b_ret:
+            self.logger.info(f"更新策略结果失败，恢复上次筛选")
             self.comboBox_level.blockSignals(True)
             self.restore_last_select_comboBox_index()
             self.comboBox_level.blockSignals(False)

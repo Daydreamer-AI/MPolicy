@@ -1769,6 +1769,50 @@ class BaoStockProcessor(QObject):
         return filter_result
 
 
+    def limit_copy_filter(self, condition=None, start_date=None, end_date=None):
+        period = TimePeriod.DAY
+        filter_result = []
+        turn = pf.get_policy_filter_turn()
+        lb = pf.get_policy_filter_lb()
+        self.logger.info(f"开始执行日线涨停复制策略筛选，换手率：{turn}, 量比：{lb}")
+        board_index = 0
+        dict_stock_info = BaostockDataManager().get_stock_info_dict()
+        for board_name, board_data in dict_stock_info.items():
+            if board_index > 1:
+                # 仅处理沪深主板
+                break
+            board_index += 1
+            for index, row in board_data.iterrows():
+                try:
+                    code = row['证券代码']  # 使用正确的列名
+
+                    if not self.filter_check(code, condition):
+                        continue
+
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period, start_date, end_date)
+                    
+                    if pf.limit_copy_filter(df_filter_data, end_date):
+                        filter_result.append(code)
+
+                except Exception as e:
+                    self.logger.error(f"对股票 {code} 进行策略判断时出错: {str(e)}")
+                    continue
+
+
+        # save_list_to_txt(filter_result, f"./policy_filter/filter_result/daily_down_breakthrough_ma24_filter/{self.get_filter_result_file_suffix()}.txt", ', ', "零轴下方MA24突破筛选结果：\n")
+
+        filter_result_data_manager = FilterResultDataManger(13)
+        filter_result_data_manager.save_result_list_to_txt(filter_result, f"{self.get_filter_result_file_suffix()}.txt", ', ', period, f"涨停复制筛选结果，共{len(filter_result)}只股票：\n")
+
+        df_to_save = self.generate_filter_result_df_to_save(filter_result)
+        if df_to_save is not None and not df_to_save.empty:
+            if filter_result_data_manager.save_filter_result_to_db(df_to_save, period):
+                self.logger.info("保存涨停复制筛选结果成功")
+        else:
+            self.logger.info("涨停复制筛选结果为空")
+
+        return filter_result
+
     def stop_process(self):
         self.b_stop_process = True
 

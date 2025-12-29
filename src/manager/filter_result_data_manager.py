@@ -39,7 +39,7 @@ def singleton(cls):
 # @singleton
 class FilterResultDataManger():
     def __init__(self, type=0):
-        self.type_count = 12
+        self.type_count = 13
         if type > self.type_count:
             raise ValueError("Invalid type")
 
@@ -83,6 +83,8 @@ class FilterResultDataManger():
             return "./data/database/policy_filter/filter_result/old/daily_down_double_bottom_filter/隐形背离"
         elif self.type == 12:
             return "./data/database/policy_filter/filter_result/old/daily_down_double_bottom_filter/隐形动能不足"
+        elif self.type == 13:
+            return "./data/database/policy_filter/filter_result/old/limit_copy"     # 涨停复制
         else:
             return "./data/database/policy_filter/filter_result/old/daily_up_ma52"
         
@@ -113,6 +115,8 @@ class FilterResultDataManger():
             return "./data/database/policy_filter/filter_result/zero_down_double_bottom/隐形背离"
         elif self.type == 12:
             return "./data/database/policy_filter/filter_result/zero_down_double_bottom/隐形动能不足"
+        elif self.type == 13:
+            return "./data/database/policy_filter/filter_result/limit_copy"
         else:
             return "./data/database/policy_filter/filter_result/zero_up_ma52"
         
@@ -152,6 +156,8 @@ class FilterResultDataManger():
             return "零轴下方双底【隐形背离】筛选结果"
         elif self.type == 12:
             return "零轴下方双底【隐形动能不足】筛选结果"
+        elif self.type == 13:
+            return "涨停复制筛选结果"
         else:
             return "筛选结果"
 

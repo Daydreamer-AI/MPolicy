@@ -52,7 +52,8 @@ class FilterResultDBBase(CommonDBBase):
             return "./data/database/policy_filter/filter_result/zero_down_double_bottom/隐形背离/filter_result.db"
         elif db_type == 12:
             return "./data/database/policy_filter/filter_result/zero_down_double_bottom/隐形动能不足/filter_result.db"
-
+        elif db_type == 13:
+            return "./data/database/policy_filter/filter_result/limit_copy/filter_result.db"
         else:
             return "./data/database/policy_filter/filter_result/zero_up_ma52/filter_result.db"
         

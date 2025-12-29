@@ -1,6 +1,8 @@
 import pandas as pd
 from typing import Sequence
 import copy
+
+from common.common_api import *
 from manager.period_manager import TimePeriod
 from manager.logging_manager import get_logger
 logger = get_logger(__name__)
@@ -345,6 +347,105 @@ def daily_up_ma20_filter(df_filter_data, period=TimePeriod.DAY):
         return True
     
     return False
+
+
+# 涨停复制
+def limit_copy_filter(df_filter_data, target_date=None):
+    if df_filter_data.empty:
+        return False
+    
+    # 当target_date为None时，使用最后一行数据
+    if target_date is None:
+        if len(df_filter_data) < 1:
+            return False
+        
+        target_row = df_filter_data.tail(1)
+        
+        # 获取前一行数据（倒数第二行）
+        if len(df_filter_data) >= 2:
+            previous_row = df_filter_data.tail(2).head(1)  # 获取倒数第二行
+        else:
+            previous_row = None  # 只有一行数据时，前一行设为None
+    else:
+        # 当target_date不为None时，查找指定日期的数据
+        target_rows = df_filter_data[df_filter_data['date'] == target_date]
+        
+        # 检查是否有匹配的日期数据
+        if target_rows.empty:
+            logger.warning(f"未找到指定日期 {target_date} 的数据")
+            return False
+        
+        # 如果有多个匹配项，使用第一个
+        if len(target_rows) > 1:
+            # logger.warning(f"找到多个日期为 {target_date} 的数据，将使用第一个")
+            target_row = target_rows.iloc[[0]]
+        else:
+            target_row = target_rows
+        
+        # 获取指定日期的前一行数据（按日期排序）
+        # 按日期排序的DataFrame，查找指定日期之前的行
+        df_sorted = df_filter_data.sort_values('date')
+        target_date_row = df_sorted[df_sorted['date'] == target_date]
+        
+        if not target_date_row.empty:
+            # 获取目标日期的索引
+            target_idx = target_date_row.index[0]
+            # 找到目标日期之前的行
+            previous_rows = df_sorted[df_sorted['date'] < target_date]
+            if not previous_rows.empty:
+                # 获取最接近目标日期的前一行数据
+                previous_row = previous_rows.tail(1)
+            else:
+                previous_row = None  # 没有前一行数据
+        else:
+            previous_row = None  # 没有找到目标日期的索引
+    
+    # 继续后续的处理逻辑
+    try:
+        # 获取当前行的日期和收盘价
+        date_val = target_row['date'].item()
+        current_close = target_row['close'].item()
+        
+        # 获取前一行数据的收盘价
+        previous_close = None
+        if previous_row is not None:
+            try:
+                previous_date_val = previous_row['date'].item()
+                previous_close = previous_row['close'].item()
+            except (ValueError, KeyError):
+                logger.warning("获取前一行收盘价时出错")
+                previous_row = None
+        
+        # 检查是否有股票代码用于判断板块
+        stock_code = None
+        if 'code' in target_row.columns:
+            stock_code = target_row['code'].item()
+        
+        # 使用涨停判断函数
+        if previous_close is not None and stock_code is not None:
+            # 使用common_api.py中的is_stock_limit_up函数判断是否涨停
+            from common.common_api import is_stock_limit_up
+            is_limit_up = is_stock_limit_up(stock_code, current_close, previous_close)
+            
+            # if is_limit_up:
+            #     logger.info(f"股票 {stock_code} 在 {date_val} 涨停，当前价格: {current_close}，前一日收盘价: {previous_close}")
+            # else:
+            #     logger.info(f"股票 {stock_code} 在 {date_val} 未涨停，当前价格: {current_close}，前一日收盘价: {previous_close}")
+        elif previous_close is None:
+            logger.warning(f"无法获取前一日收盘价，无法判断涨停情况")
+        elif stock_code is None:
+            logger.warning(f"无法获取股票代码，无法判断涨停情况")
+        
+        # 其他处理逻辑...
+    except ValueError:
+        logger.error("获取数据项时出错")
+        return False
+    except ImportError:
+        logger.error("无法导入is_stock_limit_up函数，请确保common_api模块可用")
+        return False
+
+    
+    return is_limit_up
 
 
 # -------------------------------------------------------------日线零轴下方策略-------------------------------------------------------------------

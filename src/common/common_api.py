@@ -796,3 +796,126 @@ def convert_to_float(value):
         except ValueError:
             return None
     return None
+
+def is_stock_limit_up(stock_code, current_price, last_close_price, board_type=None):
+    """
+    判断A股股票是否涨停
+    
+    :param stock_code: 股票代码
+    :param current_price: 当前价格
+    :param last_close_price: 昨日收盘价
+    :param board_type: 板块类型，可选参数，如果不提供则自动识别
+    :return: True表示涨停，False表示未涨停
+    """
+    if not isinstance(current_price, (int, float)) or not isinstance(last_close_price, (int, float)):
+        return False
+    
+    # 如果没有提供板块类型，则自动识别
+    if board_type is None:
+        board_type = StockCodeAnalyzer.identify_board(stock_code)
+    
+    # 计算涨停价
+    limit_up_price = calculate_limit_up_price(last_close_price, board_type)
+    
+    # 由于浮点数精度问题，使用容差判断
+    tolerance = 0.005  # 0.5分的容差
+    
+    # 对于科创板和创业板，涨跌幅限制为20%，实际涨停价格可能因价格精度略有差异
+    return abs(current_price - limit_up_price) <= tolerance or current_price >= limit_up_price - tolerance
+
+
+def calculate_limit_up_price(last_close_price, board_type='sh_main'):
+    """
+    计算涨停价格
+    
+    :param last_close_price: 昨日收盘价
+    :param board_type: 板块类型
+    :return: 涨停价格
+    """
+    if not isinstance(last_close_price, (int, float)) or last_close_price <= 0:
+        return 0.0
+    
+    # 不同板块的涨跌幅限制
+    if board_type in ['star', 'gem']:  # 科创板、创业板
+        limit_ratio = 0.20  # 20%
+    elif board_type == 'bse':  # 北交所
+        limit_ratio = 0.30  # 30%
+    else:  # 主板
+        limit_ratio = 0.10  # 10%
+    
+    # 计算涨停价（向上精确到分）
+    limit_up_price = last_close_price * (1 + limit_ratio)
+    
+    # A股价格精度为分（小数点后2位），向上取到分
+    return round(limit_up_price, 2)
+
+
+def is_stock_limit_down(stock_code, current_price, last_close_price, board_type=None):
+    """
+    判断A股股票是否跌停
+    
+    :param stock_code: 股票代码
+    :param current_price: 当前价格
+    :param last_close_price: 昨日收盘价
+    :param board_type: 板块类型，可选参数，如果不提供则自动识别
+    :return: True表示跌停，False表示未跌停
+    """
+    if not isinstance(current_price, (int, float)) or not isinstance(last_close_price, (int, float)):
+        return False
+    
+    # 如果没有提供板块类型，则自动识别
+    if board_type is None:
+        board_type = StockCodeAnalyzer.identify_board(stock_code)
+    
+    # 计算跌停价
+    limit_down_price = calculate_limit_down_price(last_close_price, board_type)
+    
+    # 由于浮点数精度问题，使用容差判断
+    tolerance = 0.005  # 0.5分的容差
+    
+    return abs(current_price - limit_down_price) <= tolerance or current_price <= limit_down_price + tolerance
+
+
+def calculate_limit_down_price(last_close_price, board_type='sh_main'):
+    """
+    计算跌停价格
+    
+    :param last_close_price: 昨日收盘价
+    :param board_type: 板块类型
+    :return: 跌停价格
+    """
+    if not isinstance(last_close_price, (int, float)) or last_close_price <= 0:
+        return 0.0
+    
+    # 不同板块的涨跌幅限制
+    if board_type in ['star', 'gem']:  # 科创板、创业板
+        limit_ratio = 0.20  # 20%
+    elif board_type == 'bse':  # 北交所
+        limit_ratio = 0.30  # 30%
+    else:  # 主板
+        limit_ratio = 0.10  # 10%
+    
+    # 计算跌停价（向下精确到分）
+    limit_down_price = last_close_price * (1 - limit_ratio)
+    
+    # A股价格精度为分（小数点后2位），向下取到分
+    return round(limit_down_price, 2)
+
+
+def get_stock_limit_ratio(stock_code, board_type=None):
+    """
+    获取股票涨跌幅限制比例
+    
+    :param stock_code: 股票代码
+    :param board_type: 板块类型，可选参数，如果不提供则自动识别
+    :return: 涨跌幅限制比例
+    """
+    if board_type is None:
+        board_type = StockCodeAnalyzer.identify_board(stock_code)
+    
+    if board_type in ['star', 'gem']:  # 科创板、创业板
+        return 0.20  # 20%
+    elif board_type == 'bse':  # 北交所
+        return 0.30  # 30%
+    else:  # 主板
+        return 0.10  # 10%
