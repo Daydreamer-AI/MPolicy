@@ -9,12 +9,12 @@ class BaostockDataFetchTask(BaseTask):
         super().__init__(**kwargs)
 
     def execute(self):
-        BaoStockProcessor().process_sh_main_stock_data()
+        # BaoStockProcessor().process_sh_main_stock_data()
 
-        sleep_time = random.uniform(0.3, 0.5)
-        time.sleep(sleep_time)
+        # sleep_time = random.uniform(0.3, 0.5)
+        # time.sleep(sleep_time)
 
-        BaoStockProcessor().process_sz_main_stock_data()
+        # BaoStockProcessor().process_sz_main_stock_data()
 
         board_types = ['sh_main', 'sz_main']
         levels = ['15', '30', '60']

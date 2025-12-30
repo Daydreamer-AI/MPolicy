@@ -1,8 +1,4 @@
-/* *{
+*{
     font-family: "Microsoft YaHei";
-    border: none;
-    outline: none;
-    background-color: #FFFFFF;
-    background-repeat:no-repeat;
-    background-position:center center;
-} */
+    font-size: 20px;
+} 

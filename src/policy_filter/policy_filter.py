@@ -494,8 +494,8 @@ def daily_down_between_ma24_ma52_filter(df_filter_data, df_weekly_data, period=T
 
     b_ret = True if TimePeriod.is_minute_level(period) else (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
     
-    b_ret_3 = day_dea < 0
-    b_ret_4 = (day_close <= day_ma52 or day_close <= day_ma60) and (day_close >= day_ma24)
+    b_ret_3 = day_dea <= 0
+    b_ret_4 = (day_close <= day_ma52 or day_close <= day_ma60) and (day_close >= day_ma24 * 0.96)
     b_ret_5 = (day_ma24 < day_ma52 or day_ma24 < day_ma60) and day_ma52 <= day_ma60
 
     b_ret_6 = day_close <= day_ma5 if b_less_than_ma5 else True

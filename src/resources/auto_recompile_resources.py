@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 自动编译 Qt 资源文件 (.qrc) 的脚本
-默认输入: ./resources/resources.qrc
-默认输出: ./resources/resources_rc.py
+默认输入: ./src/resources/resources.qrc
+默认输出: ./src/resources/resources_rc.py
 
 每次修改完qrc资源动修改后，请运行此脚本以重新编译资源文件。
 """
@@ -14,15 +14,15 @@ import sys
 from pathlib import Path
 
 # 定义默认路径
-DEFAULT_QRC_FILE = "./resources/resources.qrc"
+DEFAULT_QRC_FILE = "./src/resources/resources.qrc"
 DEFAULT_OUTPUT_FILE = "./resources/resources_rc.py"
 
 def compile_qrc_file(qrc_file_path=DEFAULT_QRC_FILE, output_file_path=DEFAULT_OUTPUT_FILE, compiler_type="pyqt5"):
     """
     手动编译指定的 .qrc 文件
     
-    :param qrc_file_path: .qrc 文件的路径，默认为 ./resources/resources.qrc
-    :param output_file_path: 输出的 _rc.py 文件路径，默认为 ./resources/resources_rc.py
+    :param qrc_file_path: .qrc 文件的路径，默认为 ./src/resources/resources.qrc
+    :param output_file_path: 输出的 _rc.py 文件路径，默认为 ./src/resources/resources_rc.py
     :param compiler_type: 编译器类型，'auto'（自动检测）, 'pyqt5', 'pyside6'
     :return: 布尔值，表示编译是否成功
     """
