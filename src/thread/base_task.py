@@ -75,8 +75,16 @@ class BaseTask(QObject):
             
             # 发送完成信号
             with self._lock:
-                self.status = TaskStatus.COMPLETED
-                self.end_time = datetime.now()
+                # 检查是否在执行过程中被取消
+                if not self._cancelled:
+                    self.status = TaskStatus.COMPLETED
+                    self.end_time = datetime.now()
+                else:
+                    # 如果在执行过程中被取消，则状态应保持为取消
+                    self.status = TaskStatus.CANCELLED
+                    self.end_time = datetime.now()
+                    self.task_cancelled.emit(self.task_id)
+                    return
             
             self.task_completed.emit(self.task_id, self.result)
             
@@ -124,6 +132,19 @@ class BaseTask(QObject):
                         self._pause_condition.notify_all()
                 self.status = TaskStatus.CANCELLED
                 self.task_cancelled.emit(self.task_id)
+    
+    def reset(self):
+        """重置任务，使其可以重新运行"""
+        with self._lock:
+            # 只有在已完成、失败或已取消的状态下才能重置
+            if self.status in [TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.CANCELLED]:
+                self.status = TaskStatus.PENDING
+                self._cancelled = False
+                self._paused = False
+                self.start_time = None
+                self.end_time = None
+                self.result = None
+                self.error = None
     
     def is_cancelled(self) -> bool:
         with self._lock:

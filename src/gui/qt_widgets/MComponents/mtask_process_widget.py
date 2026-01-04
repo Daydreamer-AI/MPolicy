@@ -79,8 +79,11 @@ class MTaskProcessWidget(QWidget):
         
         task_status = self.task.get_task_status()
         self.logger.info(f"task_status: {task_status.value}")
-        if task_status == TaskStatus.PENDING or task_status == TaskStatus.CANCELLED or task_status == TaskStatus.COMPLETED:
-
+        if task_status == TaskStatus.PENDING or task_status == TaskStatus.CANCELLED or task_status == TaskStatus.COMPLETED or task_status == TaskStatus.FAILED:
+            # 如果任务已完成、失败或已取消，重置后再提交
+            if task_status in [TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.CANCELLED]:
+                self.task.reset()
+            
             task_id = get_default_task_pool().submit(self.task)
             self.logger.info(f"开始执行任务：{task_id}")
 
@@ -95,7 +98,7 @@ class MTaskProcessWidget(QWidget):
             self.btn_pause.setText('暂停')
             self.logger.info(f"继续任务")
 
-        self.pause_clicked.emit(task_status)
+        self.pause_clicked.emit(task_status.value)
 
     def slot_btn_cancel_clicked(self):
         if self.task:

@@ -809,7 +809,7 @@ class BaoStockProcessor(QObject):
         else:
             return '其他'
 
-    def process_stock_data(self, board_name='sh_main', TimePeriod=TimePeriod.DAY):
+    def process_stock_data(self, board_name='sh_main', TimePeriod=TimePeriod.DAY, task=None):
         allowed_board_names = ['sh_main', 'sz_main', 'gem', 'star', 'bse']
         if board_name not in allowed_board_names:
             self.logger.info(f"无效的板块名称: {board_name}")
@@ -823,6 +823,14 @@ class BaoStockProcessor(QObject):
 
         dict_stock_info = BaostockDataManager().get_stock_info_dict()
         for index, row in dict_stock_info[board_name].iterrows():
+            if task:
+                # 检查暂停状态
+                task._check_pause()
+                
+                # 检查取消状态
+                if task.is_cancelled():
+                    break
+
             value = row['证券代码']
             stock_name = row['证券名称'] if '证券名称' in row else '未知'
             # self.logger.info(f"获取第 {i} 只{board_name_chinese}股票 {value} 【{time_period_name_chinese}】数据")
@@ -873,23 +881,23 @@ class BaoStockProcessor(QObject):
         except Exception as e:
             self.logger.error(f"启动后台更新Baostock沪市股票数据: {e}")
 
-    def process_sh_main_stock_data(self):
-        self.process_sh_main_stock_daily_data()
+    def process_sh_main_stock_data(self, task=None):
+        self.process_sh_main_stock_daily_data(task)
         sleep_time = random.uniform(0.5, 1)
         time.sleep(sleep_time)
-        self.process_sh_main_stock_weekly_data()
+        self.process_sh_main_stock_weekly_data(task)
         return True
     
-    def process_sh_main_stock_daily_data(self):
-        self.process_stock_data(board_name='sh_main', TimePeriod=TimePeriod.DAY)
+    def process_sh_main_stock_daily_data(self, task=None):
+        self.process_stock_data(board_name='sh_main', TimePeriod=TimePeriod.DAY, task=task)
 
-    def process_sh_main_stock_weekly_data(self):
-        self.process_stock_data(board_name='sh_main', TimePeriod=TimePeriod.WEEK)
+    def process_sh_main_stock_weekly_data(self, task=None):
+        self.process_stock_data(board_name='sh_main', TimePeriod=TimePeriod.WEEK, task=task)
 
 
     # -----------------深市主板股票数据获取接口---------------------
-    def process_sz_main_stock_daily_data(self):
-        self.process_stock_data(board_name='sz_main', TimePeriod=TimePeriod.DAY)
+    def process_sz_main_stock_daily_data(self, task=None):
+        self.process_stock_data(board_name='sz_main', TimePeriod=TimePeriod.DAY, task=task)
 
     def start_sz_main_stock_data_background_update(self):
         try:
@@ -904,15 +912,15 @@ class BaoStockProcessor(QObject):
         except Exception as e:
             self.logger.error(f"启动后台更新Baostock深市股票数据失败: {e}")
 
-    def process_sz_main_stock_data(self):
-        self.process_sz_main_stock_daily_data()
+    def process_sz_main_stock_data(self, task=None):
+        self.process_sz_main_stock_daily_data(task)
         sleep_time = random.uniform(0.5, 1)
         time.sleep(sleep_time)
-        self.process_sz_main_stock_weekly_data()
+        self.process_sz_main_stock_weekly_data(task)
         return True
 
-    def process_sz_main_stock_weekly_data(self):
-        self.process_stock_data(board_name='sz_main', TimePeriod=TimePeriod.WEEK)
+    def process_sz_main_stock_weekly_data(self, task=None):
+        self.process_stock_data(board_name='sz_main', TimePeriod=TimePeriod.WEEK, task=task)
 
         
     # -----------------创业板股票数据获取接口---------------------
@@ -928,17 +936,17 @@ class BaoStockProcessor(QObject):
             self.logger.info("已启动后台更新Baostock创业板股票数据")
         except Exception as e:
             self.logger.error(f"启动后台更新Baostock创业板股票数据失败: {e}")
-    def process_gem_stock_data(self):
-        self.process_gem_stock_daily_data()
+    def process_gem_stock_data(self, task=None):
+        self.process_gem_stock_daily_data(task)
         sleep_time = random.uniform(0.5, 1)
         time.sleep(sleep_time)
-        self.process_gem_stock_weekly_data()
+        self.process_gem_stock_weekly_data(task)
         return True
-    def process_gem_stock_daily_data(self):
-        self.process_stock_data(board_name='gem', TimePeriod=TimePeriod.DAY)
+    def process_gem_stock_daily_data(self, task=None):
+        self.process_stock_data(board_name='gem', TimePeriod=TimePeriod.DAY, task=task)
 
-    def process_gem_stock_weekly_data(self):
-        self.process_stock_data(board_name='gem', TimePeriod=TimePeriod.WEEK)
+    def process_gem_stock_weekly_data(self, task=None):
+        self.process_stock_data(board_name='gem', TimePeriod=TimePeriod.WEEK, task=task)
 
     # -----------------科创板股票数据获取接口---------------------
     def start_star_stock_data_background_update(self):
@@ -954,18 +962,18 @@ class BaoStockProcessor(QObject):
         except Exception as e:
             self.logger.error(f"启动后台更新Baostock科创板股票数据失败: {e}")
 
-    def process_star_stock_data(self):
-        self.process_star_stock_daily_data()
+    def process_star_stock_data(self, task=None):
+        self.process_star_stock_daily_data(task)
         sleep_time = random.uniform(0.5, 1)
         time.sleep(sleep_time)
-        self.process_star_stock_weekly_data()
+        self.process_star_stock_weekly_data(task)
         return True
     
-    def process_star_stock_daily_data(self):
-        self.process_stock_data(board_name='star', TimePeriod=TimePeriod.DAY)
+    def process_star_stock_daily_data(self, task=None):
+        self.process_stock_data(board_name='star', TimePeriod=TimePeriod.DAY, task=task)
 
-    def process_star_stock_weekly_data(self):
-        self.process_stock_data(board_name='star', TimePeriod=TimePeriod.WEEK)
+    def process_star_stock_weekly_data(self, task=None):
+        self.process_stock_data(board_name='star', TimePeriod=TimePeriod.WEEK, task=task)
 
         
 
@@ -1015,19 +1023,19 @@ class BaoStockProcessor(QObject):
             stock_name = row['证券名称'] if '证券名称' in row else '未知'
             # self.logger.info(f"获取第 {i} 只{board_type}股票 {value} {level}分钟级别数据")
             
-            # result = self.process_and_save_minute_level_stock_data(value, level)
+            result = self.process_and_save_minute_level_stock_data(value, level)
 
             # 测试
-            result = self.process_minute_level_stock_data(value, level)
+            # result = self.process_minute_level_stock_data(value, level)
 
             if result is None or result.empty:
                 # self.logger.info(f"股票 {value} 数据获取失败")
                 continue
             
             # 测试
-            if i > 3:
-                self.logger.info(f"已获取到所有沪市股票日线数据, i: {i}")
-                break
+            # if i > 3:
+            #     self.logger.info(f"已获取到所有沪市股票日线数据, i: {i}")
+            #     break
             
             if i % 100 == 0:  # 每100只股票打印一次日志
                 self.logger.info(f"已处理 {i} 只{board_type}股票【{level}分钟级别】数据")
