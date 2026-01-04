@@ -61,6 +61,7 @@ class BoardChartWidget(QWidget):
         self.plot_widget.showGrid(x=True, y=True, alpha=0.3)
         self.plot_widget.addLegend()
         self.plot_widget.setMouseEnabled(x=True, y=False)
+        self.plot_widget.getViewBox().setMouseMode(pg.ViewBox.PanMode)  # 平移模式
         
         # 初始化主图表十字线
         self.v_line_main = pg.InfiniteLine(angle=90, movable=False, pen=pg.mkPen('#808286', width=2, style=Qt.DashLine))
@@ -125,6 +126,7 @@ class BoardChartWidget(QWidget):
         # self.bottom_plot_widget.setLabel('bottom', '日期')
         self.bottom_plot_widget.showGrid(x=True, y=True, alpha=0.3)
         self.bottom_plot_widget.setMouseEnabled(x=True, y=False)
+        self.bottom_plot_widget.getViewBox().setMouseMode(pg.ViewBox.PanMode)  # 平移模式
         
         # 初始化底部图表十字线
         self.v_line_bottom = pg.InfiniteLine(angle=90, movable=False, pen=pg.mkPen('#808286', width=2, style=Qt.DashLine))
@@ -180,6 +182,7 @@ class BoardChartWidget(QWidget):
                 self.x_label_main.setPos(pos.x(), self.plot_widget.getViewBox().viewRange()[1][0])
             if self.x_label_bottom.isVisible():
                 self.x_label_bottom.setPos(pos.x(), self.bottom_plot_widget.getViewBox().viewRange()[1][0])
+
     def plot_chart(self, board_name, data, field_name="总成交额"):
         if self.board_type == 0:
             # 字段映射字典
@@ -309,7 +312,6 @@ class BoardChartWidget(QWidget):
             self.plot_widget.addItem(down_bargraph)
 
         # ==============================绘制折线图===============================
-
         # 先创建右侧Y轴和折线图（确保在柱状图之前添加）
         # 创建右侧Y轴用于显示折线图
         self.right_viewbox = pg.ViewBox()
@@ -326,20 +328,17 @@ class BoardChartWidget(QWidget):
 
         # 创建折线图（移动平均线）
         line_x_positions = [ts for ts in self.adjusted_timestamps]
-        line_data = data[right_y_field].values
+        self.right_line_data = data[right_y_field].values
         self.line_plot = self.plot_widget.plot(
             x=line_x_positions,
-            y=line_data,
-            pen=pg.mkPen(color='#0f4d8f', width=3),
+            y=self.right_line_data,
+            pen=pg.mkPen(color='#0f4d8f', width=2),
             symbol='o',
-            symbolSize=12,
+            symbolSize=8,
             symbolBrush='#ff7f0e',
-            name=right_y_name
+            name=right_y_name, unit=right_y_unit
         )
         self.right_viewbox.addItem(self.line_plot)
-
-        # =====================绘制底部图表数据（示例：添加另一个指标）===============
-        self.plot_bottom_chart(data)
 
         # 同步两个ViewBox的视图范围
         def update_views():
@@ -361,14 +360,17 @@ class BoardChartWidget(QWidget):
             y_min_bar = 0
         self.plot_widget.setYRange(y_min_bar, y_max_bar)
 
-
-        y_max_line = max(line_data) * 1.1
+        # 右y
+        y_max_line = max(self.right_line_data) * 1.1
         direct = 0 if y_min_bar >= 0 else -1
-        y_min_line = min(line_data)  * direct * 1.1
+        y_min_line = min(self.right_line_data)  * direct * 1.1
         self.logger.info(f"board_type: {self.board_type}, y_min_line: {y_min_line}, y_max_line: {y_max_line}")
         self.right_viewbox.setYRange(y_min_line, y_max_line)
 
         self.add_bar_value_labels(self.adjusted_timestamps, self.field_data, self.bar_width)
+
+        # =====================绘制底部图表数据（示例：添加另一个指标）===============
+        self.plot_bottom_chart(data)
 
         return True
 
@@ -419,6 +421,71 @@ class BoardChartWidget(QWidget):
             if y_min >= 0:
                 y_min = 0
             self.bottom_plot_widget.setYRange(y_min, y_max)
+
+        # -----------------------------------------------------------------------
+        bottom_right_y_name_2 = '涨跌家数'
+        bottom_right_y_unit_2 = '家'
+        bottom_right_y_rasing_field = 'rising_count'
+        bottom_right_y_falling_field = 'falling_count'
+        # 底部右y折线图
+        self.bottom_right_viewbox = pg.ViewBox()
+
+        # 链接右侧Y轴到主视图
+        self.bottom_plot_widget.scene().addItem(self.bottom_right_viewbox)
+        self.bottom_plot_widget.getAxis('right').linkToView(self.bottom_right_viewbox)
+        self.bottom_right_viewbox.setXLink(self.bottom_plot_widget)
+        # 设置右侧Y轴标签
+        self.bottom_plot_widget.setLabel('right', bottom_right_y_name_2, units=bottom_right_y_unit_2)
+        self.bottom_plot_widget.showAxis('right')
+
+        line_x_positions = [ts for ts in self.adjusted_timestamps]
+        self.bottom_right_line_rasing_data = data[bottom_right_y_rasing_field].values
+
+        self.right_rasing_line_plot = self.bottom_plot_widget.plot(
+            x=line_x_positions,
+            y=self.bottom_right_line_rasing_data,
+            pen=pg.mkPen(color='#FF0000', width=2),
+            symbol='o',
+            symbolSize=8,
+            symbolBrush='#FF6666',
+            name=bottom_right_y_name_2, unit=bottom_right_y_unit_2
+        )
+        self.bottom_right_viewbox.addItem(self.right_rasing_line_plot)
+
+        self.bottom_right_line_falling_data = data[bottom_right_y_falling_field].values
+        self.right_falling_line_plot = self.bottom_plot_widget.plot(
+            x=line_x_positions,
+            y=self.bottom_right_line_falling_data,
+            pen=pg.mkPen(color='#00AA00', width=2),
+            symbol='o',
+            symbolSize=8,
+            symbolBrush='#66AA66'
+        )
+        self.bottom_right_viewbox.addItem(self.right_falling_line_plot)
+
+        # ---
+        right_y_min_rasing = min(self.bottom_right_line_rasing_data) 
+        right_y_max_rasing = max(self.bottom_right_line_rasing_data)
+
+        right_y_min_falling = min(self.bottom_right_line_falling_data)
+        right_y_max_falling = max(self.bottom_right_line_falling_data)
+
+        bottom_right_y_min = min(right_y_min_rasing, right_y_min_falling) * 1.1
+        bottom_right_y_max = max(right_y_max_rasing, right_y_max_falling) * 1.1
+
+        self.logger.info(f"bottom_right_y_min: {bottom_right_y_min}, bottom_right_y_max: {bottom_right_y_max}")
+
+        if bottom_right_y_min >=0:
+            bottom_right_y_min = 0
+
+        self.bottom_right_viewbox.setYRange(bottom_right_y_min, bottom_right_y_max)
+
+        def update_bottom_views():
+            self.bottom_right_viewbox.setGeometry(self.bottom_plot_widget.getViewBox().sceneBoundingRect())
+            self.bottom_right_viewbox.linkedViewChanged(self.bottom_plot_widget.getViewBox(), self.bottom_right_viewbox.XAxis)
+        
+        update_bottom_views()
+        self.bottom_plot_widget.getViewBox().sigResized.connect(update_bottom_views)
 
     def add_bar_value_labels(self, timestamps, values, bar_width):
         """在柱子顶部添加数值标签"""
