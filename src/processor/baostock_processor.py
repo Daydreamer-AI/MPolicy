@@ -983,7 +983,7 @@ class BaoStockProcessor(QObject):
         except Exception as e:
             self.logger.error(f"启动后台更新Baostock {level}分钟级别{board_type}股票数据失败: {e}")
 
-    def process_minute_level_stock_data_with_board_type(self, board_type, level):
+    def process_minute_level_stock_data_with_board_type(self, board_type, level, task=None):
         allowed_board_types = ['sh_main', 'sz_main', 'gem', 'star', 'bse']
         if board_type not in allowed_board_types:
             # raise ValueError(f"Invalid board_type: {board_type}. Allowed values are: {allowed_board_types}")
@@ -1003,22 +1003,31 @@ class BaoStockProcessor(QObject):
 
         dict_stock_info = BaostockDataManager().get_stock_info_dict()
         for index, row in dict_stock_info[board_type].iterrows():
+            if task:
+                # 检查暂停状态
+                task._check_pause()
+                
+                # 检查取消状态
+                if task.is_cancelled():
+                    break
+
             value = row['证券代码']
             stock_name = row['证券名称'] if '证券名称' in row else '未知'
             # self.logger.info(f"获取第 {i} 只{board_type}股票 {value} {level}分钟级别数据")
             
-            result = self.process_and_save_minute_level_stock_data(value, level)
+            # result = self.process_and_save_minute_level_stock_data(value, level)
 
             # 测试
-            # result = self.process_minute_level_stock_data(value, level)
+            result = self.process_minute_level_stock_data(value, level)
 
             if result is None or result.empty:
                 # self.logger.info(f"股票 {value} 数据获取失败")
                 continue
-
-            # if i > 500:
-            #     self.logger.info(f"已获取到所有沪市股票日线数据, i: {i}")
-            #     break
+            
+            # 测试
+            if i > 3:
+                self.logger.info(f"已获取到所有沪市股票日线数据, i: {i}")
+                break
             
             if i % 100 == 0:  # 每100只股票打印一次日志
                 self.logger.info(f"已处理 {i} 只{board_type}股票【{level}分钟级别】数据")
@@ -1125,13 +1134,7 @@ class BaoStockProcessor(QObject):
         #     self.logger.info(f"保存周线数据成功，共有{len(data_to_save)}行数据")
         # else:
         #     self.logger.info("没有需要保存的周线数据")
-
-        worker_30 = BaseThreadWorker(BaoStockProcessor().process_minute_level_stock_data_with_board_type, 'sh_main', 30)
-        worker_30.start()
-
-        worker_60 = BaseThreadWorker(BaoStockProcessor().process_minute_level_stock_data_with_board_type, 'sh_main', 60)
-        worker_60.start()
-
+        pass
     # 增量更新
     def update_sh_main_daily_data(self):
         pass

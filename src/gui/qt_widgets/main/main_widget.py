@@ -8,6 +8,7 @@ from gui.qt_widgets.main.home_widget import HomeWidget
 from gui.qt_widgets.board.board_home_widget import BoardHomeWidget
 from gui.qt_widgets.market.market_home_widget import MarketHomeWidget
 from gui.qt_widgets.strategy.strategy_home_widget import StrategyHomeWidget
+from thread.task_pool import get_default_task_pool
 
 class MainWidget(QWidget):
     def __init__(self):
@@ -80,6 +81,8 @@ class MainWidget(QWidget):
         # 根据用户选择决定是否关闭
         if reply == QMessageBox.Yes:
             # 可以在这里添加清理操作
+            task_pool = get_default_task_pool()
+            task_pool.shutdown(wait=True, cancel_running=True)
             print("应用程序正在退出...")
             event.accept()  # 接受关闭事件
         else:

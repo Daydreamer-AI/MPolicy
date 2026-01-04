@@ -1,3 +1,4 @@
+# file: d:/PythonProject/MPolicy/src/thread/task_pool.py
 from PyQt5.QtCore import QObject, pyqtSignal, QTimer, QThreadPool, pyqtSlot
 from typing import Dict, List, Callable, Any, Optional
 import time
@@ -97,7 +98,7 @@ class TaskPool(QObject):
     def _on_task_completed(self, task_id: str, result: Any):
         """任务完成回调"""
         task = self._tasks.get(task_id)
-        if task:
+        if task and task in self._running_tasks:  # 添加检查任务是否在运行列表中
             self._running_tasks.remove(task)
             self.task_finished.emit(task_id)
             self._try_start_task()  # 尝试启动新任务
@@ -106,7 +107,7 @@ class TaskPool(QObject):
     def _on_task_error(self, task_id: str, error: str):
         """任务错误回调"""
         task = self._tasks.get(task_id)
-        if task:
+        if task and task in self._running_tasks:  # 添加检查任务是否在运行列表中
             self._running_tasks.remove(task)
             self.task_finished.emit(task_id)
             self._try_start_task()  # 尝试启动新任务
@@ -115,7 +116,7 @@ class TaskPool(QObject):
     def _on_task_cancelled(self, task_id: str):
         """任务取消回调"""
         task = self._tasks.get(task_id)
-        if task and task in self._running_tasks:
+        if task and task in self._running_tasks:  # 添加检查任务是否在运行列表中
             self._running_tasks.remove(task)
             self.task_finished.emit(task_id)
             self._try_start_task()  # 尝试启动新任务
@@ -139,6 +140,16 @@ class TaskPool(QObject):
                 self._task_queue.remove(task)
             return True
         return False
+
+    def cancel_all_tasks(self):
+        """取消所有任务（包括正在运行的和待执行的）"""
+        # 取消所有待执行的任务
+        for task in self._task_queue[:]:
+            self.cancel_task(task.task_id)
+        
+        # 取消所有正在运行的任务
+        for task in self._running_tasks[:]:
+            task.cancel()
     
     def _update_pool_status(self):
         """更新线程池状态"""
@@ -150,16 +161,29 @@ class TaskPool(QObject):
         """获取线程池状态 (running_tasks, pending_tasks)"""
         return len(self._running_tasks), len(self._task_queue)
     
-    def shutdown(self, wait: bool = True):
-        """关闭线程池"""
+    def shutdown(self, wait: bool = True, cancel_running: bool = False):
+        """关闭线程池
+        
+        Args:
+            wait: 是否等待任务完成
+            cancel_running: 是否取消正在运行的任务
+        """
         self._shutdown = True
         self._monitor_timer.stop()
+        
+        if cancel_running:
+            # 取消所有任务
+            self.cancel_all_tasks()
         
         # 取消所有待执行任务
         for task in self._task_queue[:]:
             self.cancel_task(task.task_id)
         
-        if wait:
+        if wait and not cancel_running:
+            # 如果不取消运行中的任务，等待它们完成
+            self._qt_thread_pool.waitForDone()
+        elif cancel_running:
+            # 如果取消了运行中的任务，也需要等待线程池清空
             self._qt_thread_pool.waitForDone()
         
         self.pool_stopped.emit()

@@ -10,6 +10,7 @@ from PyQt5.QtCore import QObject, pyqtSignal, QRunnable, QThreadPool, pyqtSlot
 class TaskStatus(Enum):
     PENDING = "pending"
     RUNNING = "running"
+    PAUSED = "paused"  # 新增暂停状态
     COMPLETED = "completed"
     FAILED = "failed"
     CANCELLED = "cancelled"
@@ -23,6 +24,8 @@ class BaseTask(QObject):
     task_completed = pyqtSignal(str, object)  # task_id, result
     task_error = pyqtSignal(str, str)  # task_id, error_message
     task_cancelled = pyqtSignal(str)  # task_id
+    task_paused = pyqtSignal(str)  # task_id - 新增暂停信号
+    task_resumed = pyqtSignal(str)  # task_id - 新增恢复信号
     
     def __init__(self, task_id: Optional[str] = None, priority: int = 0, timeout: Optional[int] = None):
         super().__init__()
@@ -36,7 +39,16 @@ class BaseTask(QObject):
         self.result = None
         self.error = None
         self._cancelled = False
+        self._paused = False  # 新增暂停标志
+        self._pause_condition = threading.Condition(threading.Lock())  # 用于暂停/恢复的条件变量
         self._lock = threading.Lock()
+
+    def get_task_id(self) -> str:
+        return self.task_id
+    
+    def get_task_status(self) -> TaskStatus:
+        """获取任务状态"""
+        return self.status
         
     @abstractmethod
     def execute(self) -> Any:
@@ -77,17 +89,55 @@ class BaseTask(QObject):
             
             self.task_error.emit(self.task_id, str(e))
     
+    def _check_pause(self):
+        """内部方法：检查是否需要暂停，子类可以在执行过程中调用此方法"""
+        with self._pause_condition:
+            while self._paused and not self._cancelled and self.status == TaskStatus.RUNNING:
+                self._pause_condition.wait()  # 等待恢复信号
+    
+    def pause(self):
+        """暂停任务"""
+        with self._lock:
+            if self.status == TaskStatus.RUNNING:
+                self._paused = True
+                self.status = TaskStatus.PAUSED
+                self.task_paused.emit(self.task_id)
+    
+    def resume(self):
+        """恢复任务"""
+        with self._lock:
+            if self.status == TaskStatus.PAUSED:
+                with self._pause_condition:
+                    self._paused = False
+                    self.status = TaskStatus.RUNNING
+                    self._pause_condition.notify_all()  # 唤醒等待的线程
+                self.task_resumed.emit(self.task_id)
+    
     def cancel(self):
         """取消任务"""
         with self._lock:
-            if self.status in [TaskStatus.PENDING, TaskStatus.RUNNING]:
+            if self.status in [TaskStatus.PENDING, TaskStatus.RUNNING, TaskStatus.PAUSED]:
                 self._cancelled = True
+                if self.status == TaskStatus.PAUSED:
+                    # 如果是暂停状态，需要唤醒线程以便它能处理取消
+                    with self._pause_condition:
+                        self._pause_condition.notify_all()
                 self.status = TaskStatus.CANCELLED
                 self.task_cancelled.emit(self.task_id)
     
     def is_cancelled(self) -> bool:
         with self._lock:
             return self._cancelled
+    
+    def is_paused(self) -> bool:
+        """检查任务是否暂停"""
+        with self._lock:
+            return self._paused and self.status == TaskStatus.PAUSED
+    
+    def is_running(self) -> bool:
+        """检查任务是否正在运行（未暂停）"""
+        with self._lock:
+            return self.status == TaskStatus.RUNNING
     
     def set_progress(self, progress: int):
         """设置任务进度"""

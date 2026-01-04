@@ -12,6 +12,7 @@ import datetime
 from manager.logging_manager import get_logger
 
 from gui.qt_widgets.main.minute_level_select_dialog import MinuteLevelSelectDialog
+from gui.qt_widgets.main.stock_data_fetch_widget import StockDataFetchWidget
 
 class HomeWidget(QWidget):
     def __init__(self):
@@ -22,6 +23,9 @@ class HomeWidget(QWidget):
         uic.loadUi('./src/gui/qt_widgets/main/HomeWidget.ui', self)  # 确保路径正确
 
         self.logger = get_logger(__name__)
+
+        self.bao_stock_data_fetch_widget = StockDataFetchWidget(self)
+        self.show_bao_stock_data_fetch_widget(False)
 
         self.init_processors()
         self.init_connect()
@@ -82,6 +86,14 @@ class HomeWidget(QWidget):
 
         self.btn_update_popularity_rank_stock_data.clicked.connect(self.slot_btn_update_popularity_rank_stock_data_clicked)
         self.btn_get_popularity_rank_stock_data.clicked.connect(self.slot_btn_get_popularity_rank_stock_data_clicked)
+
+    def show_bao_stock_data_fetch_widget(self, b_show=True):
+        if b_show:
+            # 居中显示
+            self.bao_stock_data_fetch_widget.move(self.geometry().center() - self.bao_stock_data_fetch_widget.rect().center())
+            self.bao_stock_data_fetch_widget.show()
+        else:
+            self.bao_stock_data_fetch_widget.hide()
 
     def closeEvent(self, event):
         """
@@ -187,7 +199,8 @@ class HomeWidget(QWidget):
 
     def slot_btn_auto_process_all_stock_data_clicked(self):
         self.logger.info("自动处理所有股票数据")
-        BaoStockProcessor().auto_process_all_stock_data()
+        # BaoStockProcessor().auto_process_all_stock_data()
+        self.show_bao_stock_data_fetch_widget(True)
 
     # =================================================================================AKShare==========================================================================
     @pyqtSlot()
