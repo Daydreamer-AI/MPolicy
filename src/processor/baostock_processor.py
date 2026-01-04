@@ -1766,6 +1766,30 @@ class BaoStockProcessor(QObject):
         else:
             self.logger.info("零轴下方双底【隐形背离】筛选结果为空")
 
+        # 对比双底和零轴下方MA24-MA52结果
+        filter_result_data_manager = FilterResultDataManger(4)
+        df_zero_down_ma24_ma52_filter_result = filter_result_data_manager.get_filter_result_with_params(end_date, period)
+        if df_zero_down_ma24_ma52_filter_result is not None and not df_zero_down_ma24_ma52_filter_result != []:
+            # 计算集合操作
+            filter_result_set = set(filter_result)
+            ma24_ma52_result_set = set(df_zero_down_ma24_ma52_filter_result)
+
+            # 交集
+            common_stocks = filter_result_set.intersection(ma24_ma52_result_set)
+
+            # 差集
+            only_in_double_bottom = filter_result_set.difference(ma24_ma52_result_set)  # 在双底中不在MA24-MA52中的
+            only_in_ma24_ma52 = ma24_ma52_result_set.difference(filter_result_set)      # 在MA24-MA52中不在双底中的
+
+            # 转换回列表格式（如果需要）
+            common_stocks_list = list(common_stocks)
+            only_in_double_bottom_list = list(only_in_double_bottom)
+            only_in_ma24_ma52_list = list(only_in_ma24_ma52)
+
+            self.logger.info(f"MA24-MA52筛选股票数量：{len(ma24_ma52_result_set)}, 双底筛选股票数量：{len(filter_result_set)}，交集股票数量: {len(common_stocks_list)}")    # , 股票代码: {common_stocks_list}
+            self.logger.info(f"仅双底筛选通过的股票数量: {len(only_in_double_bottom_list)}, 股票代码: {only_in_double_bottom_list}")
+            self.logger.info(f"仅MA24-MA52筛选通过的股票数量: {len(only_in_ma24_ma52_list)}, 股票代码: {only_in_ma24_ma52_list}")
+
         return filter_result
 
 
