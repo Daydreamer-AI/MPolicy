@@ -447,6 +447,98 @@ def limit_copy_filter(df_filter_data, target_date=None):
     
     return is_limit_up
 
+def break_through_and_step_back(self, df_filter_data, period=TimePeriod.DAY):
+    if df_filter_data.empty:
+        return False
+    
+    if not columns_check(df_filter_data, ('date', 'close', 'diff', 'dea', 'ma5', 'ma10', 'ma20', 'ma24', 'ma30', 'ma52', 'turnover_rate', 'volume_ratio')):
+        return False
+
+    last_row = df_filter_data.tail(1)
+    close = last_row['close'].item()
+    dif = last_row['diff'].item()
+    dea = last_row['dea'].item()
+    ma5 = last_row['ma5'].item()
+    ma10 = last_row['ma10'].item()
+    ma20 = last_row['ma20'].item()
+    ma24 = last_row['ma24'].item()
+    ma30 = last_row['ma30'].item()
+    ma52 = last_row['ma52'].item()
+    turn = last_row['turnover_rate'].item()
+    lb = last_row['volume_ratio'].item()
+
+
+    b_ret = True if TimePeriod.is_minute_level(period) else (turn > policy_filter_turn) and (lb > policy_filter_lb)
+    b_ret_2 = (close >= ma52*0.98)
+    b_ret_3 = ma5 <= ma52 and ma5 >= ma24 and ma24 <= ma52
+
+    if b_ret and b_ret_2 and b_ret_3:
+        # logger.info("符合【突破回踩】筛选")
+        return True
+    
+    return False
+def break_through_and_step_back_2(self, df_filter_data, period=TimePeriod.DAY):
+    if df_filter_data.empty:
+        return False
+    
+    if not columns_check(df_filter_data, ('date', 'close', 'diff', 'dea', 'ma5', 'ma10', 'ma20', 'ma24', 'ma30', 'ma52', 'turnover_rate', 'volume_ratio')):
+        return False
+
+    last_row = df_filter_data.tail(1)
+    close = last_row['close'].item()
+    dif = last_row['diff'].item()
+    dea = last_row['dea'].item()
+    ma5 = last_row['ma5'].item()
+    ma10 = last_row['ma10'].item()
+    ma20 = last_row['ma20'].item()
+    ma24 = last_row['ma24'].item()
+    ma30 = last_row['ma30'].item()
+    ma52 = last_row['ma52'].item()
+    turn = last_row['turnover_rate'].item()
+    lb = last_row['volume_ratio'].item()
+
+    b_ret = True if TimePeriod.is_minute_level(period) else (turn > policy_filter_turn) and (lb > policy_filter_lb)
+    b_ret_2 = (close >= ma24)
+    b_ret_3 = ma5 >= ma52*0.98 and ma10 >= ma24*0.98 and ma10 <= ma52 and ma24 <= ma52
+
+    if b_ret and b_ret_2 and b_ret_3:
+        # logger.info("符合【突破回踩2】筛选")
+        return True
+    
+    return False
+
+def break_through_and_step_back_3(self, df_filter_data, period=TimePeriod.DAY):
+    if df_filter_data.empty:
+        return False
+    
+    if not columns_check(df_filter_data, ('date', 'close', 'diff', 'dea', 'ma5', 'ma10', 'ma20', 'ma24', 'ma30', 'ma52', 'turnover_rate', 'volume_ratio')):
+        return False
+
+    last_row = df_filter_data.tail(1)
+    close = last_row['close'].item()
+    dif = last_row['diff'].item()
+    dea = last_row['dea'].item()
+    ma5 = last_row['ma5'].item()
+    ma10 = last_row['ma10'].item()
+    ma20 = last_row['ma20'].item()
+    ma24 = last_row['ma24'].item()
+    ma30 = last_row['ma30'].item()
+    ma52 = last_row['ma52'].item()
+    turn = last_row['turnover_rate'].item()
+    lb = last_row['volume_ratio'].item()
+
+    b_ret = True if TimePeriod.is_minute_level(period) else (turn > policy_filter_turn) and (lb > policy_filter_lb)
+    b_ret_2 = (close >= ma52*0.96 or close >= ma24) and close <= ma5
+    b_ret_3 = ma5 >= ma52 and ma10 >= ma52 and ma10 <= ma52 and ma24 <= ma52
+    b_ret_4 = abs(ma52 - ma24) <= ma52*0.02
+    b_ret_5 = dea >= 0
+
+    if b_ret and b_ret_2 and b_ret_3 and b_ret_4 and b_ret_5:
+        # logger.info("符合【突破回踩3】筛选")
+        return True
+    
+    return False
+
 
 # -------------------------------------------------------------日线零轴下方策略-------------------------------------------------------------------
 def daily_down_between_ma24_ma52_filter(df_filter_data, df_weekly_data, period=TimePeriod.DAY):

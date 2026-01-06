@@ -79,6 +79,9 @@ class StrategyWidget(QWidget):
         self.strategy_button_group.addButton(self.btn_zero_down_double_bottom_11, 11)      # 双底 - 隐形背离
         self.strategy_button_group.addButton(self.btn_zero_down_double_bottom_12, 12)      # 双底 - 隐形动能不足
         self.strategy_button_group.addButton(self.btn_limit_copy, 13)                       # 涨停复制
+        self.strategy_button_group.addButton(self.btn_break_through_and_step_back, 14)                       # 突破回踩
+        self.strategy_button_group.addButton(self.btn_break_through_and_step_back_2, 15)                       # 突破回踩2
+        self.strategy_button_group.addButton(self.btn_break_through_and_step_back_3, 16)                       # 突破回踩3
 
     def init_connect(self):
         self.lineEdit_current_filter_date.editingFinished.connect(self.slot_lineEdit_current_filter_date_editingFinished)
@@ -276,6 +279,12 @@ class StrategyWidget(QWidget):
             filter_result = BaoStockProcessor().daily_down_double_bottom_filter(None, period, end_date=target_date)
         elif checked_id == 13:
             filter_result = BaoStockProcessor().limit_copy_filter(condition=None, end_date=target_date)
+        elif checked_id == 14:
+            pass
+        elif checked_id == 15:
+            pass
+        elif checked_id == 16:
+            pass
         else:
             filter_result = BaoStockProcessor().daily_up_ma52_filter(None, period, end_date=target_date)
 

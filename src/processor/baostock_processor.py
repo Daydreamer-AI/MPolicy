@@ -1347,6 +1347,101 @@ class BaoStockProcessor(QObject):
         
         return df_to_save
             
+    def process_strategy_filter(self, condition=None, period=TimePeriod.DAY, start_date=None, end_date=None, type=0):
+        if type >=8 and type <= 12:
+            self.logger.info(f"双底策略请执行对应接口")
+            return
+        
+        filter_result = []
+        turn = pf.get_policy_filter_turn()
+        lb = pf.get_policy_filter_lb()
+        b_weekly = pf.get_weekly_condition()
+
+        filter_result_data_manager = FilterResultDataManger(type)
+        self.logger.info(f"开始执行【{TimePeriod.get_chinese_label(period)}】{filter_result_data_manager.get_strategy_name()}筛选，换手率： {turn}, 量比：{lb}，是否启用周线筛选条件：{b_weekly}")
+        board_index = 0
+        dict_stock_info = BaostockDataManager().get_stock_info_dict()
+        for board_name, board_data in dict_stock_info.items():
+            if board_index > 1:
+                # 仅处理沪深主板
+                break
+            board_index += 1
+            for index, row in board_data.iterrows():
+                try:
+                    code = row['证券代码']  # 使用正确的列名
+
+                    if not self.filter_check(code, condition):
+                        continue
+
+                    df_filter_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, period, start_date, end_date)
+
+                    if b_weekly:
+                        weekly_data = BaostockDataManager().get_stock_data_from_db_by_period_with_indicators_auto(code, TimePeriod.WEEK, start_date, end_date)
+                    else:
+                        weekly_data = None
+
+                    b_ret = False
+                    if type == 0:
+                        # 零轴上方MA52
+                        b_ret = pf.daily_up_ma52_filter(df_filter_data, weekly_data, period)
+                    elif type == 1:
+                        # 零轴上方MA24
+                        b_ret = pf.daily_up_ma24_filter(df_filter_data, weekly_data, period)
+
+                    elif type == 2:
+                        # 零轴上方MA10
+                        b_ret = pf.daily_up_ma10_filter(df_filter_data, period)
+                    elif type == 3:
+                        # 零轴上方MA5
+                        return
+                    elif type == 4:
+                        # 零轴下方MA52
+                        b_ret = pf.daily_down_between_ma24_ma52_filter(df_filter_data, weekly_data, period)
+                    elif type == 5:
+                        # 零轴下方MA5
+                        b_ret = pf.daily_down_between_ma5_ma52_filter(df_filter_data, weekly_data, period)
+                    elif type == 6:
+                        # 零轴下方MA52突破
+                        b_ret = pf.daily_down_breakthrough_ma52_filter(df_filter_data)
+                    elif type == 7:
+                        # 零轴下方MA24突破
+                        b_ret = pf.daily_down_breakthrough_ma24_filter(df_filter_data)
+                    elif type >= 8 and type <= 12:
+                        return
+                    elif type == 13:
+                        # 涨停复制
+                        b_ret = pf.limit_copy_filter(df_filter_data, end_date)
+                    elif type == 14:
+                        # 突破回踩
+                        b_ret = pf.break_through_and_step_back(df_filter_data, end_date)
+                    elif type == 15:
+                        # 突破回踩2
+                        b_ret = pf.break_through_and_step_back_2(df_filter_data, end_date)
+                    elif type == 16:
+                        # 突破回踩3
+                        b_ret = pf.break_through_and_step_back_3(df_filter_data, end_date)
+
+                    if b_ret:
+                        filter_result.append(code)
+
+                except Exception as e:
+                    self.logger.error(f"对股票 {code} 进行策略判断时出错: {str(e)}")
+                    continue
+
+
+        # 保存到文件，以便导入到看盘软件中
+        txt_context_header = filter_result_data_manager.get_txt_context_header()
+        filter_result_data_manager.save_result_list_to_txt(filter_result, f"{self.get_filter_result_file_suffix()}.txt", ', ', period, f"{txt_context_header}，共{len(filter_result)}只股票：\n")
+
+        df_to_save = self.generate_filter_result_df_to_save(filter_result)
+        # self.logger.info(f"构造的df_to_save: \n{df_to_save.tail(3)}")
+        if df_to_save is not None and not df_to_save.empty:
+            if filter_result_data_manager.save_filter_result_to_db(df_to_save, period):
+                self.logger.info(f"保存{txt_context_header}成功")
+        else:
+            self.logger.info(f"{txt_context_header}为空")
+
+        return filter_result
 
     def daily_up_ma52_filter(self, condition=None, period=TimePeriod.DAY, start_date=None, end_date=None):
         filter_result = []
@@ -1780,7 +1875,7 @@ class BaoStockProcessor(QObject):
         # 对比双底和零轴下方MA24-MA52结果
         filter_result_data_manager = FilterResultDataManger(4)
         df_zero_down_ma24_ma52_filter_result = filter_result_data_manager.get_filter_result_with_params(end_date, period)
-        if df_zero_down_ma24_ma52_filter_result is not None and not df_zero_down_ma24_ma52_filter_result != []:
+        if df_zero_down_ma24_ma52_filter_result is not None and not df_zero_down_ma24_ma52_filter_result.empty:
             # 计算集合操作
             filter_result_set = set(filter_result)
             ma24_ma52_result_set = set(df_zero_down_ma24_ma52_filter_result)
@@ -1847,6 +1942,16 @@ class BaoStockProcessor(QObject):
             self.logger.info("涨停复制筛选结果为空")
 
         return filter_result
+    
+
+    def break_through_and_step_back(self, condition=None, period=TimePeriod.DAY, start_date=None, end_date=None):
+        return self.process_strategy_filter(condition, period, start_date, end_date, 14)
+
+    def break_through_and_step_back_2(self, condition=None, period=TimePeriod.DAY, start_date=None, end_date=None):
+        return self.process_strategy_filter(condition, period, start_date, end_date, 15)
+
+    def break_through_and_step_back_3(self, condition=None, period=TimePeriod.DAY, start_date=None, end_date=None):
+        return self.process_strategy_filter(condition, period, start_date, end_date, 16)
 
     def stop_process(self):
         self.b_stop_process = True

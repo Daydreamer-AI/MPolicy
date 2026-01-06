@@ -39,7 +39,7 @@ def singleton(cls):
 # @singleton
 class FilterResultDataManger():
     def __init__(self, type=0):
-        self.type_count = 13
+        self.type_count = 17
         if type > self.type_count:
             raise ValueError("Invalid type")
 
@@ -49,7 +49,7 @@ class FilterResultDataManger():
 
     def switch_to_type(self, type):
         """切换到指定类型"""
-        if type > self.type_count:
+        if type < 0 or type >= self.type_count:
             raise ValueError("Invalid type")
         
         if self.type != type:
@@ -85,6 +85,12 @@ class FilterResultDataManger():
             return "./data/database/policy_filter/filter_result/old/daily_down_double_bottom_filter/隐形动能不足"
         elif self.type == 13:
             return "./data/database/policy_filter/filter_result/old/limit_copy"     # 涨停复制
+        elif self.type == 14:
+            return "./data/database/policy_filter/filter_result/old/break_through_and_step_back"    # 突破回踩
+        elif self.type == 15:
+            return "./data/database/policy_filter/filter_result/old/break_through_and_step_back_2"  # 突破回踩2
+        elif self.type == 16:
+            return "./data/database/policy_filter/filter_result/old/break_through_and_step_back_3"  # 突破回踩3
         else:
             return "./data/database/policy_filter/filter_result/old/daily_up_ma52"
         
@@ -117,6 +123,12 @@ class FilterResultDataManger():
             return "./data/database/policy_filter/filter_result/zero_down_double_bottom/隐形动能不足"
         elif self.type == 13:
             return "./data/database/policy_filter/filter_result/limit_copy"
+        elif self.type == 14:
+            return "./data/database/policy_filter/filter_result/break_through_and_step_back"
+        elif self.type == 15:
+            return "./data/database/policy_filter/filter_result/break_through_and_step_back_2"
+        elif self.type == 16:
+            return "./data/database/policy_filter/filter_result/break_through_and_step_back_3"
         else:
             return "./data/database/policy_filter/filter_result/zero_up_ma52"
         
@@ -158,8 +170,54 @@ class FilterResultDataManger():
             return "零轴下方双底【隐形动能不足】筛选结果"
         elif self.type == 13:
             return "涨停复制筛选结果"
+        elif self.type == 14:
+            return "突破回踩筛选结果"
+        elif self.type == 15:
+            return "突破回踩2筛选结果2"
+        elif self.type == 16:
+            return "突破回踩3筛选结果"
         else:
             return "筛选结果"
+        
+    def get_strategy_name(self):
+        if self.type == 0:
+            return "零轴上方MA52"
+        elif self.type == 1:
+            return "零轴上方MA24"
+        elif self.type == 2:
+            return "零轴上方MA10"
+        elif self.type == 3:
+            return "零轴上方MA5"
+        elif self.type == 4:
+            return "零轴下方MA52"
+        elif self.type == 5:
+            return "零轴下方MA5"
+        elif self.type == 6:
+            return "零轴下方MA52突破"
+        elif self.type == 7:
+            return "零轴下方MA24突破"
+        elif self.type == 8:
+            return "零轴下方双底"
+        elif self.type == 9:
+            return "零轴下方双底【背离】"
+        elif self.type == 10:
+            return "零轴下方双底【动能不足】"
+        elif self.type == 11:
+            return "零轴下方双底【隐形背离】"
+        elif self.type == 12:
+            return "零轴下方双底【隐形动能不足】"
+        elif self.type == 13:
+            return "涨停复制"
+        elif self.type == 14:
+            return "突破回踩"
+        elif self.type == 15:
+            return "突破回踩2"
+        elif self.type == 16:
+            return "突破回踩3"
+        else:
+            return "策略"
+
+
 
         
     def save_result_list_to_txt(self, data_list, file_name, separator='\n', period=TimePeriod.DAY, str_header=None, encoding='utf-8'):
