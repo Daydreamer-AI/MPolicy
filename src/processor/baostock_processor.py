@@ -1367,7 +1367,7 @@ class BaoStockProcessor(QObject):
                 break
             board_index += 1
             for index, row in board_data.iterrows():
-                try:
+                # try:
                     code = row['证券代码']  # 使用正确的列名
 
                     if not self.filter_check(code, condition):
@@ -1413,20 +1413,20 @@ class BaoStockProcessor(QObject):
                         b_ret = pf.limit_copy_filter(df_filter_data, end_date)
                     elif type == 14:
                         # 突破回踩
-                        b_ret = pf.break_through_and_step_back(df_filter_data, end_date)
+                        b_ret = pf.break_through_and_step_back(df_filter_data, period)
                     elif type == 15:
                         # 突破回踩2
-                        b_ret = pf.break_through_and_step_back_2(df_filter_data, end_date)
+                        b_ret = pf.break_through_and_step_back_2(df_filter_data, period)
                     elif type == 16:
                         # 突破回踩3
-                        b_ret = pf.break_through_and_step_back_3(df_filter_data, end_date)
+                        b_ret = pf.break_through_and_step_back_3(df_filter_data, period)
 
                     if b_ret:
                         filter_result.append(code)
 
-                except Exception as e:
-                    self.logger.error(f"对股票 {code} 进行策略判断时出错: {str(e)}")
-                    continue
+                # except Exception as e:
+                #     self.logger.error(f"对股票 {code} 进行策略判断时出错: {str(e)}")
+                #     continue
 
 
         # 保存到文件，以便导入到看盘软件中

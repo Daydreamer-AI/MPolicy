@@ -280,11 +280,11 @@ class StrategyWidget(QWidget):
         elif checked_id == 13:
             filter_result = BaoStockProcessor().limit_copy_filter(condition=None, end_date=target_date)
         elif checked_id == 14:
-            pass
+            filter_result = BaoStockProcessor().break_through_and_step_back(condition=None, period=period, end_date=target_date)
         elif checked_id == 15:
-            pass
+            filter_result = BaoStockProcessor().break_through_and_step_back_2(condition=None, period=period, end_date=target_date)
         elif checked_id == 16:
-            pass
+            filter_result = BaoStockProcessor().break_through_and_step_back_3(condition=None, period=period, end_date=target_date)
         else:
             filter_result = BaoStockProcessor().daily_up_ma52_filter(None, period, end_date=target_date)
 
