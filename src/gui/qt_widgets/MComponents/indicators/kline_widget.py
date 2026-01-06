@@ -19,9 +19,7 @@ class KLineWidget(BaseIndicatorWidget):
         # 调用父类初始化，这会自动调用init_para, init_ui, init_connect
         super(KLineWidget, self).__init__(data, type, parent)
 
-        self.label_ma20.hide()
-        self.label_ma30.hide()
-        self.label_ma60.hide()
+        self.custom_init()
 
         # # 使用pg.TextItem作为k线图中的概览标签。问题：标签不会缩视图缩放固定。
         # main_viewbox = self.plot_widget.getViewBox()
@@ -43,7 +41,15 @@ class KLineWidget(BaseIndicatorWidget):
 
         self.load_qss()
 
+    def custom_init(self):
+        self.label_ma20.hide()
+        self.label_ma30.hide()
+        self.label_ma60.hide()
 
+        self.btn_restore.clicked.connect(self.slot_btn_restore_clicked)
+        self.btn_zoom_in.clicked.connect(self.slot_btn_zoom_in_clicked)
+        self.btn_zoom_out.clicked.connect(self.slot_btn_zoom_out_clicked)
+        self.btn_setting.clicked.connect(self.slot_btn_setting_clicked)
 
     def init_para(self, data):
         self.logger = get_logger(__name__)
@@ -183,6 +189,18 @@ class KLineWidget(BaseIndicatorWidget):
 
     def set_indicator_name(self, indicator_name):
         self.label_indicator.setText(indicator_name)
+
+    def slot_btn_restore_clicked(self):
+        self.reset_zoom()
+
+    def slot_btn_zoom_in_clicked(self):
+        self.zoom_in()
+
+    def slot_btn_zoom_out_clicked(self):
+        self.zoom_out()
+
+    def slot_btn_setting_clicked(self):
+        pass
 
     def slot_range_changed(self):
         '''当视图范围改变时调用'''

@@ -143,6 +143,32 @@ class BaseIndicatorWidget(QWidget):
 
         self.hide_all_labels()
 
+    def zoom_in(self, x_factor=0.8, y_factor=0.8):
+        """放大视图"""
+        viewbox = self.plot_widget.getViewBox()
+        viewbox.scaleBy((x_factor, y_factor))  # 按0.8倍缩放，数值越小越放大
+
+    def zoom_out(self, x_factor=1.2, y_factor=1.2):
+        """缩小视图"""
+        viewbox = self.plot_widget.getViewBox()
+        viewbox.scaleBy((x_factor, y_factor))  # 按1.2倍缩放，数值越大越缩小
+
+    def reset_zoom(self):
+        """恢复到原始缩放状态"""
+        # 方法1: 重新设置原始范围
+        # self.set_axis_ranges()  # 调用您已有的设置轴范围方法
+        
+        # 方法2: 使用autoRange
+        # viewbox = self.plot_widget.getViewBox()
+        # viewbox.autoRange()
+
+        # 方法3：使用自定义默认范围
+        self.auto_scale_to_latest(120)
+
+    def get_current_range(self):
+        """获取当前视图范围"""
+        return self.plot_widget.viewRange()  # 返回 [[x_min, x_max], [y_min, y_max]]
+
     
     def update_data(self, data):
         # self.logger.info(f"更新数据{self.get_chart_name()}, data长度：{len(data)}")
