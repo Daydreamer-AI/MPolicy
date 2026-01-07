@@ -79,7 +79,7 @@ class BaoStockProcessor(QObject):
         
     def init_config(self):
         config_manager = ConfigManager()
-        # config_manager.set_config_path("./resources/config/config.ini")
+        config_manager.set_config_path("config.ini")
         policy_filter_turn_config = config_manager.get('PolicyFilter', 'turn', '1.0')
         policy_filter_lb_config = config_manager.get('PolicyFilter', 'lb', '0.3')
         weekly_condition = config_manager.get('PolicyFilter', 'weekly_condition', '0')

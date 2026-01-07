@@ -108,7 +108,7 @@ class PolicyFilterSettingDialog(QDialog):
 
 
         config_manager = ConfigManager()
-        # config_manager.set_config_path("./resources/config/config.ini")
+        config_manager.set_config_path("config.ini")
         config_manager.set('PolicyFilter', 'turn', turn_str)
         config_manager.set('PolicyFilter', 'lb', lb_str)
         config_manager.set('PolicyFilter', 'weekly_condition', '1' if b_weekly_condition else '0')

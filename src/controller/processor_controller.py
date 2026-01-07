@@ -13,7 +13,7 @@ class ProcessorController:
 
         # ConfigManager接口测试
         # config_manager = ConfigManager()
-        # config_manager.set_config_path("./resources/config/config.ini")
+        # config_manager.set_config_path("config.ini")
         # policy_filter_turn_config = config_manager.getint('PolicyFilter', 'turn', 1)
         # policy_filter_lb_config = config_manager.getint('PolicyFilter', 'lb', 1)
         # self.logger.info("turn 的类型: ", type(policy_filter_turn_config))

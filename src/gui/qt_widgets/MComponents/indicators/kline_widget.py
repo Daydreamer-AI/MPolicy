@@ -10,6 +10,7 @@ from manager.logging_manager import get_logger
 
 from gui.qt_widgets.MComponents.indicators.base_indicator_widget import BaseIndicatorWidget, signal_manager
 from gui.qt_widgets.MComponents.indicators.item.candlestick_item import CandlestickItem
+from gui.qt_widgets.MComponents.indicators.setting.kline_indicator_setting_dialog import KLineIndicatorSettingDialog
 
 from manager.indicators_config_manager import *
 from gui.qt_widgets.MComponents.indicators.kline_overview_widget import KLineOverviewWidget
@@ -200,7 +201,8 @@ class KLineWidget(BaseIndicatorWidget):
         self.zoom_out()
 
     def slot_btn_setting_clicked(self):
-        pass
+        dlg = KLineIndicatorSettingDialog()
+        dlg.exec()
 
     def slot_range_changed(self):
         '''当视图范围改变时调用'''

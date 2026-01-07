@@ -1,3 +1,4 @@
+import platform
 import os
 import json
 import configparser
@@ -5,6 +6,23 @@ import threading
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 from manager.logging_manager import get_logger
+
+def get_user_config_dir():
+    """获取用户配置目录，与ConfigManager保持一致"""
+    system = platform.system()
+    
+    if system == "Windows":
+        # Windows: %APPDATA%\MPolicy\
+        config_dir = Path(os.environ.get('APPDATA', '')) / 'MPolicy'
+    elif system == "Darwin":  # macOS
+        # macOS: ~/Library/Application Support/MPolicy/
+        config_dir = Path.home() / 'Library' / 'Application Support' / 'MPolicy'
+    else:  # Linux and other Unix-like systems
+        # Linux: ~/.config/MPolicy/
+        config_dir = Path.home() / '.config' / 'MPolicy'
+    
+    config_dir.mkdir(parents=True, exist_ok=True)
+    return config_dir
 
 class BaseConfigHandler:
     """配置处理器基类"""
