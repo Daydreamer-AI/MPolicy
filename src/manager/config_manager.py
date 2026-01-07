@@ -70,7 +70,7 @@ class JsonConfigHandler(BaseConfigHandler):
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(config_data, f, ensure_ascii=False, indent=2)
         return True
-    
+
 # class YamlConfigHandler(BaseConfigHandler):
 #     def load_config(self, file_path: Path) -> Dict:
 #         import yaml
@@ -122,7 +122,9 @@ class ConfigManager:
         
         self.logger = get_logger(__name__)
             
-        self._config_path = Path.home() / 'AppData' / 'Roaming' / 'MPolicy' / 'config.ini'  # 当前管理的配置文件路径
+        # 使用统一的配置目录函数
+        config_dir = get_user_config_dir()
+        self._config_path = config_dir / 'config.ini'  # 当前管理的配置文件路径
         self.logger.info(f"正在使用配置文件 '{self._config_path}'")
         
         # 根据文件扩展名选择处理器
@@ -145,6 +147,7 @@ class ConfigManager:
     def set_config_path(self, config_path: Union[str, Path]) -> bool:
         """
         设置或更改配置文件路径，并自动加载该文件。
+        如果传入的是相对路径，会将其放在用户配置目录下。
 
         参数:
             config_path: 新的配置文件路径。
@@ -153,6 +156,12 @@ class ConfigManager:
             成功加载返回 True，否则返回 False（但会初始化空配置）。
         """
         config_path = Path(config_path)
+        
+        # 如果是相对路径，将其放置在用户配置目录下
+        if not config_path.is_absolute():
+            config_dir = get_user_config_dir()
+            config_path = config_dir / config_path
+        
         with self._lock:
             self._config_path = config_path
             self._config_handler = self._get_handler_for_path(self._config_path)
@@ -185,6 +194,7 @@ class ConfigManager:
                 return False
         else:
             # 文件不存在，初始化一个空配置
+            self._config_path.parent.mkdir(parents=True, exist_ok=True)  # 确保目录存在
             self._config_data = self._config_handler.load_config(self._config_path)
             self._file_mtime = 0
             self.logger.info(f"配置文件 '{self._config_path}' 不存在，已初始化空配置。")
@@ -198,6 +208,7 @@ class ConfigManager:
     def save(self, save_path: Union[str, Path, None] = None) -> bool:
         """
         将当前内存中的配置保存到文件。
+        如果传入的是相对路径，会将其放在用户配置目录下。
 
         参数:
             save_path: 指定的保存路径。如果为 None，则使用当前管理的路径。
@@ -206,7 +217,15 @@ class ConfigManager:
             成功保存返回 True，否则返回 False。
         """
         with self._lock:
-            target_path = Path(save_path) if save_path is not None else self._config_path
+            if save_path is not None:
+                target_path = Path(save_path)
+                # 如果是相对路径，将其放置在用户配置目录下
+                if not target_path.is_absolute():
+                    config_dir = get_user_config_dir()
+                    target_path = config_dir / target_path
+            else:
+                target_path = self._config_path
+                
             if target_path is None:
                 self.logger.error("错误：未指定保存路径且当前无管理路径。")
                 return False
@@ -437,15 +456,15 @@ if __name__ == "__main__":
     # 创建配置管理器实例
     manager = ConfigManager()
 
-    # 1. 使用INI格式
-    manager.set_config_path('config_a.ini')
+    # 1. 使用INI格式 - 相对路径会被放在用户配置目录下
+    manager.set_config_path('config_a.ini')  # 实际路径: 用户配置目录/config_a.ini
     manager.set('Database', 'host', 'host_a.com')
     manager.set('Database', 'port', 5432)
     manager.set('App', 'debug', True)
     manager.save()
 
     # 2. 切换到JSON格式
-    manager.set_config_path('config_b.json')
+    manager.set_config_path('config_b.json')  # 实际路径: 用户配置目录/config_b.json
     manager.set('Database', 'host', 'host_b.com')
     manager.set('Database', 'port', 3306)
     manager.set('App', 'debug', False)

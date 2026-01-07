@@ -1,8 +1,8 @@
-
 import json
 from pathlib import Path
 from typing import Dict, Any, Optional
 from manager.logging_manager import get_logger
+from manager.config_manager import ConfigManager
 
 def color_to_hex(color):
     """
@@ -63,7 +63,7 @@ def hex_to_color(hex_color):
             return (r, g, b, a)
     except ValueError:
         raise ValueError("无效的十六进制颜色字符串")
-    
+
 # 示例用法：
 # RGB 颜色转换
 # rgb_color = (255, 61, 61)
@@ -114,39 +114,39 @@ dict_ma_color_hex = {
     'ma250': '#af77ef'
 }
 
-class MASetting():
-    def __init__(self, id=0, period=5, visible=True, line_width=2, color=(0, 0, 0), color_hex='#000000'):
-        self.id = id
-        self.period = period
-        self.name = f"ma{period}"
-        self.visible = visible
-        self.line_width = line_width
-        self.color = color
-        self.color_hex = color_hex
+# class MASetting():
+#     def __init__(self, id=0, period=5, visible=True, line_width=2, color=(0, 0, 0), color_hex='#000000'):
+#         self.id = id
+#         self.period = period
+#         self.name = f"ma{period}"
+#         self.visible = visible
+#         self.line_width = line_width
+#         self.color = color
+#         self.color_hex = color_hex
 
-    def set_color(self, color):
-        self.color = color
-        self.color_hex = color_to_hex(color)
+#     def set_color(self, color):
+#         self.color = color
+#         self.color_hex = color_to_hex(color)
 
-    def set_color_hex(self, color_hex):
-        self.color = hex_to_color(color_hex)
-        self.color_hex = color_hex
+#     def set_color_hex(self, color_hex):
+#         self.color = hex_to_color(color_hex)
+#         self.color_hex = color_hex
 
-dict_ma_setting_default = { 
-    0: MASetting(0, 5, True, 2, dict_ma_color['ma5'], dict_ma_color_hex['ma5']),
-    1: MASetting(1, 10, True, 2, dict_ma_color['ma10'], dict_ma_color_hex['ma10']),
-    2: MASetting(2, 20, False, 2, dict_ma_color['ma20'], dict_ma_color_hex['ma20']),
-    3: MASetting(3, 24, True, 2, dict_ma_color['ma24'], dict_ma_color_hex['ma24']),
-    4: MASetting(4, 30, False, 2, dict_ma_color['ma30'], dict_ma_color_hex['ma30']),
-    5: MASetting(5, 52, True, 2, dict_ma_color['ma52'], dict_ma_color_hex['ma52']),
-    6: MASetting(6, 60, False, 2, dict_ma_color['ma60'], dict_ma_color_hex['ma60']),
-    7: MASetting(7, 120, False, 2, dict_ma_color['ma120'], dict_ma_color_hex['ma120']),
-    8: MASetting(8, 250, False, 2, dict_ma_color['ma250'], dict_ma_color_hex['ma250'])
-}
+# dict_ma_setting_default = { 
+#     0: MASetting(0, 5, True, 2, dict_ma_color['ma5'], dict_ma_color_hex['ma5']),
+#     1: MASetting(1, 10, True, 2, dict_ma_color['ma10'], dict_ma_color_hex['ma10']),
+#     2: MASetting(2, 20, False, 2, dict_ma_color['ma20'], dict_ma_color_hex['ma20']),
+#     3: MASetting(3, 24, True, 2, dict_ma_color['ma24'], dict_ma_color_hex['ma24']),
+#     4: MASetting(4, 30, False, 2, dict_ma_color['ma30'], dict_ma_color_hex['ma30']),
+#     5: MASetting(5, 52, True, 2, dict_ma_color['ma52'], dict_ma_color_hex['ma52']),
+#     6: MASetting(6, 60, False, 2, dict_ma_color['ma60'], dict_ma_color_hex['ma60']),
+#     7: MASetting(7, 120, False, 2, dict_ma_color['ma120'], dict_ma_color_hex['ma120']),
+#     8: MASetting(8, 250, False, 2, dict_ma_color['ma250'], dict_ma_color_hex['ma250'])
+# }
 
 
-# 用户自定义颜色
-dict_ma_setting_user = dict_ma_setting_default.copy()
+# # 用户自定义颜色
+# dict_ma_setting_user = dict_ma_setting_default.copy()
 
 
 # 成交量
@@ -364,13 +364,16 @@ class BOLLSetting(ColorSetting):
 
 
 class IndicatorConfigManager:
-    """指标配置管理器"""
+    """指标配置管理器，复用ConfigManager的实现"""
     
     def __init__(self):
         self.logger = get_logger(__name__)
-        self.config_dir = Path.home() / '.config' / 'MPolicy'
-        self.default_config_file = self.config_dir / 'indicator_config_default.json'
-        self.user_config_file = self.config_dir / 'indicator_config_user.json'
+        self.config_manager = ConfigManager()
+        
+        # 使用统一的配置目录
+        config_dir = self.config_manager.get_config_path().parent
+        self.default_config_file = config_dir / 'indicator_config_default.json'
+        self.user_config_file = config_dir / 'indicator_config_user.json'
         
         # 存储所有配置
         self.default_configs = {}  # 默认配置
@@ -443,9 +446,10 @@ class IndicatorConfigManager:
                 for key, setting in settings.items():
                     config_data[indicator_type][str(key)] = setting.to_dict()
             
-            self.config_dir.mkdir(parents=True, exist_ok=True)
-            with open(self.default_config_file, 'w', encoding='utf-8') as f:
-                json.dump(config_data, f, ensure_ascii=False, indent=2)
+            # 使用ConfigManager的save方法
+            self.config_manager.set_config_path(self.default_config_file)
+            self.config_manager._config_data = config_data
+            self.config_manager.save()
                 
         except Exception as e:
             self.logger.error(f"保存默认配置失败: {e}")
@@ -459,41 +463,46 @@ class IndicatorConfigManager:
                 for key, setting in settings.items():
                     config_data[indicator_type][str(key)] = setting.to_dict()
             
-            self.config_dir.mkdir(parents=True, exist_ok=True)
-            with open(self.user_config_file, 'w', encoding='utf-8') as f:
-                json.dump(config_data, f, ensure_ascii=False, indent=2)
+            # 使用ConfigManager的save方法
+            self.config_manager.set_config_path(self.user_config_file)
+            self.config_manager._config_data = config_data
+            self.config_manager.save()
                 
         except Exception as e:
             self.logger.error(f"保存用户配置失败: {e}")
     
     def load_default_config(self):
         """从文件加载默认配置"""
-        if not self.default_config_file.exists():
-            return False
-        
         try:
-            with open(self.default_config_file, 'r', encoding='utf-8') as f:
-                config_data = json.load(f)
-            
-            self.default_configs = self._deserialize_config(config_data)
-            return True
+            # 使用ConfigManager的load方法
+            if self.default_config_file.exists():
+                self.config_manager.set_config_path(self.default_config_file)
+                self.config_manager._load_config()
+                config_data = self.config_manager._config_data
+                
+                self.default_configs = self._deserialize_config(config_data)
+                return True
+            else:
+                return False
         except Exception as e:
             self.logger.error(f"加载默认配置失败: {e}")
             return False
     
     def load_user_config(self):
         """从文件加载用户配置"""
-        if not self.user_config_file.exists():
-            # 用户配置不存在，使用默认配置初始化
-            self._init_user_configs_from_defaults()
-            return False
-        
         try:
-            with open(self.user_config_file, 'r', encoding='utf-8') as f:
-                config_data = json.load(f)
-            
-            self.user_configs = self._deserialize_config(config_data)
-            return True
+            # 使用ConfigManager的load方法
+            if self.user_config_file.exists():
+                self.config_manager.set_config_path(self.user_config_file)
+                self.config_manager._load_config()
+                config_data = self.config_manager._config_data
+                
+                self.user_configs = self._deserialize_config(config_data)
+                return True
+            else:
+                # 用户配置不存在，使用默认配置初始化
+                self._init_user_configs_from_defaults()
+                return False
         except Exception as e:
             self.logger.error(f"加载用户配置失败: {e}")
             # 加载失败时使用默认配置初始化
