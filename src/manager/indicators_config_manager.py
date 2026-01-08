@@ -10,6 +10,8 @@ class IndicatrosEnum(Enum):
     '''
         统一规范指标键名称，作用范围：Pandas.DataFrame对象的列名，字典键名称，显示的指标名称
     '''
+    KLINE_ASC = 'asc'
+    KLINE_DESC = 'desc'
     MA = 'ma'
     VOLUME = 'volume'
     AMOUNT = 'amount'
@@ -101,88 +103,53 @@ def hex_to_color(hex_color):
 
 # k线涨跌幅颜色
 dict_kline_color = {
-'desc': (0, 168, 67), #绿色－下跌 (0, 169, 178), (0, 168, 67), (43, 186, 146)
-'asc': (255, 61, 61) #红色 -上涨
+IndicatrosEnum.KLINE_DESC.value: (0, 168, 67), #绿色－下跌 (0, 169, 178), (0, 168, 67), (43, 186, 146)
+IndicatrosEnum.KLINE_ASC.value: (255, 61, 61) #红色 -上涨
 }
 
 dict_kline_color_hex = {
-'desc': '#00a84b', #绿色－下跌
-'asc': '#ff3d3d' #红色 -上涨
+IndicatrosEnum.KLINE_DESC.value: '#00a84b', #绿色－下跌
+IndicatrosEnum.KLINE_ASC.value: '#ff3d3d' #红色 -上涨
 }
 
 
 # 均线
 # 默认颜色
 dict_ma_color = {
-'ma5': (0, 0, 0), 
-'ma10': (217, 186, 38), 
-'ma20': (25, 160, 255), 
-'ma24': (239, 57, 178),
-'ma30': (255, 154, 117),
-'ma52': (10, 204, 90),
-'ma60': (119, 60, 178),
-'ma120': (176, 187, 242),
-'ma250': (175, 117, 234)
+f'{IndicatrosEnum.MA.value}5': (0, 0, 0), 
+f'{IndicatrosEnum.MA.value}10': (217, 186, 38), 
+f'{IndicatrosEnum.MA.value}20': (25, 160, 255), 
+f'{IndicatrosEnum.MA.value}24': (239, 57, 178),
+f'{IndicatrosEnum.MA.value}30': (255, 154, 117),
+f'{IndicatrosEnum.MA.value}52': (10, 204, 90),
+f'{IndicatrosEnum.MA.value}60': (119, 60, 178),
+f'{IndicatrosEnum.MA.value}120': (176, 187, 242),
+f'{IndicatrosEnum.MA.value}250': (175, 117, 234)
 }
 
 dict_ma_color_hex = {
-    'ma5': '#000000', 
-    'ma10': '#d9ba26', 
-    'ma20': '#1fa0ff', 
-    'ma24': '#ef39ae',
-    'ma30': '#ff9a75',
-    'ma52': '#0acc5a',
-    'ma60': '#7777ff',
-    'ma120': '#afafef',
-    'ma250': '#af77ef'
+    f'{IndicatrosEnum.MA.value}5': '#000000', 
+    f'{IndicatrosEnum.MA.value}10': '#d9ba26', 
+    f'{IndicatrosEnum.MA.value}20': '#1fa0ff', 
+    f'{IndicatrosEnum.MA.value}24': '#ef39ae',
+    f'{IndicatrosEnum.MA.value}30': '#ff9a75',
+    f'{IndicatrosEnum.MA.value}52': '#0acc5a',
+    f'{IndicatrosEnum.MA.value}60': '#7777ff',
+    f'{IndicatrosEnum.MA.value}120': '#afafef',
+    f'{IndicatrosEnum.MA.value}250': '#af77ef'
 }
-
-# class MASetting():
-#     def __init__(self, id=0, period=5, visible=True, line_width=2, color=(0, 0, 0), color_hex='#000000'):
-#         self.id = id
-#         self.period = period
-#         self.name = f"ma{period}"
-#         self.visible = visible
-#         self.line_width = line_width
-#         self.color = color
-#         self.color_hex = color_hex
-
-#     def set_color(self, color):
-#         self.color = color
-#         self.color_hex = color_to_hex(color)
-
-#     def set_color_hex(self, color_hex):
-#         self.color = hex_to_color(color_hex)
-#         self.color_hex = color_hex
-
-# dict_ma_setting_default = { 
-#     0: MASetting(0, 5, True, 2, dict_ma_color['ma5'], dict_ma_color_hex['ma5']),
-#     1: MASetting(1, 10, True, 2, dict_ma_color['ma10'], dict_ma_color_hex['ma10']),
-#     2: MASetting(2, 20, False, 2, dict_ma_color['ma20'], dict_ma_color_hex['ma20']),
-#     3: MASetting(3, 24, True, 2, dict_ma_color['ma24'], dict_ma_color_hex['ma24']),
-#     4: MASetting(4, 30, False, 2, dict_ma_color['ma30'], dict_ma_color_hex['ma30']),
-#     5: MASetting(5, 52, True, 2, dict_ma_color['ma52'], dict_ma_color_hex['ma52']),
-#     6: MASetting(6, 60, False, 2, dict_ma_color['ma60'], dict_ma_color_hex['ma60']),
-#     7: MASetting(7, 120, False, 2, dict_ma_color['ma120'], dict_ma_color_hex['ma120']),
-#     8: MASetting(8, 250, False, 2, dict_ma_color['ma250'], dict_ma_color_hex['ma250'])
-# }
-
-
-# # 用户自定义颜色
-# dict_ma_setting_user = dict_ma_setting_default.copy()
-
 
 # 成交量
 dict_volume_color = {
-'ma5': dict_ma_color['ma5'],
-'ma10': dict_ma_color['ma10'],
-'ma20': dict_ma_color['ma20']
+f'{IndicatrosEnum.MA.value}5': dict_ma_color[f'{IndicatrosEnum.MA.value}5'],
+f'{IndicatrosEnum.MA.value}10': dict_ma_color[f'{IndicatrosEnum.MA.value}10'],
+f'{IndicatrosEnum.MA.value}20': dict_ma_color[f'{IndicatrosEnum.MA.value}20']
 }
 
 dict_volume_color_hex = {
-    'ma5': dict_ma_color_hex['ma5'],
-    'ma10': dict_ma_color_hex['ma10'],
-    'ma20': dict_ma_color_hex['ma20']
+    f'{IndicatrosEnum.MA.value}5': dict_ma_color_hex[f'{IndicatrosEnum.MA.value}5'],
+    f'{IndicatrosEnum.MA.value}10': dict_ma_color_hex[f'{IndicatrosEnum.MA.value}10'],
+    f'{IndicatrosEnum.MA.value}20': dict_ma_color_hex[f'{IndicatrosEnum.MA.value}20']
 }
 
 dict_volume_color_user = dict_volume_color.copy()
@@ -192,15 +159,15 @@ dict_volume_color_user_hex = dict_volume_color_hex.copy()
 
 # 成交额
 dict_amount_color = {
-'ma5': dict_ma_color['ma5'],
-'ma10': dict_ma_color['ma10'],
-'ma20': dict_ma_color['ma20']
+f'{IndicatrosEnum.MA.value}5': dict_ma_color[f'{IndicatrosEnum.MA.value}5'],
+f'{IndicatrosEnum.MA.value}10': dict_ma_color[f'{IndicatrosEnum.MA.value}10'],
+f'{IndicatrosEnum.MA.value}20': dict_ma_color[f'{IndicatrosEnum.MA.value}20']
 }
 
 dict_amount_color_hex = {
-    'ma5': dict_ma_color_hex['ma5'],
-    'ma10': dict_ma_color_hex['ma10'],
-    'ma20': dict_ma_color_hex['ma20']
+    f'{IndicatrosEnum.MA.value}5': dict_ma_color_hex[f'{IndicatrosEnum.MA.value}5'],
+    f'{IndicatrosEnum.MA.value}10': dict_ma_color_hex[f'{IndicatrosEnum.MA.value}10'],
+    f'{IndicatrosEnum.MA.value}20': dict_ma_color_hex[f'{IndicatrosEnum.MA.value}20']
 }
 
 dict_amount_color_user = dict_amount_color.copy()
@@ -209,13 +176,13 @@ dict_amount_color_user_hex = dict_amount_color_hex.copy()
 
 # MACD
 dict_macd_color = {
-'diff': (0, 0, 0),
-'dea': (217, 186, 38),
+IndicatrosEnum.MACD_DIFF.value: (0, 0, 0),
+IndicatrosEnum.MACD_DEA.value: (217, 186, 38),
 }
 
 dict_macd_color_hex = {
-    'diff': '#000000',
-    'dea': '#d9ba26'
+    IndicatrosEnum.MACD_DIFF.value: '#000000',
+    IndicatrosEnum.MACD_DEA.value: '#d9ba26'
 }
 
 dict_macd_color_user = dict_macd_color.copy()
@@ -223,15 +190,15 @@ dict_macd_color_user_hex = dict_macd_color_hex.copy()
 
 # KDJ
 dict_kdj_color = { 
-'k': (217, 186, 38),
-'d': (25, 160, 255),
-'j': (244, 134, 208)
+IndicatrosEnum.KDJ_K.value: (217, 186, 38),
+IndicatrosEnum.KDJ_D.value: (25, 160, 255),
+IndicatrosEnum.KDJ_J.value: (244, 134, 208)
 }
 
 dict_kdj_color_hex = { 
-    'k': '#d9ba26',
-    'd': '#1fa0ff',
-    'j': '#ef39ae'
+    IndicatrosEnum.KDJ_K.value: '#d9ba26',
+    IndicatrosEnum.KDJ_D.value: '#1fa0ff',
+    IndicatrosEnum.KDJ_J.value: '#ef39ae'
 }
 
 dict_kdj_color_user = dict_kdj_color.copy()
@@ -239,15 +206,15 @@ dict_kdj_color_user_hex = dict_kdj_color_hex.copy()
 
 # RSI
 dict_rsi_color = { 
-'rsi1': (217, 186, 38),
-'rsi2': (10, 204, 90),
-'rsi3': (25, 160, 255)
+f'{IndicatrosEnum.KDJ_K.value}6': (217, 186, 38),
+f'{IndicatrosEnum.KDJ_K.value}12': (10, 204, 90),
+f'{IndicatrosEnum.KDJ_K.value}24': (25, 160, 255)
 }
 
 dict_rsi_color_hex = { 
-    'rsi1': '#d9ba26',
-    'rsi2': '#0acc5a',
-    'rsi3': '#1fa0ff'
+    f'{IndicatrosEnum.KDJ_K.value}6': '#d9ba26',
+    f'{IndicatrosEnum.KDJ_K.value}12': '#0acc5a',
+    f'{IndicatrosEnum.KDJ_K.value}24': '#1fa0ff'
 }
 
 dict_rsi_color_user = dict_rsi_color.copy()
@@ -568,9 +535,9 @@ class IndicatorConfigManager:
             }
             
             self.default_configs[IndicatrosEnum.RSI.value] = {
-                0: RSISetting(0, 5, '', True, 2, dict_rsi_color[f'{IndicatrosEnum.RSI.value}1'], dict_rsi_color_hex[f'{IndicatrosEnum.RSI.value}1']),
-                1: RSISetting(1, 12, '', True, 2, dict_rsi_color[f'{IndicatrosEnum.RSI.value}2'], dict_rsi_color_hex[f'{IndicatrosEnum.RSI.value}2']),
-                2: RSISetting(2, 24, '', True, 2, dict_rsi_color[f'{IndicatrosEnum.RSI.value}3'], dict_rsi_color_hex[f'{IndicatrosEnum.RSI.value}3'])
+                0: RSISetting(0, 5, '', True, 2, dict_rsi_color[f'{IndicatrosEnum.RSI.value}6'], dict_rsi_color_hex[f'{IndicatrosEnum.RSI.value}6']),
+                1: RSISetting(1, 12, '', True, 2, dict_rsi_color[f'{IndicatrosEnum.RSI.value}12'], dict_rsi_color_hex[f'{IndicatrosEnum.RSI.value}12']),
+                2: RSISetting(2, 24, '', True, 2, dict_rsi_color[f'{IndicatrosEnum.RSI.value}24'], dict_rsi_color_hex[f'{IndicatrosEnum.RSI.value}24'])
             }
             
             self.default_configs[IndicatrosEnum.BOLL.value] = {

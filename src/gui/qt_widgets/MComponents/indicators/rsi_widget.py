@@ -36,9 +36,9 @@ class RsiWidget(BaseIndicatorWidget):
         self.df_data = data
 
     def load_qss(self):
-        self.label_rsi6.setStyleSheet(f"color: {dict_rsi_color_hex['rsi1']}")
-        self.label_rsi12.setStyleSheet(f"color: {dict_rsi_color_hex['rsi2']}")
-        self.label_rsi24.setStyleSheet(f"color: {dict_rsi_color_hex['rsi3']}")
+        self.label_rsi6.setStyleSheet(f"color: {dict_rsi_color_hex[f'{IndicatrosEnum.KDJ_K.value}6']}")
+        self.label_rsi12.setStyleSheet(f"color: {dict_rsi_color_hex[f'{IndicatrosEnum.KDJ_K.value}12']}")
+        self.label_rsi24.setStyleSheet(f"color: {dict_rsi_color_hex[f'{IndicatrosEnum.KDJ_K.value}24']}")
 
     def get_ui_path(self):
         return './src/gui/qt_widgets/MComponents/indicators/RsiWidget.ui'

@@ -46,12 +46,12 @@ class VolumeItem(pg.GraphicsObject):
             
             if close_price < open_price:
                 #下跌－ 绿色填充
-                p.setPen(pg.mkPen(dict_kline_color['desc']))
+                p.setPen(pg.mkPen(dict_kline_color[IndicatrosEnum.KLINE_DESC.value]))
                 p.drawRect(QtCore.QRectF(i - w, 0, w * 2, volume))
-                p.setBrush(pg.mkBrush(dict_kline_color['desc']))
+                p.setBrush(pg.mkBrush(dict_kline_color[IndicatrosEnum.KLINE_DESC.value]))
             else:
                 #上涨－ 红色空心
-                p.setPen(pg.mkPen(dict_kline_color['asc']))
+                p.setPen(pg.mkPen(dict_kline_color[IndicatrosEnum.KLINE_ASC.value]))
                 p.drawLines(
                     QtCore.QLineF(QtCore.QPointF(i - w, 0), QtCore.QPointF(i - w, volume)),
                     QtCore.QLineF(QtCore.QPointF(i - w, volume), QtCore.QPointF(i + w, volume)),

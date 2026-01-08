@@ -46,12 +46,12 @@ class MACDItem(pg.GraphicsObject):
             if not np.isnan(macd_value):
                 if macd_value >= 0:
                     # 正数 - 红色
-                    p.setPen(pg.mkPen(dict_kline_color['asc']))
-                    p.setBrush(pg.mkBrush(dict_kline_color['asc']))
+                    p.setPen(pg.mkPen(dict_kline_color[IndicatrosEnum.KLINE_ASC.value]))
+                    p.setBrush(pg.mkBrush(dict_kline_color[IndicatrosEnum.KLINE_ASC.value]))
                 else:
                     # 负数 - 绿色
-                    p.setPen(pg.mkPen(dict_kline_color['desc']))
-                    p.setBrush(pg.mkBrush(dict_kline_color['desc']))
+                    p.setPen(pg.mkPen(dict_kline_color[IndicatrosEnum.KLINE_DESC.value]))
+                    p.setBrush(pg.mkBrush(dict_kline_color[IndicatrosEnum.KLINE_DESC.value]))
                 
                 # 绘制柱状图
                 p.drawRect(QtCore.QRectF(i - w, 0, w * 2, macd_value))
@@ -64,7 +64,7 @@ class MACDItem(pg.GraphicsObject):
                 diff_points.append(QtCore.QPointF(i, diff_value))
         
         if len(diff_points) > 1:
-            p.setPen(pg.mkPen(dict_macd_color['diff'], width=2))
+            p.setPen(pg.mkPen(dict_macd_color[IndicatrosEnum.MACD_DIFF.value], width=2))
             for i in range(len(diff_points) - 1):
                 p.drawLine(diff_points[i], diff_points[i + 1])
 
@@ -76,7 +76,7 @@ class MACDItem(pg.GraphicsObject):
                 dea_points.append(QtCore.QPointF(i, dea_value))
         
         if len(dea_points) > 1:
-            p.setPen(pg.mkPen(dict_macd_color['dea'], width=2))
+            p.setPen(pg.mkPen(dict_macd_color[IndicatrosEnum.MACD_DEA.value], width=2))
             for i in range(len(dea_points) - 1):
                 p.drawLine(dea_points[i], dea_points[i + 1])
 

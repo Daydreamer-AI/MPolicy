@@ -35,9 +35,9 @@ class KdjWidget(BaseIndicatorWidget):
         self.df_data = data
 
     def load_qss(self):
-        self.label_k.setStyleSheet(f"color: {dict_kdj_color_hex['k']};")
-        self.label_d.setStyleSheet(f"color: {dict_kdj_color_hex['d']};")
-        self.label_j.setStyleSheet(f"color: {dict_kdj_color_hex['j']};")
+        self.label_k.setStyleSheet(f"color: {dict_kdj_color_hex[IndicatrosEnum.KDJ_K.value]};")
+        self.label_d.setStyleSheet(f"color: {dict_kdj_color_hex[IndicatrosEnum.KDJ_D.value]};")
+        self.label_j.setStyleSheet(f"color: {dict_kdj_color_hex[IndicatrosEnum.KDJ_J.value]};")
 
     def get_ui_path(self):
         return './src/gui/qt_widgets/MComponents/indicators/KdjWidget.ui'

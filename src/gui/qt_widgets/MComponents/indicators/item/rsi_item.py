@@ -50,7 +50,7 @@ class RSIItem(pg.GraphicsObject):
                     rsi6_points.append(QtCore.QPointF(i, rsi6_value))
             
             if len(rsi6_points) > 1:
-                p.setPen(pg.mkPen(dict_rsi_color['rsi1'], width=2))
+                p.setPen(pg.mkPen(dict_rsi_color[f'{IndicatrosEnum.KDJ_K.value}6'], width=2))
                 for i in range(len(rsi6_points) - 1):
                     p.drawLine(rsi6_points[i], rsi6_points[i + 1])
 
@@ -63,7 +63,7 @@ class RSIItem(pg.GraphicsObject):
                     rsi12_points.append(QtCore.QPointF(i, rsi12_value))
             
             if len(rsi12_points) > 1:
-                p.setPen(pg.mkPen(dict_rsi_color['rsi2'], width=2))
+                p.setPen(pg.mkPen(dict_rsi_color[f'{IndicatrosEnum.KDJ_K.value}12'], width=2))
                 for i in range(len(rsi12_points) - 1):
                     p.drawLine(rsi12_points[i], rsi12_points[i + 1])
 
@@ -76,7 +76,7 @@ class RSIItem(pg.GraphicsObject):
                     rsi24_points.append(QtCore.QPointF(i, rsi24_value))
             
             if len(rsi24_points) > 1:
-                p.setPen(pg.mkPen(dict_rsi_color['rsi3'], width=2))
+                p.setPen(pg.mkPen(dict_rsi_color[f'{IndicatrosEnum.KDJ_K.value}24'], width=2))
                 for i in range(len(rsi24_points) - 1):
                     p.drawLine(rsi24_points[i], rsi24_points[i + 1])
 

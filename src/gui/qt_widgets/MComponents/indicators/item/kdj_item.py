@@ -46,7 +46,7 @@ class KDJItem(pg.GraphicsObject):
                 k_points.append(QtCore.QPointF(i, k_value))
         
         if len(k_points) > 1:
-            p.setPen(pg.mkPen(dict_kdj_color['k'], width=2))
+            p.setPen(pg.mkPen(dict_kdj_color[IndicatrosEnum.KDJ_K.value], width=2))
             for i in range(len(k_points) - 1):
                 p.drawLine(k_points[i], k_points[i + 1])
 
@@ -58,7 +58,7 @@ class KDJItem(pg.GraphicsObject):
                 d_points.append(QtCore.QPointF(i, d_value))
         
         if len(d_points) > 1:
-            p.setPen(pg.mkPen(dict_kdj_color['d'], width=2))
+            p.setPen(pg.mkPen(dict_kdj_color[IndicatrosEnum.KDJ_D.value], width=2))
             for i in range(len(d_points) - 1):
                 p.drawLine(d_points[i], d_points[i + 1])
 
@@ -70,7 +70,7 @@ class KDJItem(pg.GraphicsObject):
                 j_points.append(QtCore.QPointF(i, j_value))
         
         if len(j_points) > 1:
-            p.setPen(pg.mkPen(dict_kdj_color['j'], width=2))
+            p.setPen(pg.mkPen(dict_kdj_color[IndicatrosEnum.KDJ_J.value], width=2))
             for i in range(len(j_points) - 1):
                 p.drawLine(j_points[i], j_points[i + 1])
 

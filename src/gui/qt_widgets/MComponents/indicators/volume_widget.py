@@ -145,9 +145,9 @@ class VolumeWidget(BaseIndicatorWidget):
 
         change_percent = self.df_data.iloc[closest_index]['change_percent']
         if change_percent > 0:
-            self.label_total_volume.setStyleSheet(f"color: {dict_kline_color_hex['asc']};")
+            self.label_total_volume.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_ASC.value]};")
         else:
-            self.label_total_volume.setStyleSheet(f"color: {dict_kline_color_hex['desc']};")
+            self.label_total_volume.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_DESC.value]};")
 
     def slot_global_reset_labels(self, sender):
         self.slot_global_update_labels(sender, -1)

@@ -82,44 +82,44 @@ class KLineOverviewWidget(QWidget):
             #     self.label_kline_status.setText
         
             if y_val > last_close:
-                self.label_value.setStyleSheet(f"color: {dict_kline_color_hex['asc']}; font-size: 18px")
+                self.label_value.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_ASC.value]}; font-size: 18px")
             elif y_val < last_close:
-                self.label_value.setStyleSheet(f"color: {dict_kline_color_hex['desc']}; font-size: 18px")
+                self.label_value.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_DESC.value]}; font-size: 18px")
             else:
                 self.label_value.setStyleSheet("font-size: 18px")
 
             if open > last_close:
-                self.label_open.setStyleSheet(f"color: {dict_kline_color_hex['asc']}; font-size: 18px")
+                self.label_open.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_ASC.value]}; font-size: 18px")
             elif open < last_close:
-                self.label_open.setStyleSheet(f"color: {dict_kline_color_hex['desc']}; font-size: 18px")
+                self.label_open.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_DESC.value]}; font-size: 18px")
             else:
                 self.label_open.setStyleSheet("font-size: 18px")
 
             if close > last_close:
-                self.label_close.setStyleSheet(f"color: {dict_kline_color_hex['asc']}; font-size: 18px")
+                self.label_close.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_ASC.value]}; font-size: 18px")
             elif close < last_close:
-                self.label_close.setStyleSheet(f"color: {dict_kline_color_hex['desc']}; font-size: 18px")
+                self.label_close.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_DESC.value]}; font-size: 18px")
             else:
                 self.label_close.setStyleSheet("font-size: 18px")
 
             if high > last_close:
-                self.label_high.setStyleSheet(f"color: {dict_kline_color_hex['asc']}; font-size: 18px")
+                self.label_high.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_ASC.value]}; font-size: 18px")
             elif high < last_close:
-                self.label_high.setStyleSheet(f"color: {dict_kline_color_hex['desc']}; font-size: 18px")
+                self.label_high.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_DESC.value]}; font-size: 18px")
             else:
                 self.label_high.setStyleSheet("font-size: 18px")
 
             if low > last_close:
-                self.label_low.setStyleSheet(f"color: {dict_kline_color_hex['asc']}; font-size: 18px")
+                self.label_low.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_ASC.value]}; font-size: 18px")
             elif low < last_close:
-                self.label_low.setStyleSheet(f"color: {dict_kline_color_hex['desc']}; font-size: 18px")
+                self.label_low.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_DESC.value]}; font-size: 18px")
             else:
                 self.label_low.setStyleSheet("font-size: 18px")
 
             if change_percent > 0:
-                self.label_change_percent.setStyleSheet(f"color: {dict_kline_color_hex['asc']}; font-size: 18px")
+                self.label_change_percent.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_ASC.value]}; font-size: 18px")
             elif change_percent < 0:
-                self.label_change_percent.setStyleSheet(f"color: {dict_kline_color_hex['desc']}; font-size: 18px")
+                self.label_change_percent.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_DESC.value]}; font-size: 18px")
             else:
                 self.label_change_percent.setStyleSheet("font-size: 18px")
 

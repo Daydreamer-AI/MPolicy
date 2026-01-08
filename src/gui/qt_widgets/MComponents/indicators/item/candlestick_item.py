@@ -64,28 +64,28 @@ class CandlestickItem(pg.GraphicsObject):
                 ma5 = self.data['ma5']
                 ma5_lines = self._get_quota_lines(ma5)
                 if ma5_lines:  # 确保有线段可绘制
-                    p.setPen(pg.mkPen(dict_ma_color['ma5'], width=2))
+                    p.setPen(pg.mkPen(dict_ma_color[f'{IndicatrosEnum.MA.value}5'], width=2))
                     p.drawLines(*tuple(ma5_lines))
 
             if 'ma10' in self.data.columns and len(self.data) > 10:
                 ma10 = self.data['ma10']
                 ma10_lines = self._get_quota_lines(ma10)
                 if ma10_lines:
-                    p.setPen(pg.mkPen(dict_ma_color['ma10'], width=2))
+                    p.setPen(pg.mkPen(dict_ma_color[f'{IndicatrosEnum.MA.value}10'], width=2))
                     p.drawLines(*tuple(ma10_lines))
 
             if 'ma24' in self.data.columns and len(self.data) > 24:
                 ma24 = self.data['ma24']
                 ma24_lines = self._get_quota_lines(ma24)
                 if ma24_lines:
-                    p.setPen(pg.mkPen(dict_ma_color['ma24'], width=2))
+                    p.setPen(pg.mkPen(dict_ma_color[f'{IndicatrosEnum.MA.value}24'], width=2))
                     p.drawLines(*tuple(ma24_lines))
 
             if 'ma52' in self.data.columns and len(self.data) > 52:
                 ma52 = self.data['ma52']
                 ma52_lines = self._get_quota_lines(ma52)
                 if ma52_lines:
-                    p.setPen(pg.mkPen(dict_ma_color['ma52'], width=2))
+                    p.setPen(pg.mkPen(dict_ma_color[f'{IndicatrosEnum.MA.value}52'], width=2))
                     p.drawLines(*tuple(ma52_lines))
 
         #绘制蜡烛图
@@ -98,14 +98,14 @@ class CandlestickItem(pg.GraphicsObject):
 
             if close_price < open_price:
                 #下跌－绿色
-                p.setPen(pg.mkPen(dict_kline_color['desc']))
-                p.setBrush(pg.mkBrush(dict_kline_color['desc']))
+                p.setPen(pg.mkPen(dict_kline_color[IndicatrosEnum.KLINE_DESC.value]))
+                p.setBrush(pg.mkBrush(dict_kline_color[IndicatrosEnum.KLINE_DESC.value]))
                 p.drawLine(QtCore.QPointF(i, low_price), QtCore.QPointF(i, high_price))
                 p.drawRect(QtCore.QRectF(i - w, open_price, w * 2, close_price - open_price))
                 
             else:
                 #上涨－红色 空心蜡烛
-                p.setPen(pg.mkPen(dict_kline_color['asc']))
+                p.setPen(pg.mkPen(dict_kline_color[IndicatrosEnum.KLINE_ASC.value]))
                 p.setBrush(QtGui.QBrush(QtCore.Qt.NoBrush))  # 设置为空画刷，绘制空心矩形
                 
                 # 绘制上下影线

@@ -35,8 +35,8 @@ class MacdWidget(BaseIndicatorWidget):
         self.df_data = data
 
     def load_qss(self):
-        self.label_diff.setStyleSheet(f"color: {dict_macd_color_hex['diff']};")
-        self.label_dea.setStyleSheet(f"color: {dict_macd_color_hex['dea']};")
+        self.label_diff.setStyleSheet(f"color: {dict_macd_color_hex[IndicatrosEnum.MACD_DIFF.value]};")
+        self.label_dea.setStyleSheet(f"color: {dict_macd_color_hex[IndicatrosEnum.MACD_DEA.value]};")
 
     def get_ui_path(self):
         return './src/gui/qt_widgets/MComponents/indicators/MacdWidget.ui'
@@ -119,9 +119,9 @@ class MacdWidget(BaseIndicatorWidget):
         self.label_dea.setText(f"DEA:{dea:.3f}")
 
         if macd > 0:
-            self.label_macd.setStyleSheet(f"color: {dict_kline_color_hex['asc']};")
+            self.label_macd.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_ASC.value]};")
         else:
-            self.label_macd.setStyleSheet(f"color: {dict_kline_color_hex['desc']};")
+            self.label_macd.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_DESC.value]};")
 
     def slot_global_reset_labels(self, sender):
         self.slot_global_update_labels(sender, -1)
