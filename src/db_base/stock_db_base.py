@@ -1127,7 +1127,7 @@ class StockDbBase:
                 else:
                     return pd.DataFrame()
         except Exception as e:
-            self.logger.info(f"获取股票数据时出错: {str(e)}")
+            self.logger.info(f"获取股票数据时出错: {str(e)}, code: {stock_code}")
             return pd.DataFrame()
 
     def save_bao_stock_data_to_db(self, stock_code, stock_data, writeWay="replace", table_name="stock_data"):

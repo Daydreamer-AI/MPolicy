@@ -115,9 +115,8 @@ class HomeWidget(QWidget):
     @pyqtSlot()
     def slot_btn_get_all_stocks_clicked(self):
         self.logger.info("Baostock--获取A股所有股票数据基本信息")
-        # BaoStockProcessor().get_and_save_all_stocks_from_bao()
+        BaoStockProcessor().get_and_save_all_stocks_from_bao()
         # BaoStockProcessor().get_all_stocks_from_db()
-        BaoStockProcessor().process_and_save_weekly_stock_data('sh.600930')
         self.logger.info("Baostock--获取A股所有股票数据基本信息完成")
 
     @pyqtSlot()

@@ -1068,6 +1068,7 @@ class BaoStockProcessor(QObject):
 
         chinese_columns = ['证券代码', '交易状态', '证券名称']
         result = pd.DataFrame(data_list, columns=chinese_columns)
+
         result['更新日期'] = query_date
         result['更新日期'] = pd.to_datetime(result['更新日期'], format='%Y-%m-%d').dt.date
 
@@ -1084,20 +1085,20 @@ class BaoStockProcessor(QObject):
             # 如需查看具体代码，可取消下一行的注释
             # self.logger.info(f"{board_name} 股票代码:\n {df_board['code'].tolist()}\n")
             if board_name == '沪市主板':
-                BaostockDataManager().save_stock_info_to_db(df_board, "replace", 'sh_main')
+                BaostockDataManager().save_stock_info_to_db(df_board, 'sh_main')
             elif board_name == '深市主板':
-                BaostockDataManager().save_stock_info_to_db(df_board, "replace", 'sz_main')
+                BaostockDataManager().save_stock_info_to_db(df_board, 'sz_main')
             elif board_name == '创业板':
-                BaostockDataManager().save_stock_info_to_db(df_board, "replace", 'gem')
+                BaostockDataManager().save_stock_info_to_db(df_board, 'gem')
             elif board_name == '科创板':
-                BaostockDataManager().save_stock_info_to_db(df_board, "replace", 'star')
-            # elif board_name == '北交所':
-            #    BaostockDataManager().save_stock_info_to_db(df_board, "replace", 'bse')
+                BaostockDataManager().save_stock_info_to_db(df_board, 'star')
+            elif board_name == '北交所':
+               BaostockDataManager().save_stock_info_to_db(df_board, 'bse')
 
         #### 结果集输出到csv文件 ####   
         # result.to_csv("./data/database/stocks/db/baostock/all_stock.csv", encoding="utf-8", index=False)
         # self.logger.info(result)
-        # BaostockDataManager().save_stock_info_to_db(result)
+        BaostockDataManager().save_stock_info_to_db(result, 'stock_basic_info')
 
     def get_all_stocks_from_db(self):
         BaostockDataManager().get_all_stocks_from_db()
@@ -1117,11 +1118,11 @@ class BaoStockProcessor(QObject):
         for index, row in df.iterrows():
             code = row['证券代码']
             
-            if code.startswith('sh.600') or code.startswith('sh.601') or code.startswith('sh.603') or code.startswith('sh.605'):
+            if code.startswith('sh.600') or code.startswith('sh.601') or code.startswith('sh.602') or code.startswith('sh.603') or code.startswith('sh.605'):
                 sh_main = pd.concat([sh_main, row.to_frame().T], ignore_index=True)
             elif code.startswith('sz.000') or code.startswith('sz.001') or code.startswith('sz.002') or code.startswith('sz.003'):
                 sz_main = pd.concat([sz_main, row.to_frame().T], ignore_index=True)
-            elif code.startswith('sz.300'):
+            elif code.startswith('sz.300') or code.startswith('sz.301'):
                 gem = pd.concat([gem, row.to_frame().T], ignore_index=True)
             elif code.startswith('sh.688'):
                 star = pd.concat([star, row.to_frame().T], ignore_index=True)

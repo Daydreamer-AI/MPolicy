@@ -67,19 +67,31 @@ class BaostockDataManager(QObject):
     # ----------------------stock_info相关接口-----------------------------------------
     def get_all_stocks_from_db(self):
         with self.lock:
-            self.dict_stocks_info['sh_main'] = self.stock_info_db_base.get_sh_main_stocks()
-            self.dict_stocks_info['sz_main'] = self.stock_info_db_base.get_sz_main_stocks()
-            self.dict_stocks_info['gem'] = self.stock_info_db_base.get_gem_stocks()
-            self.dict_stocks_info['star'] = self.stock_info_db_base.get_star_stocks()
+            # self.dict_stocks_info['sh_main'] = self.stock_info_db_base.get_sh_main_stocks()
+            # self.dict_stocks_info['sz_main'] = self.stock_info_db_base.get_sz_main_stocks()
+            # self.dict_stocks_info['gem'] = self.stock_info_db_base.get_gem_stocks()
+            # self.dict_stocks_info['star'] = self.stock_info_db_base.get_star_stocks()
+
+            self.dict_stocks_info['sh_main'] = self.stock_info_db_base.get_lastest_stocks(table_name='sh_main')
+            self.dict_stocks_info['sz_main'] = self.stock_info_db_base.get_lastest_stocks(table_name='sz_main')
+            self.dict_stocks_info['gem'] = self.stock_info_db_base.get_lastest_stocks(table_name='gem')
+            self.dict_stocks_info['star'] = self.stock_info_db_base.get_lastest_stocks(table_name='star')
 
         sh_main_count = len(self.dict_stocks_info['sh_main'])
         sz_main_count = len(self.dict_stocks_info['sz_main'])
+        gem_main_count = len(self.dict_stocks_info['gem'])
+        star_main_count = len(self.dict_stocks_info['star'])
+
         self.logger.info(f"沪A主板股票数量：{sh_main_count}")
         self.logger.info(f"深A主板股票数量：{sz_main_count}")
+        self.logger.info(f"创业板股票数量：{gem_main_count}")
+        self.logger.info(f"科创板股票数量：{star_main_count}")
+        self.logger.info(f"总股票数量(未计算北交所股票)：{sh_main_count + sz_main_count + gem_main_count + star_main_count}")
 
-    def save_stock_info_to_db(self, df_data, writeWay="replace", board='sh_main'):
+
+    def save_stock_info_to_db(self, df_data, board='stock_basic_info'):
         with self.lock:
-            self.stock_info_db_base.save_tao_stocks_to_db(df_data, writeWay, board)
+            self.stock_info_db_base.save_tao_stocks_to_db(df_data, board)
 
     def get_stock_name_by_code(self, code):
         try:
@@ -360,6 +372,7 @@ class BaostockDataManager(QObject):
     def save_stock_data_to_db(self, code, df_data, writeWay="replace", period=TimePeriod.DAY):
         '''保存k线数据到指定周期数据库'''
         table_name = period.get_table_name()
+        self.logger.info(f"保存股票 {code} 数据到数据库 {table_name}")
         with self.lock:
             self.stock_db_base.save_bao_stock_data_to_db(code, df_data, writeWay, table_name)
 

@@ -89,14 +89,18 @@ class StockInfoDBBase(CommonDBBase):
             return "./data/database/stocks/db/akshare/stocks.db"
 
     def init_baostock_db(self):
-        self.create_table('stock_basic_info', '''
-                    CREATE TABLE IF NOT EXISTS stock_basic_info (
-                        证券代码 TEXT PRIMARY KEY NOT NULL,
-                        交易状态 TEXT NOT NULL UNIQUE,
-                        证券名称 TEXT NOT NULL,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                    )
-                ''')
+        create_table_sql = f"""
+        CREATE TABLE IF NOT EXISTS stock_basic_info (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,      -- 添加自增ID作为主键
+            "证券代码" TEXT NOT NULL,
+            "交易状态" TEXT NOT NULL,
+            "证券名称" TEXT NOT NULL,
+            "更新日期" DATE NOT NULL DEFAULT CURRENT_DATE,
+            "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE("证券代码", "更新日期")              -- 保持复合唯一约束
+        )
+        """
+        self.create_table('stock_basic_info', create_table_sql)
 
     def init_efinance_db(self):
         self.create_table('stock_basic_info', '''
@@ -711,7 +715,7 @@ class StockInfoDBBase(CommonDBBase):
     # ========================================================================BaoStock相关接口========================================================================
     # 添加以下方法到StockInfoDBBase类
     # Baostock
-    def save_tao_stocks_to_db(self, stocks_data, writeWay="replace", table_name="stock_basic_info"):
+    def save_tao_stocks_to_db(self, stocks_data, table_name="stock_basic_info"):
         """
         线程安全地保存股票数据到数据库
         
@@ -724,15 +728,16 @@ class StockInfoDBBase(CommonDBBase):
         if table_name not in allowed_table_names:
             raise ValueError(f"Invalid table name: {table_name}")
 
-        # 确保表存在
+        # 确保表存在 - 使用复合唯一键，不设主键
         create_table_sql = f"""
         CREATE TABLE IF NOT EXISTS {table_name} (
-            "证券代码" TEXT PRIMARY KEY NOT NULL,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,      -- 添加自增ID作为主键
+            "证券代码" TEXT NOT NULL,
             "交易状态" TEXT NOT NULL,
             "证券名称" TEXT NOT NULL,
             "更新日期" DATE NOT NULL DEFAULT CURRENT_DATE,
             "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE("证券代码", "更新日期")
+            UNIQUE("证券代码", "更新日期")              -- 保持复合唯一约束
         )
         """
         
@@ -746,17 +751,19 @@ class StockInfoDBBase(CommonDBBase):
                 if col not in stocks_data.columns:
                     raise ValueError(f"缺少必要列: {col}")
             
-            # 使用父类方法处理数据插入
-            inserted_count = self.insert_dataframe_to_table(
-                table_name, 
-                stocks_data, 
-                writeWay,
-                validate_columns=False,
-                fast_mode=True
-            )
-            
-            self.logger.info(f"成功保存 {inserted_count} 条 {table_name} 股票数据")
-            return inserted_count
+            try:
+                # 使用upsert插入数据
+                inserted_count = self.upsert_data(
+                    table_name,
+                    stocks_data.to_dict('records'),
+                    conflict_columns=['证券代码', '更新日期']  # 明确指定冲突检测列
+                )
+                
+                self.logger.info(f"成功保存 {inserted_count} 条 {table_name} 股票数据")
+                return inserted_count
+            except Exception as e:
+                self.logger.error(f"插入数据失败: {e}")
+                return False
         
         self.logger.info(f"没有数据需要保存到 {table_name}")
         return 0
@@ -786,6 +793,27 @@ class StockInfoDBBase(CommonDBBase):
     
     def get_star_stocks(self):
         return self.get_table_data('star')
+    
+    def get_lastest_stocks(self, table_name='stock_basic_info'):
+        """获取最新日期的股票信息数据"""
+        try:
+            with self._get_connection() as cur:
+                cur.execute(f'''
+                    SELECT * FROM {table_name} 
+                    WHERE 更新日期 = (SELECT MAX(更新日期) FROM {table_name})
+                ''')
+                
+                column_names = [description[0] for description in cur.description]
+                rows = cur.fetchall()
+                
+                if rows:
+                    return pd.DataFrame(rows, columns=column_names)
+                else:
+                    return pd.DataFrame()
+                    
+        except Exception as e:
+            self.logger.info(f"获取最新日期的股票信息数据时出错: {str(e)}")
+            return pd.DataFrame()
 
 
 # 测试代码
