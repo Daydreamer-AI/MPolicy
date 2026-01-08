@@ -4,6 +4,29 @@ from typing import Dict, Any, Optional
 from manager.logging_manager import get_logger
 from manager.config_manager import ConfigManager
 
+from enum import Enum
+
+class IndicatrosEnum(Enum):
+    '''
+        统一规范指标键名称，作用范围：Pandas.DataFrame对象的列名，字典键名称，显示的指标名称
+    '''
+    MA = 'ma'
+    VOLUME = 'volume'
+    AMOUNT = 'amount'
+    MACD = 'macd'
+    MACD_DIFF = 'diff'
+    MACD_DEA = 'dea'
+    KDJ = 'kdj'
+    KDJ_K = 'k'
+    KDJ_D = 'd'
+    KDJ_J = 'j'
+    RSI = 'rsi'
+    BOLL = 'boll'
+    BOLL_MID = 'mid'  
+    BOLL_UPPER = 'upper'     
+    BOLL_LOWER = 'lower'
+    BOLL_CLOSE = 'close'
+
 def color_to_hex(color):
     """
     将RGB/RGBA颜色元组转换为十六进制颜色字符串
@@ -232,17 +255,17 @@ dict_rsi_color_user_hex = dict_rsi_color_hex.copy()
 
 # BOLL
 dict_boll_color = { 
-'up': (255, 61, 61),
-'mid': (25, 160, 255),
-'down': (10, 204, 90),
-'close': (0, 0, 0)
+IndicatrosEnum.BOLL_UPPER.value: (255, 61, 61),
+IndicatrosEnum.BOLL_MID.value: (25, 160, 255),
+IndicatrosEnum.BOLL_LOWER.value: (10, 204, 90),
+IndicatrosEnum.BOLL_CLOSE.value: (0, 0, 0)
 }
 
 dict_boll_color_hex = { 
-    'up': '#ff3d3d',
-    'mid': '#1fa0ff',
-    'down': '#0acc5a',
-    'close': '#000000'
+    IndicatrosEnum.BOLL_UPPER.value: '#ff3d3d',
+    IndicatrosEnum.BOLL_MID.value: '#1fa0ff',
+    IndicatrosEnum.BOLL_LOWER.value: '#0acc5a',
+    IndicatrosEnum.BOLL_CLOSE.value: '#000000'
 }
 
 dict_boll_color_user = dict_boll_color.copy()
@@ -254,36 +277,18 @@ dict_boll_color_user_hex = dict_boll_color_hex.copy()
 
 class IndicatorSetting:
     """通用指标设置基类"""
-    def __init__(self, name: str, visible: bool = True):
-        self.name = name
-        self.visible = visible
-
-    def to_dict(self) -> Dict[str, Any]:
-        """转换为字典格式用于序列化"""
-        return {
-            'name': self.name,
-            'visible': self.visible
-        }
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]):
-        """从字典创建实例"""
-        instance = cls(data['name'], data.get('visible', True))
-        return instance
-
-
-class MASetting(IndicatorSetting):
-    """均线设置"""
-    def __init__(self, id: int = 0, period: int = 5, visible: bool = True, 
+    def __init__(self, id: int = 0, period: int = 5, name: str = '', visible: bool = True, 
                  line_width: int = 2, color: tuple = (0, 0, 0), color_hex: str = '#000000'):
-        super().__init__(f"ma{period}", visible)
         self.id = id
         self.period = period
+        self.name = name
+        self.visible = visible
         self.line_width = line_width
         self.color = color
         self.color_hex = color_hex
 
     def to_dict(self) -> Dict[str, Any]:
+        """转换为字典格式用于序列化"""
         return {
             'id': self.id,
             'period': self.period,
@@ -296,71 +301,195 @@ class MASetting(IndicatorSetting):
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]):
+        """从字典创建实例"""
         instance = cls(
             id=data['id'],
             period=data['period'],
+            name= data['name'],
             visible=data.get('visible', True),
             line_width=data.get('line_width', 2),
             color=tuple(data['color']),
             color_hex=data['color_hex']
         )
         return instance
+    
+    def set_color(self, color):
+        self.color = color
+        self.color_hex = color_to_hex(color)
+
+    def set_color_hex(self, color_hex):
+        self.color = hex_to_color(color_hex)
+        self.color_hex = color_hex
 
 
-class ColorSetting(IndicatorSetting):
-    """颜色设置基类"""
-    def __init__(self, name: str, colors: Dict[str, tuple], color_hexes: Dict[str, str], visible: bool = True):
-        super().__init__(name, visible)
-        self.colors = colors  # RGB格式
-        self.color_hexes = color_hexes  # 十六进制格式
+class MASetting(IndicatorSetting):
+    """均线设置"""
+    def __init__(self, id: int = 0, period: int = 5, name: str = '', visible: bool = True, 
+                 line_width: int = 2, color: tuple = (0, 0, 0), color_hex: str = '#000000'):
+        
+        if not name:
+            name = f'{IndicatrosEnum.MA.value}{period}'
 
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            'name': self.name,
-            'visible': self.visible,
-            'colors': {k: list(v) for k, v in self.colors.items()},
-            'color_hexes': self.color_hexes
-        }
+        super().__init__(id, period, name, visible, line_width, color, color_hex)
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]):
-        instance = cls(
-            name=data['name'],
-            colors={k: tuple(v) for k, v in data['colors'].items()},
-            color_hexes=data['color_hexes'],
-            visible=data.get('visible', True)
-        )
-        return instance
+        """从字典创建实例"""
+        return super().from_dict(data)
 
 
-class VolumeSetting(ColorSetting):
+
+# class ColorSetting(IndicatorSetting):
+#     """颜色设置基类"""
+#     def __init__(self, name: str, colors: Dict[str, tuple], color_hexes: Dict[str, str], visible: bool = True):
+#         super().__init__(name, visible)
+#         self.colors = colors  # RGB格式
+#         self.color_hexes = color_hexes  # 十六进制格式
+
+#     def to_dict(self) -> Dict[str, Any]:
+#         return {
+#             'name': self.name,
+#             'visible': self.visible,
+#             'colors': {k: list(v) for k, v in self.colors.items()},
+#             'color_hexes': self.color_hexes
+#         }
+
+#     @classmethod
+#     def from_dict(cls, data: Dict[str, Any]):
+#         instance = cls(
+#             name=data['name'],
+#             colors={k: tuple(v) for k, v in data['colors'].items()},
+#             color_hexes=data['color_hexes'],
+#             visible=data.get('visible', True)
+#         )
+#         return instance
+
+
+class VolumeSetting(IndicatorSetting):
     """成交量设置"""
-    pass
+    def __init__(self, id: int = 0, period: int = 5, name: str = '', visible: bool = True, 
+                 line_width: int = 2, color: tuple = (0, 0, 0), color_hex: str = '#000000'):
+        
+        if not name:
+            name = f'{IndicatrosEnum.MA.value}{period}'
+
+        super().__init__(id, period, name, visible, line_width, color, color_hex)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]):
+        """从字典创建实例"""
+        return super().from_dict(data)
 
 
-class AmountSetting(ColorSetting):
+class AmountSetting(IndicatorSetting):
     """成交额设置"""
-    pass
+    def __init__(self, id: int = 0, period: int = 5, name: str = '', visible: bool = True, 
+                 line_width: int = 2, color: tuple = (0, 0, 0), color_hex: str = '#000000'):
+        
+        if not name:
+            name = f'{IndicatrosEnum.MA.value}{period}'
+
+        super().__init__(id, period, name, visible, line_width, color, color_hex)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]):
+        """从字典创建实例"""
+        return super().from_dict(data)
 
 
-class MACDSetting(ColorSetting):
+class MACDSetting(IndicatorSetting):
     """MACD设置"""
-    pass
+    def __init__(self, id: int = 0, period: int = 5, name: str = '', visible: bool = True, 
+                 line_width: int = 2, color: tuple = (0, 0, 0), color_hex: str = '#000000'):
+        
+        # id: 0-短周期-DIFF，1-长周期-DEA，2-移动平均周期
+        if id < 0 or id > 2:
+            raise ValueError("Invalid id value. It must be 0, 1, or 2.")
+        
+        if not name:
+            if id == 0:
+                name = IndicatrosEnum.MACD_DIFF.value
+            elif id == 1:
+                name = IndicatrosEnum.MACD_DEA.value
+            else:
+                name = ''
+        
+        super().__init__(id, period, name, visible, line_width, color, color_hex)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]):
+        """从字典创建实例"""
+        return super().from_dict(data)
 
 
-class KDJSetting(ColorSetting):
+class KDJSetting(IndicatorSetting):
     """KDJ设置"""
-    pass
+    def __init__(self, id: int = 0, period: int = 5, name: str = '', visible: bool = True, 
+                line_width: int = 2, color: tuple = (0, 0, 0), color_hex: str = '#000000'):
+    
+        # id: 0-计算周期-K，1-移动平均周期-D，2-移动平均周期-J
+        if id < 0 or id > 2:
+            raise ValueError("Invalid id value. It must be 0, 1, or 2.")
+        
+        if not name:
+            if id == 0:
+                name = IndicatrosEnum.KDJ_K.value
+            elif id == 1:
+                name = IndicatrosEnum.KDJ_D.value
+            else:
+                name = IndicatrosEnum.KDJ_J.value
+        
+        super().__init__(id, period, name, visible, line_width, color, color_hex)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]):
+        """从字典创建实例"""
+        return super().from_dict(data)
 
 
-class RSISetting(ColorSetting):
+class RSISetting(IndicatorSetting):
     """RSI设置"""
-    pass
+    def __init__(self, id: int = 0, period: int = 5, name: str = '', visible: bool = True, 
+                line_width: int = 2, color: tuple = (0, 0, 0), color_hex: str = '#000000'):
+    
+        # id: 0-移动平均周期，1-移动平均周期，2-移动平均周期
+        if id < 0 or id > 2:
+            raise ValueError("Invalid id value. It must be 0, 1, or 2.")
+        
+        if not name:
+            name = f'{IndicatrosEnum.RSI.value}{period}'
+        
+        super().__init__(id, period, name, visible, line_width, color, color_hex)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]):
+        """从字典创建实例"""
+        return super().from_dict(data)
 
 
-class BOLLSetting(ColorSetting):
+class BOLLSetting(IndicatorSetting):
     """BOLL设置"""
-    pass
+    def __init__(self, id: int = 0, period: int = 5, name: str = '', visible: bool = True, 
+                line_width: int = 2, color: tuple = (0, 0, 0), color_hex: str = '#000000'):
+    
+        # id: 0-计算周期-MID，1-股票参数特性-UPPER，2-LOWER
+        if id < 0 or id > 2:
+            raise ValueError("Invalid id value. It must be 0, 1, or 2.")
+        
+        if not name:
+            if id == 0:
+                name = IndicatrosEnum.BOLL_UPPER.value
+            elif id == 1:
+                name = IndicatrosEnum.BOLL_MID.value
+            else:
+                name = IndicatrosEnum.BOLL_LOWER.value
+        
+        super().__init__(id, period, name, visible, line_width, color, color_hex)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]):
+        """从字典创建实例"""
+        return super().from_dict(data)
 
 
 class IndicatorConfigManager:
@@ -376,67 +505,104 @@ class IndicatorConfigManager:
         self.user_config_file = config_dir / 'indicator_config_user.json'
         
         # 存储所有配置
-        self.default_configs = {}  # 默认配置
-        self.user_configs = {}     # 用户配置
+        self.default_configs = {}  # 默认配置，格式：{'指标名称' : {id : IndicatorSetting}}
+        self.user_configs = {}     # 用户配置，格式：{'指标名称' : {id : IndicatorSetting}}
         
         # 初始化默认配置
         self._init_default_configs()
     
     def _init_default_configs(self):
         """初始化默认配置"""
-        # 从 indicators_config_manager.py 中导入的默认值
-        from .indicators_config_manager import (
-            dict_ma_color, dict_ma_color_hex, 
-            dict_volume_color, dict_volume_color_hex,
-            dict_amount_color, dict_amount_color_hex,
-            dict_macd_color, dict_macd_color_hex,
-            dict_kdj_color, dict_kdj_color_hex,
-            dict_rsi_color, dict_rsi_color_hex,
-            dict_boll_color, dict_boll_color_hex
-        )
         
-        # 默认均线配置
-        self.default_configs['ma'] = {
-            0: MASetting(0, 5, True, 2, dict_ma_color['ma5'], dict_ma_color_hex['ma5']),
-            1: MASetting(1, 10, True, 2, dict_ma_color['ma10'], dict_ma_color_hex['ma10']),
-            2: MASetting(2, 20, False, 2, dict_ma_color['ma20'], dict_ma_color_hex['ma20']),
-            3: MASetting(3, 24, True, 2, dict_ma_color['ma24'], dict_ma_color_hex['ma24']),
-            4: MASetting(4, 30, False, 2, dict_ma_color['ma30'], dict_ma_color_hex['ma30']),
-            5: MASetting(5, 52, True, 2, dict_ma_color['ma52'], dict_ma_color_hex['ma52']),
-            6: MASetting(6, 60, False, 2, dict_ma_color['ma60'], dict_ma_color_hex['ma60']),
-            7: MASetting(7, 120, False, 2, dict_ma_color['ma120'], dict_ma_color_hex['ma120']),
-            8: MASetting(8, 250, False, 2, dict_ma_color['ma250'], dict_ma_color_hex['ma250'])
-        }
-        
-        # 其他指标默认配置
-        self.default_configs['volume'] = {
-            'default': VolumeSetting('volume', dict_volume_color, dict_volume_color_hex)
-        }
-        
-        self.default_configs['amount'] = {
-            'default': AmountSetting('amount', dict_amount_color, dict_amount_color_hex)
-        }
-        
-        self.default_configs['macd'] = {
-            'default': MACDSetting('macd', dict_macd_color, dict_macd_color_hex)
-        }
-        
-        self.default_configs['kdj'] = {
-            'default': KDJSetting('kdj', dict_kdj_color, dict_kdj_color_hex)
-        }
-        
-        self.default_configs['rsi'] = {
-            'default': RSISetting('rsi', dict_rsi_color, dict_rsi_color_hex)
-        }
-        
-        self.default_configs['boll'] = {
-            'default': BOLLSetting('boll', dict_boll_color, dict_boll_color_hex)
-        }
-        
-        # 初始化用户配置为空
-        for indicator_type in self.default_configs:
-            self.user_configs[indicator_type] = {}
+        # 加载默认配置
+        if self.load_default_config():
+            self.logger.info("成功加载默认配置")
+        else:
+            # 从 indicators_config_manager.py 中导入的默认值
+            from .indicators_config_manager import (
+                dict_ma_color, dict_ma_color_hex, 
+                dict_volume_color, dict_volume_color_hex,
+                dict_amount_color, dict_amount_color_hex,
+                dict_macd_color, dict_macd_color_hex,
+                dict_kdj_color, dict_kdj_color_hex,
+                dict_rsi_color, dict_rsi_color_hex,
+                dict_boll_color, dict_boll_color_hex
+            )
+            
+            # 默认均线配置
+            self.default_configs[IndicatrosEnum.MA.value] = {
+                0: MASetting(0, 5, '', True, 2, dict_ma_color[f'{IndicatrosEnum.MA.value}5'], dict_ma_color_hex[f'{IndicatrosEnum.MA.value}5']),
+                1: MASetting(1, 10, '', True, 2, dict_ma_color[f'{IndicatrosEnum.MA.value}10'], dict_ma_color_hex[f'{IndicatrosEnum.MA.value}10']),
+                2: MASetting(2, 20, '', False, 2, dict_ma_color[f'{IndicatrosEnum.MA.value}20'], dict_ma_color_hex[f'{IndicatrosEnum.MA.value}20']),
+                3: MASetting(3, 24, '', True, 2, dict_ma_color[f'{IndicatrosEnum.MA.value}24'], dict_ma_color_hex[f'{IndicatrosEnum.MA.value}24']),
+                4: MASetting(4, 30, '', False, 2, dict_ma_color[f'{IndicatrosEnum.MA.value}30'], dict_ma_color_hex[f'{IndicatrosEnum.MA.value}30']),
+                5: MASetting(5, 52, '', True, 2, dict_ma_color[f'{IndicatrosEnum.MA.value}52'], dict_ma_color_hex[f'{IndicatrosEnum.MA.value}52']),
+                6: MASetting(6, 60, '', False, 2, dict_ma_color[f'{IndicatrosEnum.MA.value}60'], dict_ma_color_hex[f'{IndicatrosEnum.MA.value}60']),
+                7: MASetting(7, 120, '', False, 2, dict_ma_color[f'{IndicatrosEnum.MA.value}120'], dict_ma_color_hex[f'{IndicatrosEnum.MA.value}120']),
+                8: MASetting(8, 250, '', False, 2, dict_ma_color[f'{IndicatrosEnum.MA.value}250'], dict_ma_color_hex[f'{IndicatrosEnum.MA.value}250'])
+            }
+            
+            # 其他指标默认配置
+            self.default_configs[IndicatrosEnum.VOLUME.value] = {
+                0: VolumeSetting(0, 5, '', False, 2, dict_volume_color[f'{IndicatrosEnum.MA.value}5'], dict_volume_color_hex[f'{IndicatrosEnum.MA.value}5']),
+                1: VolumeSetting(1, 10, '', False, 2, dict_volume_color[f'{IndicatrosEnum.MA.value}10'], dict_volume_color_hex[f'{IndicatrosEnum.MA.value}5']),
+                2: VolumeSetting(2, 20, '', False, 2, dict_volume_color[f'{IndicatrosEnum.MA.value}20'], dict_volume_color_hex[f'{IndicatrosEnum.MA.value}20'])
+            }
+            
+            self.default_configs[IndicatrosEnum.AMOUNT.value] = {
+                0: AmountSetting(0, 5, '', False, 2, dict_amount_color[f'{IndicatrosEnum.MA.value}5'], dict_amount_color_hex[f'{IndicatrosEnum.MA.value}5']),
+                1: AmountSetting(1, 10, '', False, 2, dict_amount_color[f'{IndicatrosEnum.MA.value}10'], dict_amount_color_hex[f'{IndicatrosEnum.MA.value}10']),
+                2: AmountSetting(2, 20, '', False, 2, dict_amount_color[f'{IndicatrosEnum.MA.value}20'], dict_amount_color_hex[f'{IndicatrosEnum.MA.value}20'])
+            }
+            
+            self.default_configs[IndicatrosEnum.MACD.value] = {
+                0: MACDSetting(0, 12, '', True, 2, dict_macd_color[f'{IndicatrosEnum.MACD_DIFF.value}'], dict_macd_color_hex[f'{IndicatrosEnum.MACD_DIFF.value}']),
+                1: MACDSetting(1, 26, '', True, 2, dict_macd_color[f'{IndicatrosEnum.MACD_DEA.value}'], dict_macd_color_hex[f'{IndicatrosEnum.MACD_DEA.value}']),
+                2: MACDSetting(2, 9, '', True, 2, (0, 0, 0), '#000000')
+            }
+            
+            self.default_configs[IndicatrosEnum.KDJ.value] = {
+                0: KDJSetting(0, 9, '', True, 2, dict_kdj_color[f'{IndicatrosEnum.KDJ_K.value}'], dict_kdj_color_hex[f'{IndicatrosEnum.KDJ_K.value}']),
+                1: KDJSetting(1, 3, '', True, 2, dict_kdj_color[f'{IndicatrosEnum.KDJ_D.value}'], dict_kdj_color_hex[f'{IndicatrosEnum.KDJ_D.value}']),
+                2: KDJSetting(2, 3, '', True, 2, dict_kdj_color[f'{IndicatrosEnum.KDJ_J.value}'], dict_kdj_color_hex[f'{IndicatrosEnum.KDJ_J.value}'])
+            }
+            
+            self.default_configs[IndicatrosEnum.RSI.value] = {
+                0: RSISetting(0, 5, '', True, 2, dict_rsi_color[f'{IndicatrosEnum.RSI.value}1'], dict_rsi_color_hex[f'{IndicatrosEnum.RSI.value}1']),
+                1: RSISetting(1, 12, '', True, 2, dict_rsi_color[f'{IndicatrosEnum.RSI.value}2'], dict_rsi_color_hex[f'{IndicatrosEnum.RSI.value}2']),
+                2: RSISetting(2, 24, '', True, 2, dict_rsi_color[f'{IndicatrosEnum.RSI.value}3'], dict_rsi_color_hex[f'{IndicatrosEnum.RSI.value}3'])
+            }
+            
+            self.default_configs[IndicatrosEnum.BOLL.value] = {
+                0: BOLLSetting(0, 20, '', True, 2, dict_boll_color[f'{IndicatrosEnum.BOLL_MID.value}'], dict_boll_color_hex[f'{IndicatrosEnum.BOLL_MID.value}']),
+                1: BOLLSetting(1, 2, '', True, 2, dict_boll_color[f'{IndicatrosEnum.BOLL_UPPER.value}'], dict_boll_color_hex[f'{IndicatrosEnum.BOLL_UPPER.value}']),
+                2: BOLLSetting(2, 0, '', True, 2, dict_boll_color[f'{IndicatrosEnum.BOLL_LOWER.value}'], dict_boll_color_hex[f'{IndicatrosEnum.BOLL_LOWER.value}'])
+            }
+            
+            # 初始化用户配置为空
+            # for indicator_type in self.default_configs:
+            #     self.user_configs[indicator_type] = {}
+
+
+        # 加载用户配置
+        if self.load_user_config():
+            self.logger.info('加载用户配置成功')
+        else:
+            self.user_configs = self.default_configs.copy()
+
+        # 确保初次加载时文件存在
+        self.save_default_config()
+        self.save_user_config()
+
+        self.load_default_config()
+        self.load_user_config()
     
+    def get_default_configs(self):
+        return self.default_configs
+    
+    def get_user_configs(self):
+        return self.user_configs
+
     def save_default_config(self):
         """保存默认配置到文件"""
         try:
@@ -477,7 +643,9 @@ class IndicatorConfigManager:
             # 使用ConfigManager的load方法
             if self.default_config_file.exists():
                 self.config_manager.set_config_path(self.default_config_file)
-                self.config_manager._load_config()
+                if not self.config_manager._load_config():
+                    return False
+                
                 config_data = self.config_manager._config_data
                 
                 self.default_configs = self._deserialize_config(config_data)
@@ -494,7 +662,9 @@ class IndicatorConfigManager:
             # 使用ConfigManager的load方法
             if self.user_config_file.exists():
                 self.config_manager.set_config_path(self.user_config_file)
-                self.config_manager._load_config()
+                if not self.config_manager._load_config():
+                    return False
+
                 config_data = self.config_manager._config_data
                 
                 self.user_configs = self._deserialize_config(config_data)
@@ -517,21 +687,21 @@ class IndicatorConfigManager:
             result[indicator_type] = {}
             for key_str, setting_data in settings.items():
                 # 根据配置类型创建相应的对象
-                if indicator_type == 'ma':
+                if indicator_type == IndicatrosEnum.MA.value:
                     setting = MASetting.from_dict(setting_data)
-                elif indicator_type in ['volume', 'amount', 'macd', 'kdj', 'rsi', 'boll']:
+                elif indicator_type in [IndicatrosEnum.VOLUME.value, IndicatrosEnum.AMOUNT.value, IndicatrosEnum.MACD.value, IndicatrosEnum.KDJ.value, IndicatrosEnum.RSI.value, IndicatrosEnum.BOLL.value]:
                     # 使用通用的颜色设置类
-                    if indicator_type == 'volume':
+                    if indicator_type == IndicatrosEnum.VOLUME.value:
                         setting = VolumeSetting.from_dict(setting_data)
-                    elif indicator_type == 'amount':
+                    elif indicator_type == IndicatrosEnum.AMOUNT.value:
                         setting = AmountSetting.from_dict(setting_data)
-                    elif indicator_type == 'macd':
+                    elif indicator_type == IndicatrosEnum.MACD.value:
                         setting = MACDSetting.from_dict(setting_data)
-                    elif indicator_type == 'kdj':
+                    elif indicator_type == IndicatrosEnum.KDJ.value:
                         setting = KDJSetting.from_dict(setting_data)
-                    elif indicator_type == 'rsi':
+                    elif indicator_type == IndicatrosEnum.RSI.value:
                         setting = RSISetting.from_dict(setting_data)
-                    elif indicator_type == 'boll':
+                    elif indicator_type == IndicatrosEnum.BOLL.value:
                         setting = BOLLSetting.from_dict(setting_data)
                 else:
                     # 未知类型，使用基础设置类
@@ -546,66 +716,72 @@ class IndicatorConfigManager:
         for indicator_type, default_settings in self.default_configs.items():
             self.user_configs[indicator_type] = {}
             for key, setting in default_settings.items():
-                # 深拷贝默认设置
-                if isinstance(setting, MASetting):
-                    self.user_configs[indicator_type][key] = MASetting(
-                        id=setting.id,
-                        period=setting.period,
-                        visible=setting.visible,
-                        line_width=setting.line_width,
-                        color=setting.color,
-                        color_hex=setting.color_hex
-                    )
-                    self.user_configs[indicator_type][key].name = setting.name
-                else:
-                    # 对于颜色设置类型
-                    self.user_configs[indicator_type][key] = setting.__class__(
-                        name=setting.name,
-                        colors=setting.colors.copy(),
-                        color_hexes=setting.color_hexes.copy(),
-                        visible=setting.visible
-                    )
+                # 使用 from_dict 和 to_dict 方法进行深拷贝
+                setting_data = setting.to_dict()
+                new_setting = setting.__class__.from_dict(setting_data)
+                self.user_configs[indicator_type][key] = new_setting
     
-    def get_indicator_settings(self, indicator_type: str, user_id: str = 'default') -> Dict:
+    def get_indicator_settings(self, indicator_type: str, id: int = 0) -> Dict:
         """获取指定类型的指标设置"""
-        if indicator_type in self.user_configs and user_id in self.user_configs[indicator_type]:
-            return self.user_configs[indicator_type][user_id]
-        elif indicator_type in self.default_configs:
-            return self.default_configs[indicator_type]
+        if indicator_type in self.user_configs and id in self.user_configs[indicator_type]:
+            return self.user_configs[indicator_type][id]
+        elif indicator_type in self.default_configs and id in self.default_configs[indicator_type]:
+            return self.default_configs[indicator_type][id]
         else:
             return {}
     
-    def set_indicator_settings(self, indicator_type: str, settings: Dict, user_id: str = 'default'):
+    def set_indicator_settings(self, indicator_type: str, setting: IndicatorSetting, id: int = 0):
         """设置指定类型的指标配置"""
         if indicator_type not in self.user_configs:
             self.user_configs[indicator_type] = {}
-        self.user_configs[indicator_type][user_id] = settings
+        self.user_configs[indicator_type][id] = setting
+
+    # def set_indicator_settings(self, indicator_type: str, settings: Dict, id: int = 0):
+    #     """设置指定类型的指标配置"""
+    #     if indicator_type not in self.user_configs:
+    #         self.user_configs[indicator_type] = {}
+        
+    #     # 根据indicator_type决定使用哪个类来创建对象
+    #     if indicator_type == IndicatrosEnum.MA.value:
+    #         setting_obj = MASetting.from_dict(settings)
+    #     elif indicator_type == IndicatrosEnum.VOLUME.value:
+    #         setting_obj = VolumeSetting.from_dict(settings)
+    #     elif indicator_type == IndicatrosEnum.AMOUNT.value:
+    #         setting_obj = AmountSetting.from_dict(settings)
+    #     elif indicator_type == IndicatrosEnum.MACD.value:
+    #         setting_obj = MACDSetting.from_dict(settings)
+    #     elif indicator_type == IndicatrosEnum.KDJ.value:
+    #         setting_obj = KDJSetting.from_dict(settings)
+    #     elif indicator_type == IndicatrosEnum.RSI.value:
+    #         setting_obj = RSISetting.from_dict(settings)
+    #     elif indicator_type == IndicatrosEnum.BOLL.value:
+    #         setting_obj = BOLLSetting.from_dict(settings)
+    #     else:
+    #         setting_obj = IndicatorSetting.from_dict(settings)
+        
+    #     self.user_configs[indicator_type][id] = setting_obj
     
-    def reset_to_defaults(self, indicator_type: str = None, user_id: str = 'default'):
+    def reset_to_defaults(self, indicator_type: str = None, id: int = None):
         """重置为默认设置"""
         if indicator_type:
             # 重置特定指标类型
             if indicator_type in self.default_configs:
-                self.user_configs[indicator_type] = {}
-                for key, setting in self.default_configs[indicator_type].items():
-                    if isinstance(setting, MASetting):
-                        new_setting = MASetting(
-                            id=setting.id,
-                            period=setting.period,
-                            visible=setting.visible,
-                            line_width=setting.line_width,
-                            color=setting.color,
-                            color_hex=setting.color_hex
-                        )
-                        new_setting.name = setting.name
-                        self.user_configs[indicator_type][key] = new_setting
-                    else:
-                        new_setting = setting.__class__(
-                            name=setting.name,
-                            colors=setting.colors.copy(),
-                            color_hexes=setting.color_hexes.copy(),
-                            visible=setting.visible
-                        )
+                if id is not None and id in self.default_configs[indicator_type]:
+                    # 重置特定ID的设置
+                    setting = self.default_configs[indicator_type][id]
+                    # 使用 to_dict/from_dict 进行深拷贝
+                    setting_data = setting.to_dict()
+                    new_setting = setting.__class__.from_dict(setting_data)
+                    if indicator_type not in self.user_configs:
+                        self.user_configs[indicator_type] = {}
+                    self.user_configs[indicator_type][id] = new_setting
+                else:
+                    # 重置整个指标类型的所有设置
+                    self.user_configs[indicator_type] = {}
+                    for key, setting in self.default_configs[indicator_type].items():
+                        # 使用 to_dict/from_dict 进行深拷贝
+                        setting_data = setting.to_dict()
+                        new_setting = setting.__class__.from_dict(setting_data)
                         self.user_configs[indicator_type][key] = new_setting
         else:
             # 重置所有指标类型
@@ -648,22 +824,22 @@ def save_indicator_configs():
     manager.save_user_config()
 
 
-def get_ma_settings(user_id: str = 'default') -> Dict:
+def get_ma_settings(id: int = 0) -> Dict:
     """获取均线设置"""
     manager = get_indicator_config_manager()
-    return manager.get_indicator_settings('ma', user_id)
+    return manager.get_indicator_settings(IndicatrosEnum.MA.value, id)
 
 
-def get_volume_settings(user_id: str = 'default') -> Dict:
+def get_volume_settings(id: int = 0) -> Dict:
     """获取成交量设置"""
     manager = get_indicator_config_manager()
-    return manager.get_indicator_settings('volume', user_id)
+    return manager.get_indicator_settings(IndicatrosEnum.VOLUME.value, id)
 
 
-def get_macd_settings(user_id: str = 'default') -> Dict:
+def get_macd_settings(id: int = 0) -> Dict:
     """获取MACD设置"""
     manager = get_indicator_config_manager()
-    return manager.get_indicator_settings('macd', user_id)
+    return manager.get_indicator_settings(IndicatrosEnum.MACD.value, id)
 
 
 def reset_indicator_configs(indicator_type: str = None):

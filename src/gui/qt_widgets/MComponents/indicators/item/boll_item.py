@@ -46,7 +46,7 @@ class BOLLItem(pg.GraphicsObject):
                 close_points.append(QtCore.QPointF(i, close_value))
         
         if len(close_points) > 1:
-            p.setPen(pg.mkPen(dict_boll_color['close'], width=2))
+            p.setPen(pg.mkPen(dict_boll_color[IndicatrosEnum.BOLL_CLOSE.value], width=2))
             for i in range(len(close_points) - 1):
                 p.drawLine(close_points[i], close_points[i + 1])
 
@@ -58,7 +58,7 @@ class BOLLItem(pg.GraphicsObject):
                 up_points.append(QtCore.QPointF(i, up_value))
         
         if len(up_points) > 1:
-            p.setPen(pg.mkPen(dict_boll_color['up'], width=2))
+            p.setPen(pg.mkPen(dict_boll_color[IndicatrosEnum.BOLL_UPPER.value], width=2))
             for i in range(len(up_points) - 1):
                 p.drawLine(up_points[i], up_points[i + 1])
 
@@ -70,7 +70,7 @@ class BOLLItem(pg.GraphicsObject):
                 mb_points.append(QtCore.QPointF(i, mb_value))
         
         if len(mb_points) > 1:
-            p.setPen(pg.mkPen(dict_boll_color['mid'], width=2))
+            p.setPen(pg.mkPen(dict_boll_color[IndicatrosEnum.BOLL_MID.value], width=2))
             for i in range(len(mb_points) - 1):
                 p.drawLine(mb_points[i], mb_points[i + 1])
 
@@ -82,7 +82,7 @@ class BOLLItem(pg.GraphicsObject):
                 dn_points.append(QtCore.QPointF(i, dn_value))
         
         if len(dn_points) > 1:
-            p.setPen(pg.mkPen(dict_boll_color['down'], width=2))
+            p.setPen(pg.mkPen(dict_boll_color[IndicatrosEnum.BOLL_LOWER.value], width=2))
             for i in range(len(dn_points) - 1):
                 p.drawLine(dn_points[i], dn_points[i + 1])
 

@@ -34,9 +34,9 @@ class BollWidget(BaseIndicatorWidget):
         self.df_data = data
         
     def load_qss(self):
-        self.label_mid.setStyleSheet(f"color: {dict_boll_color_hex['mid']}")
-        self.label_upper.setStyleSheet(f"color: {dict_boll_color_hex['up']}")
-        self.label_lower.setStyleSheet(f"color: {dict_boll_color_hex['down']}")
+        self.label_mid.setStyleSheet(f"color: {dict_boll_color_hex[IndicatrosEnum.BOLL_MID.value]}")
+        self.label_upper.setStyleSheet(f"color: {dict_boll_color_hex[IndicatrosEnum.BOLL_UPPER.value]}")
+        self.label_lower.setStyleSheet(f"color: {dict_boll_color_hex[IndicatrosEnum.BOLL_LOWER.value]}")
 
     def get_ui_path(self):
         return './src/gui/qt_widgets/MComponents/indicators/BollWidget.ui'
