@@ -186,9 +186,9 @@ def daily_up_ma52_filter(df_filter_data, df_weekly_data, period=TimePeriod.DAY):
 
     b_ret = True if TimePeriod.is_minute_level(period) else (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
     
-    b_ret_3 = day_dea > 0 and day_dif > 0
+    b_ret_3 = day_dea >= 0
     b_ret_4 = (day_close >= day_ma52) and (day_close <= day_ma24) and day_close <= day_ma5
-    b_ret_5 = day_ma5 <= day_ma10 and day_ma5 <= day_ma24 and day_ma5 >= day_ma52 and day_ma24 >= day_ma52
+    b_ret_5 = day_ma5 <= day_ma24 and day_ma5 >= day_ma52 and day_ma24 >= day_ma52
 
     # 优化判断：MA5大于MA52；近2根k线收盘价均大于MA52，小于MA24；
 
@@ -248,9 +248,9 @@ def daily_up_ma24_filter(df_filter_data, df_weekly_data, period=TimePeriod.DAY):
 
     b_ret = True if TimePeriod.is_minute_level(period) else (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
 
-    b_ret_3 = day_dea > 0 and day_dif > 0
+    b_ret_3 = day_dea >= 0 and day_dif >= 0
     b_ret_4 = (day_close >= day_ma20 or day_close >= day_ma24) and (day_close <= day_ma5 or day_close <= day_ma10)# abs(day_close - day_ma24) < day_ma24 * policy_filter_ma24_diff
-    b_ret_5 = day_ma5 <= day_ma10 and day_ma10 >= day_ma24 and day_ma5 >= day_ma24 and day_ma24 > day_ma52
+    b_ret_5 = day_ma10 >= day_ma24 and day_ma5 >= day_ma24 and day_ma24 > day_ma52
 
     if b_ret and b_ret_2 and b_ret_3 and b_ret_4 and b_ret_5:
         # logger.info("符合【日线零轴上方MA24】筛选")
@@ -288,9 +288,9 @@ def daily_up_ma10_filter(df_filter_data, period=TimePeriod.DAY):
     day_lb = last_day_row['volume_ratio'].item()
 
     b_ret = True if TimePeriod.is_minute_level(period) else (day_turn > policy_filter_turn) and (day_lb > policy_filter_lb)
-    b_ret_2 = day_dea > 0
-    b_ret_3 = day_ma24 > day_ma52 and day_ma10 > day_ma24 and day_ma5 > day_ma10
-    b_ret_4 = day_close > day_ma10 and day_close < day_ma5# abs(day_close - day_ma10) < day_ma10 * policy_filter_ma10_diff
+    b_ret_2 = day_dea >= 0
+    b_ret_3 = day_ma24 > day_ma52 and day_ma10 >= day_ma24 and day_ma5 >= day_ma10
+    b_ret_4 = day_close >= day_ma10 and day_close <= day_ma5# abs(day_close - day_ma10) < day_ma10 * policy_filter_ma10_diff
 
     day_ma10_diff = day_ma10 * policy_filter_ma10_diff
     # logger.info(f"day_close: {day_close}, day_dea: {day_dea}, day_ma10: {day_ma10}, day_ma24: {day_ma24}, day_ma52: {day_ma52}, day_ma10_diff: {day_ma10_diff}, day_turn>: {day_turn}, day_lb: {day_lb}")
@@ -372,6 +372,7 @@ def limit_copy_filter(df_filter_data, target_date=None):
         
         # 检查是否有匹配的日期数据
         if target_rows.empty:
+            stock_code = target_row['code'].item()
             logger.warning(f"未找到指定日期 {target_date} 的数据")
             return False
         

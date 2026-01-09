@@ -1422,6 +1422,8 @@ class BaoStockProcessor(QObject):
                     elif type == 13:
                         # 涨停复制
                         b_ret = pf.limit_copy_filter(df_filter_data, end_date)
+                        if not b_ret:
+                            self.logger.info(f"{code} 涨停复制无符合条件数据")
                     elif type == 14:
                         # 突破回踩
                         b_ret = pf.break_through_and_step_back(df_filter_data, period)
@@ -1467,6 +1469,8 @@ class BaoStockProcessor(QObject):
                 # 仅处理沪深主板
                 break
             board_index += 1
+
+            execute_stock_count = 0
             for index, row in board_data.iterrows():
                 try:
                     code = row['证券代码']  # 使用正确的列名
@@ -1489,6 +1493,9 @@ class BaoStockProcessor(QObject):
                     self.logger.error(f"对股票 {code} 进行策略判断时出错: {str(e)}")
                     continue
 
+                execute_stock_count += 1
+
+            self.logger.info(f"【{board_name}】零轴上方MA52筛选完成，共筛选{execute_stock_count}只股票")
 
         filter_result_data_manager = FilterResultDataManger(0)
         # 保存到文件，以便导入到看盘软件中

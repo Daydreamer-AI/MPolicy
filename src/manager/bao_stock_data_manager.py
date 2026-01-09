@@ -372,7 +372,7 @@ class BaostockDataManager(QObject):
     def save_stock_data_to_db(self, code, df_data, writeWay="replace", period=TimePeriod.DAY):
         '''保存k线数据到指定周期数据库'''
         table_name = period.get_table_name()
-        self.logger.info(f"保存股票 {code} 数据到数据库 {table_name}")
+        # self.logger.info(f"保存股票 {code} 数据到数据库 {table_name}")
         with self.lock:
             self.stock_db_base.save_bao_stock_data_to_db(code, df_data, writeWay, table_name)
 
