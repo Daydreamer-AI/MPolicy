@@ -5,6 +5,11 @@ import re
 from pathlib import Path
 from manager.logging_manager import get_logger
 
+
+import psutil
+import os
+import time
+
 logger = get_logger(__name__)
 
 class StockCodeAnalyzer:
@@ -919,3 +924,21 @@ def get_stock_limit_ratio(stock_code, board_type=None):
         return 0.30  # 30%
     else:  # 主板
         return 0.10  # 10%
+    
+def check_memory_usage():
+    process = psutil.Process(os.getpid())
+    memory_mb = process.memory_info().rss / 1024 / 1024
+    print(f"当前内存使用: {memory_mb:.2f} MB")
+def auto_release_memory_usage(self):
+    """检查内存使用情况"""
+    process = psutil.Process(os.getpid())
+    memory_mb = process.memory_info().rss / 1024 / 1024
+    
+    if memory_mb > 2000:  # 如果内存使用超过2GB
+        import gc
+        gc.collect()
+        self.logger.warning(f"内存使用过高: {memory_mb:.2f}MB，已执行垃圾回收")
+        
+        # 如果内存仍然过高，可以考虑暂停或调整处理策略
+        if memory_mb > 3000:  # 超过3GB
+            time.sleep(1)  # 短暂暂停

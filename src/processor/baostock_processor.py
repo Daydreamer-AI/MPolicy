@@ -14,7 +14,7 @@ from manager.config_manager import ConfigManager
 from common.common_api import *
 from manager.logging_manager import get_logger
 import traceback
-
+import gc
 
 from PyQt5.QtWidgets import QApplication
 
@@ -855,8 +855,13 @@ class BaoStockProcessor(QObject):
 
             i += 1
 
+            del result
+
         process_elapsed_time = time.time() - start_time  # 计算耗时
         self.logger.info(f"{board_name_chinese} {time_period_name_chinese}股票数据处理完成，共处理{i}只股票，耗时: {process_elapsed_time:.2f}秒，即{process_elapsed_time/60:.2f}分钟")
+
+        # 批处理完成后强制垃圾回收
+        gc.collect()
 
     
     def auto_process_all_stock_data(self):
@@ -1042,10 +1047,15 @@ class BaoStockProcessor(QObject):
 
             i += 1
 
+            del result  # 及时删除避免内存泄漏
+
         process_elapsed_time = time.time() - start_time  # 计算耗时
         self.logger.info(f"获取{board_type}股票{level}分钟级别数据完成，共处理{i}只股票，耗时: {process_elapsed_time:.2f}秒，即{process_elapsed_time/60:.2f}分钟")
 
         self.logger.info(f"{board_type}股票{level}分钟级别数据获取完成")
+
+        # 批处理完成后强制垃圾回收
+        gc.collect()
 
 
     # -----------------其他接口-------------------
