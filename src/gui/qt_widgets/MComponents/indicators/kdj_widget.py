@@ -27,7 +27,7 @@ class KdjWidget(BaseIndicatorWidget):
             return
         
         # 确保数据列存在
-        required_columns = ['K', 'D', 'J']
+        required_columns = [IndicatrosEnum.KDJ_K.value, IndicatrosEnum.KDJ_D.value, IndicatrosEnum.KDJ_J.value]
         if not all(col in data.columns for col in required_columns):
             self.logger.warning("缺少必要的数据列来绘制KDJ指标图")
             raise ValueError("缺少必要的数据列来绘制KDJ指标图")
@@ -43,7 +43,7 @@ class KdjWidget(BaseIndicatorWidget):
         return './src/gui/qt_widgets/MComponents/indicators/KdjWidget.ui'
 
     def validate_data(self):
-        required_columns = ['K', 'D', 'J']
+        required_columns = [IndicatrosEnum.KDJ_K.value, IndicatrosEnum.KDJ_D.value, IndicatrosEnum.KDJ_J.value]
         return all(col in self.df_data.columns for col in required_columns)
 
     def create_and_add_item(self):
@@ -59,9 +59,9 @@ class KdjWidget(BaseIndicatorWidget):
         self.plot_widget.setXRange(-1, len(self.df_data) + 1, padding=0)
         
         # 计算Y轴范围 (KDJ指标通常在0-100范围内)
-        k_values = self.df_data['K'].dropna()
-        d_values = self.df_data['D'].dropna()
-        j_values = self.df_data['J'].dropna()
+        k_values = self.df_data[IndicatrosEnum.KDJ_K.value].dropna()
+        d_values = self.df_data[IndicatrosEnum.KDJ_D.value].dropna()
+        j_values = self.df_data[IndicatrosEnum.KDJ_J.value].dropna()
         
         if len(k_values) > 0 and len(d_values) > 0 and len(j_values) > 0:
             y_min = min(np.min(k_values), np.min(d_values), np.min(j_values))
@@ -105,7 +105,7 @@ class KdjWidget(BaseIndicatorWidget):
 
         # 根据当前可视范围内的数据的最大、最小值调整Y轴坐标值范围
         # KDJ指标需要考虑K、D、J三列数据
-        required_columns = ['K', 'D', 'J']
+        required_columns = [IndicatrosEnum.KDJ_K.value, IndicatrosEnum.KDJ_D.value, IndicatrosEnum.KDJ_J.value]
         # 检查所需列是否存在
         if not all(col in visible_data.columns for col in required_columns):
             return
@@ -133,9 +133,9 @@ class KdjWidget(BaseIndicatorWidget):
         if self.type != sender.type:
             # self.logger.info(f"不响应其他窗口的鼠标移动事件")
             return
-        k = self.df_data.iloc[closest_index]['K']
-        d = self.df_data.iloc[closest_index]['D']
-        j = self.df_data.iloc[closest_index]['J']
+        k = self.df_data.iloc[closest_index][IndicatrosEnum.KDJ_K.value]
+        d = self.df_data.iloc[closest_index][IndicatrosEnum.KDJ_D.value]
+        j = self.df_data.iloc[closest_index][IndicatrosEnum.KDJ_J.value]
 
         self.label_k.setText(f"K:{k:.2f}")
         self.label_d.setText(f"D:{d:.2f}")

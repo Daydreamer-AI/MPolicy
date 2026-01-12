@@ -5,6 +5,7 @@ import copy
 from common.common_api import *
 from manager.period_manager import TimePeriod
 from manager.logging_manager import get_logger
+from manager.indicators_config_manager import IndicatorSetting, IndicatrosEnum
 logger = get_logger(__name__)
 
 policy_filter_ma5_diff = 0.02
@@ -916,7 +917,7 @@ def get_cross_index(df_data):
         return {}
     
     # 检查是否包含必要的列
-    if not columns_check(df_data, ('code', 'close', 'low', 'high', 'diff', 'dea', 'macd', 'ma24', 'ma52')):
+    if not columns_check(df_data, ('code', 'close', 'low', 'high', IndicatrosEnum.MACD_DIFF.value, IndicatrosEnum.MACD_DEA.value, IndicatrosEnum.MACD.value, 'ma24', 'ma52')):
         logger.info("缺少必要的列：股票代码 或 DEA 或 最低")
         return {}
 
@@ -1011,14 +1012,14 @@ def find_unit_adjust_period(df_data, period=TimePeriod.DAY):
         return unit_adjust_period_list
     
     # 检查是否包含必要的列
-    if not columns_check(df_data, ('code', 'close', 'low', 'high', 'diff', 'dea', 'macd', 'ma24', 'ma52')):
+    if not columns_check(df_data, ('code', 'close', 'low', 'high', IndicatrosEnum.MACD_DIFF.value, IndicatrosEnum.MACD_DEA.value, IndicatrosEnum.MACD.value, 'ma24', 'ma52')):
         logger.info("缺少必要的列：股票代码 或 DEA 或 最低")
         return unit_adjust_period_list
     
     last_day_row = df_data.tail(1)
     day_close = last_day_row['close'].item()
-    day_diff = last_day_row['diff'].item()
-    day_dea = last_day_row['dea'].item()
+    day_diff = last_day_row[IndicatrosEnum.MACD_DIFF.value].item()
+    day_dea = last_day_row[IndicatrosEnum.MACD_DEA.value].item()
     day_ma5 = last_day_row['ma5'].item()
     day_ma24 = last_day_row['ma24'].item()
     day_ma52 = last_day_row['ma52'].item()
@@ -1070,19 +1071,19 @@ def find_unit_adjust_period(df_data, period=TimePeriod.DAY):
             unit_adjust_period.lowest_value_index = i
             unit_adjust_period.lowest_value_date = df_data.iloc[i][s_date_col_name]
 
-        low_diff = df_data.iloc[i]['diff']
+        low_diff = df_data.iloc[i][IndicatrosEnum.MACD_DIFF.value]
         if low_diff < unit_adjust_period.lowest_diff:
             unit_adjust_period.lowest_diff = low_diff
             unit_adjust_period.lowest_diff_index = i
             unit_adjust_period.lowest_diff_date = df_data.iloc[i][s_date_col_name]
 
-        low_dea = df_data.iloc[i]['dea']
+        low_dea = df_data.iloc[i][IndicatrosEnum.MACD_DEA.value]
         if low_dea < unit_adjust_period.lowest_dea:
             unit_adjust_period.lowest_dea = low_dea
             unit_adjust_period.lowest_dea_index = i
             unit_adjust_period.lowest_dea_date = df_data.iloc[i][s_date_col_name]
 
-        low_macd = df_data.iloc[i]['macd']
+        low_macd = df_data.iloc[i][IndicatrosEnum.MACD.value]
         if low_macd < unit_adjust_period.lowest_macd:
             unit_adjust_period.lowest_macd = low_macd
             unit_adjust_period.lowest_macd_index = i

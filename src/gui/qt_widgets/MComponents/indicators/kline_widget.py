@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets, uic, QtGui
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QDialog
 from PyQt5.QtCore import pyqtSlot, Qt
 
 import pyqtgraph as pg
@@ -14,6 +14,7 @@ from gui.qt_widgets.MComponents.indicators.setting.kline_indicator_setting_dialo
 
 from manager.indicators_config_manager import *
 from gui.qt_widgets.MComponents.indicators.kline_overview_widget import KLineOverviewWidget
+from indicators.stock_data_indicators import *
 
 class KLineWidget(BaseIndicatorWidget):
     def __init__(self, data, type, parent=None):
@@ -79,6 +80,20 @@ class KLineWidget(BaseIndicatorWidget):
         self.label_ma30.setStyleSheet(f"color: {dict_ma_color_hex[f'{IndicatrosEnum.MA.value}30']}")
         self.label_ma52.setStyleSheet(f"color: {dict_ma_color_hex[f'{IndicatrosEnum.MA.value}52']}")
         self.label_ma60.setStyleSheet(f"color: {dict_ma_color_hex[f'{IndicatrosEnum.MA.value}60']}")
+
+        self.dict_ma_label = {
+            0: self.label_ma5,
+            1: self.label_ma10,
+            2: self.label_ma20,
+            3: self.label_ma24,
+            4: self.label_ma30,
+            5: self.label_ma52,
+            6: self.label_ma60,
+        }
+        dict_ma_settings = get_indicator_config_manager().get_user_config_by_indicator_type(IndicatrosEnum.MA.value)
+        for id, ma_setting in dict_ma_settings.items():
+            if id in self.dict_ma_label.keys():
+                self.dict_ma_label[id].setStyleSheet(f"color: {ma_setting.color_hex}")
 
 
     def addtional_connect(self):
@@ -202,7 +217,14 @@ class KLineWidget(BaseIndicatorWidget):
 
     def slot_btn_setting_clicked(self):
         dlg = KLineIndicatorSettingDialog()
-        dlg.exec()
+        result = dlg.exec()
+        if result == QDialog.Accepted:
+            self.logger.info("更新k线设置")
+            auto_ma_calulate(self.df_data)
+            # 刷新K线图
+            self.update_data(self.df_data)
+
+            self.auto_scale_to_latest(120)
 
     def slot_range_changed(self):
         '''当视图范围改变时调用'''
@@ -218,7 +240,7 @@ class KLineWidget(BaseIndicatorWidget):
         if 'high' in visible_data.columns and 'low' in visible_data.columns:
             required_columns.extend(['high', 'low'])
         
-        # 如果MA线显示，也需要考虑MA线的值
+        # TODO: 如果MA线显示，也需要考虑MA线的值
         ma_columns = ['ma5', 'ma10', 'ma20', 'ma30', 'ma60']
         for col in ma_columns:
             if col in visible_data.columns and self.is_ma_show():
@@ -250,13 +272,31 @@ class KLineWidget(BaseIndicatorWidget):
         # 设置MA值
         # self.label_ma_period.setText("日线")      # 点击卡片Item时，根据当前选中的周期设置
         # self.label_stock_name.setText("股票名称")   # 点击卡片Item时，根据当前选中的股票设置
-        self.label_ma5.setText(f"MA5:{self.df_data.iloc[closest_index]['ma5']:.2f}")
-        self.label_ma10.setText(f"MA10:{self.df_data.iloc[closest_index]['ma10']:.2f}")
-        self.label_ma20.setText(f"MA20:{self.df_data.iloc[closest_index]['ma20']:.2f}")
-        self.label_ma24.setText(f"MA24:{self.df_data.iloc[closest_index]['ma24']:.2f}")
-        self.label_ma30.setText(f"MA30:{self.df_data.iloc[closest_index]['ma30']:.2f}")
-        self.label_ma52.setText(f"MA52:{self.df_data.iloc[closest_index]['ma52']:.2f}")
-        self.label_ma60.setText(f"MA60:{self.df_data.iloc[closest_index]['ma60']:.2f}")
+
+        # self.label_ma5.setText(f"MA5:{self.df_data.iloc[closest_index]['ma5']:.2f}")
+        # self.label_ma10.setText(f"MA10:{self.df_data.iloc[closest_index]['ma10']:.2f}")
+        # self.label_ma20.setText(f"MA20:{self.df_data.iloc[closest_index]['ma20']:.2f}")
+        # self.label_ma24.setText(f"MA24:{self.df_data.iloc[closest_index]['ma24']:.2f}")
+        # self.label_ma30.setText(f"MA30:{self.df_data.iloc[closest_index]['ma30']:.2f}")
+        # self.label_ma52.setText(f"MA52:{self.df_data.iloc[closest_index]['ma52']:.2f}")
+        # self.label_ma60.setText(f"MA60:{self.df_data.iloc[closest_index]['ma60']:.2f}")
+
+        dict_ma_settings = get_indicator_config_manager().get_user_config_by_indicator_type(IndicatrosEnum.MA.value)
+
+        self.dict_ma_label = {
+            0: self.label_ma5,
+            1: self.label_ma10,
+            2: self.label_ma20,
+            3: self.label_ma24,
+            4: self.label_ma30,
+            5: self.label_ma52,
+            6: self.label_ma60,
+        }
+        for id, ma_setting in dict_ma_settings.items():
+            if id in self.dict_ma_label.keys() and ma_setting.name in self.df_data.columns:
+                self.dict_ma_label[id].setText(f"{ma_setting.name}:{self.df_data.iloc[closest_index][ma_setting.name]:.2f}")
+                self.dict_ma_label[id].setVisible(ma_setting.visible)
+                self.dict_ma_label[id].setStyleSheet(f"color: {ma_setting.color_hex}")
 
     def slot_global_reset_labels(self, sender):
         self.slot_global_update_labels(sender, -1)

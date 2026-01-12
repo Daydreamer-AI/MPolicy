@@ -11,7 +11,7 @@ class KDJItem(pg.GraphicsObject):
         pg.GraphicsObject.__init__(self)
 
         # 数据验证
-        required_columns = ['K', 'D', 'J']
+        required_columns = [IndicatrosEnum.KDJ_K.value, IndicatrosEnum.KDJ_D.value, IndicatrosEnum.KDJ_J.value]
         if not all(col in data.columns for col in required_columns):
             raise ValueError(f"缺少必要的数据列，需要: {required_columns}")
         
@@ -23,7 +23,7 @@ class KDJItem(pg.GraphicsObject):
     
     def update_data(self, data):
         # 数据验证
-        required_columns = ['K', 'D', 'J'] 
+        required_columns = [IndicatrosEnum.KDJ_K.value, IndicatrosEnum.KDJ_D.value, IndicatrosEnum.KDJ_J.value] 
         if not all(col in data.columns for col in required_columns):
             raise ValueError(f"缺少必要的数据列，需要: {required_columns}")
 
@@ -41,7 +41,7 @@ class KDJItem(pg.GraphicsObject):
         # 绘制K线
         k_points = []
         for i in range(len(self.data)):
-            k_value = self.data['K'].iloc[i]
+            k_value = self.data[IndicatrosEnum.KDJ_K.value].iloc[i]
             if not np.isnan(k_value):
                 k_points.append(QtCore.QPointF(i, k_value))
         
@@ -53,7 +53,7 @@ class KDJItem(pg.GraphicsObject):
         # 绘制D线
         d_points = []
         for i in range(len(self.data)):
-            d_value = self.data['D'].iloc[i]
+            d_value = self.data[IndicatrosEnum.KDJ_D.value].iloc[i]
             if not np.isnan(d_value):
                 d_points.append(QtCore.QPointF(i, d_value))
         
@@ -65,7 +65,7 @@ class KDJItem(pg.GraphicsObject):
         # 绘制J线
         j_points = []
         for i in range(len(self.data)):
-            j_value = self.data['J'].iloc[i]
+            j_value = self.data[IndicatrosEnum.KDJ_J.value].iloc[i]
             if not np.isnan(j_value):
                 j_points.append(QtCore.QPointF(i, j_value))
         

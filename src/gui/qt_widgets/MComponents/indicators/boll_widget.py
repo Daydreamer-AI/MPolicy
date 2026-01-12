@@ -26,7 +26,7 @@ class BollWidget(BaseIndicatorWidget):
             return
         
         # 确保数据列存在
-        required_columns = ['close', 'boll_up', 'boll_mb', 'boll_dn']
+        required_columns = ['close', IndicatrosEnum.BOLL_UPPER.value, IndicatrosEnum.BOLL_MID.value, IndicatrosEnum.BOLL_LOWER.value]
         if not all(col in data.columns for col in required_columns):
             self.logger.warning("缺少必要的数据列来绘制BOLL指标图")
             raise ValueError("缺少必要的数据列来绘制BOLL指标图")
@@ -42,7 +42,7 @@ class BollWidget(BaseIndicatorWidget):
         return './src/gui/qt_widgets/MComponents/indicators/BollWidget.ui'
 
     def validate_data(self):
-        required_columns = ['close', 'boll_up', 'boll_mb', 'boll_dn']
+        required_columns = ['close', IndicatrosEnum.BOLL_UPPER.value, IndicatrosEnum.BOLL_MID.value, IndicatrosEnum.BOLL_LOWER.value]
         return all(col in self.df_data.columns for col in required_columns)
 
     def create_and_add_item(self):
@@ -59,8 +59,8 @@ class BollWidget(BaseIndicatorWidget):
         
         # 计算Y轴范围
         close_values = self.df_data['close'].dropna()
-        up_values = self.df_data['boll_up'].dropna()
-        dn_values = self.df_data['boll_dn'].dropna()
+        up_values = self.df_data[IndicatrosEnum.BOLL_UPPER.value].dropna()
+        dn_values = self.df_data[IndicatrosEnum.BOLL_LOWER.value].dropna()
         
         if len(close_values) > 0 and len(up_values) > 0 and len(dn_values) > 0:
             y_min = min(np.min(close_values), np.min(dn_values))
@@ -86,7 +86,7 @@ class BollWidget(BaseIndicatorWidget):
 
         # 根据当前可视范围内的数据的最大、最小值调整Y轴坐标值范围
         # BOLL指标需要考虑close、boll_up、boll_mb、boll_dn四条线
-        required_columns = ['close', 'boll_up', 'boll_dn']
+        required_columns = ['close', IndicatrosEnum.BOLL_UPPER.value, IndicatrosEnum.BOLL_LOWER.value]
         # 检查所需列是否存在
         if not all(col in visible_data.columns for col in required_columns):
             return
@@ -109,10 +109,11 @@ class BollWidget(BaseIndicatorWidget):
         if self.type != sender.type:
             # self.logger.info(f"不响应其他窗口的鼠标移动事件")
             return
-        mid = self.df_data.iloc[closest_index]['boll_mb']
-        upper = self.df_data.iloc[closest_index]['boll_up']
-        lower = self.df_data.iloc[closest_index]['boll_dn']
+        mid = self.df_data.iloc[closest_index][IndicatrosEnum.BOLL_MID.value]
+        upper = self.df_data.iloc[closest_index][IndicatrosEnum.BOLL_UPPER.value]
+        lower = self.df_data.iloc[closest_index][IndicatrosEnum.BOLL_LOWER.value]
 
+        # TODO
         self.label_mid.setText(f"MID:{mid:.2f}")
         self.label_upper.setText(f"UPPER:{upper:.2f}")
         self.label_lower.setText(f"LOWER:{lower:.2f}")

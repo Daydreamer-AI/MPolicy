@@ -11,7 +11,7 @@ class MACDItem(pg.GraphicsObject):
         pg.GraphicsObject.__init__(self)
 
         # 数据验证
-        required_columns = ['diff', 'dea', 'macd']
+        required_columns = [IndicatrosEnum.MACD_DIFF.value, IndicatrosEnum.MACD_DEA.value, IndicatrosEnum.MACD.value]
         if not all(col in data.columns for col in required_columns):
             raise ValueError(f"缺少必要的数据列，需要: {required_columns}")
         
@@ -23,7 +23,7 @@ class MACDItem(pg.GraphicsObject):
     
     def update_data(self, data):
         # 数据验证
-        required_columns = ['diff', 'dea', 'macd'] 
+        required_columns = [IndicatrosEnum.MACD_DIFF.value, IndicatrosEnum.MACD_DEA.value, IndicatrosEnum.MACD.value]
         if not all(col in data.columns for col in required_columns):
             raise ValueError(f"缺少必要的数据列，需要: {required_columns}")
 
@@ -41,7 +41,7 @@ class MACDItem(pg.GraphicsObject):
 
         # 绘制MACD柱状图
         for i in range(len(self.data)):
-            macd_value = self.data['macd'].iloc[i]
+            macd_value = self.data[IndicatrosEnum.MACD.value].iloc[i]
             
             if not np.isnan(macd_value):
                 if macd_value >= 0:
@@ -59,7 +59,7 @@ class MACDItem(pg.GraphicsObject):
         # 绘制DIFF线 (MACD线)
         diff_points = []
         for i in range(len(self.data)):
-            diff_value = self.data['diff'].iloc[i]
+            diff_value = self.data[IndicatrosEnum.MACD_DIFF.value].iloc[i]
             if not np.isnan(diff_value):
                 diff_points.append(QtCore.QPointF(i, diff_value))
         
@@ -71,7 +71,7 @@ class MACDItem(pg.GraphicsObject):
         # 绘制DEA线 (信号线)
         dea_points = []
         for i in range(len(self.data)):
-            dea_value = self.data['dea'].iloc[i]
+            dea_value = self.data[IndicatrosEnum.MACD_DEA.value].iloc[i]
             if not np.isnan(dea_value):
                 dea_points.append(QtCore.QPointF(i, dea_value))
         

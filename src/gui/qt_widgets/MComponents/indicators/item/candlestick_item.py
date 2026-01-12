@@ -2,7 +2,7 @@ import pyqtgraph as pg
 from PyQt5 import QtGui, QtCore
 import numpy as np
 
-from manager.indicators_config_manager import *
+from manager.indicators_config_manager import get_kline_half_width, IndicatrosEnum, get_indicator_config_manager, get_dict_kline_color
 
 
 class CandlestickItem(pg.GraphicsObject):
@@ -50,7 +50,7 @@ class CandlestickItem(pg.GraphicsObject):
         self.picture = QtGui.QPicture()
         p = QtGui.QPainter(self.picture)
         pg.setConfigOptions(leftButtonPan=False, antialias=False)
-        w = 0.25
+        w = get_kline_half_width()
 
         # 长度检查
         if len(self.data) == 0:
@@ -59,36 +59,48 @@ class CandlestickItem(pg.GraphicsObject):
 
         #绘制移动平均线
         if self.ma_visible:
-            
-            if 'ma5' in self.data.columns and len(self.data) > 5:
-                ma5 = self.data['ma5']
-                ma5_lines = self._get_quota_lines(ma5)
-                if ma5_lines:  # 确保有线段可绘制
-                    p.setPen(pg.mkPen(dict_ma_color[f'{IndicatrosEnum.MA.value}5'], width=2))
-                    p.drawLines(*tuple(ma5_lines))
+            all_user_configs = get_indicator_config_manager().get_user_configs()
+            dict_ma_setting_user = all_user_configs.get(IndicatrosEnum.MA.value, {})
 
-            if 'ma10' in self.data.columns and len(self.data) > 10:
-                ma10 = self.data['ma10']
-                ma10_lines = self._get_quota_lines(ma10)
-                if ma10_lines:
-                    p.setPen(pg.mkPen(dict_ma_color[f'{IndicatrosEnum.MA.value}10'], width=2))
-                    p.drawLines(*tuple(ma10_lines))
+            for id, ma_setting in dict_ma_setting_user.items():
+                if ma_setting.visible and ma_setting.name in self.data.columns and len(self.data) > ma_setting.period:
+                    ma = self.data[ma_setting.name]
+                    ma_lines = self._get_quota_lines(ma)
+                    if ma_lines:  # 确保有线段可绘制
+                        p.setPen(pg.mkPen(ma_setting.color_hex, width=ma_setting.line_width))
+                        p.drawLines(*tuple(ma_lines))
 
-            if 'ma24' in self.data.columns and len(self.data) > 24:
-                ma24 = self.data['ma24']
-                ma24_lines = self._get_quota_lines(ma24)
-                if ma24_lines:
-                    p.setPen(pg.mkPen(dict_ma_color[f'{IndicatrosEnum.MA.value}24'], width=2))
-                    p.drawLines(*tuple(ma24_lines))
 
-            if 'ma52' in self.data.columns and len(self.data) > 52:
-                ma52 = self.data['ma52']
-                ma52_lines = self._get_quota_lines(ma52)
-                if ma52_lines:
-                    p.setPen(pg.mkPen(dict_ma_color[f'{IndicatrosEnum.MA.value}52'], width=2))
-                    p.drawLines(*tuple(ma52_lines))
+            # if 'ma5' in self.data.columns and len(self.data) > 5:
+            #     ma5 = self.data['ma5']
+            #     ma5_lines = self._get_quota_lines(ma5)
+            #     if ma5_lines:  # 确保有线段可绘制
+            #         p.setPen(pg.mkPen(dict_ma_color[f'{IndicatrosEnum.MA.value}5'], width=2))
+            #         p.drawLines(*tuple(ma5_lines))
+
+            # if 'ma10' in self.data.columns and len(self.data) > 10:
+            #     ma10 = self.data['ma10']
+            #     ma10_lines = self._get_quota_lines(ma10)
+            #     if ma10_lines:
+            #         p.setPen(pg.mkPen(dict_ma_color[f'{IndicatrosEnum.MA.value}10'], width=2))
+            #         p.drawLines(*tuple(ma10_lines))
+
+            # if 'ma24' in self.data.columns and len(self.data) > 24:
+            #     ma24 = self.data['ma24']
+            #     ma24_lines = self._get_quota_lines(ma24)
+            #     if ma24_lines:
+            #         p.setPen(pg.mkPen(dict_ma_color[f'{IndicatrosEnum.MA.value}24'], width=2))
+            #         p.drawLines(*tuple(ma24_lines))
+
+            # if 'ma52' in self.data.columns and len(self.data) > 52:
+            #     ma52 = self.data['ma52']
+            #     ma52_lines = self._get_quota_lines(ma52)
+            #     if ma52_lines:
+            #         p.setPen(pg.mkPen(dict_ma_color[f'{IndicatrosEnum.MA.value}52'], width=2))
+            #         p.drawLines(*tuple(ma52_lines))
 
         #绘制蜡烛图
+        dict_kline_color = get_dict_kline_color()
         for i in range(len(self.data)):
             # 使用 iloc 按位置访问数据，而不是按索引访问
             open_price = self.data['open'].iloc[i]

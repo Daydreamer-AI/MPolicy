@@ -27,7 +27,7 @@ class MacdWidget(BaseIndicatorWidget):
             return
         
         # 确保数据列存在
-        required_columns = ['diff', 'dea', 'macd']
+        required_columns = [IndicatrosEnum.MACD_DIFF.value, IndicatrosEnum.MACD_DEA.value, IndicatrosEnum.MACD.value]
         if not all(col in data.columns for col in required_columns):
             self.logger.warning("缺少必要的数据列来绘制MACD指标图")
             raise ValueError("缺少必要的数据列来绘制MACD指标图")
@@ -42,7 +42,7 @@ class MacdWidget(BaseIndicatorWidget):
         return './src/gui/qt_widgets/MComponents/indicators/MacdWidget.ui'
 
     def validate_data(self):
-        required_columns = ['diff', 'dea', 'macd']
+        required_columns = [IndicatrosEnum.MACD_DIFF.value, IndicatrosEnum.MACD_DEA.value, IndicatrosEnum.MACD.value]
         return all(col in self.df_data.columns for col in required_columns)
 
     def create_and_add_item(self):
@@ -58,9 +58,9 @@ class MacdWidget(BaseIndicatorWidget):
         self.plot_widget.setXRange(-1, len(self.df_data) + 1, padding=0)
         
         # 计算Y轴范围
-        diff_values = self.df_data['diff'].dropna()
-        dea_values = self.df_data['dea'].dropna()
-        macd_values = self.df_data['macd'].dropna()
+        diff_values = self.df_data[IndicatrosEnum.MACD_DIFF.value].dropna()
+        dea_values = self.df_data[IndicatrosEnum.MACD_DEA.value].dropna()
+        macd_values = self.df_data[IndicatrosEnum.MACD.value].dropna()
         
         if len(diff_values) > 0 and len(dea_values) > 0 and len(macd_values) > 0:
             y_max = max(np.max(np.abs(diff_values)), np.max(np.abs(dea_values)), np.max(np.abs(macd_values)))
@@ -89,7 +89,7 @@ class MacdWidget(BaseIndicatorWidget):
 
         # 根据当前可视范围内的数据的最大、最小值调整Y轴坐标值范围
         # MACD指标需要考虑diff、dea、macd三列数据
-        required_columns = ['diff', 'dea', 'macd']
+        required_columns = [IndicatrosEnum.MACD_DIFF.value, IndicatrosEnum.MACD_DEA.value, IndicatrosEnum.MACD.value]
         # 检查所需列是否存在
         if not all(col in visible_data.columns for col in required_columns):
             return
@@ -110,9 +110,9 @@ class MacdWidget(BaseIndicatorWidget):
         if self.type != sender.type:
             # self.logger.info(f"不响应其他窗口的鼠标移动事件")
             return
-        macd = self.df_data.iloc[closest_index]['macd']
-        diff = self.df_data.iloc[closest_index]['diff']
-        dea = self.df_data.iloc[closest_index]['dea']
+        macd = self.df_data.iloc[closest_index][IndicatrosEnum.MACD.value]
+        diff = self.df_data.iloc[closest_index][IndicatrosEnum.MACD_DIFF.value]
+        dea = self.df_data.iloc[closest_index][IndicatrosEnum.MACD_DEA.value]
 
         self.label_macd.setText(f"MACD:{macd:.3f}")
         self.label_diff.setText(f"DIFF:{diff:.3f}")

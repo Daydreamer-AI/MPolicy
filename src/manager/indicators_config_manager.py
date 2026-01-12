@@ -10,8 +10,6 @@ class IndicatrosEnum(Enum):
     '''
         统一规范指标键名称，作用范围：Pandas.DataFrame对象的列名，字典键名称，显示的指标名称
     '''
-    KLINE_ASC = 'asc'
-    KLINE_DESC = 'desc'
     MA = 'ma'
     VOLUME = 'volume'
     AMOUNT = 'amount'
@@ -28,6 +26,40 @@ class IndicatrosEnum(Enum):
     BOLL_UPPER = 'upper'     
     BOLL_LOWER = 'lower'
     BOLL_CLOSE = 'close'
+
+    KLINE = 'kline'
+    KLINE_ASC = 'asc'
+    KLINE_DESC = 'desc'
+    
+    KLINE_OPEN = 'open'
+    KLINE_CLOSE = 'close'
+    KLINE_HIGH = 'high'
+    KLINE_LOW = 'low'
+
+    TURNOVER_RATE = 'turnover_rate'
+    VOLUME_RATIO = 'volume_ratio'
+
+
+
+    @classmethod
+    def get_chinese_label(cls, indicator_name):
+        """根据枚举值获取对应的中文标签"""
+        # 延迟初始化映射字典
+        if not hasattr(cls, '_chinese_label_mapping'):
+            cls._chinese_label_mapping = {
+                cls.KLINE: "K线图",
+                cls.VOLUME: "成交量",
+                cls.AMOUNT: "成交额",
+                cls.MACD: "MACD",
+                cls.KDJ: "KDJ",
+                cls.RSI: "RSI",
+                cls.BOLL: "BOLL"
+            }
+        return cls._chinese_label_mapping.get(indicator_name, "K线图")
+    
+    @classmethod
+    def get_check_columns(cls):
+        return ()
 
 def color_to_hex(color):
     """
@@ -102,6 +134,15 @@ def hex_to_color(hex_color):
 
 
 # k线涨跌幅颜色
+kline_half_width = 0.25  # 默认K线半边宽度
+def get_kline_half_width():
+    return kline_half_width
+
+def set_kline_half_width(width):
+    global kline_half_width
+    kline_half_width = width
+
+
 dict_kline_color = {
 IndicatrosEnum.KLINE_DESC.value: (0, 168, 67), #绿色－下跌 (0, 169, 178), (0, 168, 67), (43, 186, 146)
 IndicatrosEnum.KLINE_ASC.value: (255, 61, 61) #红色 -上涨
@@ -111,6 +152,12 @@ dict_kline_color_hex = {
 IndicatrosEnum.KLINE_DESC.value: '#00a84b', #绿色－下跌
 IndicatrosEnum.KLINE_ASC.value: '#ff3d3d' #红色 -上涨
 }
+
+def get_dict_kline_color():
+    return dict_kline_color
+
+def get_dict_kline_color_hex():
+    return dict_kline_color_hex
 
 
 # 均线
@@ -287,6 +334,22 @@ class IndicatorSetting:
     def set_color_hex(self, color_hex):
         self.color = hex_to_color(color_hex)
         self.color_hex = color_hex
+
+
+class KLineSetting(IndicatorSetting):
+    """K线设置"""
+    def __init__(self, id: int = 0, period: int = 5, name: str = 'kline', visible: bool = True, 
+                 line_width: int = 2, color: tuple = (0, 0, 0), color_hex: str = '#000000'):
+        
+        if not name:
+            name = f'kline'
+
+        super().__init__(id, period, name, visible, line_width, color, color_hex)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]):
+        """从字典创建实例"""
+        return super().from_dict(data)
 
 
 class MASetting(IndicatorSetting):
@@ -569,6 +632,12 @@ class IndicatorConfigManager:
     
     def get_user_configs(self):
         return self.user_configs
+    
+    def get_default_config_by_indicator_type(self, indicator_type=IndicatrosEnum.MA.value):
+        return self.default_configs.get(indicator_type, {})
+    
+    def get_user_config_by_indicator_type(self, indicator_type=IndicatrosEnum.MA.value):
+        return self.user_configs.get(indicator_type, {})
 
     def save_default_config(self):
         """保存默认配置到文件"""

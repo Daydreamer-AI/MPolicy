@@ -1,7 +1,7 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QButtonGroup, QColorDialog
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QColor, QPalette
 from functools import partial
 
 from manager.logging_manager import get_logger
@@ -64,7 +64,7 @@ class KLineIndicatorSettingDialog(QDialog):
 
         # 遍历MA配置并设置UI
         for id, ma_setting in self.dict_ma_setting_user.items():
-            self.logger.info(f"ma_setting--id: {ma_setting.id}, period: {ma_setting.period}, name: {ma_setting.name}, visible: {ma_setting.visible}, line_width: {ma_setting.line_width}, color: {ma_setting.color}, color_hex: {ma_setting.color_hex}")
+            # self.logger.info(f"ma_setting--id: {ma_setting.id}, period: {ma_setting.period}, name: {ma_setting.name}, visible: {ma_setting.visible}, line_width: {ma_setting.line_width}, color: {ma_setting.color}, color_hex: {ma_setting.color_hex}")
             if id in self.dict_ma_setting_object.keys():
                 ma_setting_object = self.dict_ma_setting_object[id]
                 ma_setting_object.period_lineedit_obj.setText(str(ma_setting.period))
@@ -94,6 +94,24 @@ class KLineIndicatorSettingDialog(QDialog):
         if button_id in self.dict_ma_setting_object.keys() and button_id in self.dict_ma_setting_user.keys():
             ma_setting_object = self.dict_ma_setting_object[button_id]
             ma_setting_object.color_obj.setStyleSheet(f"background-color: {self.dict_ma_setting_user[button_id].color_hex}; border: 1px solid gray; border-radius: 4px;")
+
+    def get_button_background_color(self, button):
+        """获取按钮的背景颜色，返回QColor对象"""
+        # 首先尝试从属性中获取
+        color = button.property("bg_color")
+        if color:
+            return QColor(color)
+        
+        # 如果属性中没有，则从样式表解析
+        import re
+        style_sheet = button.styleSheet()
+        match = re.search(r'background-color:\s*([^;]+)', style_sheet)
+        if match:
+            color_str = match.group(1).strip()
+            return QColor(color_str)
+        
+        # 如果无法解析颜色，返回无效的QColor对象
+        return QColor()
 
     def slot_scheme_button_group_buttonClicked(self, btn):
         checked_id = self.scheme_button_group.checkedId()
@@ -144,7 +162,20 @@ class KLineIndicatorSettingDialog(QDialog):
             self.update_button_color(id)
 
     def slot_btn_reset_clicked(self):
-        pass
+        get_indicator_config_manager().reset_to_defaults(IndicatrosEnum.MA.value)
+        get_indicator_config_manager().save_user_config()
+
+        self.dict_ma_setting_user = get_indicator_config_manager().get_user_config_by_indicator_type(IndicatrosEnum.MA.value)
+        self.init_ui()
 
     def slot_btn_apply_clicked(self):
+        for id, ma_setting_object in self.dict_ma_setting_object.items():
+            if id in self.dict_ma_setting_user.keys():
+                self.dict_ma_setting_user[id].period = int(ma_setting_object.period_lineedit_obj.text())
+                self.dict_ma_setting_user[id].name  = f'{IndicatrosEnum.MA.value}{self.dict_ma_setting_user[id].period}'
+                self.dict_ma_setting_user[id].visible = ma_setting_object.checkbox_obj.isChecked()
+                self.dict_ma_setting_user[id].line_width = int(ma_setting_object.line_width_lineedit_obj.text())
+                self.dict_ma_setting_user[id].set_color_hex(self.get_button_background_color(ma_setting_object.color_obj).name())
+
+        get_indicator_config_manager().save_user_config()
         self.accept()

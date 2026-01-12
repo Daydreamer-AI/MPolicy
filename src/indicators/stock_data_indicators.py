@@ -1,4 +1,5 @@
 import pandas as pd
+from manager.indicators_config_manager import get_kline_half_width, IndicatrosEnum, get_indicator_config_manager
 
 '''
     指标计算
@@ -24,9 +25,9 @@ def macd(stock_data):
     dif = ema12 - ema26
     dea = dif.ewm(span=9, adjust=False).mean()
     macd = 2 * (dif - dea)
-    stock_data['diff'] = dif
-    stock_data['dea'] = dea
-    stock_data['macd'] = macd
+    stock_data[IndicatrosEnum.MACD_DIFF.value] = dif
+    stock_data[IndicatrosEnum.MACD_DEA.value] = dea
+    stock_data[IndicatrosEnum.MACD.value] = macd
 
 # 在你的指标计算模块中添加
 def kdj(data, n=9, m1=3, m2=3):
@@ -47,43 +48,15 @@ def kdj(data, n=9, m1=3, m2=3):
     data['RSV'] = (data['close'] - low_min) / (high_max - low_min) * 100
     
     # 计算K值
-    data['K'] = data['RSV'].ewm(alpha=1/m1, adjust=False).mean()
+    data[IndicatrosEnum.KDJ_K.value] = data['RSV'].ewm(alpha=1/m1, adjust=False).mean()
     
     # 计算D值
-    data['D'] = data['K'].ewm(alpha=1/m2, adjust=False).mean()
+    data[IndicatrosEnum.KDJ_D.value] = data[IndicatrosEnum.KDJ_K.value].ewm(alpha=1/m2, adjust=False).mean()
     
     # 计算J值
-    data['J'] = 3 * data['K'] - 2 * data['D']
+    data[IndicatrosEnum.KDJ_J.value] = 3 * data[IndicatrosEnum.KDJ_K.value] - 2 * data[IndicatrosEnum.KDJ_D.value]
     
     return data
-
-# def rsi(data, period=14):
-#     """
-#     计算RSI指标
-#     参数:
-#     data: DataFrame，包含close列
-#     period: 计算周期，默认14
-#     """
-#     if 'close' not in data.columns:
-#         raise ValueError("缺少必要的数据列：close")
-    
-#     # 计算价格变化
-#     delta = data['close'].diff()
-    
-#     # 分离上涨和下跌
-#     gain = delta.where(delta > 0, 0)
-#     loss = -delta.where(delta < 0, 0)
-    
-#     # 计算平均上涨和下跌
-#     avg_gain = gain.rolling(window=period, min_periods=1).mean()
-#     avg_loss = loss.rolling(window=period, min_periods=1).mean()
-    
-#     # 计算RS
-#     rs = avg_gain / avg_loss
-    
-#     # 计算RSI
-#     rsi_name = f'rsi{period}'
-#     data[rsi_name] = 100 - (100 / (1 + rs))
     
 #     return data
 def rsi(data, period=14):
@@ -112,7 +85,7 @@ def rsi(data, period=14):
     rs = avg_gain / avg_loss
     
     # 计算RSI
-    rsi_name = f'rsi{period}'
+    rsi_name = f'{IndicatrosEnum.RSI.value}{period}'
     data[rsi_name] = 100 - (100 / (1 + rs))
     
     return data
@@ -129,22 +102,21 @@ def boll(data, n=20, m=2):
         raise ValueError("缺少必要的数据列：close")
     
     # 计算中轨线(MB)
-    data['boll_mb'] = data['close'].rolling(window=n).mean()
+    data[IndicatrosEnum.BOLL_MID.value] = data['close'].rolling(window=n).mean()
     
     # 计算标准差
     std = data['close'].rolling(window=n).std()
     
     # 计算上轨线(UP)
-    data['boll_up'] = data['boll_mb'] + m * std
+    data[IndicatrosEnum.BOLL_UPPER.value] = data[IndicatrosEnum.BOLL_MID.value] + m * std
     
     # 计算下轨线(DN)
-    data['boll_dn'] = data['boll_mb'] - m * std
+    data[IndicatrosEnum.BOLL_LOWER.value] = data[IndicatrosEnum.BOLL_MID.value] - m * std
     
     return data
 
-def ma(stock_data, column='5', cycle=5):
+def ma(stock_data, column='ma5', cycle=5):
     close = stock_data['close']
-    # stock_data['MA24'] = close.rolling(window=24, min_periods=1).mean()
     stock_data[column] = close.rolling(window=cycle, min_periods=1).mean()
 
 def ma_corrected(stock_data, column='5', cycle=5, ma_type='EMA'):
@@ -219,8 +191,8 @@ def macd_deviation(stock_data):
         if cur_index == -1:
             cur_index = index
 
-        cur_dea = row['dea']
-        cur_diff = row['diff']
+        cur_dea = row[IndicatrosEnum.MACD_DEA.value]
+        cur_diff = row[IndicatrosEnum.MACD_DIFF.value]
         if cur_dea > 0:
             return
 
@@ -241,7 +213,7 @@ def macd_deviation(stock_data):
     selected_rows = df.iloc[first_diff_down_cross_zero_index:cur_index+1]
     for index, row in selected_rows.iterrows():
         cur_lowest_price = row['low']
-        cur_diff = row['diff']
+        cur_diff = row[IndicatrosEnum.MACD_DIFF.value]
         cur_close_price = row['close']
         cur_top_price = row['high']
 
@@ -325,25 +297,36 @@ def calc_turnover_rate(stock_data):
     
 
 
+def auto_ma_calulate(stock_data):
+    """
+    自动计算均线
+    """
+    dict_ma_settings = get_indicator_config_manager().get_user_config_by_indicator_type(IndicatrosEnum.MA.value)
+    for id, ma_setting in dict_ma_settings.items():
+        ma(stock_data, ma_setting.name, ma_setting.period)
+
+def auto_rsi_calulate(stock_data):
+    dict_rsi_settings = get_indicator_config_manager().get_user_config_by_indicator_type(IndicatrosEnum.RSI.value)
+    for id, rsi_setting in dict_rsi_settings.items():
+        rsi(stock_data, rsi_setting.period)
+
 def default_indicators_auto_calculate(stock_data):
     if stock_data is None or stock_data.empty:
         raise ValueError("数据为空，无法计算指标")
 
     macd(stock_data)
-    ma(stock_data, 'ma5', 5)
-    ma(stock_data, 'ma10', 10)
-    ma(stock_data, 'ma20', 20)
-    ma(stock_data, 'ma24', 24)
-    ma(stock_data, 'ma30', 30)
-    ma(stock_data, 'ma52', 52)
-    ma(stock_data, 'ma60', 60)
+
+    auto_ma_calulate(stock_data)
+
+
     quantity_ratio(stock_data)
 
     kdj(stock_data) 
 
-    rsi(stock_data, period=6)   # 计算RSI6
-    rsi(stock_data, period=12)  # 计算RSI12
-    rsi(stock_data, period=24)  # 计算RSI24
+    # rsi(stock_data, period=6)   # 计算RSI6
+    # rsi(stock_data, period=12)  # 计算RSI12
+    # rsi(stock_data, period=24)  # 计算RSI24
+    auto_rsi_calulate(stock_data)
 
     boll(stock_data)
 

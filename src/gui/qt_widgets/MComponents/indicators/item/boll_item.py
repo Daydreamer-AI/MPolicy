@@ -11,7 +11,7 @@ class BOLLItem(pg.GraphicsObject):
         pg.GraphicsObject.__init__(self)
 
         # 数据验证
-        required_columns = ['close', 'boll_up', 'boll_mb', 'boll_dn']
+        required_columns = ['close', IndicatrosEnum.BOLL_UPPER.value, IndicatrosEnum.BOLL_MID.value, IndicatrosEnum.BOLL_LOWER.value]
         if not all(col in data.columns for col in required_columns):
             raise ValueError(f"缺少必要的数据列，需要: {required_columns}")
         
@@ -23,7 +23,7 @@ class BOLLItem(pg.GraphicsObject):
     
     def update_data(self, data):
         # 数据验证
-        required_columns = ['close', 'boll_up', 'boll_mb', 'boll_dn'] 
+        required_columns = ['close', IndicatrosEnum.BOLL_UPPER.value, IndicatrosEnum.BOLL_MID.value, IndicatrosEnum.BOLL_LOWER.value] 
         if not all(col in data.columns for col in required_columns):
             raise ValueError(f"缺少必要的数据列，需要: {required_columns}")
 
@@ -53,7 +53,7 @@ class BOLLItem(pg.GraphicsObject):
         # 绘制上轨线
         up_points = []
         for i in range(len(self.data)):
-            up_value = self.data['boll_up'].iloc[i]
+            up_value = self.data[IndicatrosEnum.BOLL_UPPER.value].iloc[i]
             if not np.isnan(up_value):
                 up_points.append(QtCore.QPointF(i, up_value))
         
@@ -65,7 +65,7 @@ class BOLLItem(pg.GraphicsObject):
         # 绘制中轨线
         mb_points = []
         for i in range(len(self.data)):
-            mb_value = self.data['boll_mb'].iloc[i]
+            mb_value = self.data[IndicatrosEnum.BOLL_MID.value].iloc[i]
             if not np.isnan(mb_value):
                 mb_points.append(QtCore.QPointF(i, mb_value))
         
@@ -77,7 +77,7 @@ class BOLLItem(pg.GraphicsObject):
         # 绘制下轨线
         dn_points = []
         for i in range(len(self.data)):
-            dn_value = self.data['boll_dn'].iloc[i]
+            dn_value = self.data[IndicatrosEnum.BOLL_LOWER.value].iloc[i]
             if not np.isnan(dn_value):
                 dn_points.append(QtCore.QPointF(i, dn_value))
         
