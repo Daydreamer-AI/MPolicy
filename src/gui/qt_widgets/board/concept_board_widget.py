@@ -2,6 +2,8 @@ from PyQt5 import QtWidgets, uic, QtCore
 from PyQt5.QtWidgets import QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout, QMessageBox
 from PyQt5.QtCore import pyqtSlot, QTimer
 
+import pandas as pd
+
 from manager.logging_manager import get_logger
 from processor.ak_stock_data_processor import AKStockDataProcessor
 from gui.qt_widgets.MComponents.stock_card_widget import StockCardWidget
@@ -42,11 +44,21 @@ class ConceptBoardWidget(QWidget):
             self.logger.warning("数据中不包含 board_change_percent 字段")
 
         # 预处理数据
-        if 'change_rank' in self.df_concept_board_data.columns:
-            # 使用正则表达式提取排名（格式为：10/389，提取第一个数字作为排名）
-            self.df_concept_board_data['rank'] = self.df_concept_board_data['change_rank'].str.extract(r'(\d+)/\d+').astype(int)
-        else:
-            self.logger.warning("数据中不包含 change_rank 字段")
+        try:
+            # 提取排名数据
+            extracted = self.df_concept_board_data['change_rank'].str.extract(r'(\d+)/\d+')
+            
+            # 检查提取结果，如果有无效数据，标记出来
+            invalid_mask = extracted[0].isna()
+            if invalid_mask.any():
+                print(f"发现 {invalid_mask.sum()} 个无效的 change_rank 格式")
+                
+            # 转换为数值，无效的设为0
+            self.df_concept_board_data['rank'] = pd.to_numeric(extracted[0], errors='coerce').fillna(0).astype(int)
+        except Exception as e:
+            print(f"处理 change_rank 时发生错误: {e}")
+            # 设置默认值避免程序崩溃
+            self.df_concept_board_data['rank'] = 0
             
         if 'rise_fall_count' in self.df_concept_board_data.columns:
             # 使用正则表达式提取上涨家数和下跌家数（格式为：16/4，第一个数字是上涨家数，第二个是下跌家数）
@@ -68,11 +80,24 @@ class ConceptBoardWidget(QWidget):
         else:
             self.logger.warning("数据中不包含 board_change_percent 字段")
 
-        if 'change_rank' in df_lastest_concept_data.columns:
-            # 使用正则表达式提取排名（格式为：10/389，提取第一个数字作为排名）
-            df_lastest_concept_data['rank'] = df_lastest_concept_data['change_rank'].str.extract(r'(\d+)/\d+').astype(int)
+        if 'change_rank' in self.df_concept_board_data.columns:
+            try:
+                # 提取排名数据
+                extracted = self.df_concept_board_data['change_rank'].str.extract(r'(\d+)/\d+')
+                
+                # 检查提取结果，如果有无效数据，标记出来
+                invalid_mask = extracted[0].isna()
+                if invalid_mask.any():
+                    print(f"发现 {invalid_mask.sum()} 个无效的 change_rank 格式")
+                    
+                # 转换为数值，无效的设为0
+                self.df_concept_board_data['rank'] = pd.to_numeric(extracted[0], errors='coerce').fillna(0).astype(int)
+            except Exception as e:
+                print(f"处理 change_rank 时发生错误: {e}")
+                # 设置默认值避免程序崩溃
+                self.df_concept_board_data['rank'] = 0
         else:
-            self.logger.warning("数据中不包含 change_rank 字段")
+            print("数据中不包含 change_rank 字段")
             
         if 'rise_fall_count' in df_lastest_concept_data.columns:
             # 使用正则表达式提取上涨家数和下跌家数（格式为：16/4，第一个数字是上涨家数，第二个是下跌家数）

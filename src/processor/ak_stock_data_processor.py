@@ -181,6 +181,10 @@ class AKStockDataProcessor:
                 self.logger.info(f"开始处理第 {count} 个概念: {row.concept_name}, 概念代码: {row.concept_code}")
                 df = ak.stock_board_concept_info_ths(symbol=row.concept_name)
 
+                if df is None or df.empty:  # 如果数据为空，则跳过
+                    self.logger.warning(f"获取的概念: {row.concept_name}, 概念代码: {row.concept_code}数据为空，跳过处理")
+                    continue
+
                 # self.logger.info(f"返回数据类型：{type(df)}")   # <class 'pandas.core.frame.DataFrame'>
                 # self.logger.info(df)
 

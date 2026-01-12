@@ -3,6 +3,8 @@ from PyQt5.QtWidgets import QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout
 from PyQt5.QtCore import pyqtSlot, Qt
 from PyQt5.QtGui import QIntValidator
 
+import pandas as pd
+
 from manager.logging_manager import get_logger
 
 from gui.qt_widgets.board.industry_board_overview_widget import IndustryBoardOverviewWidget
@@ -52,6 +54,7 @@ class BoardOverviewWidget(QWidget):
 
         self.df_lastest_industry_data = AKStockDataProcessor().get_latest_ths_board_industry_data()
         self.df_lastest_concept_data = AKStockDataProcessor().get_latest_ths_board_concept_overview()
+        self.df_lastest_concept_data = self.df_lastest_concept_data.dropna()
 
     def init_connect(self):
         self.lineEdit_top.returnPressed.connect(self.slot_lineEdit_top_returnPressed)
@@ -85,11 +88,26 @@ class BoardOverviewWidget(QWidget):
         # else:
         #     self.logger.warning("数据中不包含 board_change_percent 字段")
         # 预处理数据
-        if 'change_rank' in self.df_lastest_concept_data.columns:
-            # 使用正则表达式提取排名（格式为：10/389，提取第一个数字作为排名）
-            self.df_lastest_concept_data['rank'] = self.df_lastest_concept_data['change_rank'].str.extract(r'(\d+)/\d+').astype(int)
-        else:
-            self.logger.warning("数据中不包含 change_rank 字段")
+        try:
+            if 'change_rank' in self.df_lastest_concept_data.columns:
+                # 检查 change_rank 是否有有效数据
+                change_rank_series = self.df_lastest_concept_data['change_rank']
+                
+                # 提取排名数据
+                extracted = change_rank_series.str.extract(r'(\d+)/\d+')
+                
+                # 检查提取结果，如果有无效数据，标记出来
+                invalid_mask = extracted[0].isna()
+                if invalid_mask.any():
+                    self.logger.warning(f"发现 {invalid_mask.sum()} 个无效的 change_rank 格式")
+                    
+                # 转换为数值，无效的设为0
+                self.df_lastest_concept_data['rank'] = pd.to_numeric(extracted[0], errors='coerce').fillna(0).astype(int)
+            else:
+                self.logger.warning("数据中不包含 change_rank 字段")
+        except Exception as e:
+            self.logger.warning(f"数据转换错误：{e}")
+
             
         if 'rise_fall_count' in self.df_lastest_concept_data.columns:
             # 使用正则表达式提取上涨家数和下跌家数（格式为：16/4，第一个数字是上涨家数，第二个是下跌家数）
