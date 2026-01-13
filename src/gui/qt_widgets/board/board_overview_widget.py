@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout
-from PyQt5.QtCore import pyqtSlot, Qt
+from PyQt5.QtCore import pyqtSlot, QDate
 from PyQt5.QtGui import QIntValidator
 
 import pandas as pd
@@ -25,6 +25,9 @@ class BoardOverviewWidget(QWidget):
     def init_ui(self):
         uic.loadUi('./src/gui/qt_widgets/board/BoardOverViewWidget.ui', self)
 
+        self.comboBox_type.addItem("涨跌幅")
+        self.comboBox_type.addItem("成交额")
+
         validator = MRangeValidator(10, 30, self.lineEdit_top)
         self.lineEdit_top.setValidator(validator)
         self.lineEdit_top.setText('20')
@@ -34,21 +37,24 @@ class BoardOverviewWidget(QWidget):
         self.industry_change_percent_chart_widget.setMinimumHeight(768)
         self.concept_change_percent_chart_widget.setMinimumHeight(768)
 
-        container_layout = self.widget.layout()
+        container_layout = self.scrollAreaWidgetContents.layout()
         if container_layout is None:
             self.setLayout(QVBoxLayout())
 
         container_layout.addWidget(self.industry_change_percent_chart_widget)
         container_layout.addWidget(self.concept_change_percent_chart_widget)
-        self.widget.setMinimumHeight(
-            self.industry_change_percent_chart_widget.sizeHint().height() +
-            self.concept_change_percent_chart_widget.sizeHint().height() + 30
-        )
 
-        self.update_chart()
+        if self.update_chart():
+            self.last_selected_date = self.lastest_industry_data_date
+            self.dateEdit.blockSignals(True)
+            self.dateEdit.setDate(QDate.fromString(self.last_selected_date, "yyyy-MM-dd"))
+            self.dateEdit.blockSignals(False)
 
         
     def init_para(self):
+        self.last_selected_date = '2026-01-01'
+        self.last_select_combo_index = 0
+
         self.lastest_industry_data_date = None
         self.lastest_concept_data_date = None
 
@@ -57,31 +63,31 @@ class BoardOverviewWidget(QWidget):
         self.df_lastest_concept_data = self.df_lastest_concept_data.dropna()
 
     def init_connect(self):
+        self.dateEdit.dateChanged.connect(self.slot_dateEdit_dateChanged)
         self.lineEdit_top.returnPressed.connect(self.slot_lineEdit_top_returnPressed)
 
-    def update_chart(self, top=20):
+        self.comboBox_type.currentIndexChanged.connect(self.slot_comboBox_type_currentIndexChanged)
+
+    def update_chart(self, top=20, show_type=0):
         if self.df_lastest_industry_data is None or self.df_lastest_concept_data is None:
             self.logger.warning("数据为空！")
-            return
+            return False
 
         if self.df_lastest_industry_data.empty or self.df_lastest_concept_data.empty:
             self.logger.warning("数据为空！")
-            return
+            return False
         
+        s_industry_date = self.df_lastest_industry_data['date'].iloc[0]
+        s_concept_date = self.df_lastest_concept_data['date'].iloc[0]
 
-        # 判断日期是否匹配
-        s_industry_date = self.df_lastest_industry_data['date'].iloc[-1]
-        s_concept_date = self.df_lastest_concept_data['date'].iloc[-1]
         if s_industry_date != s_concept_date:
             self.logger.warning(f"行业板块数据日期和概念板块数据日期不一致，请检查数据！s_industry_date：{s_industry_date}，s_concept_date：{s_concept_date}")
-            return
+            return False
         
         self.lastest_industry_data_date = s_industry_date
         self.lastest_concept_data_date = s_concept_date
 
-        
-        self.label.setText(f"{s_industry_date} 板块概览")
-        self.industry_change_percent_chart_widget.draw_chart(self.df_lastest_industry_data, top)
+        b_ret = self.industry_change_percent_chart_widget.draw_chart(self.df_lastest_industry_data, top, show_type)
 
         # if 'board_change_percent' in df_lastest_concept_data.columns:
         #     df_lastest_concept_data = df_lastest_concept_data.rename(columns={'board_change_percent': 'change_percent'})
@@ -117,14 +123,63 @@ class BoardOverviewWidget(QWidget):
         else:
             self.logger.warning("数据中不包含 rise_fall_count 字段")
 
-        self.concept_change_percent_chart_widget.draw_chart(self.df_lastest_concept_data, top)
+        b_ret_1 = self.concept_change_percent_chart_widget.draw_chart(self.df_lastest_concept_data, top, show_type)
+
+        return b_ret and b_ret_1
+    
+    def get_top_value(self):
+        text = self.lineEdit_top.text()
+        self.logger.info(f"top值为：{text}")
+        if not text:  # 空输入处理
+            return 20
+        else:
+            return int(text)
+    
+    def restore_dateEdit(self):
+        if self.last_selected_date is None: return
+        # 恢复
+        self.dateEdit.blockSignals(True)
+        self.dateEdit.setDate(QDate.fromString(self.last_selected_date, "yyyy-MM-dd"))
+        self.dateEdit.clearFocus()
+        self.dateEdit.blockSignals(False)
+
+    def restore_comoboBox(self):
+        if self.last_select_combo_index is None or self.last_select_combo_index < 0: return
+        self.comboBox_type.blockSignals(True)
+        self.comboBox_type.setCurrentIndex(self.last_select_combo_index)
+        self.comboBox_type.blockSignals(False)
+
+    def slot_dateEdit_dateChanged(self, date):
+        self.logger.info(f"收到日期选择: {date}")
+        s_date = date.toString("yyyy-MM-dd")
+        self.logger.info(f"收到日期选择--s_date: {s_date}")
+
+        df_industry_data = AKStockDataProcessor().query_ths_board_industry_data(s_date)
+        df_concept_data = AKStockDataProcessor().query_ths_board_concept_overview(date=s_date)
+
+        if df_industry_data is None or df_concept_data is None or df_industry_data.empty or df_concept_data.empty:
+            self.logger.warning(f"数据为空！")
+            self.restore_dateEdit()
+            return
+        
+        self.df_lastest_industry_data = df_industry_data
+        self.df_lastest_concept_data = df_concept_data
+
+        top = self.get_top_value()
+        index = self.comboBox_type.currentIndex()
+        self.logger.info(f"index: {index}")
+        if not self.update_chart(top, index):
+            self.restore_dateEdit()
+        else:
+            self.last_selected_date = s_date
 
     def slot_lineEdit_top_returnPressed(self):
+        index = self.comboBox_type.currentIndex()
         text = self.lineEdit_top.text()
         self.logger.info(f"输入的top值为：{text}")
         if not text:  # 空输入处理
             self.lineEdit_top.setText('20')
-            self.update_chart(20)
+            self.update_chart(20, index)
             self.lineEdit_top.clearFocus()
             return
         
@@ -132,18 +187,25 @@ class BoardOverviewWidget(QWidget):
             top = int(text)
             # 虽然验证器已限制范围，但仍做一次检查
             if 10 <= top <= 30:
-                self.update_chart(top)
+                self.update_chart(top, index)
             else:
                 # 自动修正到有效范围
                 corrected = max(10, min(30, top))
                 self.lineEdit_top.setText(str(corrected))
-                self.update_chart(corrected)
+                self.update_chart(corrected, index)
         except ValueError:
             # 异常情况恢复默认值
             self.lineEdit_top.setText('20')
-            self.update_chart(20)
+            self.update_chart(20, index)
 
         self.lineEdit_top.clearFocus()
+
+    def slot_comboBox_type_currentIndexChanged(self, index):
+        top = self.get_top_value()
+        if not self.update_chart(top, index):
+            self.restore_comoboBox()
+        else:
+            self.last_select_combo_index = index
 
     def showEvent(self, event):
         """
@@ -161,8 +223,8 @@ class BoardOverviewWidget(QWidget):
         
 
         # 判断日期是否匹配
-        s_industry_date = self.df_lastest_industry_data['date'].iloc[-1]
-        s_concept_date = self.df_lastest_concept_data['date'].iloc[-1]
+        s_industry_date = self.df_lastest_industry_data['date'].iloc[0]
+        s_concept_date = self.df_lastest_concept_data['date'].iloc[0]
         if s_industry_date != s_concept_date:
             self.logger.warning(f"行业板块数据日期和概念板块数据日期不一致，请检查数据！s_industry_date：{s_industry_date}，s_concept_date：{s_concept_date}")
             return

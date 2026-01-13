@@ -94,7 +94,8 @@ class BoardChangePercentChartWidget(QWidget):
         # self.right_y_label_main.hide()
         self.x_label_main.hide()
 
-    def draw_chart(self, data, top=20):
+    def draw_chart(self, data, top=20, show_type=0):
+        self.show_type = show_type
         # 正确获取数据中的日期信息
         if 'date' in data.columns and not data.empty:
             # 获取数据中的唯一日期
@@ -110,18 +111,35 @@ class BoardChangePercentChartWidget(QWidget):
 
         if self.board_type == 0:
             s_board_name = "industry_name"
-            field_name = "change_percent"
-            display_name = "涨跌幅"
             s_board_type = "行业板块"
-            self.top_10 = data.nlargest(top, 'change_percent')      # 涨幅前十
-            self.bottom_10 = data.nsmallest(top, 'change_percent')  # 跌幅前十
+            if show_type == 0:
+                field_name = "change_percent"
+                display_name = "涨跌幅"
+                self.bottom_10 = data.nsmallest(top, field_name)
+            elif show_type == 1:
+                field_name = "total_amount"
+                display_name = "成交额"
+                self.bottom_10 = None
+
+            self.top_10 = data.nlargest(top, field_name)
+            
         else:
             s_board_name = "concept_name"
-            field_name = "board_change_percent"
-            display_name = "涨跌幅"
             s_board_type = "概念板块"
-            self.top_10 = data.nlargest(top, 'board_change_percent')      # 涨幅前十
-            self.bottom_10 = data.nsmallest(top, 'board_change_percent')  # 跌幅前十
+
+            if show_type == 0:
+                field_name = "board_change_percent"
+                display_name = "涨跌幅"
+                self.bottom_10 = data.nsmallest(top, field_name)  
+            elif show_type == 1:
+                field_name = "turnover"
+                display_name = "成交额"
+                self.bottom_10 = None
+            
+                self.logger.info(f"data.columns: {data.columns}")
+
+            self.top_10 = data.nlargest(top, field_name)
+            
 
         if field_name not in data.columns:
             self.logger.error(f"{field_name}字段不存在于数据中！")
@@ -131,8 +149,18 @@ class BoardChangePercentChartWidget(QWidget):
         # 清除之前的绘图
         self.plot_widget.clear()
         # board_name = getattr(data, s_board_name, None)
-        
-        self.plot_widget.setTitle(f"{s_board_type}涨跌幅 Top {top}", color='#008080', size='12pt')
+
+        if show_type == 0:
+            self.draw_change_percent_chart(s_board_type, s_board_name, top, field_name)
+        elif show_type == 1:
+            self.draw_amount_chart(s_board_type, s_board_name, top, field_name)
+
+
+        return True
+    
+    def draw_change_percent_chart(self, s_board_type, s_board_name, top, field_name):
+                
+        self.plot_widget.setTitle(f"{s_board_type} 涨跌幅 Top {top}", color='#008080', size='12pt')
 
         # 创建x轴位置（共10个位置，每个位置绘制两个柱子）
         self.x_positions = list(range(top))
@@ -175,49 +203,185 @@ class BoardChangePercentChartWidget(QWidget):
         # 添加行业名称标签
         self.top_names = self.top_10[s_board_name].tolist()  # 假设字段名为industry_name
         self.bottom_names = self.bottom_10[s_board_name].tolist()
-        self.add_bar_value_labels(top_values, bottom_values)
+        self.add_bar_value_labels(top_values, bottom_values, self.show_type)
 
-    def add_bar_value_labels(self, top_values, bottom_values):
+    def draw_amount_chart(self, s_board_type, s_board_name, top, field_name):
+        self.plot_widget.setTitle(f"{s_board_type} 成交额 Top {top}", color='#008080', size='12pt')
+
+        # 创建x轴位置（共10个位置，每个位置绘制两个柱子）
+        self.x_positions = list(range(top))
+        self.bar_width = 0.6
+        
+        # 获取涨幅和跌幅数据
+        top_values = self.top_10[field_name].values
+        bottom_values = None
+        
+        top_bars = pg.BarGraphItem(
+            x=self.x_positions, 
+            height=top_values, 
+            width=self.bar_width, 
+            brush=pg.mkBrush(255, 0, 0, 150),  # 红色半透明
+            pen=pg.mkPen('k', width=0.5)
+        )
+    
+        # 添加柱状图到绘图区域
+        self.plot_widget.addItem(top_bars)
+
+        # 设置y轴范围
+        all_values = np.concatenate([top_values])
+        max_value = max(abs(all_values)) * 1.2  # 增加20%边距
+        self.plot_widget.setYRange(-max_value, max_value)
+        
+        # 设置坐标轴标签
+        self.plot_widget.setLabel('left', '成交额 (亿)')
+        self.plot_widget.setLabel('bottom', '排名')
+
+
+        # 添加行业名称标签
+        self.top_names = self.top_10[s_board_name].tolist()  # 假设字段名为industry_name
+        self.bottom_names = None
+        self.add_bar_value_labels(top_values, bottom_values, self.show_type)
+
+    # def add_bar_value_labels(self, top_values, bottom_values, show_type):
+    #     y_range = self.plot_widget.viewRange()[1]  # 获取y轴范围
+    #     y_span = y_range[1] - y_range[0]
+    #     offset = y_span * 0.03
+        
+    #     # 处理顶部值的标签（如果存在）
+    #     if self.top_names is not None and len(self.top_names) > 0:
+    #         for i, top_name in enumerate(self.top_names):
+    #             if i >= len(top_values):  # 防止索引越界
+    #                 break
+                    
+    #             # 涨幅名称标签（上方）
+    #             top_text = pg.TextItem(top_name[:8] + '...' if len(top_name) > 8 else top_name, anchor=(0.5, 1))
+    #             top_text.setPos(i, top_values[i] + offset)
+    #             top_text.setColor(pg.mkColor('k'))
+    #             font = pg.QtGui.QFont()
+    #             # font.setPointSize(7)
+    #             top_text.setFont(font)
+    #             self.plot_widget.addItem(top_text)
+            
+    #         # 添加顶部数值标签
+    #         for i, top_val in enumerate(top_values):
+    #             # 涨幅数值标签
+    #             if top_val > 0:
+    #                 if show_type == 0:
+    #                     top_text = pg.TextItem(f"+{top_val:.2f}%", anchor=(0.5, 0))
+    #                 elif show_type == 1:
+    #                     top_text = pg.TextItem(f"{top_val:.2f}", anchor=(0.5, 0))
+
+    #                 top_text.setPos(i, top_val + offset)
+    #                 top_text.setColor(pg.mkColor('k'))
+    #                 font = pg.QtGui.QFont()
+    #                 # font.setPointSize(7)
+    #                 top_text.setFont(font)
+    #                 self.plot_widget.addItem(top_text)
+        
+    #     # 处理底部值的标签（如果存在）
+    #     if self.bottom_names is not None and bottom_values is not None and len(self.bottom_names) > 0:
+    #         for i, bottom_name in enumerate(self.bottom_names):
+    #             if i >= len(bottom_values):  # 防止索引越界
+    #                 break
+                    
+    #             # 跌幅名称标签（下方）
+    #             bottom_text = pg.TextItem(bottom_name[:8] + '...' if len(bottom_name) > 8 else bottom_name, anchor=(0.5, 0))
+    #             bottom_text.setPos(i, bottom_values[i] - offset)
+    #             bottom_text.setColor(pg.mkColor('k'))
+    #             bottom_text.setFont(pg.QtGui.QFont())
+    #             bottom_text.setFont(pg.QtGui.QFont())
+    #             self.plot_widget.addItem(bottom_text)
+            
+    #         # 添加底部数值标签
+    #         for i, bottom_val in enumerate(bottom_values):
+    #             # 跌幅数值标签
+    #             if bottom_val < 0:
+    #                 bottom_text = pg.TextItem(f"{bottom_val:.2f}%", anchor=(0.5, 1))
+    #                 bottom_text.setPos(i, bottom_val - offset)
+    #                 bottom_text.setColor(pg.mkColor('k'))
+    #                 bottom_text.setFont(pg.QtGui.QFont())
+    #                 self.plot_widget.addItem(bottom_text)
+
+    def add_bar_value_labels(self, top_values, bottom_values, show_type):
         y_range = self.plot_widget.viewRange()[1]  # 获取y轴范围
         y_span = y_range[1] - y_range[0]
         offset = y_span * 0.03
         
-        for i, (top_name, bottom_name) in enumerate(zip(self.top_names, self.bottom_names)):
-            # 涨幅行业名称（上方）
-            top_text = pg.TextItem(top_name[:8] + '...' if len(top_name) > 8 else top_name, anchor=(0.5, 1))
-            top_text.setPos(i, top_values[i] + offset)
-            top_text.setColor(pg.mkColor('k'))
-            font = pg.QtGui.QFont()
-            font.setPointSize(7)
-            top_text.setFont(font)
-            self.plot_widget.addItem(top_text)
-            
-            # 跌幅行业名称（下方）
-            bottom_text = pg.TextItem(bottom_name[:8] + '...' if len(bottom_name) > 8 else bottom_name, anchor=(0.5, 0))
-            bottom_text.setPos(i, bottom_values[i] - offset)
-            bottom_text.setColor(pg.mkColor('k'))
-            bottom_text.setFont(font)
-            self.plot_widget.addItem(bottom_text)
-        
-        # 添加数值标签
-        for i, (top_val, bottom_val) in enumerate(zip(top_values, bottom_values)):
-            # 涨幅数值标签
-            if top_val > 0:
-                top_text = pg.TextItem(f"+{top_val:.2f}%", anchor=(0.5, 0))
-                top_text.setPos(i, top_val + offset)
+        # 处理顶部值的标签（如果存在）
+        if self.top_names is not None and len(self.top_names) > 0:
+            for i, top_name in enumerate(self.top_names):
+                if i >= len(top_values):  # 防止索引越界
+                    break
+                    
+                # 涨幅名称标签（上方）
+                top_text = pg.TextItem(top_name[:8] + '...' if len(top_name) > 8 else top_name, anchor=(0.5, 1))
+                top_text.setPos(i, top_values[i] + offset)
                 top_text.setColor(pg.mkColor('k'))
                 font = pg.QtGui.QFont()
-                font.setPointSize(7)
                 top_text.setFont(font)
                 self.plot_widget.addItem(top_text)
             
-            # 跌幅数值标签
-            if bottom_val < 0:
-                bottom_text = pg.TextItem(f"{bottom_val:.2f}%", anchor=(0.5, 1))
-                bottom_text.setPos(i, bottom_val - offset)
-                bottom_text.setColor(pg.mkColor('k'))
-                bottom_text.setFont(font)
-                self.plot_widget.addItem(bottom_text)
+            # 添加顶部数值标签
+            for i, top_val in enumerate(top_values):
+                # 涨幅数值标签
+                if top_val > 0:
+                    if show_type == 0:
+                        top_text = pg.TextItem(f"+{top_val:.2f}%", anchor=(0.5, 0))
+                    elif show_type == 1:
+                        top_text = pg.TextItem(f"{top_val:.2f}", anchor=(0.5, 0))
+                    
+                    top_text.setPos(i, top_val + offset)
+                    top_text.setColor(pg.mkColor('k'))
+                    font = pg.QtGui.QFont()
+                    top_text.setFont(font)
+                    self.plot_widget.addItem(top_text)
+        
+        # 处理底部值的标签（如果存在）
+        if self.bottom_names is not None and bottom_values is not None and len(self.bottom_names) > 0:
+            # 计算一个固定的底部位置，确保标签总是在0轴线下方
+            min_bottom_position = min(0, min(bottom_values)) - offset if len(bottom_values) > 0 else -offset
+            
+            for i, bottom_name in enumerate(self.bottom_names):
+                if i >= len(bottom_values):  # 防止索引越界
+                    break
+                
+                # 底部数值标签（固定在名称上方）
+                if bottom_values[i] < 0:
+                    # 负值情况下显示在柱子下方
+                    bottom_text = pg.TextItem(f"{bottom_values[i]:.2f}%", anchor=(0.5, 1))
+                    bottom_text.setPos(i, bottom_values[i] - offset)
+                    bottom_text.setColor(pg.mkColor('k'))
+                    bottom_text.setFont(pg.QtGui.QFont())
+                    self.plot_widget.addItem(bottom_text)
+                elif bottom_values[i] >= 0:
+                    # 正值情况下也显示在柱子下方
+                    if show_type == 0:
+                        bottom_text = pg.TextItem(f"+{bottom_values[i]:.2f}%", anchor=(0.5, 1))
+                    elif show_type == 1:
+                        bottom_text = pg.TextItem(f"{bottom_values[i]:.2f}", anchor=(0.5, 1))
+                    
+                    # 固定在底部区域，确保在0轴线下方
+                    fixed_bottom_pos = 0    # min(min_bottom_position, bottom_values[i] - offset if bottom_values[i] < 0 else min_bottom_position)
+                    bottom_text.setPos(i, fixed_bottom_pos - offset)
+                    bottom_text.setColor(pg.mkColor('k'))
+                    bottom_text.setFont(pg.QtGui.QFont())
+                    self.plot_widget.addItem(bottom_text)
+                
+                # 底部名称标签（固定在数值标签下方）
+                bottom_name_text = pg.TextItem(bottom_name[:8] + '...' if len(bottom_name) > 8 else bottom_name, anchor=(0.5, 0))
+                
+                # 根据数值标签的位置确定名称标签位置
+                if bottom_values[i] < 0:
+                    # 负值情况下名称标签在数值标签下方
+                    name_pos_y = bottom_values[i] - offset
+                else:
+                    # 正值情况下名称标签在数值标签下方
+                    name_pos_y = fixed_bottom_pos - offset
+                
+                bottom_name_text.setPos(i, name_pos_y)
+                bottom_name_text.setColor(pg.mkColor('k'))
+                bottom_name_text.setFont(pg.QtGui.QFont())
+                self.plot_widget.addItem(bottom_name_text)
 
     def get_date_str(self, index):
         row = self.data.iloc[index]
@@ -306,44 +470,49 @@ class BoardChangePercentChartWidget(QWidget):
             
 
     def update_label_industry(self, index):
-        top_name = self.top_names[index]
-        top_row = self.get_row_by_board_and_date(top_name, self.chart_date)
 
-        bottom_name = self.bottom_names[index]
-        bottom_row = self.get_row_by_board_and_date(bottom_name, self.chart_date)
-        if top_row is None or bottom_row is None:
-            return
+        if self.top_names is not None:
+            top_name = self.top_names[index]
+            top_row = self.get_row_by_board_and_date(top_name, self.chart_date)
 
-        top_tip = self.get_industry_board_tip_text(top_row, top_name)
-        top_tip_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(top_tip)
-        self.label_main.setHtml(top_tip_with_style)
-
-        bottom_tip = self.get_industry_board_tip_text(bottom_row, bottom_name) 
-        bottom_tip_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(bottom_tip)
-        self.label_main_2.setHtml(bottom_tip_with_style)
-
-        #tip_with_style = '<div style="display: flex;">' + top_tip_with_style + '<br>' + '</div>' + '<div style="display: flex;">' + bottom_tip_with_style + '</div>'
-        #self.label_main.setHtml(tip_with_style)
-
+            if top_row is None:
+                return
+            else:
+                top_tip = self.get_industry_board_tip_text(top_row, top_name)
+                top_tip_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(top_tip)
+                self.label_main.setHtml(top_tip_with_style)
+        
+        if self.bottom_names is not None:
+            bottom_name = self.bottom_names[index]
+            bottom_row = self.get_row_by_board_and_date(bottom_name, self.chart_date)
+            if bottom_row is None:
+                return
+            else:
+                bottom_tip = self.get_industry_board_tip_text(bottom_row, bottom_name) 
+                bottom_tip_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(bottom_tip)
+                self.label_main_2.setHtml(bottom_tip_with_style)
     def update_label_concept(self, index):
-        top_name = self.top_names[index]
-        top_row = self.get_row_by_board_and_date(top_name, self.chart_date)
 
-        bottom_name = self.bottom_names[index]
-        bottom_row = self.get_row_by_board_and_date(bottom_name, self.chart_date)
-        if top_row is None or bottom_row is None:
-            return
+        if self.top_names is not None:
+            top_name = self.top_names[index]
+            top_row = self.get_row_by_board_and_date(top_name, self.chart_date)
 
-        tip_text = self.get_concept_board_tip_text(top_row, top_name)
-        text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(tip_text)
-        self.label_main.setHtml(text_with_style)
+            if top_row is None:
+                return
+            else:
+                tip_text = self.get_concept_board_tip_text(top_row, top_name)
+                text_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(tip_text)
+                self.label_main.setHtml(text_with_style)
 
-        bottom_tip = self.get_concept_board_tip_text(bottom_row, bottom_name) 
-        bottom_tip_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(bottom_tip)
-        self.label_main_2.setHtml(bottom_tip_with_style)
-
-        # self.label_main.setPos(self.adjusted_timestamps[index] + self.bar_width, 0)
-        # self.label_main.show()
+        if self.bottom_names is not None:
+            bottom_name = self.bottom_names[index]
+            bottom_row = self.get_row_by_board_and_date(bottom_name, self.chart_date)
+            if bottom_row is None:
+                return
+            else:
+                bottom_tip = self.get_concept_board_tip_text(bottom_row, bottom_name) 
+                bottom_tip_with_style = '<div style="color: black; background-color: white; border: 3px solid black; padding: 2px;">{}</div>'.format(bottom_tip)
+                self.label_main_2.setHtml(bottom_tip_with_style)
 
 
     def on_range_changed(self):
