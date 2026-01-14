@@ -942,3 +942,16 @@ def auto_release_memory_usage(self):
         # 如果内存仍然过高，可以考虑暂停或调整处理策略
         if memory_mb > 3000:  # 超过3GB
             time.sleep(1)  # 短暂暂停
+
+
+def normalize_stock_codes(stock_list):
+    """标准化股票代码格式"""
+    normalized = []
+    for code in stock_list:
+        if isinstance(code, str):
+            # 移除可能的空白字符
+            normalized.append(code.strip())
+        else:
+            # 如果是其他类型（如numpy.str_），转换为字符串
+            normalized.append(str(code).strip())
+    return normalized

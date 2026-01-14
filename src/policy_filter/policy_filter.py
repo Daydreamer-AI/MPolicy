@@ -351,7 +351,7 @@ def daily_up_ma20_filter(df_filter_data, period=TimePeriod.DAY):
 
 
 # 涨停复制
-def limit_copy_filter(df_filter_data, target_date=None):
+def limit_copy_filter(df_filter_data, target_date=None, limit_up=True):
     if df_filter_data.empty:
         return False
     
@@ -373,7 +373,6 @@ def limit_copy_filter(df_filter_data, target_date=None):
         
         # 检查是否有匹配的日期数据
         if target_rows.empty:
-            stock_code = target_row['code'].item()
             logger.warning(f"未找到指定日期 {target_date} 的数据")
             return False
         
@@ -426,17 +425,21 @@ def limit_copy_filter(df_filter_data, target_date=None):
         # 使用涨停判断函数
         if previous_close is not None and stock_code is not None:
             # 使用common_api.py中的is_stock_limit_up函数判断是否涨停
-            from common.common_api import is_stock_limit_up
-            is_limit_up = is_stock_limit_up(stock_code, current_close, previous_close)
+            from common.common_api import is_stock_limit_up, is_stock_limit_down
+
+            if limit_up:
+                is_limit_up = is_stock_limit_up(stock_code, current_close, previous_close)
+            else:
+                is_limit_up = is_stock_limit_down(stock_code, current_close, previous_close)
             
             # if is_limit_up:
             #     logger.info(f"股票 {stock_code} 在 {date_val} 涨停，当前价格: {current_close}，前一日收盘价: {previous_close}")
             # else:
             #     logger.info(f"股票 {stock_code} 在 {date_val} 未涨停，当前价格: {current_close}，前一日收盘价: {previous_close}")
         elif previous_close is None:
-            logger.warning(f"无法获取前一日收盘价，无法判断涨停情况")
+            logger.warning(f"无法获取前一日收盘价，无法判断涨跌停情况")
         elif stock_code is None:
-            logger.warning(f"无法获取股票代码，无法判断涨停情况")
+            logger.warning(f"无法获取股票代码，无法判断涨跌停情况")
         
         # 其他处理逻辑...
     except ValueError:
@@ -809,12 +812,10 @@ def daily_down_double_bottom_filter(df_filter_data, df_weekly_data, b_weekly_fil
     lowest_date = lowest_result['lowest_date']
     neck_line = lowest_result['neckline']
 
-    b_ret = day_diff <= 0 and day_dea < 0 and day_turn > policy_filter_turn and day_lb > policy_filter_lb
-    b_ret_2 = day_close >= lowest_value and day_close <= day_ma10 and day_close < day_ma24 and day_close < day_ma52
+    b_ret = day_diff <= 0 and day_dea <= 0 and day_turn > policy_filter_turn and day_lb > policy_filter_lb
+    b_ret_2 = day_close >= lowest_value and day_close <= day_ma24*1.03 and day_close <= day_ma52
     b_ret_3 = day_ma5 <= day_ma24 and day_ma24 < day_ma52
     b_ret_4 = neck_line >= day_ma10
-    
-    
 
     if b_ret and b_ret_2 and b_ret_3 and b_ret_4 and b_ret_5:
         code = last_day_row['code'].item()

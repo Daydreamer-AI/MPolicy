@@ -1890,32 +1890,50 @@ class BaoStockProcessor(QObject):
         else:
             self.logger.info("零轴下方双底【隐形背离】筛选结果为空")
 
+        self.compare_zero_down_double_bottom_and_ma24_ma52_filter_result(filter_result, end_date, period)
+
+        return filter_result
+    
+
+    def compare_zero_down_double_bottom_and_ma24_ma52_filter_result(self, filter_result, end_date, period):
         # 对比双底和零轴下方MA24-MA52结果
         filter_result_data_manager = FilterResultDataManger(4)
         df_zero_down_ma24_ma52_filter_result = filter_result_data_manager.get_filter_result_with_params(end_date, period)
+        self.logger.info(f"零轴下方MA24-MA52筛选结果，共{len(df_zero_down_ma24_ma52_filter_result)}只股票：")
+
         if df_zero_down_ma24_ma52_filter_result is not None and not df_zero_down_ma24_ma52_filter_result.empty:
+            # 先获取股票代码列（假设列名为'code'，需要根据实际情况调整）
+            ma24_ma52_codes = df_zero_down_ma24_ma52_filter_result['code'].tolist()
+            
+            # 标准化两个列表的格式
+            normalized_ma24_ma52 = normalize_stock_codes(ma24_ma52_codes)
+            normalized_filter_result = normalize_stock_codes(filter_result)
+            
+            # 调试输出，查看实际数据
+            self.logger.info(f"MA24-MA52前5个代码: {normalized_ma24_ma52[:5]}")
+            self.logger.info(f"双底前5个代码: {normalized_filter_result[:5]}")
+            
             # 计算集合操作
-            filter_result_set = set(filter_result)
-            ma24_ma52_result_set = set(df_zero_down_ma24_ma52_filter_result)
+            filter_result_set = set(normalized_filter_result)
+            ma24_ma52_result_set = set(normalized_ma24_ma52)
 
             # 交集
             common_stocks = filter_result_set.intersection(ma24_ma52_result_set)
 
             # 差集
-            only_in_double_bottom = filter_result_set.difference(ma24_ma52_result_set)  # 在双底中不在MA24-MA52中的
-            only_in_ma24_ma52 = ma24_ma52_result_set.difference(filter_result_set)      # 在MA24-MA52中不在双底中的
+            only_in_double_bottom = filter_result_set.difference(ma24_ma52_result_set)
+            only_in_ma24_ma52 = ma24_ma52_result_set.difference(filter_result_set)
 
-            # 转换回列表格式（如果需要）
+            # 转换回列表格式
             common_stocks_list = list(common_stocks)
             only_in_double_bottom_list = list(only_in_double_bottom)
             only_in_ma24_ma52_list = list(only_in_ma24_ma52)
 
-            self.logger.info(f"MA24-MA52筛选股票数量：{len(ma24_ma52_result_set)}, 双底筛选股票数量：{len(filter_result_set)}，交集股票数量: {len(common_stocks_list)}")    # , 股票代码: {common_stocks_list}
-            self.logger.info(f"仅双底筛选通过的股票数量: {len(only_in_double_bottom_list)}, 股票代码: {only_in_double_bottom_list}")
-            self.logger.info(f"仅MA24-MA52筛选通过的股票数量: {len(only_in_ma24_ma52_list)}, 股票代码: {only_in_ma24_ma52_list}")
+            self.logger.info(f"MA24-MA52筛选股票数量：{len(ma24_ma52_result_set)}, 双底筛选股票数量：{len(filter_result_set)}，交集股票数量: {len(common_stocks_list)}")
+            self.logger.info(f"仅双底筛选通过的股票数量: {len(only_in_double_bottom_list)}, 股票代码: {only_in_double_bottom_list[:10]}...")  # 只显示前10个
+            self.logger.info(f"仅MA24-MA52筛选通过的股票数量: {len(only_in_ma24_ma52_list)}, 股票代码: {only_in_ma24_ma52_list[:10]}...")
 
-        return filter_result
-
+            filter_result_data_manager.save_result_list_to_txt(only_in_ma24_ma52_list, f"{self.get_filter_result_file_suffix()}_only_in_ma24_ma52.txt", ', ', period, f"仅MA24-MA52筛选通过的股票数量: ，共{len(only_in_ma24_ma52_list)}只股票：\n")
 
     def limit_copy_filter(self, condition=None, start_date=None, end_date=None):
         period = TimePeriod.DAY
