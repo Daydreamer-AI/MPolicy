@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets, uic, QtGui
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout
+from PyQt5.QtWidgets import QDialog
 from PyQt5.QtCore import pyqtSlot
 
 import pyqtgraph as pg
@@ -8,17 +8,25 @@ import numpy as np
 from manager.logging_manager import get_logger
 from gui.qt_widgets.MComponents.indicators.base_indicator_widget import BaseIndicatorWidget
 from gui.qt_widgets.MComponents.indicators.item.boll_item import BOLLItem
+from gui.qt_widgets.MComponents.indicators.setting.boll_setting_dialog import BollSettingDialog
 
 from manager.indicators_config_manager import *
+from indicators.stock_data_indicators import *
 
 class BollWidget(BaseIndicatorWidget):
     def __init__(self, data, type, parent=None):
         super(BollWidget, self).__init__(data, type, parent)
-
+        self.custom_init()
         self.load_qss()
+
+    def custom_init(self):
+        self.btn_close.hide()
+
+        self.btn_setting.clicked.connect(self.slot_btn_setting_clicked)
 
     def init_para(self, data):
         self.logger = get_logger(__name__)
+        self.indicator_type = IndicatrosEnum.BOLL.value
         # 检查是否有数据
         if data is None or data.empty:
             # raise ValueError("数据为空，无法绘制BOLL指标图")
@@ -26,7 +34,8 @@ class BollWidget(BaseIndicatorWidget):
             return
         
         # 确保数据列存在
-        required_columns = ['close', IndicatrosEnum.BOLL_UPPER.value, IndicatrosEnum.BOLL_MID.value, IndicatrosEnum.BOLL_LOWER.value]
+        required_columns = get_indicator_config_manager().get_user_config_columns_by_indicator_type(IndicatrosEnum.BOLL.value)
+        required_columns.append('close')
         if not all(col in data.columns for col in required_columns):
             self.logger.warning("缺少必要的数据列来绘制BOLL指标图")
             raise ValueError("缺少必要的数据列来绘制BOLL指标图")
@@ -34,15 +43,24 @@ class BollWidget(BaseIndicatorWidget):
         self.df_data = data
         
     def load_qss(self):
-        self.label_mid.setStyleSheet(f"color: {dict_boll_color_hex[IndicatrosEnum.BOLL_MID.value]}")
-        self.label_upper.setStyleSheet(f"color: {dict_boll_color_hex[IndicatrosEnum.BOLL_UPPER.value]}")
-        self.label_lower.setStyleSheet(f"color: {dict_boll_color_hex[IndicatrosEnum.BOLL_LOWER.value]}")
+        self.dict_label = {
+            0: self.label_mid,
+            1: self.label_upper,
+            2: self.label_lower
+        }
+        dict_settings = get_indicator_config_manager().get_user_config_by_indicator_type(self.indicator_type)
+        if len(dict_settings) == 3:
+            self.label_param.setText(f"{dict_settings[0].period, dict_settings[1].period}")
+        for id, ma_setting in dict_settings.items():
+            if id in self.dict_label.keys():
+                self.dict_label[id].setStyleSheet(f"color: {ma_setting.color_hex}")
 
     def get_ui_path(self):
         return './src/gui/qt_widgets/MComponents/indicators/BollWidget.ui'
 
     def validate_data(self):
-        required_columns = ['close', IndicatrosEnum.BOLL_UPPER.value, IndicatrosEnum.BOLL_MID.value, IndicatrosEnum.BOLL_LOWER.value]
+        required_columns = get_indicator_config_manager().get_user_config_columns_by_indicator_type(IndicatrosEnum.BOLL.value)
+        required_columns.append('close')
         return all(col in self.df_data.columns for col in required_columns)
 
     def create_and_add_item(self):
@@ -75,6 +93,15 @@ class BollWidget(BaseIndicatorWidget):
     
     def update_widget_labels(self):
         self.slot_global_update_labels(self, -1)
+
+    def slot_btn_setting_clicked(self):
+        dlg = BollSettingDialog()
+        result = dlg.exec()
+        if result == QDialog.Accepted:
+            self.logger.info("更新BOLL设置")
+            auto_boll_calulate(self.df_data)
+            self.update_data(self.df_data)
+            self.auto_scale_to_latest(120)
     
     def slot_range_changed(self):
         '''当视图范围改变时调用'''
@@ -109,14 +136,22 @@ class BollWidget(BaseIndicatorWidget):
         if self.type != sender.type:
             # self.logger.info(f"不响应其他窗口的鼠标移动事件")
             return
-        mid = self.df_data.iloc[closest_index][IndicatrosEnum.BOLL_MID.value]
-        upper = self.df_data.iloc[closest_index][IndicatrosEnum.BOLL_UPPER.value]
-        lower = self.df_data.iloc[closest_index][IndicatrosEnum.BOLL_LOWER.value]
 
-        # TODO
-        self.label_mid.setText(f"MID:{mid:.2f}")
-        self.label_upper.setText(f"UPPER:{upper:.2f}")
-        self.label_lower.setText(f"LOWER:{lower:.2f}")
+        dict_settings = get_indicator_config_manager().get_user_config_by_indicator_type(self.indicator_type)
+
+        if len(dict_settings) == 3:
+            self.label_param.setText(f"{dict_settings[0].period, dict_settings[1].period}")
+
+        self.dict_label = {
+            0: self.label_mid,
+            1: self.label_upper,
+            2: self.label_lower
+        }
+        for id, setting in dict_settings.items():
+            if id in self.dict_label.keys() and setting.name in self.df_data.columns:
+                self.dict_label[id].setText(f"{setting.name}:{self.df_data.iloc[closest_index][setting.name]:.2f}")
+                self.dict_label[id].setVisible(setting.visible)
+                self.dict_label[id].setStyleSheet(f"color: {setting.color_hex}")
 
     def slot_global_reset_labels(self, sender):
         self.slot_global_update_labels(sender, -1)

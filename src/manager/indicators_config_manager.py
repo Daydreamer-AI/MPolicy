@@ -253,15 +253,15 @@ dict_kdj_color_user_hex = dict_kdj_color_hex.copy()
 
 # RSI
 dict_rsi_color = { 
-f'{IndicatrosEnum.KDJ_K.value}6': (217, 186, 38),
-f'{IndicatrosEnum.KDJ_K.value}12': (10, 204, 90),
-f'{IndicatrosEnum.KDJ_K.value}24': (25, 160, 255)
+f'{IndicatrosEnum.RSI.value}6': (217, 186, 38),
+f'{IndicatrosEnum.RSI.value}12': (10, 204, 90),
+f'{IndicatrosEnum.RSI.value}24': (25, 160, 255)
 }
 
 dict_rsi_color_hex = { 
-    f'{IndicatrosEnum.KDJ_K.value}6': '#d9ba26',
-    f'{IndicatrosEnum.KDJ_K.value}12': '#0acc5a',
-    f'{IndicatrosEnum.KDJ_K.value}24': '#1fa0ff'
+    f'{IndicatrosEnum.RSI.value}6': '#d9ba26',
+    f'{IndicatrosEnum.RSI.value}12': '#0acc5a',
+    f'{IndicatrosEnum.RSI.value}24': '#1fa0ff'
 }
 
 dict_rsi_color_user = dict_rsi_color.copy()
@@ -508,9 +508,9 @@ class BOLLSetting(IndicatorSetting):
         
         if not name:
             if id == 0:
-                name = IndicatrosEnum.BOLL_UPPER.value
-            elif id == 1:
                 name = IndicatrosEnum.BOLL_MID.value
+            elif id == 1:
+                name = IndicatrosEnum.BOLL_UPPER.value
             else:
                 name = IndicatrosEnum.BOLL_LOWER.value
         

@@ -61,7 +61,7 @@ def kdj(data, n=9, m1=3, m2=3):
     
     return data
     
-#     return data
+# TODO: rsi计算出的数据与同花顺差别过大，待核查
 def rsi(data, period=14):
     """
     计算RSI指标（修正版，使用指数移动平均以接近同花顺等软件的结果）
@@ -336,6 +336,15 @@ def auto_rsi_calulate(stock_data):
     for id, rsi_setting in dict_rsi_settings.items():
         rsi(stock_data, rsi_setting.period)
 
+def auto_boll_calulate(stock_data):
+    dict_boll_settings = get_indicator_config_manager().get_user_config_by_indicator_type(IndicatrosEnum.BOLL.value)
+    if len(dict_boll_settings) < 2:
+        boll(stock_data)
+    else:
+        n = dict_boll_settings[0].period
+        m = dict_boll_settings[1].period
+        boll(stock_data, n, m)
+
 def default_indicators_auto_calculate(stock_data):
     if stock_data is None or stock_data.empty:
         raise ValueError("数据为空，无法计算指标")
@@ -350,7 +359,7 @@ def default_indicators_auto_calculate(stock_data):
 
     auto_rsi_calulate(stock_data)
 
-    boll(stock_data)
+    auto_boll_calulate(stock_data)
 
     calc_change_percent(stock_data)
     calc_turnover_rate(stock_data)

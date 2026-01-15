@@ -123,7 +123,7 @@ class RsiWidget(BaseIndicatorWidget):
         dlg = RsiSettingDialog()
         result = dlg.exec()
         if result == QDialog.Accepted:
-            self.logger.info("更新KDJ设置")
+            self.logger.info("更新RSI设置")
             auto_rsi_calulate(self.df_data)
             # 刷新K线图
             self.update_data(self.df_data)
