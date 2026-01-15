@@ -315,6 +315,16 @@ def auto_macd_calulate(stock_data):
         dea_period = dict_macd_settings[1].period
         ma_period = dict_macd_settings[2].period
         macd(stock_data, diff_period, dea_period, ma_period)
+
+def auto_kdj_calulate(stock_data):
+    dict_kdj_settings = get_indicator_config_manager().get_user_config_by_indicator_type(IndicatrosEnum.KDJ.value)
+    if len(dict_kdj_settings) != 3:
+        kdj(stock_data)
+    else:
+        k_period = dict_kdj_settings[0].period
+        d_period = dict_kdj_settings[1].period
+        j_period = dict_kdj_settings[2].period
+        kdj(stock_data, k_period, d_period, j_period)
         
 
 def auto_rsi_calulate(stock_data):
@@ -330,14 +340,10 @@ def default_indicators_auto_calculate(stock_data):
 
     auto_ma_calulate(stock_data)
 
-
     quantity_ratio(stock_data)
 
-    kdj(stock_data) 
+    auto_kdj_calulate
 
-    # rsi(stock_data, period=6)   # 计算RSI6
-    # rsi(stock_data, period=12)  # 计算RSI12
-    # rsi(stock_data, period=24)  # 计算RSI24
     auto_rsi_calulate(stock_data)
 
     boll(stock_data)

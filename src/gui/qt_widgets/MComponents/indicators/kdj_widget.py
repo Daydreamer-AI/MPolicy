@@ -1,6 +1,6 @@
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets, uic, QtGui
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout
+from PyQt5.QtWidgets import QDialog
 from PyQt5.QtCore import pyqtSlot
 
 import pyqtgraph as pg
@@ -9,17 +9,26 @@ import numpy as np
 from manager.logging_manager import get_logger
 from gui.qt_widgets.MComponents.indicators.base_indicator_widget import BaseIndicatorWidget
 from gui.qt_widgets.MComponents.indicators.item.kdj_item import KDJItem
+from gui.qt_widgets.MComponents.indicators.setting.kdj_setting_dialog import KdjSettingDialog
 
 from manager.indicators_config_manager import *
+from indicators.stock_data_indicators import *
 
 class KdjWidget(BaseIndicatorWidget):
     def __init__(self, data, type, parent=None):
         super(KdjWidget, self).__init__(data, type, parent)
-
+        self.custom_init()
         self.load_qss()
+
+    def custom_init(self):
+        self.btn_close.hide()
+
+        self.btn_setting.clicked.connect(self.slot_btn_setting_clicked)
 
     def init_para(self, data):
         self.logger = get_logger(__name__)
+        self.indicator_type = IndicatrosEnum.KDJ.value
+
         # 检查是否有数据
         if data is None or data.empty:
             # raise ValueError("数据为空，无法绘制KDJ指标图")
@@ -35,9 +44,15 @@ class KdjWidget(BaseIndicatorWidget):
         self.df_data = data
 
     def load_qss(self):
-        self.label_k.setStyleSheet(f"color: {dict_kdj_color_hex[IndicatrosEnum.KDJ_K.value]};")
-        self.label_d.setStyleSheet(f"color: {dict_kdj_color_hex[IndicatrosEnum.KDJ_D.value]};")
-        self.label_j.setStyleSheet(f"color: {dict_kdj_color_hex[IndicatrosEnum.KDJ_J.value]};")
+        self.dict_label = {
+            0: self.label_k,
+            1: self.label_d,
+            2: self.label_j
+        }
+        dict_settings = get_indicator_config_manager().get_user_config_by_indicator_type(self.indicator_type)
+        for id, ma_setting in dict_settings.items():
+            if id in self.dict_label.keys():
+                self.dict_label[id].setStyleSheet(f"color: {ma_setting.color_hex}")
 
     def get_ui_path(self):
         return './src/gui/qt_widgets/MComponents/indicators/KdjWidget.ui'
@@ -95,6 +110,16 @@ class KdjWidget(BaseIndicatorWidget):
         mid_line = pg.InfiniteLine(pos=50, angle=0, pen=pg.mkPen('gray', width=1, style=QtCore.Qt.DashLine))
         self.plot_widget.addItem(mid_line)
 
+    def slot_btn_setting_clicked(self):
+        dlg = KdjSettingDialog()
+        result = dlg.exec()
+        if result == QDialog.Accepted:
+            self.logger.info("更新KDJ设置")
+            auto_kdj_calulate(self.df_data)
+            # 刷新K线图
+            self.update_data(self.df_data)
+            self.auto_scale_to_latest(120)
+
     def slot_range_changed(self):
         '''当视图范围改变时调用'''
         # y轴坐标值同步
@@ -137,9 +162,21 @@ class KdjWidget(BaseIndicatorWidget):
         d = self.df_data.iloc[closest_index][IndicatrosEnum.KDJ_D.value]
         j = self.df_data.iloc[closest_index][IndicatrosEnum.KDJ_J.value]
 
-        self.label_k.setText(f"K:{k:.2f}")
-        self.label_d.setText(f"D:{d:.2f}")
-        self.label_j.setText(f"J:{j:.2f}")
+        self.label_k.setText(f"{IndicatrosEnum.KDJ_K.value}:{k:.2f}")
+        self.label_d.setText(f"{IndicatrosEnum.KDJ_D.value}:{d:.2f}")
+        self.label_j.setText(f"{IndicatrosEnum.KDJ_J.value}:{j:.2f}")
+
+        dict_settings = get_indicator_config_manager().get_user_config_by_indicator_type(self.indicator_type)
+        self.dict_label = {
+            0: self.label_k,
+            1: self.label_d,
+            2: self.label_j
+        }
+        for id, setting in dict_settings.items():
+            if id in self.dict_label.keys() and setting.name in self.df_data.columns:
+                self.dict_label[id].setText(f"{setting.name}:{self.df_data.iloc[closest_index][setting.name]:.2f}")
+                self.dict_label[id].setVisible(setting.visible)
+                self.dict_label[id].setStyleSheet(f"color: {setting.color_hex}")
 
     def slot_global_reset_labels(self, sender):
         self.slot_global_update_labels(sender, -1)

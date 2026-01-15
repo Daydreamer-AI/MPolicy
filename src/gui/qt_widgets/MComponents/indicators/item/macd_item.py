@@ -57,14 +57,14 @@ class MACDItem(pg.GraphicsObject):
                 p.drawRect(QtCore.QRectF(i - w, 0, w * 2, macd_value))
 
         dict_settings = get_indicator_config_manager().get_user_config_by_indicator_type(IndicatrosEnum.MACD.value)
-        if dict_settings is None:
+        if dict_settings is None or len(dict_settings) < 2:
             dict_settings = get_indicator_config_manager().get_default_config_by_indicator_type(IndicatrosEnum.MACD.value)
 
         # 绘制DIFF线 (MACD线)
         if dict_settings[0].visible:
             diff_points = []
             for i in range(len(self.data)):
-                diff_value = self.data[IndicatrosEnum.MACD_DIFF.value].iloc[i]
+                diff_value = self.data[dict_settings[0].name].iloc[i]
                 if not np.isnan(diff_value):
                     diff_points.append(QtCore.QPointF(i, diff_value))
             
@@ -77,7 +77,7 @@ class MACDItem(pg.GraphicsObject):
         if dict_settings[1].visible:
             dea_points = []
             for i in range(len(self.data)):
-                dea_value = self.data[IndicatrosEnum.MACD_DEA.value].iloc[i]
+                dea_value = self.data[dict_settings[1].name].iloc[i]
                 if not np.isnan(dea_value):
                     dea_points.append(QtCore.QPointF(i, dea_value))
             

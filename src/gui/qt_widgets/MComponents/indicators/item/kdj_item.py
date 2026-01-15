@@ -38,41 +38,48 @@ class KDJItem(pg.GraphicsObject):
         p = QtGui.QPainter(self.picture)
         pg.setConfigOptions(leftButtonPan=False, antialias=False)
 
+        dict_settings = get_indicator_config_manager().get_user_config_by_indicator_type(IndicatrosEnum.KDJ.value)
+        if dict_settings is None or len(dict_settings) != 3:
+            dict_settings = get_indicator_config_manager().get_default_config_by_indicator_type(IndicatrosEnum.KDJ.value)
+
         # 绘制K线
-        k_points = []
-        for i in range(len(self.data)):
-            k_value = self.data[IndicatrosEnum.KDJ_K.value].iloc[i]
-            if not np.isnan(k_value):
-                k_points.append(QtCore.QPointF(i, k_value))
-        
-        if len(k_points) > 1:
-            p.setPen(pg.mkPen(dict_kdj_color[IndicatrosEnum.KDJ_K.value], width=2))
-            for i in range(len(k_points) - 1):
-                p.drawLine(k_points[i], k_points[i + 1])
+        if dict_settings[0].visible:
+            k_points = []
+            for i in range(len(self.data)):
+                k_value = self.data[dict_settings[0].name].iloc[i]
+                if not np.isnan(k_value):
+                    k_points.append(QtCore.QPointF(i, k_value))
+            
+            if len(k_points) > 1:
+                p.setPen(pg.mkPen(dict_settings[0].color_hex, width=dict_settings[0].line_width))
+                for i in range(len(k_points) - 1):
+                    p.drawLine(k_points[i], k_points[i + 1])
 
         # 绘制D线
-        d_points = []
-        for i in range(len(self.data)):
-            d_value = self.data[IndicatrosEnum.KDJ_D.value].iloc[i]
-            if not np.isnan(d_value):
-                d_points.append(QtCore.QPointF(i, d_value))
-        
-        if len(d_points) > 1:
-            p.setPen(pg.mkPen(dict_kdj_color[IndicatrosEnum.KDJ_D.value], width=2))
-            for i in range(len(d_points) - 1):
-                p.drawLine(d_points[i], d_points[i + 1])
+        if dict_settings[1].visible:
+            d_points = []
+            for i in range(len(self.data)):
+                d_value = self.data[dict_settings[1].name].iloc[i]
+                if not np.isnan(d_value):
+                    d_points.append(QtCore.QPointF(i, d_value))
+            
+            if len(d_points) > 1:
+                p.setPen(pg.mkPen(dict_settings[1].color_hex, width=dict_settings[1].line_width))
+                for i in range(len(d_points) - 1):
+                    p.drawLine(d_points[i], d_points[i + 1])
 
         # 绘制J线
-        j_points = []
-        for i in range(len(self.data)):
-            j_value = self.data[IndicatrosEnum.KDJ_J.value].iloc[i]
-            if not np.isnan(j_value):
-                j_points.append(QtCore.QPointF(i, j_value))
-        
-        if len(j_points) > 1:
-            p.setPen(pg.mkPen(dict_kdj_color[IndicatrosEnum.KDJ_J.value], width=2))
-            for i in range(len(j_points) - 1):
-                p.drawLine(j_points[i], j_points[i + 1])
+        if dict_settings[2].visible:
+            j_points = []
+            for i in range(len(self.data)):
+                j_value = self.data[dict_settings[2].name].iloc[i]
+                if not np.isnan(j_value):
+                    j_points.append(QtCore.QPointF(i, j_value))
+            
+            if len(j_points) > 1:
+                p.setPen(pg.mkPen(dict_settings[2].color_hex, width=dict_settings[2].line_width))
+                for i in range(len(j_points) - 1):
+                    p.drawLine(j_points[i], j_points[i + 1])
 
         p.end()
 
