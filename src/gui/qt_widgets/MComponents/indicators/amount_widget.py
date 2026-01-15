@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets, uic, QtGui
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout
+from PyQt5.QtWidgets import QDialog
 from PyQt5.QtCore import pyqtSlot
 
 import pyqtgraph as pg
@@ -9,6 +9,7 @@ import pandas as pd
 from manager.logging_manager import get_logger
 from gui.qt_widgets.MComponents.indicators.base_indicator_widget import BaseIndicatorWidget
 from gui.qt_widgets.MComponents.indicators.item.amount_item import AmountItem
+from gui.qt_widgets.MComponents.indicators.setting.amount_setting_dialog import AmountSettingDialog
 
 from manager.indicators_config_manager import *
 
@@ -16,11 +17,31 @@ class AmountWidget(BaseIndicatorWidget):
     def __init__(self, data, type, parent=None):
         super(AmountWidget, self).__init__(data, type, parent)
 
+        self.custom_init()
+        self.load_qss()
+
+    def custom_init(self):
         self.label_ma5.hide()
         self.label_ma10.hide()
+        self.label_ma20.hide()
+
+        self.btn_setting.clicked.connect(self.slot_btn_setting_clicked)
+
+    def load_qss(self):
+        self.dict_ma_label = {
+            0: self.label_ma5,
+            1: self.label_ma10,
+            2: self.label_ma20
+        }
+        dict_ma_settings = get_indicator_config_manager().get_user_config_by_indicator_type(self.indicator_type)
+        for id, ma_setting in dict_ma_settings.items():
+            if id in self.dict_ma_label.keys():
+                self.dict_ma_label[id].setStyleSheet(f"color: {ma_setting.color_hex}")
 
     def init_para(self, data):
         self.logger = get_logger(__name__)
+        self.indicator_type = IndicatrosEnum.AMOUNT.value
+
         # 检查是否有数据
         if data is None or data.empty:
             # raise ValueError("数据为空，无法绘制成交额指标图")
@@ -79,6 +100,17 @@ class AmountWidget(BaseIndicatorWidget):
     
     def update_widget_labels(self):
         self.slot_global_update_labels(self, -1)
+
+    def slot_btn_setting_clicked(self):
+        dlg = AmountSettingDialog()
+        result = dlg.exec()
+        if result == QDialog.Accepted:
+            self.logger.info("更新成交额设置")
+            # 暂未计算成交额的均线
+            # auto_ma_calulate(self.df_data)
+            # 刷新K线图
+            self.update_data(self.df_data)
+            self.auto_scale_to_latest(120)
     
     def slot_range_changed(self):
         '''当视图范围改变时调用'''
@@ -116,6 +148,20 @@ class AmountWidget(BaseIndicatorWidget):
             self.label_total_amount.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_ASC.value]};")
         else:
             self.label_total_amount.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_DESC.value]};")
+
+
+        dict_settings = get_indicator_config_manager().get_user_config_by_indicator_type(self.indicator_type)
+        self.dict_ma_label = {
+            0: self.label_ma5,
+            1: self.label_ma10,
+            2: self.label_ma20
+        }
+        for id, setting in dict_settings.items():
+            if id in self.dict_ma_label.keys() and setting.name in self.df_data.columns:
+                # 暂未计算成交量的均线
+                # self.dict_ma_label[id].setText(f"{setting.name}:{self.df_data.iloc[closest_index][setting.name]:.2f}")
+                # self.dict_ma_label[id].setVisible(setting.visible)
+                self.dict_ma_label[id].setStyleSheet(f"color: {setting.color_hex}")
 
     def slot_global_reset_labels(self, sender):
         self.slot_global_update_labels(sender, -1)

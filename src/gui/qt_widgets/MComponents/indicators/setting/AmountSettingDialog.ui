@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>VolumeSettingDialog</class>
- <widget class="QDialog" name="VolumeSettingDialog">
+ <class>AmountSettingDialog</class>
+ <widget class="QDialog" name="AmountSettingDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>636</width>
-    <height>624</height>
+    <width>558</width>
+    <height>483</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -36,9 +36,9 @@
         </property>
         <property name="plainText">
          <string>指标说明：
-若收盘价高过开盘价，成交量画红色空心实体；否则画绿色实心。
-MAVOL1、MAVOL2分别为成交量的5日、10日均线；
-（参数：MAVOL1、MAVOL2一般取5日、10日）
+若收盘价高过开盘价，成交额画红色空心实体；否则画绿色实心。
+MA1、MA2分别为成交额的5日、10日均线；
+（参数：MA1、MA2一般取5日、10日）
 </string>
         </property>
        </widget>
