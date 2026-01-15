@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets, uic, QtGui
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout
+from PyQt5.QtWidgets import QDialog
 from PyQt5.QtCore import pyqtSlot
 
 import pyqtgraph as pg
@@ -10,18 +10,26 @@ from gui.qt_widgets.MComponents.indicators.base_indicator_widget import BaseIndi
 from gui.qt_widgets.MComponents.indicators.item.volume_item import VolumeItem
 
 from manager.indicators_config_manager import *
+from gui.qt_widgets.MComponents.indicators.setting.volume_setting_dialog import VolumeSettingDialog
 
 class VolumeWidget(BaseIndicatorWidget):
     def __init__(self, data, type, parent=None):
         super(VolumeWidget, self).__init__(data, type, parent)
+        self.custom_init()
+        self.load_qss()
 
+    def custom_init(self):
         self.label_ma5.hide()
         self.label_ma10.hide()
+        self.label_ma20.hide()
 
-        self.load_qss()
+        self.btn_setting.clicked.connect(self.slot_btn_setting_clicked)
 
     def init_para(self, data):
         self.logger = get_logger(__name__)
+
+        self.indicator_type = IndicatrosEnum.VOLUME.value
+
         if data is None or data.empty:
             # raise ValueError("数据为空，无法绘制成交量指标图")
             self.logger.warning("数据为空，无法绘制成交量指标图")
@@ -34,7 +42,15 @@ class VolumeWidget(BaseIndicatorWidget):
         self.df_data = data
 
     def load_qss(self):
-        pass
+        self.dict_ma_label = {
+            0: self.label_ma5,
+            1: self.label_ma10,
+            2: self.label_ma20
+        }
+        dict_ma_settings = get_indicator_config_manager().get_user_config_by_indicator_type(self.indicator_type)
+        for id, ma_setting in dict_ma_settings.items():
+            if id in self.dict_ma_label.keys():
+                self.dict_ma_label[id].setStyleSheet(f"color: {ma_setting.color_hex}")
 
     def addtional_connect(self):
         pass
@@ -65,6 +81,17 @@ class VolumeWidget(BaseIndicatorWidget):
     
     def update_widget_labels(self):
         self.slot_global_update_labels(self, -1)
+
+    def slot_btn_setting_clicked(self):
+        dlg = VolumeSettingDialog()
+        result = dlg.exec()
+        if result == QDialog.Accepted:
+            self.logger.info("更新成交量设置")
+
+            # auto_ma_calulate(self.df_data)
+            # 刷新K线图
+            self.update_data(self.df_data)
+            self.auto_scale_to_latest(120)
     
     def slot_range_changed(self):
         '''当视图范围改变时调用'''
@@ -138,8 +165,8 @@ class VolumeWidget(BaseIndicatorWidget):
         if self.type != sender.type:
             # self.logger.info(f"不响应其他窗口的鼠标移动事件")
             return
-        # self.v_line.setPos(closest_x)
-        # self.v_line.show()
+        
+
         volume = self.df_data.iloc[closest_index]['volume'] / 10000
         self.label_total_volume.setText(f"总量：{volume:.2f}万")
 
@@ -148,6 +175,20 @@ class VolumeWidget(BaseIndicatorWidget):
             self.label_total_volume.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_ASC.value]};")
         else:
             self.label_total_volume.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_DESC.value]};")
+
+        dict_settings = get_indicator_config_manager().get_user_config_by_indicator_type(self.indicator_type)
+
+        self.dict_ma_label = {
+            0: self.label_ma5,
+            1: self.label_ma10,
+            2: self.label_ma20
+        }
+        for id, setting in dict_settings.items():
+            if id in self.dict_ma_label.keys() and setting.name in self.df_data.columns:
+                # 暂未计算成交量的均线
+                # self.dict_ma_label[id].setText(f"{setting.name}:{self.df_data.iloc[closest_index][setting.name]:.2f}")
+                # self.dict_ma_label[id].setVisible(setting.visible)
+                self.dict_ma_label[id].setStyleSheet(f"color: {setting.color_hex}")
 
     def slot_global_reset_labels(self, sender):
         self.slot_global_update_labels(sender, -1)

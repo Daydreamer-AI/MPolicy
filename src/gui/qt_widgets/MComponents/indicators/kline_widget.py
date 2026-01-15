@@ -73,13 +73,13 @@ class KLineWidget(BaseIndicatorWidget):
     def load_qss(self):
         # self.label_ma_period.setStyleSheet("color: #f0be83") # rgb(240, 190, 131)
         # self.label_stock_name.setStyleSheet("color: #f0be83")
-        self.label_ma5.setStyleSheet(f"color: {dict_ma_color_hex[f'{IndicatrosEnum.MA.value}5']}")
-        self.label_ma10.setStyleSheet(f"color: {dict_ma_color_hex[f'{IndicatrosEnum.MA.value}10']}")
-        self.label_ma20.setStyleSheet(f"color: {dict_ma_color_hex[f'{IndicatrosEnum.MA.value}20']}")
-        self.label_ma24.setStyleSheet(f"color: {dict_ma_color_hex[f'{IndicatrosEnum.MA.value}24']}")
-        self.label_ma30.setStyleSheet(f"color: {dict_ma_color_hex[f'{IndicatrosEnum.MA.value}30']}")
-        self.label_ma52.setStyleSheet(f"color: {dict_ma_color_hex[f'{IndicatrosEnum.MA.value}52']}")
-        self.label_ma60.setStyleSheet(f"color: {dict_ma_color_hex[f'{IndicatrosEnum.MA.value}60']}")
+        # self.label_ma5.setStyleSheet(f"color: {dict_ma_color_hex[f'{IndicatrosEnum.MA.value}5']}")
+        # self.label_ma10.setStyleSheet(f"color: {dict_ma_color_hex[f'{IndicatrosEnum.MA.value}10']}")
+        # self.label_ma20.setStyleSheet(f"color: {dict_ma_color_hex[f'{IndicatrosEnum.MA.value}20']}")
+        # self.label_ma24.setStyleSheet(f"color: {dict_ma_color_hex[f'{IndicatrosEnum.MA.value}24']}")
+        # self.label_ma30.setStyleSheet(f"color: {dict_ma_color_hex[f'{IndicatrosEnum.MA.value}30']}")
+        # self.label_ma52.setStyleSheet(f"color: {dict_ma_color_hex[f'{IndicatrosEnum.MA.value}52']}")
+        # self.label_ma60.setStyleSheet(f"color: {dict_ma_color_hex[f'{IndicatrosEnum.MA.value}60']}")
 
         self.dict_ma_label = {
             0: self.label_ma5,
