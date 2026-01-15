@@ -56,29 +56,35 @@ class MACDItem(pg.GraphicsObject):
                 # 绘制柱状图
                 p.drawRect(QtCore.QRectF(i - w, 0, w * 2, macd_value))
 
+        dict_settings = get_indicator_config_manager().get_user_config_by_indicator_type(IndicatrosEnum.MACD.value)
+        if dict_settings is None:
+            dict_settings = get_indicator_config_manager().get_default_config_by_indicator_type(IndicatrosEnum.MACD.value)
+
         # 绘制DIFF线 (MACD线)
-        diff_points = []
-        for i in range(len(self.data)):
-            diff_value = self.data[IndicatrosEnum.MACD_DIFF.value].iloc[i]
-            if not np.isnan(diff_value):
-                diff_points.append(QtCore.QPointF(i, diff_value))
-        
-        if len(diff_points) > 1:
-            p.setPen(pg.mkPen(dict_macd_color[IndicatrosEnum.MACD_DIFF.value], width=2))
-            for i in range(len(diff_points) - 1):
-                p.drawLine(diff_points[i], diff_points[i + 1])
+        if dict_settings[0].visible:
+            diff_points = []
+            for i in range(len(self.data)):
+                diff_value = self.data[IndicatrosEnum.MACD_DIFF.value].iloc[i]
+                if not np.isnan(diff_value):
+                    diff_points.append(QtCore.QPointF(i, diff_value))
+            
+            if len(diff_points) > 1:
+                p.setPen(pg.mkPen(dict_settings[0].color_hex, width=dict_settings[0].line_width))
+                for i in range(len(diff_points) - 1):
+                    p.drawLine(diff_points[i], diff_points[i + 1])
 
         # 绘制DEA线 (信号线)
-        dea_points = []
-        for i in range(len(self.data)):
-            dea_value = self.data[IndicatrosEnum.MACD_DEA.value].iloc[i]
-            if not np.isnan(dea_value):
-                dea_points.append(QtCore.QPointF(i, dea_value))
-        
-        if len(dea_points) > 1:
-            p.setPen(pg.mkPen(dict_macd_color[IndicatrosEnum.MACD_DEA.value], width=2))
-            for i in range(len(dea_points) - 1):
-                p.drawLine(dea_points[i], dea_points[i + 1])
+        if dict_settings[1].visible:
+            dea_points = []
+            for i in range(len(self.data)):
+                dea_value = self.data[IndicatrosEnum.MACD_DEA.value].iloc[i]
+                if not np.isnan(dea_value):
+                    dea_points.append(QtCore.QPointF(i, dea_value))
+            
+            if len(dea_points) > 1:
+                p.setPen(pg.mkPen(dict_settings[1].color_hex, width=dict_settings[1].line_width))
+                for i in range(len(dea_points) - 1):
+                    p.drawLine(dea_points[i], dea_points[i + 1])
 
         p.end()
 

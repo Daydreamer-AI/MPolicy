@@ -18,12 +18,12 @@ class KLine():
         
 
 # 历史数据≤2年 → 全量计算
-def macd(stock_data):
+def macd(stock_data, diff_period=12, dea_period=26, ma_period=9):
     close = stock_data['close']
-    ema12 = close.ewm(span=12, adjust=False).mean()
-    ema26 = close.ewm(span=26, adjust=False).mean()
+    ema12 = close.ewm(span=diff_period, adjust=False).mean()
+    ema26 = close.ewm(span=dea_period, adjust=False).mean()
     dif = ema12 - ema26
-    dea = dif.ewm(span=9, adjust=False).mean()
+    dea = dif.ewm(span=ma_period, adjust=False).mean()
     macd = 2 * (dif - dea)
     stock_data[IndicatrosEnum.MACD_DIFF.value] = dif
     stock_data[IndicatrosEnum.MACD_DEA.value] = dea
@@ -305,6 +305,18 @@ def auto_ma_calulate(stock_data):
     for id, ma_setting in dict_ma_settings.items():
         ma(stock_data, ma_setting.name, ma_setting.period)
 
+
+def auto_macd_calulate(stock_data):
+    dict_macd_settings = get_indicator_config_manager().get_user_config_by_indicator_type(IndicatrosEnum.MACD.value)
+    if len(dict_macd_settings) != 3:
+        macd(stock_data)
+    else:
+        diff_period = dict_macd_settings[0].period
+        dea_period = dict_macd_settings[1].period
+        ma_period = dict_macd_settings[2].period
+        macd(stock_data, diff_period, dea_period, ma_period)
+        
+
 def auto_rsi_calulate(stock_data):
     dict_rsi_settings = get_indicator_config_manager().get_user_config_by_indicator_type(IndicatrosEnum.RSI.value)
     for id, rsi_setting in dict_rsi_settings.items():
@@ -314,7 +326,7 @@ def default_indicators_auto_calculate(stock_data):
     if stock_data is None or stock_data.empty:
         raise ValueError("数据为空，无法计算指标")
 
-    macd(stock_data)
+    auto_macd_calulate(stock_data)
 
     auto_ma_calulate(stock_data)
 

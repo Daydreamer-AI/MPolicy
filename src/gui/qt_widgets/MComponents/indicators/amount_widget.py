@@ -25,6 +25,8 @@ class AmountWidget(BaseIndicatorWidget):
         self.label_ma10.hide()
         self.label_ma20.hide()
 
+        self.btn_close.hide()
+
         self.btn_setting.clicked.connect(self.slot_btn_setting_clicked)
 
     def load_qss(self):

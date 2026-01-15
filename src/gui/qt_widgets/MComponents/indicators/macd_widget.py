@@ -1,6 +1,6 @@
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets, uic, QtGui
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout
+from PyQt5.QtWidgets import QDialog
 from PyQt5.QtCore import pyqtSlot
 
 import pyqtgraph as pg
@@ -9,17 +9,23 @@ import numpy as np
 from manager.logging_manager import get_logger
 from gui.qt_widgets.MComponents.indicators.base_indicator_widget import BaseIndicatorWidget
 from gui.qt_widgets.MComponents.indicators.item.macd_item import MACDItem
-
+from gui.qt_widgets.MComponents.indicators.setting.macd_setting_dialog import MacdSettingDialog
+from indicators.stock_data_indicators import *
 from manager.indicators_config_manager import *
 
 class MacdWidget(BaseIndicatorWidget):
     def __init__(self, data, type, parent=None):
         super(MacdWidget, self).__init__(data, type, parent)
-
+        self.custom_init()
         self.load_qss()
+
+    def custom_init(self):
+        self.btn_close.hide()
+        self.btn_setting.clicked.connect(self.slot_btn_setting_clicked)
 
     def init_para(self, data):
         self.logger = get_logger(__name__)
+        self.indicator_type = IndicatrosEnum.MACD.value
         # 检查是否有数据
         if data is None or data.empty:
             # raise ValueError("数据为空，无法绘制MACD指标图")
@@ -35,8 +41,14 @@ class MacdWidget(BaseIndicatorWidget):
         self.df_data = data
 
     def load_qss(self):
-        self.label_diff.setStyleSheet(f"color: {dict_macd_color_hex[IndicatrosEnum.MACD_DIFF.value]};")
-        self.label_dea.setStyleSheet(f"color: {dict_macd_color_hex[IndicatrosEnum.MACD_DEA.value]};")
+        self.dict_macd_label = {
+            0: self.label_diff,
+            1: self.label_dea
+        }
+        dict_ma_settings = get_indicator_config_manager().get_user_config_by_indicator_type(self.indicator_type)
+        for id, ma_setting in dict_ma_settings.items():
+            if id in self.dict_macd_label.keys():
+                self.dict_macd_label[id].setStyleSheet(f"color: {ma_setting.color_hex}")
 
     def get_ui_path(self):
         return './src/gui/qt_widgets/MComponents/indicators/MacdWidget.ui'
@@ -78,6 +90,15 @@ class MacdWidget(BaseIndicatorWidget):
         # 添加零轴线
         zero_line = pg.InfiniteLine(pos=0, angle=0, pen=pg.mkPen('g', width=1, style=QtCore.Qt.DashLine))
         self.plot_widget.addItem(zero_line)
+
+    def slot_btn_setting_clicked(self):
+        dlg = MacdSettingDialog()
+        result = dlg.exec()
+        if result == QDialog.Accepted:
+            self.logger.info("更新MACD设置")
+            auto_macd_calulate(self.df_data)
+            self.update_data(self.df_data)
+            self.auto_scale_to_latest(120)
 
     def slot_range_changed(self):
         '''当视图范围改变时调用'''
@@ -122,6 +143,20 @@ class MacdWidget(BaseIndicatorWidget):
             self.label_macd.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_ASC.value]};")
         else:
             self.label_macd.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_DESC.value]};")
+
+        dict_settings = get_indicator_config_manager().get_user_config_by_indicator_type(self.indicator_type)
+        self.dict_macd_label = {
+            0: self.label_diff,
+            1: self.label_dea
+        }
+        for id, setting in dict_settings.items():
+            if id in self.dict_macd_label.keys() and setting.name in self.df_data.columns:
+                if id == 2:
+                    continue
+
+                self.dict_macd_label[id].setText(f"{setting.name}:{self.df_data.iloc[closest_index][setting.name]:.2f}")
+                self.dict_macd_label[id].setVisible(setting.visible)
+                self.dict_macd_label[id].setStyleSheet(f"color: {setting.color_hex}")
 
     def slot_global_reset_labels(self, sender):
         self.slot_global_update_labels(sender, -1)
