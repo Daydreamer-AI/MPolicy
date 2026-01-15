@@ -270,17 +270,6 @@ class KLineWidget(BaseIndicatorWidget):
             return
 
         # 设置MA值
-        # self.label_ma_period.setText("日线")      # 点击卡片Item时，根据当前选中的周期设置
-        # self.label_stock_name.setText("股票名称")   # 点击卡片Item时，根据当前选中的股票设置
-
-        # self.label_ma5.setText(f"MA5:{self.df_data.iloc[closest_index]['ma5']:.2f}")
-        # self.label_ma10.setText(f"MA10:{self.df_data.iloc[closest_index]['ma10']:.2f}")
-        # self.label_ma20.setText(f"MA20:{self.df_data.iloc[closest_index]['ma20']:.2f}")
-        # self.label_ma24.setText(f"MA24:{self.df_data.iloc[closest_index]['ma24']:.2f}")
-        # self.label_ma30.setText(f"MA30:{self.df_data.iloc[closest_index]['ma30']:.2f}")
-        # self.label_ma52.setText(f"MA52:{self.df_data.iloc[closest_index]['ma52']:.2f}")
-        # self.label_ma60.setText(f"MA60:{self.df_data.iloc[closest_index]['ma60']:.2f}")
-
         dict_ma_settings = get_indicator_config_manager().get_user_config_by_indicator_type(IndicatrosEnum.MA.value)
 
         self.dict_ma_label = {

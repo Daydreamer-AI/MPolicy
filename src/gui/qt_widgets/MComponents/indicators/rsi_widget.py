@@ -1,6 +1,6 @@
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets, uic, QtGui
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout
+from PyQt5.QtWidgets import QDialog
 from PyQt5.QtCore import pyqtSlot
 
 import pyqtgraph as pg
@@ -9,17 +9,26 @@ import numpy as np
 from manager.logging_manager import get_logger
 from gui.qt_widgets.MComponents.indicators.base_indicator_widget import BaseIndicatorWidget
 from gui.qt_widgets.MComponents.indicators.item.rsi_item import RSIItem
+from gui.qt_widgets.MComponents.indicators.setting.rsi_setting_dialog import RsiSettingDialog
 
 from manager.indicators_config_manager import *
+from indicators.stock_data_indicators import *
 
 class RsiWidget(BaseIndicatorWidget):
     def __init__(self, data, type, parent=None):
         super(RsiWidget, self).__init__(data, type, parent)
-
+        self.custom_init()
         self.load_qss()
+
+    def custom_init(self):
+        self.btn_close.hide()
+
+        self.btn_setting.clicked.connect(self.slot_btn_setting_clicked)
 
     def init_para(self, data):
         self.logger = get_logger(__name__)
+        self.indicator_type = IndicatrosEnum.RSI.value
+
         # 检查是否有数据
         if data is None or data.empty:
             # raise ValueError("数据为空，无法绘制RSI指标图")
@@ -27,7 +36,7 @@ class RsiWidget(BaseIndicatorWidget):
             return
         
         # 确保至少有一个RSI数据列存在
-        rsi_columns = ['rsi6', 'rsi12', 'rsi24']
+        rsi_columns = get_indicator_config_manager().get_user_config_columns_by_indicator_type(IndicatrosEnum.RSI.value)
         has_rsi = any(col in data.columns for col in rsi_columns)
         if not has_rsi:
             self.logger.warning("缺少必要的RSI数据列")
@@ -36,16 +45,22 @@ class RsiWidget(BaseIndicatorWidget):
         self.df_data = data
 
     def load_qss(self):
-        self.label_rsi6.setStyleSheet(f"color: {dict_rsi_color_hex[f'{IndicatrosEnum.KDJ_K.value}6']}")
-        self.label_rsi12.setStyleSheet(f"color: {dict_rsi_color_hex[f'{IndicatrosEnum.KDJ_K.value}12']}")
-        self.label_rsi24.setStyleSheet(f"color: {dict_rsi_color_hex[f'{IndicatrosEnum.KDJ_K.value}24']}")
+        self.dict_label = {
+            0: self.label_rsi6,
+            1: self.label_rsi12,
+            2: self.label_rsi24
+        }
+        dict_settings = get_indicator_config_manager().get_user_config_by_indicator_type(self.indicator_type)
+        for id, ma_setting in dict_settings.items():
+            if id in self.dict_label.keys():
+                self.dict_label[id].setStyleSheet(f"color: {ma_setting.color_hex}")
 
     def get_ui_path(self):
         return './src/gui/qt_widgets/MComponents/indicators/RsiWidget.ui'
 
     def validate_data(self):
         # 确保至少有一个RSI数据列存在
-        rsi_columns = ['rsi6', 'rsi12', 'rsi24']
+        rsi_columns = get_indicator_config_manager().get_user_config_columns_by_indicator_type(self.indicator_type)
         available_rsi = [col for col in rsi_columns if col in self.df_data.columns]
         return len(available_rsi) > 0
 
@@ -59,7 +74,7 @@ class RsiWidget(BaseIndicatorWidget):
 
     def set_axis_ranges(self):
         # 确保至少有一个RSI数据列存在
-        rsi_columns = ['rsi6', 'rsi12', 'rsi24']
+        rsi_columns = get_indicator_config_manager().get_user_config_columns_by_indicator_type(self.indicator_type)
         available_rsi = [col for col in rsi_columns if col in self.df_data.columns]
         
         # 设置坐标范围
@@ -104,6 +119,17 @@ class RsiWidget(BaseIndicatorWidget):
         mid_line = pg.InfiniteLine(pos=50, angle=0, pen=pg.mkPen('gray', width=1, style=QtCore.Qt.DashLine))
         self.plot_widget.addItem(mid_line)
 
+    def slot_btn_setting_clicked(self):
+        dlg = RsiSettingDialog()
+        result = dlg.exec()
+        if result == QDialog.Accepted:
+            self.logger.info("更新KDJ设置")
+            auto_rsi_calulate(self.df_data)
+            # 刷新K线图
+            self.update_data(self.df_data)
+            self.auto_scale_to_latest(120)
+
+
     def slot_range_changed(self):
         '''当视图范围改变时调用'''
         # y轴坐标值同步
@@ -114,7 +140,7 @@ class RsiWidget(BaseIndicatorWidget):
 
         # 根据当前可视范围内的数据的最大、最小值调整Y轴坐标值范围
         # RSI指标需要考虑可用的RSI列（rsi6, rsi12, rsi24）
-        rsi_columns = ['rsi6', 'rsi12', 'rsi24']
+        rsi_columns = get_indicator_config_manager().get_user_config_columns_by_indicator_type(self.indicator_type)
         available_rsi = [col for col in rsi_columns if col in visible_data.columns]
         
         # 确保至少有一个RSI数据列存在
@@ -152,13 +178,21 @@ class RsiWidget(BaseIndicatorWidget):
         if self.type != sender.type:
             # self.logger.info(f"不响应其他窗口的鼠标移动事件")
             return
-        rsi_6 = self.df_data.iloc[closest_index]['rsi6']
-        rsi_12 = self.df_data.iloc[closest_index]['rsi12']
-        rsi_24 = self.df_data.iloc[closest_index]['rsi24']
 
-        self.label_rsi6.setText(f"RSI6:{rsi_6:.2f}")
-        self.label_rsi12.setText(f"RSI12:{rsi_12:.2f}")
-        self.label_rsi24.setText(f"RSI24:{rsi_24:.2f}")
+        dict_settings = get_indicator_config_manager().get_user_config_by_indicator_type(self.indicator_type)
+        if len(dict_settings) == 3:
+            self.label_param.setText(f"{dict_settings[0].period, dict_settings[1].period, dict_settings[2].period}")
+
+        self.dict_label = {
+            0: self.label_rsi6,
+            1: self.label_rsi12,
+            2: self.label_rsi24
+        }
+        for id, setting in dict_settings.items():
+            if id in self.dict_label.keys() and setting.name in self.df_data.columns:
+                self.dict_label[id].setText(f"{setting.name}:{self.df_data.iloc[closest_index][setting.name]:.2f}")
+                self.dict_label[id].setVisible(setting.visible)
+                self.dict_label[id].setStyleSheet(f"color: {setting.color_hex}")
 
     def slot_global_reset_labels(self, sender):
         self.slot_global_update_labels(sender, -1)

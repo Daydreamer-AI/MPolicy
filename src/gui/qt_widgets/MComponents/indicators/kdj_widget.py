@@ -50,6 +50,8 @@ class KdjWidget(BaseIndicatorWidget):
             2: self.label_j
         }
         dict_settings = get_indicator_config_manager().get_user_config_by_indicator_type(self.indicator_type)
+        if len(dict_settings) == 3:
+            self.label_param.setText(f"{dict_settings[0].period, dict_settings[1].period, dict_settings[2].period}")
         for id, ma_setting in dict_settings.items():
             if id in self.dict_label.keys():
                 self.dict_label[id].setStyleSheet(f"color: {ma_setting.color_hex}")
@@ -158,15 +160,12 @@ class KdjWidget(BaseIndicatorWidget):
         if self.type != sender.type:
             # self.logger.info(f"不响应其他窗口的鼠标移动事件")
             return
-        k = self.df_data.iloc[closest_index][IndicatrosEnum.KDJ_K.value]
-        d = self.df_data.iloc[closest_index][IndicatrosEnum.KDJ_D.value]
-        j = self.df_data.iloc[closest_index][IndicatrosEnum.KDJ_J.value]
-
-        self.label_k.setText(f"{IndicatrosEnum.KDJ_K.value}:{k:.2f}")
-        self.label_d.setText(f"{IndicatrosEnum.KDJ_D.value}:{d:.2f}")
-        self.label_j.setText(f"{IndicatrosEnum.KDJ_J.value}:{j:.2f}")
 
         dict_settings = get_indicator_config_manager().get_user_config_by_indicator_type(self.indicator_type)
+
+        if len(dict_settings) == 3:
+            self.label_param.setText(f"{dict_settings[0].period, dict_settings[1].period, dict_settings[2].period}")
+
         self.dict_label = {
             0: self.label_k,
             1: self.label_d,

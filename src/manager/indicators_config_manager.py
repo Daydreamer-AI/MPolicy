@@ -638,6 +638,29 @@ class IndicatorConfigManager:
     
     def get_user_config_by_indicator_type(self, indicator_type=IndicatrosEnum.MA.value):
         return self.user_configs.get(indicator_type, {})
+    
+    def get_default_config_columns_by_indicator_type(self, indicator_type=IndicatrosEnum.MA.value):
+        dict_config_setting = self.default_configs.get(indicator_type, {})
+
+        list_columns = []
+        for id, setting in dict_config_setting.items():
+            if setting.name:
+                list_columns.append(setting.name)
+
+        return list_columns
+    
+    def get_user_config_columns_by_indicator_type(self, indicator_type=IndicatrosEnum.MA.value):
+        dict_config_setting = self.user_configs.get(indicator_type, {})
+
+        list_columns = []
+        for id, setting in dict_config_setting.items():
+            if setting.name:
+                list_columns.append(setting.name)
+
+        if list_columns is None or len(list_columns) == 0:
+            list_columns = self.get_default_config_columns_by_indicator_type(indicator_type)
+
+        return list_columns
 
     def save_default_config(self):
         """保存默认配置到文件"""

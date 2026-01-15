@@ -25,6 +25,8 @@ def macd(stock_data, diff_period=12, dea_period=26, ma_period=9):
     dif = ema12 - ema26
     dea = dif.ewm(span=ma_period, adjust=False).mean()
     macd = 2 * (dif - dea)
+
+    # TODO: 清除旧的数据
     stock_data[IndicatrosEnum.MACD_DIFF.value] = dif
     stock_data[IndicatrosEnum.MACD_DEA.value] = dea
     stock_data[IndicatrosEnum.MACD.value] = macd
@@ -47,6 +49,7 @@ def kdj(data, n=9, m1=3, m2=3):
     high_max = data['high'].rolling(window=n).max()
     data['RSV'] = (data['close'] - low_min) / (high_max - low_min) * 100
     
+    # TODO: 清除旧的数据
     # 计算K值
     data[IndicatrosEnum.KDJ_K.value] = data['RSV'].ewm(alpha=1/m1, adjust=False).mean()
     
@@ -328,6 +331,7 @@ def auto_kdj_calulate(stock_data):
         
 
 def auto_rsi_calulate(stock_data):
+    # TODO: 清除旧的数据
     dict_rsi_settings = get_indicator_config_manager().get_user_config_by_indicator_type(IndicatrosEnum.RSI.value)
     for id, rsi_setting in dict_rsi_settings.items():
         rsi(stock_data, rsi_setting.period)

@@ -391,7 +391,7 @@ class IndicatorsViewWidget(QWidget):
 
     def draw_rsi(self):
         # 因源数据中没有自带RSI指标，需要手动计算
-        rsi_columns = ['rsi6', 'rsi12', 'rsi24']
+        rsi_columns = get_indicator_config_manager().get_user_config_columns_by_indicator_type(IndicatrosEnum.RSI.value)
         missing_rsi = [col for col in rsi_columns if col not in self.df_data.columns]
         if missing_rsi:
             sdi.rsi(self.df_data, period=6)   # 计算RSI6

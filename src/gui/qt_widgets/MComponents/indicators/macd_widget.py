@@ -45,8 +45,11 @@ class MacdWidget(BaseIndicatorWidget):
             0: self.label_diff,
             1: self.label_dea
         }
-        dict_ma_settings = get_indicator_config_manager().get_user_config_by_indicator_type(self.indicator_type)
-        for id, ma_setting in dict_ma_settings.items():
+        dict_settings = get_indicator_config_manager().get_user_config_by_indicator_type(self.indicator_type)
+        if len(dict_settings) == 3:
+            self.label_param.setText(f"{dict_settings[0].period, dict_settings[1].period, dict_settings[2].period}")
+            
+        for id, ma_setting in dict_settings.items():
             if id in self.dict_macd_label.keys():
                 self.dict_macd_label[id].setStyleSheet(f"color: {ma_setting.color_hex}")
 
@@ -131,13 +134,7 @@ class MacdWidget(BaseIndicatorWidget):
         if self.type != sender.type:
             # self.logger.info(f"不响应其他窗口的鼠标移动事件")
             return
-        macd = self.df_data.iloc[closest_index][IndicatrosEnum.MACD.value]
-        diff = self.df_data.iloc[closest_index][IndicatrosEnum.MACD_DIFF.value]
-        dea = self.df_data.iloc[closest_index][IndicatrosEnum.MACD_DEA.value]
-
-        self.label_macd.setText(f"MACD:{macd:.3f}")
-        self.label_diff.setText(f"DIFF:{diff:.3f}")
-        self.label_dea.setText(f"DEA:{dea:.3f}")
+        macd = self.df_data.iloc[closest_index][IndicatrosEnum.MACD.value]          # 这里直接使用枚举值，是因为计算时就以枚举值固定命名
 
         if macd > 0:
             self.label_macd.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_ASC.value]};")
@@ -145,6 +142,10 @@ class MacdWidget(BaseIndicatorWidget):
             self.label_macd.setStyleSheet(f"color: {dict_kline_color_hex[IndicatrosEnum.KLINE_DESC.value]};")
 
         dict_settings = get_indicator_config_manager().get_user_config_by_indicator_type(self.indicator_type)
+
+        if len(dict_settings) == 3:
+            self.label_param.setText(f"{dict_settings[0].period, dict_settings[1].period, dict_settings[2].period}")
+
         self.dict_macd_label = {
             0: self.label_diff,
             1: self.label_dea
