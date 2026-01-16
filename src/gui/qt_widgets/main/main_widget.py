@@ -56,6 +56,7 @@ class MainWidget(QWidget):
 
     def load_qss(self, theme="default"):
         qss_file_name = f":/theme/{theme}/main/home.qss"
+        self.logger.info(f"样式表文件路径：{qss_file_name}")
         qssFile = QFile(qss_file_name)
         if qssFile.open(QFile.ReadOnly):
             self.setStyleSheet(str(qssFile.readAll(), encoding='utf-8'))

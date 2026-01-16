@@ -1,0 +1,17 @@
+/*MainWidget*/
+#MainWidget #frame_tab {border-top: none; border-bottom: 1px solid #000000;}
+#MainWidget #frame_tab QPushButton {color: #292929; font-size: 22px; border: none;}
+#MainWidget #frame_tab QPushButton:hover {color: #000000; border-bottom: 3px solid #2982FF;}
+#MainWidget #frame_tab QPushButton:pressed {color: #000000; border-bottom: 3px solid #0053D9;}
+#MainWidget #frame_tab QPushButton:checked {
+    color: #000000; 
+    font-weight: bold; 
+    border-bottom: 3px solid #0066FF;
+    background: qlineargradient(
+        x1: 0, y1: 0, 
+        x2: 0, y2: 1, 
+        stop: 0 #F0F0F0, 
+        stop: 1 #330066FF
+    );
+}
+#MainWidget #frame_tab QPushButton:disabled {color: #BDBDBD; font-weight: normal; border: none;}

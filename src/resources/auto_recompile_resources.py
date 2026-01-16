@@ -15,7 +15,7 @@ from pathlib import Path
 
 # 定义默认路径
 DEFAULT_QRC_FILE = "./src/resources/resources.qrc"
-DEFAULT_OUTPUT_FILE = "./resources/resources_rc.py"
+DEFAULT_OUTPUT_FILE = "./src/resources/resources_rc.py"
 
 def compile_qrc_file(qrc_file_path=DEFAULT_QRC_FILE, output_file_path=DEFAULT_OUTPUT_FILE, compiler_type="pyqt5"):
     """

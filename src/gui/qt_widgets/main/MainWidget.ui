@@ -27,7 +27,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
-    <number>3</number>
+    <number>4</number>
    </property>
    <property name="leftMargin">
     <number>0</number>
@@ -62,30 +62,39 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_8">
+      <property name="spacing">
+       <number>0</number>
+      </property>
       <property name="leftMargin">
-       <number>6</number>
+       <number>9</number>
       </property>
       <property name="topMargin">
-       <number>6</number>
+       <number>0</number>
       </property>
       <property name="rightMargin">
-       <number>6</number>
+       <number>9</number>
       </property>
       <property name="bottomMargin">
-       <number>6</number>
+       <number>0</number>
       </property>
       <item>
        <widget class="QPushButton" name="btn_home">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
-          <width>0</width>
-          <height>30</height>
+          <width>100</width>
+          <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>16777215</width>
-          <height>30</height>
+          <width>100</width>
+          <height>16777215</height>
          </size>
         </property>
         <property name="text">
@@ -104,16 +113,22 @@
       </item>
       <item>
        <widget class="QPushButton" name="btn_market">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
-          <width>0</width>
-          <height>30</height>
+          <width>100</width>
+          <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>16777215</width>
-          <height>30</height>
+          <width>100</width>
+          <height>16777215</height>
          </size>
         </property>
         <property name="text">
@@ -129,16 +144,22 @@
       </item>
       <item>
        <widget class="QPushButton" name="btn_board">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
-          <width>0</width>
-          <height>30</height>
+          <width>100</width>
+          <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>16777215</width>
-          <height>30</height>
+          <width>100</width>
+          <height>16777215</height>
          </size>
         </property>
         <property name="text">
@@ -154,16 +175,22 @@
       </item>
       <item>
        <widget class="QPushButton" name="btn_strategy">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
-          <width>0</width>
-          <height>30</height>
+          <width>100</width>
+          <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>16777215</width>
-          <height>30</height>
+          <width>100</width>
+          <height>16777215</height>
          </size>
         </property>
         <property name="text">
@@ -179,17 +206,26 @@
       </item>
       <item>
        <widget class="QPushButton" name="btn_setting">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
-          <width>0</width>
-          <height>30</height>
+          <width>100</width>
+          <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>16777215</width>
-          <height>30</height>
+          <width>100</width>
+          <height>16777215</height>
          </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
         </property>
         <property name="text">
          <string>设置</string>
@@ -227,6 +263,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../../resources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
